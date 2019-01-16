@@ -45,3 +45,9 @@ $ mix test --exclude test --include integration
 
   * Docs: https://www.mbta.com/developers/v3-api
   * Mailing list: https://groups.google.com/forum/#!forum/massdotdevelopers
+
+## About us
+
+The MBTA Customer Technology team is working to transform how people get around the Boston area. We’re a small but mighty team of designers, engineers and content specialists charged with bringing novel ideas, modern standards and a user-centered approach to technology on the T. As the MBTA works to reinvent itself, we have a rare opportunity to shape the future of transportation for Boston and communities all around Eastern Massachusetts, as well as blaze a trail for other transit agencies around the country. 
+
+We’re always looking for people to join the team who are passionate about improving the daily transportation experience for our 400 million annual riders. Does this sound like you? Check our our open positions at https://jobs.lever.co/mbta/.
