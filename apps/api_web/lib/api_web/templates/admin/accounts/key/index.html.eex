@@ -1,0 +1,23 @@
+<h2>Find user by key</h2>
+<%= render "search.html",
+    conn: @conn,
+    action: admin_key_path(@conn, :find_user_by_key),
+    method: :post %>
+
+<h2>Pending Key Approvals</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>User Email</th>
+      <th>Requested Date</th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for {key, user} <- @key_requests do %>
+    <tr data-key-id="<%= key.key %>">
+      <td><%= link user.email, to: admin_user_path(@conn, :show, user), target: "_blank" %></td>
+      <td><%= key.requested_date %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>

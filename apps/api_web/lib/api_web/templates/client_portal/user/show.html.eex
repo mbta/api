@@ -1,0 +1,17 @@
+<div class="account-edit">
+  <h2>Account Information</h2>
+
+  <label>Email</label>
+  <p><%= @user.email %></p>
+
+  <label>Phone</label>
+  <p><%= if @user.phone do %><%= @user.phone %><% else %><em>Not set</em><% end %></p>
+
+  <p class="text-center">
+    <%= link "Edit Information", to: user_path(@conn, :edit) %>
+  </p>
+
+  <p class="text-center">
+    <%= link "Update Password", to: user_path(@conn, :edit_password) %>
+  </p>
+</div>

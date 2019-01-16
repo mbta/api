@@ -1,0 +1,27 @@
+<h2>Login</h2>
+
+<div class="authentication-form">
+  <%= form_for @changeset, @action, [], fn f -> %>
+    <%= unless @changeset.valid? do %>
+      <div class="alert alert-danger">
+        <p>Oops, something went wrong! Please check the errors below.</p>
+      </div>
+    <% end %>
+
+    <%= form_group f, :email do %>
+      <%= label f, :email, class: "control-label" %>
+      <%= email_input f, :email, class: "form-control" %>
+      <%= error_tag f, :email %>
+    <% end %>
+
+    <%= form_group f, :password do %>
+      <%= label f, :password, class: "control-label" %>
+      <%= password_input f, :password, class: "form-control" %>
+      <%= error_tag f, :password %>
+    <% end %>
+
+    <div class="form-group text-center">
+      <%= submit "Login", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

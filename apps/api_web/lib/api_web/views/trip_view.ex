@@ -1,0 +1,88 @@
+defmodule ApiWeb.TripView do
+  use ApiWeb.Web, :api_view
+
+  alias ApiWeb.{PredictionView, RouteView, ServiceView, ShapeView, VehicleView}
+  alias State.{Prediction, Service, Shape, Vehicle}
+
+  location("/trips/:id")
+
+  attributes([:name, :headsign, :direction_id, :wheelchair_accessible, :block_id, :bikes_allowed])
+
+  has_one(
+    :route,
+    type: :route,
+    serializer: RouteView
+  )
+
+  has_one(
+    :shape,
+    type: :shape,
+    serializer: ShapeView
+  )
+
+  has_one(
+    :vehicle,
+    type: :vehicle,
+    serializer: VehicleView
+  )
+
+  has_one(
+    :service,
+    type: :service,
+    serializer: ServiceView
+  )
+
+  has_many(
+    :predictions,
+    type: :prediction,
+    serializer: PredictionView
+  )
+
+  def shape(%{shape_id: shape_id}, conn) do
+    optional_relationship("shape", shape_id, &Shape.by_primary_id/1, conn)
+  end
+
+  def service(%{service_id: service_id}, conn) do
+    optional_relationship("service", service_id, &Service.by_id/1, conn)
+  end
+
+  def vehicle(%{id: trip_id}, _conn) do
+    case Vehicle.by_trip_id(trip_id) do
+      [] -> nil
+      [vehicle] -> vehicle
+    end
+  end
+
+  def predictions(%{id: trip_id}, conn) do
+    # if we get back the trip_id, then predictions weren't included and we
+    # should return nothing
+    case optional_predictions(trip_id, conn) do
+      %{id: ^trip_id} -> nil
+      ret -> ret
+    end
+  end
+
+  defp optional_predictions(trip_id, conn) do
+    optional_relationship(
+      "predictions",
+      trip_id,
+      fn _ ->
+        Prediction.by_trip_id(trip_id)
+      end,
+      conn
+    )
+  end
+
+  def relationships(trip, conn) do
+    relationships = super(trip, conn)
+
+    ~W(predictions vehicle)a
+    |> Enum.reduce(relationships, fn type_atom, map ->
+      if split_included?(Atom.to_string(type_atom), conn) do
+        map
+      else
+        Map.delete(map, type_atom)
+      end
+    end)
+  end
+end

@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="col-xs-12">
+    <p class="pull-quote">
+      Welcome to the MBTA's V3 API developer portal. The V3 API is the MBTA's premier schedule, real-time, and alert information interface for third-party developers.
+    </p>
+    <p>
+      Here you can create or access your account and request API keys or key limit increases.
+    </p>
+  </div>
+</div>
+<div class="row text-center">
+  <div class="col-xs-12">
+    <h2>Getting Started</h2>
+  </div>
+</div>
+
+<ul class="landing-getting-started row list-unstyled">
+  <li class="col-xs-12 col-md-4">
+    <div class="landing-icon">{…}</div>
+    <h3>1. Explore Documentation</h3>
+    <p>
+      Take a look at the <%= link "documentation", to: "/docs/swagger" %> to learn what’s available and how it works.
+    </p>
+  </li>
+  <li class="col-xs-12 col-md-4">
+    <div class="landing-icon">{}—;;</div>
+    <h3>2. Request an API key</h3>
+    <p>
+      <a href="<%= user_path(@conn, :create) %>">Register</a> for a
+      developer account for yourself and an API key for each app. Getting
+      a key might take a day, but you don't need an API key to
+      experiment!
+    </p>
+  </li>
+  <li class="col-xs-12 col-md-4">
+    <div class="landing-icon">¯\_(ツ)_/¯</div>
+    <h3>3. Simple, right?</h3>
+    <p>
+      If you have questions, want to discuss your work, check out our <%= link "developer information", to: "https://www.mbta.com/developers" %>.
+    </p>
+  </li>
+</ol>

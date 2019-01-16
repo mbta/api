@@ -1,0 +1,48 @@
+<div style="margin: 32px 0; display: flex; align-items: center; justify-content: space-between">
+    <h2 style="margin: 0">Api Keys</h2>
+    <%= if ApiAccounts.can_request_key?(@keys) do %>
+      <%= link "Request New Key", to: key_path(@conn, :create),
+                  method: :post,
+                  style: "display: inline-block",
+                  class: "btn btn-success" %>
+    <% else %>
+      <button class="btn btn-primary" disabled="disabled">Awaiting Key Approval</button>
+    <% end %>
+</div>
+<table class="table" style="">
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th><%= ApiWeb.ApiViewHelpers.interval_name() %></th>
+      <th>Version</th>
+      <th>Created</th>
+      <th>Allowed Domains</th>
+      <th>Locked</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for key <- @keys, key.approved == true do %>
+    <tr>
+      <td>
+        <div style="font-family: monospace"><%= key.key %></div>
+        <div><%= key.description %></div>
+      </td>
+      <td>
+        <%= ApiWeb.ApiViewHelpers.limit(key) %>
+        <%= unless key.rate_request_pending do %>
+          <%= link "Request Increase", to: key_path(@conn, :request_increase, key),
+              method: :get,
+                  style: "display: inline-block",
+                  class: "btn btn-success" %>
+        <% end %>
+      </td>
+      <td><%= key.api_version %></td>
+      <td><%= key.created %></td>
+      <td><%= key.allowed_domains %></td>
+      <td><%= if key.locked == true do %>✔<% end %></td>
+      <td><%= link "Edit", to: key_path(@conn, :edit, key), class: "btn btn-success" %>
+    </tr>
+<% end %>
+  </tbody>
+</table>

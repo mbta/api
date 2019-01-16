@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -ex
+
+mix deps.get
+mix compile # compiled automatically

@@ -1,0 +1,3 @@
+<%= render ApiWeb.SharedView, "login_form.html",
+                           action: admin_session_path(@conn, :create),
+                           changeset: @changeset %>

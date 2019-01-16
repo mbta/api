@@ -1,0 +1,17 @@
+<h2>Edit Key</h2>
+<div class="panel panel-primary">
+  <div class="panel-heading">Key Details</div>
+  <div class="panel-body">
+    <ul>
+      <li><strong>User E-mail:</strong> <%= @user.email %></li>
+      <li><strong>Key:</strong> <%= @key.key %></li>
+    </ul>
+  </div>
+</div>
+
+<%= render "form.html", changeset: @changeset,
+    action: admin_key_path(@conn, :update, @user, @key),
+    method: :put,
+    api_versions: @api_versions %>
+
+<span><%= link "Back", to: admin_user_path(@conn, :show, @user) %></span>

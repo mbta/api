@@ -1,0 +1,11 @@
+## Name of the node
+-sname ${NODE_NAME}
+
+## Cookie for distributed erlang
+-setcookie prod_cookie
+
+## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
+-heart
+
+# Enable SMP automatically based on availability
+-smp auto

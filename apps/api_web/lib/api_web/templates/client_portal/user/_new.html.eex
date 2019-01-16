@@ -1,0 +1,41 @@
+<div class="hero-background">
+  <div class="hero-body">
+    <h2>Register</h2>
+
+    <div>
+      <%= form_for @changeset, user_path(@conn, :create), [], fn f -> %>
+      <%= unless @changeset.valid? do %>
+        <div class="alert alert-danger">
+          <p>Oops, something went wrong! Please check the errors below.</p>
+        </div>
+      <% end %>
+
+      <%= form_group f, :email do %>
+        <%= label f, :email, class: "control-label" %>
+        <%= email_input f, :email, class: "form-control" %>
+        <%= error_tag f, :email %>
+      <% end %>
+
+      <%= form_group f, :password do %>
+        <%= label f, :password, class: "control-label" %>
+        <%= password_input f, :password, class: "form-control" %>
+        <%= error_tag f, :password %>
+      <% end %>
+
+      <%= form_group f, :password_confirmation do %>
+        <%= label f, :password_confirmation, class: "control-label" %>
+        <%= password_input f, :password_confirmation, class: "form-control" %>
+        <%= error_tag f, :password_confirmation %>
+      <% end %>
+
+      <div class="form-group">
+        <%= submit "Register", class: "btn btn-primary" %>
+      </div>
+  <% end %>
+    </div>
+
+    <p class="text-center" style="margin-top: 3em">
+      Already have an account? <%= link "Log in", to: session_path(@conn, :new) %>.
+    </p>
+  </div>
+</div>

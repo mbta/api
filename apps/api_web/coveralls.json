@@ -1,0 +1,9 @@
+{
+  "custom_stop_words": [
+    "no cover",
+    "attributes\\(\\["
+  ],
+  "skip_files": [
+    "test/support"
+  ]
+}

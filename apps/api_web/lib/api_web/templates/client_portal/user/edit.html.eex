@@ -1,0 +1,27 @@
+<div class="account-edit">
+  <h2>Account Information</h2>
+  <%= form_for @changeset, user_path(@conn, :update), [method: :put], fn f -> %>
+    <%= if @changeset.action do %>
+      <div class="alert alert-danger">
+        <p>Oops, something went wrong! Please check the errors below.</p>
+      </div>
+    <% end %>
+    <input type="hidden" name="action" value="edit-information" >
+
+    <%= form_group f, :email do %>
+      <%= label f, :email, class: "control-label" %>
+      <%= email_input f, :email, class: "form-control" %>
+      <%= error_tag f, :email %>
+    <% end %>
+
+    <%= form_group f, :phone do %>
+      <%= label f, :phone, class: "control-label" %>
+      <%= text_input f, :phone, class: "form-control" %>
+      <%= error_tag f, :phone %>
+    <% end %>
+
+    <div class="form-group">
+      <%= submit "Update", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,53 @@
+<%= form_for @changeset, @action, [method: assigns[:method] || :post], fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= label f, :email, class: "control-label" %>
+    <%= email_input f, :email, class: "form-control" %>
+    <%= error_tag f, :email %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :username, class: "control-label" %>
+    <%= text_input f, :username, class: "form-control" %>
+    <%= error_tag f, :username %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :role, class: "control-label" %>
+    <%= text_input f, :role, class: "form-control" %>
+    <%= error_tag f, :role %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :phone, class: "control-label" %>
+    <%= text_input f, :phone, class: "form-control" %>
+    <%= error_tag f, :phone %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :join_date, class: "control-label" %>
+    <%= datetime_select f, :join_date, class: "form-control" %>
+    <%= error_tag f, :join_date %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :active, class: "control-label" %>
+    <%= checkbox f, :active, class: "checkbox" %>
+    <%= error_tag f, :active %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :blocked, class: "control-label" %>
+    <%= checkbox f, :blocked, class: "checkbox" %>
+    <%= error_tag f, :blocked %>
+  </div>
+
+  <div class="form-group">
+    <%= submit "Submit", class: "btn btn-primary" %>
+  </div>
+<% end %>

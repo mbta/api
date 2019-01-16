@@ -1,0 +1,4 @@
+#!/bin/sh
+INSTANCE_ID=$(curl --max-time 5 -s http://169.254.169.254/latest/meta-data/instance-id)
+export NODE_NAME=api-${INSTANCE_ID:-unknown}
+/root/rel/api/bin/api_web "$*"

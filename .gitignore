@@ -1,0 +1,30 @@
+# App artifacts
+/_build
+/tmp
+/data
+/db
+/deps
+/*.ez
+/cache
+/Mnesia.*/
+# Generate on crash by the VM
+erl_crash.dump
+/rel/api
+*.secret.exs
+
+apps/api/priv/static/swagger.json
+
+# Elastic Beanstalk Files
+aws/
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+/api-build.zip
+apps/state/bench/snapshots
+cover
+
+# ex_doc
+/doc
+/apps/api_web/priv/static/swagger.json
+
+.vscode/

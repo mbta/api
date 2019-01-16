@@ -1,0 +1,75 @@
+defmodule State.Facility do
+  @moduledoc """
+  Manages the list of elevators/escalators.
+  """
+  alias Model.Facility
+  alias Model.Stop
+
+  use State.Server,
+    fetched_filename: "facilities.txt",
+    recordable: Model.Facility,
+    indicies: [:id, :stop_id, :type],
+    parser: Parse.Facility
+
+  @type filter_opts :: %{
+          optional(:stops) => [Stop.id()],
+          optional(:types) => [String.t()]
+        }
+
+  @type facility_search :: (() -> [Facility.t()])
+
+  def by_id(id) do
+    case super(id) do
+      [] -> nil
+      [facility] -> facility
+    end
+  end
+
+  @doc """
+  Applies a filtered search on Facilities based on a map of filter values.
+
+  The allowed filterable keys are:
+    :stops
+    :types
+  """
+  @spec filter_by(filter_opts) :: [Facility.t()]
+  def filter_by(filters) when is_map(filters) do
+    filters
+    |> build_filtered_searches()
+    |> do_searches()
+  end
+
+  # Generate the functions needed to search concurrently
+  @spec build_filtered_searches(filter_opts, [facility_search]) :: [facility_search]
+  defp build_filtered_searches(filters, searches \\ [])
+
+  defp build_filtered_searches(%{types: types} = filters, searches) do
+    search_operation = fn -> by_types(types) end
+
+    filters
+    |> Map.drop([:types])
+    |> build_filtered_searches([search_operation | searches])
+  end
+
+  defp build_filtered_searches(%{stops: stop_ids} = filters, searches) do
+    search_operation = fn -> by_stop_ids(stop_ids) end
+
+    filters
+    |> Map.drop([:stops])
+    |> build_filtered_searches([search_operation | searches])
+  end
+
+  defp build_filtered_searches(_, searches), do: searches
+
+  @spec do_searches([facility_search]) :: [Facility.t()]
+  defp do_searches([]), do: all()
+
+  defp do_searches(search_operations) do
+    facilities =
+      Enum.flat_map(search_operations, fn search_operation ->
+        search_operation.()
+      end)
+
+    Enum.uniq_by(facilities, & &1.id)
+  end
+end

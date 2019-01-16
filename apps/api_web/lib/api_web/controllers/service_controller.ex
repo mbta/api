@@ -1,0 +1,158 @@
+defmodule ApiWeb.ServiceController do
+  @moduledoc """
+  Controller for Services. Filterable by:
+
+  * id (multiple)
+  """
+  use ApiWeb.Web, :api_controller
+  alias State.Service
+  import ApiWeb.Params
+
+  plug(ApiWeb.Plugs.ValidateDate)
+
+  @filters ~w(id)s
+  @pagination_opts ~w(offset limit order_by)a
+
+  def state_module, do: State.Service
+
+  swagger_path :index do
+    get(path(__MODULE__, :index))
+
+    description("""
+    List of services. Service represents the days of the week, as well as extra days, that a trip \
+    is valid.
+    """)
+
+    common_index_parameters(__MODULE__)
+
+    parameter(
+      "filter[id]",
+      :query,
+      :string,
+      "Filter by multiple IDs. #{comma_separated_list()}.",
+      example: "1,2"
+    )
+
+    consumes("application/vnd.api+json")
+    produces("application/vnd.api+json")
+    response(200, "OK", Schema.ref(:Services))
+    response(400, "Bad Request", Schema.ref(:BadRequest))
+    response(403, "Forbidden", Schema.ref(:Forbidden))
+    response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
+  end
+
+  def index_data(_conn, params) do
+    case Params.filter_params(params, @filters) do
+      %{"id" => ids} ->
+        ids
+        |> split_on_comma
+        |> State.Service.by_ids()
+        |> State.all(Params.filter_opts(params, @pagination_opts))
+
+      _ ->
+        {:error, :filter_required}
+    end
+  end
+
+  swagger_path :show do
+    get(path(__MODULE__, :show))
+
+    description("""
+    Single service, which represents the days of the week, as well as extra days, that a trip \
+    is valid.
+    """)
+
+    parameter(:id, :path, :string, "Unique identifier for a service")
+
+    consumes("application/vnd.api+json")
+    produces("application/vnd.api+json")
+
+    response(200, "OK", Schema.ref(:Service))
+    response(403, "Forbidden", Schema.ref(:Forbidden))
+    response(404, "Not Found", Schema.ref(:NotFound))
+    response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
+  end
+
+  def show_data(_conn, %{"id" => id}) do
+    Service.by_id(id)
+  end
+
+  def swagger_definitions do
+    import PhoenixSwagger.JsonApi, except: [page: 1]
+
+    %{
+      ServiceResource:
+        resource do
+          description("Service represents a set of dates on which trips run.")
+
+          attributes do
+            start_date(
+              :string,
+              "Earliest date which is valid for this service. Format is ISO8601.",
+              format: :date,
+              example: "2018-11-19"
+            )
+
+            end_date(
+              :string,
+              "Latest date which is valid for this service. Format is ISO8601.",
+              format: :date,
+              example: "2018-12-24"
+            )
+          end
+
+          array_attribute(
+            :added_dates,
+            :date,
+            "Aditional dates when the service is valid. Format is ISO8601.",
+            "2018-11-21"
+          )
+
+          array_attribute(
+            :added_dates_notes,
+            :string,
+            "Extra information about additional dates (e.g. holiday name)",
+            "New Year Day"
+          )
+
+          array_attribute(
+            :removed_dates,
+            :date,
+            "Exceptional dates when the service is not valid. Format is ISO8601.",
+            "2018-12-17"
+          )
+
+          array_attribute(
+            :removed_dates_notes,
+            :string,
+            "Extra information about exceptional dates (e.g. holiday name)",
+            "New Year Day"
+          )
+
+          valid_dates_attribute()
+        end,
+      Services: page(:ServiceResource),
+      Service: single(:ServiceResource)
+    }
+  end
+
+  defp array_attribute(schema, property, type, description, example) do
+    nested = Schema.array(:string)
+    nested = put_in(nested.items.description, description)
+    nested = put_in(nested.items.format, type)
+    nested = put_in(nested.items.example, example)
+    put_in(schema.properties.attributes.properties[property], nested)
+  end
+
+  defp valid_dates_attribute(schema) do
+    nested = Schema.array(:number)
+
+    nested =
+      put_in(nested.items.description, """
+        Day of week. From Monday as 1 to Sunday as 7.
+      """)
+
+    nested = put_in(nested.items.example, "1")
+    put_in(schema.properties.attributes.properties[:valid_days], nested)
+  end
+end

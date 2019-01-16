@@ -1,0 +1,28 @@
+<h2>Request Rate Limit Increase</h2>
+<div class="panel panel-primary">
+  <div class="panel-heading">Key Details</div>
+  <div class="panel-body">
+    <ul>
+      <li><strong>User E-mail:</strong> <%= @user.email %></li>
+      <li><strong>Key:</strong> <%= @key.key %></li>
+    </ul>
+  </div>
+</div>
+
+<div>
+Can you tell us more about your app, and why you're looking for an increase?
+</div>
+<br>
+
+<%= form_for @conn, key_path(@conn, :do_request_increase, @key), [as: :reason, method: assigns[:method] || :post], fn f -> %>
+  <div class="form-group">
+    <%= label f, :reason, class: "control-label" %>
+    <%= textarea f, :reason, class: "form-control", required: "" %>
+  </div>
+
+  <div class="form-group">
+    <%= submit "Request Increase", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<span><%= link "Back", to: portal_path(@conn, :index) %></span>

@@ -1,0 +1,39 @@
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-3">
+        <p>© <%= DateTime.utc_now().year %> MBTA</p>
+      </div>
+
+      <div class="col-sm-3">
+        <div class="footer-links">
+          <label>MBTA</label>
+          <ul>
+            <li><a href="https://www.mbta.com/">Home</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-sm-3">
+        <div class="footer-links">
+          <label>Developer</label>
+          <ul>
+            <li><a href="https://www.mbta.com/developers">MBTA Developers Page</a></li>
+            <li><a href="https://www.mass.gov/massdot-developers-data-sources">MassDOT Developers Page</a></li>
+            <li><a href="http://groups.google.com/group/massdotdevelopers">MassDOT/MBTA Google Group</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="footer-links">
+          <label>Portal</label>
+          <ul>
+            <li><%= link "Login", to: session_path(@conn, :new) %></li>
+            <li><%= link "Register", to: user_path(@conn, :new) %></li>
+            <li><%= link "Docs", to: "/docs/swagger" %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
