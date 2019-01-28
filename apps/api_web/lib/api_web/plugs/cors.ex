@@ -3,26 +3,33 @@ defmodule ApiWeb.Plugs.CORS do
   Sends appropriate CORS headers based on configuration of key.
   """
 
-  @default_opts [
-    allow_methods: :all
-  ]
-
   import Plug.Conn
   import Corsica
   import Phoenix.Controller, only: [render: 3, put_view: 2]
+
+  @default_opts sanitize_opts(
+                  origins: "*",
+                  allow_methods: :all,
+                  allow_headers: [
+                    "x-api-key",
+                    "accept-encoding",
+                    "if-none-match",
+                    "if-modified-since"
+                  ]
+                )
 
   def init(opts), do: opts
 
   def call(%{assigns: assigns} = conn, _) do
     if cors_req?(conn) do
       allowed_domains = parse_allowed_domains(assigns.api_user.allowed_domains)
-      opts = [origins: allowed_domains] ++ @default_opts
+      opts = %{@default_opts | origins: allowed_domains}
 
       cond do
         preflight_req?(conn) ->
           send_preflight_resp(conn, opts)
 
-        origin_allowed?(conn, allowed_domains) ->
+        allowed_origin?(conn, opts) ->
           put_cors_simple_resp_headers(conn, opts)
 
         true ->
@@ -40,14 +47,6 @@ defmodule ApiWeb.Plugs.CORS do
     allowed_domains
     |> String.split(",")
     |> Enum.map(&String.trim/1)
-  end
-
-  defp origin_allowed?(_, "*"), do: true
-
-  defp origin_allowed?(conn, allowed_domains) do
-    conn
-    |> get_req_header("origin")
-    |> Enum.any?(fn x -> x in allowed_domains end)
   end
 
   defp render_400(conn) do
