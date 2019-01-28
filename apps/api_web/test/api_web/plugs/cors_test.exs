@@ -21,7 +21,7 @@ defmodule ApiWeb.Plugs.CorsTest do
 
     test "assigns anonymous user and receives access-control-allow-origin *", %{conn: conn} do
       conn = get(conn, @url)
-      assert %ApiWeb.User{type: :anon} = conn.assigns.user
+      assert %ApiWeb.User{type: :anon} = conn.assigns.api_user
       assert {"access-control-allow-origin", "*"} in conn.resp_headers
     end
   end

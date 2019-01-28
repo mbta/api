@@ -4,8 +4,7 @@ defmodule ApiWeb.Plugs.CORS do
   """
 
   @default_opts [
-    allow_methods: :all,
-
+    allow_methods: :all
   ]
 
   import Plug.Conn
@@ -15,17 +14,22 @@ defmodule ApiWeb.Plugs.CORS do
   def init(opts), do: opts
 
   def call(%{assigns: assigns} = conn, _) do
-    allowed_domains = parse_allowed_domains(assigns.user.allowed_domains)
-    opts = [origins: allowed_domains] ++ @default_opts
-    cond do
-      preflight_req?(conn) ->
-        send_preflight_resp(conn, opts)
+    if cors_req?(conn) do
+      allowed_domains = parse_allowed_domains(assigns.api_user.allowed_domains)
+      opts = [origins: allowed_domains] ++ @default_opts
 
-      origin_allowed?(conn, allowed_domains) ->
-        put_cors_simple_resp_headers(conn, opts)
+      cond do
+        preflight_req?(conn) ->
+          send_preflight_resp(conn, opts)
 
-      true ->
-        render_400(conn)
+        origin_allowed?(conn, allowed_domains) ->
+          put_cors_simple_resp_headers(conn, opts)
+
+        true ->
+          render_400(conn)
+      end
+    else
+      conn
     end
   end
 
@@ -41,7 +45,9 @@ defmodule ApiWeb.Plugs.CORS do
   defp origin_allowed?(_, "*"), do: true
 
   defp origin_allowed?(conn, allowed_domains) do
-    Enum.any?(get_req_header(conn, "origin"), fn x -> x in allowed_domains end)
+    conn
+    |> get_req_header("origin")
+    |> Enum.any?(fn x -> x in allowed_domains end)
   end
 
   defp render_400(conn) do

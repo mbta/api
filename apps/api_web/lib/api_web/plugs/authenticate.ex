@@ -22,14 +22,14 @@ defmodule ApiWeb.Plugs.Authenticate do
   end
 
   defp authenticate(nil, conn) do
-    assign(conn, :user, ApiWeb.User.anon(conn_ip(conn)))
+    assign(conn, :api_user, ApiWeb.User.anon(conn_ip(conn)))
   end
 
   defp authenticate(key, conn) do
     case ApiAccounts.Keys.fetch_valid_key(key) do
       {:ok, %ApiAccounts.Key{} = key} ->
         user = ApiWeb.User.from_key(key)
-        assign(conn, :user, user)
+        assign(conn, :api_user, user)
 
       {:error, _} ->
         conn

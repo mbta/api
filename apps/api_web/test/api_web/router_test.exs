@@ -48,11 +48,12 @@ defmodule ApiWeb.RouterTest do
     @endpoint ApiWeb.Endpoint
 
     test "returns the appropriate headers when an OPTIONS request is made", %{conn: conn} do
-      conn = conn
-      |> put_req_header("x-api-key", conn.assigns.api_key)
-      |> put_req_header("access-control-request-headers", "x-api-key")
-      |> put_req_header("access-control-request-method", "GET")
-      |> put_req_header("origin", "http://localhost/")
+      conn =
+        conn
+        |> put_req_header("x-api-key", conn.assigns.api_key)
+        |> put_req_header("access-control-request-headers", "x-api-key")
+        |> put_req_header("access-control-request-method", "GET")
+        |> put_req_header("origin", "http://localhost/")
 
       response = options(conn, "/_health")
       assert response.status == 200

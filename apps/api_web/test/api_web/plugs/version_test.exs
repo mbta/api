@@ -74,7 +74,7 @@ defmodule ApiWeb.Plugs.VersionTest do
   end
 
   defp assign_user(conn, user) do
-    Plug.Conn.assign(conn, :user, user)
+    Plug.Conn.assign(conn, :api_user, user)
   end
 
   defp anonymous_user do

@@ -42,7 +42,7 @@ defmodule ApiWeb.Plugs.Version do
   end
 
   defp assign_from_user(conn) do
-    assign_version(conn, conn.assigns.user.version)
+    assign_version(conn, conn.assigns.api_user.version)
   end
 
   defp logger_metadata(conn) do
