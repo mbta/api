@@ -1,8 +1,8 @@
 defmodule ApiWeb.RouterTest do
   @moduledoc false
-  use ExUnit.Case, async: true
+  use ApiWeb.ConnCase
   import ApiWeb.Router
-  import Phoenix.ConnTest
+  import Plug.Conn
 
   describe "authenticated_accepts/2" do
     test "denies anonymous users when the type is in authenticated_accepts" do
@@ -41,6 +41,21 @@ defmodule ApiWeb.RouterTest do
                |> accepts_runtime([])
                |> ApiWeb.Plugs.Authenticate.call(ApiWeb.Plugs.Authenticate.init([]))
                |> authenticated_accepts(["event-stream"])
+    end
+  end
+
+  describe "CORS" do
+    @endpoint ApiWeb.Endpoint
+
+    test "returns the appropriate headers when an OPTIONS request is made", %{conn: conn} do
+      conn = conn
+      |> put_req_header("x-api-key", conn.assigns.api_key)
+      |> put_req_header("access-control-request-headers", "x-api-key")
+      |> put_req_header("access-control-request-method", "GET")
+      |> put_req_header("origin", "http://localhost/")
+
+      response = options(conn, "/_health")
+      assert response.status == 200
     end
   end
 end

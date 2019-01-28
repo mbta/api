@@ -3,6 +3,11 @@ defmodule ApiWeb.Plugs.CORS do
   Sends appropriate CORS headers based on configuration of key.
   """
 
+  @default_opts [
+    allow_methods: :all,
+
+  ]
+
   import Plug.Conn
   import Corsica
   import Phoenix.Controller, only: [render: 3, put_view: 2]
@@ -11,18 +16,16 @@ defmodule ApiWeb.Plugs.CORS do
 
   def call(%{assigns: assigns} = conn, _) do
     allowed_domains = parse_allowed_domains(assigns.user.allowed_domains)
+    opts = [origins: allowed_domains] ++ @default_opts
+    cond do
+      preflight_req?(conn) ->
+        send_preflight_resp(conn, opts)
 
-    if origin_allowed(conn, allowed_domains) do
-      put_cors_simple_resp_headers(
-        conn,
-        origins: allowed_domains
-      )
-    else
-      conn
-      |> put_status(:bad_request)
-      |> put_view(ApiWeb.ErrorView)
-      |> render("400.json-api", error: :allowed_domain)
-      |> halt()
+      origin_allowed?(conn, allowed_domains) ->
+        put_cors_simple_resp_headers(conn, opts)
+
+      true ->
+        render_400(conn)
     end
   end
 
@@ -35,9 +38,17 @@ defmodule ApiWeb.Plugs.CORS do
     |> Enum.map(&String.trim/1)
   end
 
-  defp origin_allowed(_, "*"), do: true
+  defp origin_allowed?(_, "*"), do: true
 
-  defp origin_allowed(conn, allowed_domains) do
+  defp origin_allowed?(conn, allowed_domains) do
     Enum.any?(get_req_header(conn, "origin"), fn x -> x in allowed_domains end)
+  end
+
+  defp render_400(conn) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("400.json-api", error: :allowed_domain)
+    |> halt()
   end
 end

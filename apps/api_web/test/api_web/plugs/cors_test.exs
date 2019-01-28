@@ -70,8 +70,7 @@ defmodule ApiWeb.Plugs.CorsTest do
         |> put_req_header("api-key", new_key.key)
         |> get(@url)
 
-      assert invalid_origin_conn.halted
-      assert invalid_origin_conn.status == 400
+      assert %{halted: true, status: 400} = invalid_origin_conn
     end
   end
 end

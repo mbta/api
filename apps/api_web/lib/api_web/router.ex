@@ -44,8 +44,6 @@ defmodule ApiWeb.Router do
   pipeline :api do
     plug(:accepts_runtime)
     plug(:set_content_type)
-    plug(ApiWeb.Plugs.Authenticate)
-    plug(ApiWeb.Plugs.CORS)
     plug(ApiWeb.Plugs.Version)
     plug(:authenticated_accepts, ApiWeb.config(:api_pipeline, :authenticated_accepts))
   end
