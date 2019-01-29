@@ -28,7 +28,7 @@ defmodule ApiWeb.Plugs.VersionTest do
     test "anonymous user gets the default version", %{conn: conn} do
       conn =
         conn
-        |> assign_user(anonymous_user())
+        |> assign_api_user(anonymous_user())
         |> call(@opts)
 
       assert conn.assigns.api_version == @default_version
@@ -37,7 +37,7 @@ defmodule ApiWeb.Plugs.VersionTest do
     test "authenticated user gets their specified version", %{conn: conn} do
       conn =
         conn
-        |> assign_user(user_with_version("2018-05-07"))
+        |> assign_api_user(user_with_version("2018-05-07"))
         |> call(@opts)
 
       assert conn.assigns.api_version == "2018-05-07"
@@ -47,7 +47,7 @@ defmodule ApiWeb.Plugs.VersionTest do
       conn =
         conn
         |> put_req_header("mbta-version", "2017-11-28")
-        |> assign_user(user_with_version("2018-05-07"))
+        |> assign_api_user(user_with_version("2018-05-07"))
         |> call(@opts)
 
       assert conn.assigns.api_version == "2017-11-28"
@@ -57,7 +57,7 @@ defmodule ApiWeb.Plugs.VersionTest do
       conn =
         conn
         |> put_req_header("mbta-version", "1970-01-01")
-        |> assign_user(user_with_version("2018-05-07"))
+        |> assign_api_user(user_with_version("2018-05-07"))
         |> call(@opts)
 
       assert conn.assigns.api_version == "2018-05-07"
@@ -66,15 +66,15 @@ defmodule ApiWeb.Plugs.VersionTest do
     test "assigns version to the Logger metadata", %{conn: conn} do
       _conn =
         conn
-        |> assign_user(anonymous_user())
+        |> assign_api_user(anonymous_user())
         |> call(@opts)
 
       assert Logger.metadata()[:api_version] == @default_version
     end
   end
 
-  defp assign_user(conn, user) do
-    Plug.Conn.assign(conn, :api_user, user)
+  defp assign_api_user(conn, api_user) do
+    Plug.Conn.assign(conn, :api_user, api_user)
   end
 
   defp anonymous_user do

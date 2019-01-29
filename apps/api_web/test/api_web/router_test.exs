@@ -57,6 +57,10 @@ defmodule ApiWeb.RouterTest do
 
       response = options(conn, "/_health")
       assert response.status == 200
+      assert ["*"] = get_resp_header(response, "access-control-allow-origin")
+      assert ["GET"] = get_resp_header(response, "access-control-allow-methods")
+      assert [headers] = get_resp_header(response, "access-control-allow-headers")
+      assert headers =~ "x-api-key"
     end
   end
 end

@@ -28,8 +28,8 @@ defmodule ApiWeb.Plugs.Authenticate do
   defp authenticate(key, conn) do
     case ApiAccounts.Keys.fetch_valid_key(key) do
       {:ok, %ApiAccounts.Key{} = key} ->
-        user = ApiWeb.User.from_key(key)
-        assign(conn, :api_user, user)
+        api_user = ApiWeb.User.from_key(key)
+        assign(conn, :api_user, api_user)
 
       {:error, _} ->
         conn
