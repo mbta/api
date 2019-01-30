@@ -10,7 +10,7 @@ defmodule ApiWeb.Plugs.RateLimiter do
   def init(opts), do: opts
 
   def call(%{assigns: assigns, request_path: request_path} = conn, _) do
-    case ApiWeb.RateLimiter.log_request(assigns.user, request_path) do
+    case ApiWeb.RateLimiter.log_request(assigns.api_user, request_path) do
       :ok ->
         conn
 
