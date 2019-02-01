@@ -122,11 +122,63 @@ defmodule ApiWeb.PredictionController do
     end
   end
 
-  defp include_legacy_stop_ids(ids, version) when version >= "2018-07-23" do
+  defp include_legacy_stop_ids(ids, version) when version >= "2019-02-12" do
     ids
   end
 
+  defp include_legacy_stop_ids(ids, version) when version >= "2018-07-23" do
+    include_legacy_stop_ids_2019_02_12(ids)
+  end
+
   defp include_legacy_stop_ids(ids, _version) do
+    ids
+    |> include_legacy_stop_ids_2019_02_12
+    |> include_legacy_stop_ids_2018_07_23
+  end
+
+  defp include_legacy_stop_ids_2019_02_12(ids) do
+    Enum.flat_map(
+      ids,
+      fn
+        "70061" ->
+          [
+            "70061",
+            "Alewife-01",
+            "Alewife-02"
+          ]
+
+        "70105" ->
+          [
+            "70105",
+            "Braintree-01",
+            "Braintree-02"
+          ]
+
+        "70036" ->
+          ["70036", "Oak Grove-01", "Oak Grove-02"]
+
+        "70001" ->
+          ["70001", "Forest Hills-01", "Forest Hills-02"]
+
+        "70200" ->
+          ["70200", "71199"]
+
+        "70150" ->
+          ["70150", "71150"]
+
+        "70151" ->
+          ["70151", "71151"]
+
+        id when id in ["70201", "70202"] ->
+          [id, "Government Center-Brattle"]
+
+        id ->
+          [id]
+      end
+    )
+  end
+
+  defp include_legacy_stop_ids_2018_07_23(ids) do
     Enum.flat_map(
       ids,
       fn
