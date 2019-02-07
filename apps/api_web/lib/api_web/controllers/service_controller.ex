@@ -99,6 +99,49 @@ defmodule ApiWeb.ServiceController do
               format: :date,
               example: "2018-12-24"
             )
+
+            description(
+              :string,
+              "Human-readable description of the service, as it should appear on public-facing websites and applications.",
+              "x-nullable": true,
+              example: "Weekday schedule (no school)"
+            )
+
+            schedule_name(
+              :string,
+              "Description of when the `service_id` is in effect.",
+              "x-nullable": true,
+              example: "Weekday (no school)"
+            )
+
+            schedule_type(
+              :string,
+              """
+              Description of the schedule type the service_id can be applied.
+              For example, on a holiday, the schedule_type value may be "Saturday" or "Sunday".
+              Current valid values are "Weekday", "Saturday", "Sunday", or "Other"
+              """,
+              "x-nullable": true,
+              example: "Sunday"
+            )
+
+            schedule_typicality(
+              :integer,
+              """
+              Describes how well this schedule represents typical service for the listed `schedule_type`
+
+              | Value | Description                                                                 |
+              |-------|-----------------------------------------------------------------------------|
+              | `0`   | Not defined.                                                                |
+              | `1`   | Typical service with perhaps minor modifications                            |
+              | `2`   | Extra service supplements typical schedules                                 |
+              | `3`   | Reduced holiday service is provided by typical Saturday or Sunday schedule  |
+              | `4`   | Major changes in service due to a planned disruption, such as construction  |
+              | `5`   | Major reductions in service for weather events or other atypical situations |
+              """,
+              enum: Enum.to_list(0..5),
+              example: 1
+            )
           end
 
           array_attribute(
