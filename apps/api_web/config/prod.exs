@@ -47,7 +47,6 @@ config :logger,
   backends: [:console]
 
 config :logger, :console,
-  level: :info,
   format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
   metadata: [:request_id, :api_key, :records]
 
