@@ -90,10 +90,10 @@ defmodule ApiWeb.ScheduleController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
+  def index_data(conn, params) do
     case params
          |> Params.filter_params(@filters)
-         |> format_filters() do
+         |> format_filters(conn) do
       filters when map_size(filters) > 1 ->
         # greater than 1 because `date` is automatically included
         filters
@@ -106,17 +106,17 @@ defmodule ApiWeb.ScheduleController do
   end
 
   # Formats the filters we care about into map with parsed values
-  @spec format_filters(map) :: map
-  defp format_filters(filters) do
+  @spec format_filters(map, Plug.Conn.t()) :: map
+  defp format_filters(filters, conn) do
     filters
-    |> Stream.flat_map(&do_format_filter/1)
+    |> Stream.flat_map(&do_format_filter(&1, conn))
     |> Enum.into(%{})
     |> Map.put_new_lazy(:date, &Parse.Time.service_date/0)
   end
 
   # Parse the keys we care about
-  @spec do_format_filter({String.t(), String.t()}) :: %{atom: any} | []
-  defp do_format_filter({key, string}) when key in ["stop", "trip", "route"] do
+  @spec do_format_filter({String.t(), String.t()}, Plug.Conn.t()) :: %{atom: any} | []
+  defp do_format_filter({key, string}, _conn) when key in ["trip", "route"] do
     case Params.split_on_comma(string) do
       [] ->
         []
@@ -126,7 +126,38 @@ defmodule ApiWeb.ScheduleController do
     end
   end
 
-  defp do_format_filter({"direction_id", direction_id}) do
+  defp do_format_filter({"stop", string}, conn) do
+    ids = Params.split_on_comma(string)
+
+    cond do
+      ids == [] ->
+        ids
+
+      conn.assigns.api_version >= "2019-02-12" ->
+        %{stops: ids}
+
+      true ->
+        # if we're on an earlier version, re-map the new B branch platforms
+        ids =
+          Enum.flat_map(ids, fn
+            "70200" ->
+              ["70200", "71199"]
+
+            "70150" ->
+              ["70150", "71150"]
+
+            "70151" ->
+              ["70151", "71151"]
+
+            id ->
+              [id]
+          end)
+
+        %{stops: ids}
+    end
+  end
+
+  defp do_format_filter({"direction_id", direction_id}, _conn) do
     case Params.direction_id(%{"direction_id" => direction_id}) do
       nil ->
         []
@@ -136,7 +167,7 @@ defmodule ApiWeb.ScheduleController do
     end
   end
 
-  defp do_format_filter({"date", date}) do
+  defp do_format_filter({"date", date}, _conn) do
     case Date.from_iso8601(date) do
       {:ok, date} ->
         %{date: date}
@@ -146,7 +177,7 @@ defmodule ApiWeb.ScheduleController do
     end
   end
 
-  defp do_format_filter({"stop_sequence", stop_sequence_str}) do
+  defp do_format_filter({"stop_sequence", stop_sequence_str}, _conn) do
     case Params.split_on_comma(stop_sequence_str) do
       [] ->
         []
@@ -165,7 +196,7 @@ defmodule ApiWeb.ScheduleController do
     end
   end
 
-  defp do_format_filter({key, time}) when key in ["min_time", "max_time"] do
+  defp do_format_filter({key, time}, _conn) when key in ["min_time", "max_time"] do
     case time_to_seconds_past_midnight(time) do
       nil ->
         []
@@ -175,7 +206,7 @@ defmodule ApiWeb.ScheduleController do
     end
   end
 
-  defp do_format_filter(_), do: []
+  defp do_format_filter(_, _), do: []
 
   defp format_stop("first"), do: :first
   defp format_stop("last"), do: :last

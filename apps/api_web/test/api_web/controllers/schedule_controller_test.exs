@@ -161,6 +161,27 @@ defmodule ApiWeb.SchedulerControllerTest do
       assert index_data(conn, %{"stop" => "not stop"}) == []
     end
 
+    test "versions before 2019-02-12 include new Kenmore stops", %{conn: conn} do
+      stops = [
+        %Model.Stop{id: "70200"},
+        # new B branch berth
+        %Model.Stop{id: "71199"}
+      ]
+
+      schedules = [%{@schedule | stop_id: "71199"}]
+
+      State.Stop.new_state(stops)
+      State.Schedule.new_state(schedules)
+      query = %{"stop" => "70200"}
+
+      conn = assign(conn, :api_version, "2018-07-23")
+      assert index_data(conn, query) == schedules
+      assert index_data(conn, %{"stop" => "other"}) == []
+
+      conn = assign(conn, :api_version, "2019-02-12")
+      assert index_data(conn, query) == []
+    end
+
     test "can filter by trip", %{conn: conn} do
       assert index_data(conn, %{"trip" => "trip"}) == [@schedule]
       assert index_data(conn, %{"trip" => "not trip"}) == []
