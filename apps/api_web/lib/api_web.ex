@@ -39,6 +39,14 @@ defmodule ApiWeb do
         env = Keyword.put(env, :accepts, String.split(accepts, " "))
         Application.put_env(:api_web, :api_pipeline, env)
     end
+
+    case System.get_env("LOG_LEVEL") do
+      "debug" ->
+        Logger.configure(level: :debug)
+
+      _ ->
+        :ok
+    end
   end
 
   @doc """

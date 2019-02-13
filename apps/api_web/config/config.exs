@@ -35,7 +35,6 @@ config :api_web, :versions,
   default: "2018-07-23"
 
 config :logger, :console,
-  level: :info,
   format: "$date $time $metadata[$level] $message\n",
   metadata: [:request_id]
 
