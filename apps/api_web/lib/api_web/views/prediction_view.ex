@@ -42,7 +42,13 @@ defmodule ApiWeb.PredictionView do
   end
 
   defp add_legacy_attributes(attributes, p, _) do
-    Map.put(attributes, :track, p.track)
+    track =
+      case State.Stop.by_id(p.stop_id) do
+        %{platform_code: track} -> track
+        _ -> nil
+      end
+
+    Map.put(attributes, :track, track)
   end
 
   def relationships(prediction, conn) do

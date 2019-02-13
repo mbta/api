@@ -19,8 +19,7 @@ defmodule Model.Prediction do
     :departure_time,
     :stop_sequence,
     :schedule_relationship,
-    :status,
-    :track
+    :status
   ]
 
   @typedoc """
@@ -59,7 +58,6 @@ defmodule Model.Prediction do
       monotonically increasing along the trip, but the `stop_sequence` along the `trip_id` are not necessarily
       consecutive.  See
       [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
-  * `:track` - The track for light rail and rail.
   * `:trip_id` - The trip the `stop_id` is on. See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripdescriptor)
   """
   @type t :: %__MODULE__{
@@ -71,7 +69,6 @@ defmodule Model.Prediction do
           status: String.t() | nil,
           stop_id: Model.Stop.id(),
           stop_sequence: non_neg_integer | nil,
-          track: String.t() | nil,
           trip_id: Model.Trip.id()
         }
 

@@ -35,8 +35,7 @@ defmodule Parse.CommuterRailDepartures.JSON do
       departure_time: time(Map.get(update, "departure")),
       stop_sequence: Map.get(update, "stop_sequence"),
       schedule_relationship: best_schedule_relationship(trip, update),
-      status: Map.get(update, "boarding_status"),
-      track: track(update)
+      status: Map.get(update, "boarding_status")
     }
   end
 
@@ -63,17 +62,4 @@ defmodule Parse.CommuterRailDepartures.JSON do
 
   defp schedule_relationship("CANCELED"), do: :cancelled
   defp schedule_relationship(_), do: nil
-
-  defp track(%{"track" => value}) do
-    copy(value)
-  end
-
-  defp track(%{"platform_id" => platform}) when is_binary(platform) do
-    [_, track] = :binary.split(platform, "-")
-    copy(String.replace_prefix(track, "0", ""))
-  end
-
-  defp track(_) do
-    nil
-  end
 end

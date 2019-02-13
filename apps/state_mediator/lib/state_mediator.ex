@@ -44,7 +44,7 @@ defmodule StateMediator do
             url: source_url(State.Vehicle),
             opts: [timeout: 10_000],
             sync_timeout: 30_000,
-            interval: 10_000
+            interval: 1_000
           ]
         ],
         id: :vehicle_mediator

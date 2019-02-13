@@ -155,8 +155,7 @@ defmodule ApiWeb.PredictionControllerTest do
       %Prediction{
         stop_id: "Alewife-01",
         route_id: "Red",
-        arrival_time: @latest_arrival,
-        track: "1"
+        arrival_time: @latest_arrival
       }
     ]
 
@@ -176,15 +175,14 @@ defmodule ApiWeb.PredictionControllerTest do
   test "version 2018-05-07 returns platformed stops at South Station", %{conn: conn} do
     stops = [
       %Stop{id: "South Station", parent_station: "place-sstat"},
-      %Stop{id: "South Station-02", parent_station: "place-sstat"},
+      %Stop{id: "South Station-02", parent_station: "place-sstat", platform_code: "2"},
       %Stop{id: "place-sstat", location_type: 1}
     ]
 
     prediction = %Prediction{
       stop_id: "South Station-02",
       route_id: "CR-Fitchburg",
-      arrival_time: @latest_arrival,
-      track: "2"
+      arrival_time: @latest_arrival
     }
 
     State.Stop.new_state(stops)

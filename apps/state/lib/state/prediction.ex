@@ -52,7 +52,6 @@ defmodule State.Prediction do
   def pre_insert_hook(prediction) do
     prediction
     |> fill_missing_direction_ids()
-    |> update_track_from_stop()
     |> update_route_from_alternate_trips()
   end
 
@@ -68,19 +67,6 @@ defmodule State.Prediction do
       [%{direction_id: direction} | _] -> %{prediction | direction_id: direction}
       _ -> prediction
     end
-  end
-
-  defp update_track_from_stop(%Model.Prediction{stop_id: stop_id, track: nil} = prediction)
-       when is_binary(stop_id) do
-    case State.Stop.by_id(stop_id) do
-      %{platform_code: nil} -> prediction
-      %{platform_code: code} -> %{prediction | track: code}
-      _ -> prediction
-    end
-  end
-
-  defp update_track_from_stop(prediction) do
-    prediction
   end
 
   defp update_route_from_alternate_trips(%Model.Prediction{trip_id: trip_id} = prediction)

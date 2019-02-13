@@ -5,7 +5,7 @@ defmodule ApiWeb.PredictionViewTest do
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  alias Model.Prediction
+  alias Model.{Prediction, Stop}
 
   # GMT
   @datetime Timex.to_datetime(~N[2016-06-07T00:00:00], "America/New_York")
@@ -17,10 +17,17 @@ defmodule ApiWeb.PredictionViewTest do
     arrival_time: nil,
     departure_time: @datetime,
     schedule_relationship: :added,
-    track: "2",
     status: "All Aboard",
     stop_sequence: 5
   }
+
+  setup do
+    State.Stop.new_state([
+      %Stop{id: "North Station-02", parent_station: "place-north", platform_code: "2"}
+    ])
+
+    :ok
+  end
 
   test "render includes the commuter rail departure", %{conn: conn} do
     rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
