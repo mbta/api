@@ -50,39 +50,48 @@ defmodule State.Prediction do
 
   @impl State.Server
   def pre_insert_hook(prediction) do
+    trip_id = prediction.trip_id
+
+    trips =
+      if is_binary(trip_id) do
+        State.Trip.by_id(trip_id)
+      else
+        []
+      end
+
     prediction
-    |> fill_missing_direction_ids()
-    |> update_route_from_alternate_trips()
+    |> fill_missing_direction_ids(trips)
+    |> update_route_from_alternate_trips(trips)
   end
 
-  defp fill_missing_direction_ids(%Model.Prediction{direction_id: direction_id} = prediction)
+  defp fill_missing_direction_ids(%Model.Prediction{direction_id: direction_id} = prediction, _)
        when is_integer(direction_id) do
     prediction
   end
 
-  defp fill_missing_direction_ids(
-         %Model.Prediction{trip_id: trip_id, direction_id: nil} = prediction
-       ) do
-    case State.Trip.by_id(trip_id) do
-      [%{direction_id: direction} | _] -> %{prediction | direction_id: direction}
-      _ -> prediction
+  defp fill_missing_direction_ids(prediction, [%{direction_id: direction_id} | _]) do
+    %{prediction | direction_id: direction_id}
+  end
+
+  defp fill_missing_direction_ids(prediction, _) do
+    prediction
+  end
+
+  defp update_route_from_alternate_trips(prediction, [_]) do
+    [prediction]
+  end
+
+  defp update_route_from_alternate_trips(prediction, []) do
+    [prediction]
+  end
+
+  defp update_route_from_alternate_trips(prediction, [_, _ | _] = trips) do
+    for trip <- trips do
+      %{prediction | route_id: trip.route_id}
     end
   end
 
-  defp update_route_from_alternate_trips(%Model.Prediction{trip_id: trip_id} = prediction)
-       when is_binary(trip_id) do
-    case State.Trip.by_id(prediction.trip_id) do
-      [] ->
-        [prediction]
-
-      trips ->
-        for trip <- trips do
-          %{prediction | route_id: trip.route_id}
-        end
-    end
-  end
-
-  defp update_route_from_alternate_trips(prediction) do
+  defp update_route_from_alternate_trips(prediction, _) do
     [prediction]
   end
 
