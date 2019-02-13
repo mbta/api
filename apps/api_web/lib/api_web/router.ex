@@ -60,6 +60,7 @@ defmodule ApiWeb.Router do
     get("/status", StatusController, :index)
     resources("/stops", StopController, only: [:index, :show])
     resources("/routes", RouteController, only: [:index, :show])
+    resources("/route-patterns", RoutePatternController, only: [:index, :show])
     resources("/lines", LineController, only: [:index, :show])
     resources("/shapes", ShapeController, only: [:index, :show])
     get("/predictions", PredictionController, :index)

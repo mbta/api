@@ -13,6 +13,7 @@ defmodule GtfsDecompress do
                         feed_info
                         multi_route_trips
                         routes
+                        route_patterns
                         shapes
                         stop_times
                         stops
