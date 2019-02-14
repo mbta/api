@@ -45,7 +45,12 @@ defmodule State.Service do
   @impl GenServer
   def init(_) do
     _ = super(nil)
-    subscriptions = [{:fetch, "calendar.txt"}, {:fetch, "calendar_dates.txt"}]
+
+    subscriptions = [
+      {:fetch, "calendar.txt"},
+      {:fetch, "calendar_attributes.txt"},
+      {:fetch, "calendar_dates.txt"}
+    ]
 
     for sub <- subscriptions, do: subscribe(sub)
 
@@ -54,11 +59,16 @@ defmodule State.Service do
   end
 
   @impl State.Server
-  def handle_new_state({calendar, calendar_dates}) do
+  def handle_new_state({
+        calendar,
+        calendar_attributes,
+        calendar_dates
+      }) do
     service_ids =
       [
-        calendar |> Enum.map(&Map.get(&1, :service_id)),
-        calendar_dates |> Enum.map(&Map.get(&1, :service_id))
+        Enum.map(calendar, &Map.get(&1, :service_id)),
+        Enum.map(calendar_attributes, &Map.get(&1, :service_id)),
+        Enum.map(calendar_dates, &Map.get(&1, :service_id))
       ]
       |> Enum.concat()
       |> Enum.uniq()
@@ -75,11 +85,22 @@ defmodule State.Service do
           _ -> {service.start_date, service.end_date, service.days}
         end
 
+      attributes =
+        Enum.find(
+          calendar_attributes,
+          %Parse.CalendarAttributes{},
+          fn s -> s.service_id == service_id end
+        )
+
       %Service{
         id: service_id,
         start_date: start_date,
         end_date: end_date,
         valid_days: valid_days,
+        description: attributes.description,
+        schedule_name: attributes.schedule_name,
+        schedule_type: attributes.schedule_type,
+        schedule_typicality: attributes.schedule_typicality || 0,
         added_dates: added,
         added_dates_notes: holiday_names(calendar_dates, added),
         removed_dates: removed,
@@ -120,15 +141,21 @@ defmodule State.Service do
 
   defp do_gather(%{
          {:fetch, "calendar.txt"} => calendar_blob,
+         {:fetch, "calendar_attributes.txt"} => attributes_blob,
          {:fetch, "calendar_dates.txt"} => dates_blob
        }) do
-    [calendar, calendar_dates] =
+    [calendar, calendar_attributes, calendar_dates] =
       [
         Task.async(Parse.Calendar, :parse, [calendar_blob]),
+        Task.async(Parse.CalendarAttributes, :parse, [attributes_blob]),
         Task.async(Parse.CalendarDates, :parse, [dates_blob])
       ]
       |> Enum.map(&Task.await/1)
 
-    handle_new_state({calendar, calendar_dates})
+    handle_new_state({
+      calendar,
+      calendar_attributes,
+      calendar_dates
+    })
   end
 end

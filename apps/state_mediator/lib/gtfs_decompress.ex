@@ -8,6 +8,7 @@ defmodule GtfsDecompress do
   require Logger
 
   @filename_prefixes ~w(calendar
+                        calendar_attributes
                         calendar_dates
                         feed_info
                         multi_route_trips

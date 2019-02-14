@@ -11,6 +11,10 @@ defmodule ApiWeb.ServiceControllerTest do
         start_date: ~D[2018-12-03],
         end_date: ~D[2019-01-31],
         valid_days: [1, 2, 3, 4, 5],
+        description: "Weekday schedule",
+        schedule_name: "Weekday",
+        schedule_type: "Weekday",
+        schedule_typicality: 1,
         added_dates: [~D[2018-12-29], ~D[2018-12-30]],
         removed_dates: [~D[2019-01-01]]
       },
@@ -19,6 +23,10 @@ defmodule ApiWeb.ServiceControllerTest do
         start_date: ~D[2018-12-01],
         end_date: ~D[2019-01-26],
         valid_days: [6],
+        description: nil,
+        schedule_name: nil,
+        schedule_type: nil,
+        schedule_typicality: 0,
         added_dates: [~D[2019-01-13]],
         removed_dates: []
       }
