@@ -41,7 +41,8 @@ defmodule Parse.TripUpdates do
         arrival_time: parse_stop_time_event(update.arrival),
         departure_time: parse_stop_time_event(update.departure),
         schedule_relationship:
-          stop_time_relationship(update.schedule_relationship, base.schedule_relationship)
+          stop_time_relationship(update.schedule_relationship, base.schedule_relationship),
+        status: update.status
     }
   end
 

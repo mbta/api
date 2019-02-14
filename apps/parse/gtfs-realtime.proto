@@ -22,14 +22,19 @@
 // This protocol is published at:
 // https://github.com/google/transit/tree/master/gtfs-realtime
 
-// option java_package = "com.google.transit.realtime";
-// package transit_realtime;
+syntax = "proto2";
+option java_package = "com.google.transit.realtime";
+package transit_realtime;
 
 // The contents of a feed message.
 // A feed is a continuous stream of feed messages. Each message in the stream is
 // obtained as a response to an appropriate HTTP GET request.
 // A realtime feed is always defined with relation to an existing GTFS feed.
 // All the entity ids are resolved with respect to the GTFS feed.
+// Note that "required" and "optional" as stated in this file refer to Protocol
+// Buffer cardinality, not semantic cardinality.  See reference.md at
+// https://github.com/google/transit/tree/master/gtfs-realtime for field
+// semantic cardinality.
 message FeedMessage {
   // Metadata about this feed and feed message.
   required FeedHeader header = 1;
@@ -46,7 +51,7 @@ message FeedMessage {
 // Metadata about a feed, included in feed messages.
 message FeedHeader {
   // Version of the feed specification.
-  // The current version is 1.0.
+  // The current version is 2.0.  Valid versions are "2.0", "1.0".
   required string gtfs_realtime_version = 1;
 
   // Determines whether the current fetch is incremental.  Currently,
@@ -215,6 +220,8 @@ message TripUpdate {
     }
     optional ScheduleRelationship schedule_relationship = 5
         [default = SCHEDULED];
+
+    optional string status = 6;
 
     // The extensions namespace allows 3rd-party developers to extend the
     // GTFS Realtime Specification in order to add and evaluate new features
@@ -410,6 +417,7 @@ message Alert {
     OTHER_EFFECT = 7;
     UNKNOWN_EFFECT = 8;
     STOP_MOVED = 9;
+    NO_EFFECT = 10;
   }
   optional Effect effect = 7 [default = UNKNOWN_EFFECT];
 
@@ -422,6 +430,25 @@ message Alert {
   // Full description for the alert as plain-text. The information in the
   // description should add to the information of the header.
   optional TranslatedString description_text = 11;
+
+  // Text for alert header to be used in text-to-speech implementations. This field is the text-to-speech version of header_text.
+  // This field is still experimental, and subject to change. It may be formally adopted in the future.
+  optional TranslatedString tts_header_text = 12;
+
+  // Text for full description for the alert to be used in text-to-speech implementations. This field is the text-to-speech version of description_text.
+  // This field is still experimental, and subject to change. It may be formally adopted in the future.
+  optional TranslatedString tts_description_text = 13;
+
+  // Severity of this alert.
+  // This field is still experimental, and subject to change. It may be formally adopted in the future.
+  enum SeverityLevel {
+	UNKNOWN_SEVERITY = 1;
+	INFO = 2;
+	WARNING = 3;
+	SEVERE = 4;
+  }
+
+  optional SeverityLevel severity_level = 14 [default = UNKNOWN_SEVERITY];
 
   // The extensions namespace allows 3rd-party developers to extend the
   // GTFS Realtime Specification in order to add and evaluate new features
