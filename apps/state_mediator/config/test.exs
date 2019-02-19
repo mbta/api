@@ -42,33 +42,6 @@ config :state_mediator, GtfsTestModules, [
    ]}
 ]
 
-config :state_mediator, GtfsTest,
-  custom_dates: [
-    # New Years Day
-    ~D[2019-01-01],
-    # MLK Day
-    ~D[2019-01-21],
-    # Presient's Day
-    ~D[2019-02-18],
-    # Memorial Day
-    ~D[2018-05-28],
-    # July 4
-    ~D[2018-07-04],
-    # Labor Day
-    ~D[2018-09-03],
-    # Thankgiving
-    ~D[2018-11-22],
-    # Christmas Eve
-    ~D[2018-12-24],
-    # Christmas
-    ~D[2018-12-25]
-  ],
-  routes_exempt_from_testing: [
-    "CR-Foxboro",
-    "214",
-    "743"
-  ]
-
 # Record the original working directory so that when it changes during the
 # test run, we can still find the MBTA_GTFS_FILE.
 config :state_mediator, :cwd, System.cwd!()
