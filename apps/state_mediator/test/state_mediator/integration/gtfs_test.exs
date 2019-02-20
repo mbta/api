@@ -126,7 +126,6 @@ defmodule StateMediator.Integration.GtfsTest do
           route_order = order_prefixes[route_id] ++ order ++ order_suffixes[route_id],
           route_order_length = length(route_order),
           date <- dates_of_rating(),
-          is_nil(date) or not custom_date?(date),
           direction_id <- [0, 1] do
         route_order =
           if direction_id == 1 do
@@ -170,23 +169,6 @@ defmodule StateMediator.Integration.GtfsTest do
             invalid_stop_ids = invalid_stops_for_subway.(stops),
             invalid_stop_ids != [] do
           {route_id, date, direction_id, invalid_stop_ids}
-        end
-
-      assert invalid_routes == []
-    end
-
-    @tag timeout: @long_timeout
-    test "each (non-holiday) day of the rating going forward has stops on routes" do
-      invalid_routes =
-        for date <- dates_of_rating(),
-            is_nil(date) or not custom_date?(date),
-            %{id: route_id} = route <- all_routes(),
-            not exempt_from_testing?(route),
-            direction_id <- [0, 1],
-            data =
-              State.Stop.filter_by(%{routes: [route_id], direction_id: direction_id, date: date}),
-            has_unexpected_data?(route_id, date, direction_id, data) do
-          {route_id, date, direction_id}
         end
 
       assert invalid_routes == []
@@ -291,72 +273,6 @@ defmodule StateMediator.Integration.GtfsTest do
   end
 
   describe "schedules" do
-    @tag timeout: @long_timeout
-    test "each (non-holiday) day of the rating going forward has service" do
-      invalid_schedules =
-        for date <- dates_of_rating(),
-            not custom_date?(date),
-            %{id: route_id} = route <- all_routes(),
-            not exempt_from_testing?(route),
-            direction_id <- [0, 1],
-            data =
-              State.Schedule.filter_by(%{
-                routes: [route_id],
-                direction_id: direction_id,
-                date: date
-              }),
-            has_unexpected_data?(route_id, date, direction_id, data) do
-          {route_id, date, direction_id}
-        end
-
-      assert invalid_schedules == []
-    end
-
-    @tag timeout: @long_timeout
-    test "each holiday day of the rating has service on all-week routes" do
-      {:ok, feed} = State.Feed.get()
-      next_sunday = Timex.end_of_week(feed.start_date)
-
-      invalid_schedules =
-        for %{id: route_id} = route <- all_routes(),
-            not State.Route.hidden?(route),
-            # ignore ferries for now, since they run on Sundays but not all holidays
-            route.type != 4,
-            # CR-Foxboro has some Sunday service, but not every Sunday
-            route.id != "CR-Foxboro",
-            direction_id <- [0, 1],
-            # make sure it has sunday service
-            valid_schedule?(route_id, next_sunday, direction_id),
-            date <- dates_of_rating(),
-            custom_date?(date),
-            State.Schedule.filter_by(%{routes: [route_id], direction_id: direction_id, date: date}) ==
-              [] do
-          {route_id, date, direction_id}
-        end
-
-      assert invalid_schedules == []
-    end
-
-    test "each trip has schedules" do
-      for %{id: trip_id} <- State.Trip.all() do
-        data = State.Schedule.filter_by(%{trips: [trip_id]})
-        refute {trip_id, []} == {trip_id, data}
-      end
-    end
-
-    test "each day has trips" do
-      for date <- dates_of_rating() do
-        service_ids = State.ServiceByDate.by_date(date)
-
-        matchers =
-          for service_id <- service_ids do
-            %{service_id: service_id}
-          end
-
-        refute State.Trip.select(matchers) == []
-      end
-    end
-
     test "CR-Lowell has a trip to Haverhill" do
       refute State.Trip.match(
                %{route_id: "CR-Lowell", direction_id: 0, headsign: "Haverhill"},
@@ -461,156 +377,6 @@ defmodule StateMediator.Integration.GtfsTest do
     end
   end
 
-  @weekday_saturday_only_routes ~w(
-    CR-Needham
-    5
-    7
-    14
-    18
-    29
-    33
-    37
-    38
-    51
-    62
-    65
-    70A
-    74
-    76
-    92
-    132
-    210
-    212
-    411
-    430
-    436
-    465
-    504
-    553
-    716
-  )
-  @weekday_only_routes ~w(
-    4
-    19
-    52
-    57A
-    67
-    68
-    79
-    84
-    85
-    114
-    121
-    131
-    170
-    217
-    221
-    245
-    325
-    326
-    351
-    352
-    354
-    424
-    428
-    434
-    439
-    448
-    449
-    451
-    456
-    459
-    501
-    502
-    503
-    505
-    554
-    556
-    558
-    701
-    708
-    710
-    747
-  )
-
-  defp has_unexpected_data?(route_id, date, direction_id, data) do
-    if valid_schedule?(route_id, date, direction_id) do
-      data == []
-    else
-      data != []
-    end
-  end
-
-  defp valid_schedule?("210", date, direction_id) do
-    # 210 should only be valid weekday and saturday.  For the moment, it
-    # has an outbound-only service on sunday.
-    if direction_id == 1 do
-      Date.day_of_week(date) != 7
-    else
-      true
-    end
-  end
-
-  defp valid_schedule?("CR-Needham", date, _direction_id) do
-    # Needham line is suspended on Saturdays between 2017-09-02 and
-    # 2017-10-28. It never has service on Sunday.
-    if Date.compare(~D[2017-09-01], date) == :gt or Date.compare(~D[2017-10-27], date) == :lt do
-      Date.day_of_week(date) != 7
-    else
-      weekday?(date)
-    end
-  end
-
-  defp valid_schedule?("Boat-F1", date, _direction_id) do
-    if Date.compare(~D[2018-10-08], date) == :lt do
-      # weekday only service after Columbus Day
-      weekday?(date)
-    else
-      true
-    end
-  end
-
-  defp valid_schedule?(id, date, _direction_id) when id in @weekday_saturday_only_routes do
-    # No service on Sunday
-    Date.day_of_week(date) != 7
-  end
-
-  defp valid_schedule?(id, date, direction_id) when id in ~w(136 137) do
-    if Date.day_of_week(date) == 7 do
-      # on Sunday, the 136 is only outbound and the 137 is only inbound
-      {id, direction_id} in [{"136", 0}, {"137", 1}]
-    else
-      true
-    end
-  end
-
-  defp valid_schedule?(id, date, direction_id) when id in ~w(214) do
-    if weekday?(date) do
-      true
-    else
-      # On weekends, only outbound service
-      direction_id == 0
-    end
-  end
-
-  defp valid_schedule?("171", _, 1) do
-    # only outbound trips
-    false
-  end
-
-  defp valid_schedule?("195", _, 0) do
-    # only inbound trips
-    false
-  end
-
-  defp valid_schedule?(id, date, _) when id in @weekday_only_routes do
-    weekday?(date)
-  end
-
-  defp valid_schedule?(_route_id, _date, _direction_id) do
-    true
-  end
-
   defp receive_items(module) do
     clear_inbox!()
 
@@ -656,26 +422,8 @@ defmodule StateMediator.Integration.GtfsTest do
     end
   end
 
-  for date <- Application.get_env(:state_mediator, GtfsTest)[:custom_dates] do
-    defp custom_date?(unquote(Macro.escape(date))), do: true
-  end
-
-  defp custom_date?(_), do: false
-
-  defp exempt_from_testing?(route)
-
-  for route_id <- Application.get_env(:state_mediator, GtfsTest)[:routes_exempt_from_testing] do
-    defp exempt_from_testing?(%{id: unquote(route_id)}), do: true
-  end
-
-  defp exempt_from_testing?(route), do: State.Route.hidden?(route)
-
   defp first_last([first | rest]) do
     {first, List.last(rest)}
-  end
-
-  defp weekday?(date) do
-    Date.day_of_week(date) < 6
   end
 
   defp shapes_in_both_directions(route) do
