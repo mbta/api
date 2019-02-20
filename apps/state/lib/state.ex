@@ -24,6 +24,7 @@ defmodule State do
       worker(State.Facility.Property, []),
       worker(State.Facility.Parking, []),
       worker(State.Route, []),
+      worker(State.RoutePattern, []),
       worker(State.Line, []),
       worker(State.Trip, []),
       worker(State.Trip.Added, []),

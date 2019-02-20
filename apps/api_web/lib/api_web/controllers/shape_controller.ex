@@ -1,6 +1,6 @@
 defmodule ApiWeb.ShapeController do
   @moduledoc """
-  Controller for Route patterns. Filterable by:
+  Controller for shapes. Filterable by:
 
   * route
   """
