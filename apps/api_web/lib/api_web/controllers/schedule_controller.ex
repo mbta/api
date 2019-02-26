@@ -90,7 +90,7 @@ defmodule ApiWeb.ScheduleController do
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
-  
+
   def index_data(conn, params) do
     with {:ok, filtered} <- Params.filter_params(params, @filters),
          {:ok, _includes} <- Params.validate_includes(params, @includes) do
