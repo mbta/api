@@ -68,7 +68,7 @@ defmodule ApiWeb.ParamsTest do
     end
 
     test "returns error in case of unsupported filter", %{params: params} do
-      assert Params.filter_params(params, ["route"]) == {:error, :bad_filter}
+      assert Params.filter_params(params, ["route"]) == {:error, :bad_filter, ~w(stop trip)}
     end
   end
 
@@ -80,7 +80,7 @@ defmodule ApiWeb.ParamsTest do
 
     test "returns error for invalid includes" do
       assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips)) ==
-               {:error, :bad_include}
+               {:error, :bad_include, ~w(routes)}
     end
 
     test "supports dot notation" do

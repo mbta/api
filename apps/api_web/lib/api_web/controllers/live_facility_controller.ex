@@ -50,7 +50,7 @@ defmodule ApiWeb.LiveFacilityController do
         end)
         |> State.all(Params.filter_opts(params, @pagination_opts))
 
-      {:error, _} = error ->
+      {:error, _, _} = error ->
         error
 
       _ ->

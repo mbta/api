@@ -105,7 +105,7 @@ defmodule ApiWeb.ScheduleController do
           {:error, :filter_required}
       end
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

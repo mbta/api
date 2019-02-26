@@ -70,6 +70,13 @@ defmodule ApiWeb.ApiControllerHelpers do
     render(conn, "index.json-api", data: data, opts: opts)
   end
 
+  def render_index(conn, _params, {:error, error, details}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("400.json-api", error: error, details: details)
+  end
+
   def render_index(conn, params, data) do
     :ok = Logger.metadata(records: length(data))
 
@@ -88,11 +95,11 @@ defmodule ApiWeb.ApiControllerHelpers do
     |> render("404.json-api", [])
   end
 
-  def render_show(conn, _params, {:error, error}) do
+  def render_show(conn, _params, {:error, error, details}) do
     conn
     |> put_status(:bad_request)
     |> put_view(ApiWeb.ErrorView)
-    |> render("400.json-api", error: error)
+    |> render("400.json-api", error: error, details: details)
   end
 
   def render_show(conn, params, data) do

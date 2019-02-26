@@ -81,21 +81,21 @@ defmodule ApiWeb.ErrorView do
     })
   end
 
-  def render("400.json" <> _, %{error: :bad_filter}) do
+  def render("400.json" <> _, %{error: :bad_filter, details: details}) do
     ErrorSerializer.format(%{
       code: :bad_request,
       status: "400",
       source: %{parameter: "filter"},
-      detail: "Unsupported filter."
+      detail: "Unsupported filter(s): " <> Enum.join(details, ", ")
     })
   end
 
-  def render("400.json" <> _, %{error: :bad_include}) do
+  def render("400.json" <> _, %{error: :bad_include, details: details}) do
     ErrorSerializer.format(%{
       code: :bad_request,
       status: "400",
       source: %{parameter: "include"},
-      detail: "Unsupported include."
+      detail: "Unsupported include(s): " <> Enum.join(details, ", ")
     })
   end
 

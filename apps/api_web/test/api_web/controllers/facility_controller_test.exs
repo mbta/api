@@ -71,7 +71,7 @@ defmodule ApiWeb.FacilityControllerTest do
 
     test "returns errors for invalid filters", %{conn: conn} do
       results = index_data(conn, %{"filter" => %{"stop" => "place-alfcl", "id" => "ignored"}})
-      assert results == {:error, :bad_filter}
+      assert results == {:error, :bad_filter, ~w(id)}
     end
 
     test "can filter by stop_id and type", %{conn: conn} do

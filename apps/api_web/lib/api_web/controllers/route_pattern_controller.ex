@@ -60,7 +60,7 @@ defmodule ApiWeb.RoutePatternController do
       |> RoutePattern.filter_by()
       |> State.all(pagination_opts(params))
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -105,7 +105,7 @@ defmodule ApiWeb.RoutePatternController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       RoutePattern.by_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

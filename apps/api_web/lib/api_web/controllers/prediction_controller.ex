@@ -12,7 +12,7 @@ defmodule ApiWeb.PredictionController do
   require Logger
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type date)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -104,7 +104,7 @@ defmodule ApiWeb.PredictionController do
           {:error, :filter_required}
       end
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

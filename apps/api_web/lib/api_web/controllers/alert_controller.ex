@@ -128,7 +128,7 @@ defmodule ApiWeb.AlertController do
           error
       end
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -158,7 +158,7 @@ defmodule ApiWeb.AlertController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Alert.by_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

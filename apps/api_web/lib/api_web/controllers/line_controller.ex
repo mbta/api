@@ -59,7 +59,7 @@ defmodule ApiWeb.LineController do
 
       State.all(lines, pagination_opts(params))
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -94,7 +94,7 @@ defmodule ApiWeb.LineController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Line.by_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

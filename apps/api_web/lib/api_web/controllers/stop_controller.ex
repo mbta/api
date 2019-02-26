@@ -6,7 +6,7 @@ defmodule ApiWeb.StopController do
 
   @filters ~w(id date direction_id latitude longitude radius route route_type)s
   @pagination_opts ~w(offset limit order_by distance)a
-  @includes ~w(parent_station child_stops facilities)
+  @includes ~w(parent_station child_stops facilities route)
 
   def state_module, do: State.Stop.Cache
 
@@ -77,7 +77,7 @@ defmodule ApiWeb.StopController do
       |> State.all(filter_opts)
     else
       false -> {:error, :distance_params}
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -191,7 +191,7 @@ defmodule ApiWeb.StopController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Stop.by_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

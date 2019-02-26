@@ -49,7 +49,7 @@ defmodule ApiWeb.ServiceController do
         |> State.Service.by_ids()
         |> State.all(Params.filter_opts(params, @pagination_opts))
 
-      {:error, _} = error ->
+      {:error, _, _} = error ->
         error
 
       _ ->

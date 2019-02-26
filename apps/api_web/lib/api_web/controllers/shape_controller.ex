@@ -42,7 +42,7 @@ defmodule ApiWeb.ShapeController do
          {:ok, _includes} <- Params.validate_includes(params, @includes) do
       do_filter(filtered, params)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -83,7 +83,7 @@ defmodule ApiWeb.ShapeController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Shape.by_primary_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

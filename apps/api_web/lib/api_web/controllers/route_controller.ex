@@ -80,7 +80,7 @@ defmodule ApiWeb.RouteController do
       |> filter_hidden()
       |> State.all(pagination_opts(params))
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -187,7 +187,7 @@ defmodule ApiWeb.RouteController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Route.by_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

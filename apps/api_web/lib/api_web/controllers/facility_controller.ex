@@ -44,7 +44,7 @@ defmodule ApiWeb.FacilityController do
       |> Facility.filter_by()
       |> State.all(Params.filter_opts(params, @pagination_opts))
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -101,7 +101,7 @@ defmodule ApiWeb.FacilityController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Facility.by_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 

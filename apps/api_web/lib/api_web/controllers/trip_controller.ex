@@ -63,7 +63,7 @@ defmodule ApiWeb.TripController do
           {:error, :filter_required}
       end
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
@@ -133,7 +133,7 @@ defmodule ApiWeb.TripController do
     with {:ok, _includes} <- Params.validate_includes(params, @includes) do
       Trip.by_primary_id(id)
     else
-      {:error, _} = error -> error
+      {:error, _, _} = error -> error
     end
   end
 
