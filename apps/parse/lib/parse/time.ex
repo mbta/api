@@ -5,7 +5,7 @@ defmodule Parse.Time do
 
   @spec now() :: DateTime.t()
   def now do
-    now_unix = System.system_time(:seconds)
+    now_unix = System.system_time(:second)
     {:ok, dt} = FastLocalDatetime.unix_to_datetime(now_unix, "America/New_York")
     dt
   end
