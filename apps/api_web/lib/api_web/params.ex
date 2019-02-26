@@ -6,7 +6,7 @@ defmodule ApiWeb.Params do
   ## Defaults
 
   @max_limit 100
-  @default_params ~w(include sort page filter fields)
+  @default_params ~w(include sort page filter fields api_key)
 
   @doc """
   Returns a Keyword list of options from JSONAPI query params.
