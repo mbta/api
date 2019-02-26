@@ -52,11 +52,14 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   def index_data(_conn, params) do
-    params
-    |> Params.filter_params(@filters)
-    |> format_filters()
-    |> RoutePattern.filter_by()
-    |> State.all(pagination_opts(params))
+    with {:ok, filtered} <- Params.filter_params(params, @filters) do
+      filtered
+      |> format_filters()
+      |> RoutePattern.filter_by()
+      |> State.all(pagination_opts(params))
+    else
+      {:error, _} = error -> error
+    end
   end
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
