@@ -22,7 +22,7 @@ defmodule ApiWeb.Plugs.RateLimiterTest do
 
     test "assigns anonymous user", %{conn: conn} do
       conn = get(conn, @url)
-      assert %ApiWeb.User{type: :anon} = conn.assigns.user
+      assert %ApiWeb.User{type: :anon} = conn.assigns.api_user
     end
 
     test "rate limits anonymous requests", %{conn: conn} do

@@ -141,6 +141,38 @@ defmodule ApiWeb.PredictionControllerTest do
     end
   end
 
+  test "versions before 2019-02-12 include Alewife platformed stops", %{conn: conn} do
+    stops = [
+      %Stop{id: "South Station", parent_station: "place-sstat"},
+      %Stop{id: "South Station-02", parent_station: "place-sstat"},
+      %Stop{id: "place-sstat", location_type: 1},
+      %Stop{id: "70061", parent_station: "place-alfcl"},
+      %Stop{id: "Alewife-01", parent_station: "place-alfcl"},
+      %Stop{id: "place-alfcl", location_type: 1}
+    ]
+
+    predictions = [
+      %Prediction{
+        stop_id: "Alewife-01",
+        route_id: "Red",
+        arrival_time: @latest_arrival,
+        track: "1"
+      }
+    ]
+
+    State.Stop.new_state(stops)
+    State.Prediction.new_state(predictions)
+
+    for version <- ~w(2018-05-07 2018-07-23) do
+      conn = assign(conn, :api_version, version)
+
+      assert index_data(conn, %{"filter" => %{"stop" => "70061"}}) == predictions
+    end
+
+    conn = assign(conn, :api_version, "2019-02-12")
+    assert index_data(conn, %{"filter" => %{"stop" => "70061"}}) == []
+  end
+
   test "version 2018-05-07 returns platformed stops at South Station", %{conn: conn} do
     stops = [
       %Stop{id: "South Station", parent_station: "place-sstat"},

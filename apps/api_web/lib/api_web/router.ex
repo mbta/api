@@ -44,8 +44,6 @@ defmodule ApiWeb.Router do
   pipeline :api do
     plug(:accepts_runtime)
     plug(:set_content_type)
-    plug(ApiWeb.Plugs.Authenticate)
-    plug(ApiWeb.Plugs.CORS)
     plug(ApiWeb.Plugs.Version)
     plug(:authenticated_accepts, ApiWeb.config(:api_pipeline, :authenticated_accepts))
   end
@@ -62,6 +60,7 @@ defmodule ApiWeb.Router do
     get("/status", StatusController, :index)
     resources("/stops", StopController, only: [:index, :show])
     resources("/routes", RouteController, only: [:index, :show])
+    resources("/route-patterns", RoutePatternController, only: [:index, :show])
     resources("/lines", LineController, only: [:index, :show])
     resources("/shapes", ShapeController, only: [:index, :show])
     get("/predictions", PredictionController, :index)
@@ -366,7 +365,7 @@ defmodule ApiWeb.Router do
   @doc """
   With an anonymous user, also require that the format is allowed for anonymous users.
   """
-  def authenticated_accepts(%{assigns: %{user: %{type: :anon}}} = conn, [_ | _] = accepts) do
+  def authenticated_accepts(%{assigns: %{api_user: %{type: :anon}}} = conn, [_ | _] = accepts) do
     if Phoenix.Controller.get_format(conn) in accepts do
       anon_accepts = ApiWeb.config(:api_pipeline, :accepts) -- accepts
       accepts(conn, anon_accepts)

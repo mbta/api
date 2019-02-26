@@ -29,12 +29,12 @@ config :api_web, :versions,
   versions: [
     "2017-11-28",
     "2018-05-07",
-    "2018-07-23"
+    "2018-07-23",
+    "2019-02-12"
   ],
   default: "2018-07-23"
 
 config :logger, :console,
-  level: :info,
   format: "$date $time $metadata[$level] $message\n",
   metadata: [:request_id]
 
