@@ -46,7 +46,7 @@ defmodule ApiWeb.RoutePatternController do
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
-    response(200, "OK", Schema.ref(:Routes))
+    response(200, "OK", Schema.ref(:RoutePattern))
     response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
