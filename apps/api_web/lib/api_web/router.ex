@@ -156,7 +156,8 @@ defmodule ApiWeb.Router do
     %{
       info: %{
         title: "MBTA",
-        description: "MBTA service API. https://www.mbta.com Source code: https://github.com/mbta/api",
+        description:
+          "MBTA service API. https://www.mbta.com Source code: https://github.com/mbta/api",
         termsOfService: "http://www.massdot.state.ma.us/DevelopersData.aspx",
         contact: %{
           name: "MBTA Developer",
