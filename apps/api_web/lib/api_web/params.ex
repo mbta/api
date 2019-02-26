@@ -263,7 +263,7 @@ defmodule ApiWeb.Params do
       {:ok, %{}}
 
   """
-  @spec filter_params(map, [String.t()]) :: {:ok, map} | {:error, atom}
+  @spec filter_params(map, [String.t()]) :: {:ok, map} | {:error, atom, [String.t()]}
   def filter_params(params, keys) do
     with top_level_params <- Map.drop(params, @default_params),
          {:ok, filtered1} <- validate_filters(top_level_params, keys),
