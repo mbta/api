@@ -273,8 +273,7 @@ defmodule ApiWeb.ScheduleController do
             arrival_time(
               :string,
               """
-              Time when the trip arrives at the given stop.  `null` if the first stop \
-              (`*/relationships/stop/data/id`) on the trip (`*/relationships/trip/data/id`).  See \
+              Time when the trip arrives at the given stop. See \
               [GTFS `stop_times.txt` `arrival_time`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
               Format is ISO8601.
               """,
@@ -285,8 +284,7 @@ defmodule ApiWeb.ScheduleController do
             departure_time(
               :string,
               """
-              Time when the trip departs the given stop. `null` if the last stop \
-              (`*/relationships/stop/data/id`) on the trip (`*/relationships/trip/data/id`).  See \
+              Time when the trip departs the given stop. See \
               [GTFS `stop_times.txt` `departure_time`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
               Format is ISO8601.
               """,
