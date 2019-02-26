@@ -43,7 +43,7 @@ defmodule ApiWeb.ParamsTest do
     end
   end
 
-  describe "filters/2" do
+  describe "filter_params/2" do
     setup do
       params = %{
         "stop" => "1,2,3",
@@ -58,25 +58,34 @@ defmodule ApiWeb.ParamsTest do
     end
 
     test "filters items from 2nd arg", %{params: params} do
-      assert Params.filter_params(params, ["route", "trip"]) == %{
-               "route" => "1,2,3",
-               "trip" => "1,2,3"
-             }
+      assert Params.filter_params(params, ["route", "trip", "stop"]) ==
+               {:ok,
+                %{
+                  "route" => "1,2,3",
+                  "trip" => "1,2,3",
+                  "stop" => "4,5,6"
+                }}
     end
 
-    test "takes query params in the `filter` namespace", %{params: params} do
-      assert Params.filter_params(params, ["route", "stop"]) == %{
-               "route" => "1,2,3",
-               "stop" => "4,5,6"
-             }
+    test "returns error in case of unsupported filter", %{params: params} do
+      assert Params.filter_params(params, ["route"]) == {:error, :bad_filter}
+    end
+  end
+
+  describe "validate_includes/2" do
+    test "returns ok for valid includes" do
+      assert Params.validate_includes(%{"include" => "stops,trips"}, ~w(stops routes trips)) ==
+               {:ok, ~w(stops trips)}
     end
 
-    test "params in `filter` namespace have priority over duplicate params", %{params: params} do
-      assert Params.filter_params(params, ["stop"]) == %{"stop" => "4,5,6"}
+    test "returns error for invalid includes" do
+      assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips)) ==
+               {:error, :bad_include}
     end
 
-    test "invalid filter values are removed" do
-      assert Params.filter_params(%{"filter" => "string"}, ["stop"]) == %{}
+    test "supports dot notation" do
+      assert Params.validate_includes(%{"include" => "stops.id"}, ~w(stops routes trips)) ==
+               {:ok, ~w(stops)}
     end
   end
 end

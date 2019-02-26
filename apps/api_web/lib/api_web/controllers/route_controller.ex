@@ -13,6 +13,7 @@ defmodule ApiWeb.RouteController do
 
   @filters ~w(id stop type direction_id date)
   @pagination_opts [:offset, :limit, :order_by]
+  @includes ~w(stop)
 
   def state_module, do: State.Route
 
@@ -28,7 +29,7 @@ defmodule ApiWeb.RouteController do
     common_index_parameters(__MODULE__)
 
     include_parameters(
-      ~w(stop),
+      @includes,
       description: "include=stop only works when `filter[stop]` is also used"
     )
 
@@ -71,12 +72,16 @@ defmodule ApiWeb.RouteController do
   end
 
   def index_data(_conn, params) do
-    params
-    |> Params.filter_params(@filters)
-    |> format_filters()
-    |> do_filter()
-    |> filter_hidden()
-    |> State.all(pagination_opts(params))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      filtered
+      |> format_filters()
+      |> do_filter()
+      |> filter_hidden()
+      |> State.all(pagination_opts(params))
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp format_filters(filters) do
@@ -166,19 +171,24 @@ defmodule ApiWeb.RouteController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for route")
-    include_parameters(~w(stop))
+    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
 
     response(200, "OK", Schema.ref(:Route))
+    response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Route.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Route.by_id(id)
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp pagination_opts(params) do

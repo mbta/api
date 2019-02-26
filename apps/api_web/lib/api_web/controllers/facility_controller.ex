@@ -4,6 +4,7 @@ defmodule ApiWeb.FacilityController do
 
   @filters ~w(stop type)s
   @pagination_opts [:offset, :limit, :order_by]
+  @includes ~w(stop)
 
   def state_module, do: State.Facility
 
@@ -17,7 +18,7 @@ defmodule ApiWeb.FacilityController do
     """)
 
     common_index_parameters(__MODULE__)
-    include_parameters(~w(stop))
+    include_parameters(@includes)
     filter_param(:id, name: :stop)
 
     parameter(
@@ -36,11 +37,15 @@ defmodule ApiWeb.FacilityController do
   end
 
   def index_data(_conn, params) do
-    params
-    |> Params.filter_params(@filters)
-    |> format_filters()
-    |> Facility.filter_by()
-    |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      filtered
+      |> format_filters()
+      |> Facility.filter_by()
+      |> State.all(Params.filter_opts(params, @pagination_opts))
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp format_filters(filters) do
@@ -80,7 +85,7 @@ defmodule ApiWeb.FacilityController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    include_parameters(~w(stops))
+    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for facility")
 
     consumes("application/vnd.api+json")
@@ -92,8 +97,12 @@ defmodule ApiWeb.FacilityController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Facility.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Facility.by_id(id)
+    else
+      {:error, _} = error -> error
+    end
   end
 
   def swagger_definitions do

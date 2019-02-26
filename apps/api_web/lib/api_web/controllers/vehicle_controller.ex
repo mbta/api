@@ -81,10 +81,13 @@ defmodule ApiWeb.VehicleController do
   def index_data(conn, params) do
     params = backwards_compatible_params(conn.assigns.api_version, params)
 
-    params
-    |> Params.filter_params(@filters)
-    |> apply_filters()
-    |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters) do
+      filtered
+      |> apply_filters()
+      |> State.all(Params.filter_opts(params, @pagination_opts))
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp backwards_compatible_params("2017-11-28", %{"sort" => "last_updated" <> _} = params) do

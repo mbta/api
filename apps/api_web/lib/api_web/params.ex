@@ -242,11 +242,11 @@ defmodule ApiWeb.Params do
   ## Examples
 
       iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3"}, ["sort"])
-      %{"sort" => "1,2,3"}
+      {:ok, %{"sort" => "1,2,3"}}
 
       iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3", "route" => "1,2,3"},
       ...>   ["route"])
-      %{"route" => "1,2,3"}
+      {:ok, %{"route" => "1,2,3"}}
 
       iex(1)> params = %{
       ...>      "sort" => "1,2,3",
@@ -256,23 +256,60 @@ defmodule ApiWeb.Params do
       ...>      }
       ...>    }
       iex(2)> ApiWeb.Params.filter_params(params, ["sort", "route"])
-      %{"sort" => "4,5,6", "route" => "1,2,3"}
+      {:ok, %{"sort" => "4,5,6", "route" => "1,2,3"}}
 
       iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3"}, [])
-      %{}
+      {:ok, %{}}
 
   """
-  @spec filter_params(map, [String.t()]) :: map
+  @spec filter_params(map, [String.t()]) :: {:ok, map} | {:error, atom}
   def filter_params(params, keys) do
-    params
-    |> Map.take(keys)
-    |> Map.merge(json_api_filter_params(params, keys))
+    with {:ok, filtered} <- validate_filters(params, keys) do
+      result =
+        params
+        |> Map.take(keys)
+        |> Map.merge(filtered)
+
+      {:ok, result}
+    else
+      {:error, _} = error -> error
+    end
   end
 
-  defp json_api_filter_params(params, keys) do
+  @spec validate_filters(map, [String.t()]) :: {:ok, map} | {:error, atom}
+  def validate_filters(params, keys) do
     case params["filter"] do
-      filter when is_map(filter) -> Map.take(filter, keys)
-      _ -> %{}
+      filter when is_map(filter) ->
+        filtered = Map.take(filter, keys)
+
+        if map_size(filtered) == map_size(filter) do
+          {:ok, filtered}
+        else
+          {:error, :bad_filter}
+        end
+
+      _ ->
+        {:ok, %{}}
+    end
+  end
+
+  @spec validate_includes(map, [String.t()]) :: {:ok, [String.t()]} | {:error, atom}
+  def validate_includes(params, includes) do
+    case params["include"] do
+      values when is_binary(values) ->
+        split =
+          values
+          |> String.split(",", trim: true)
+          |> Enum.map(&(&1 |> String.split(".") |> List.first()))
+
+        if split -- includes == [] do
+          {:ok, split}
+        else
+          {:error, :bad_include}
+        end
+
+      _ ->
+        {:ok, nil}
     end
   end
 end

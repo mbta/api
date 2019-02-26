@@ -88,6 +88,13 @@ defmodule ApiWeb.ApiControllerHelpers do
     |> render("404.json-api", [])
   end
 
+  def render_show(conn, _params, {:error, error}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("400.json-api", error: error)
+  end
+
   def render_show(conn, params, data) do
     render(conn, "show.json-api", data: data, opts: ApiControllerHelpers.opts_for_params(params))
   end

@@ -1,6 +1,7 @@
 defmodule ApiWeb.StopView do
   use ApiWeb.Web, :api_view
   alias ApiWeb.Params
+  import ApiWeb.StopController, only: [filters: 0]
   location("/stops/:url_safe_id")
 
   attributes([
@@ -76,7 +77,8 @@ defmodule ApiWeb.StopView do
     relationships = super(stop, conn)
 
     with true <- split_included?("route", conn),
-         {:ok, route_id} <- Map.fetch(Params.filter_params(conn.params, ["route"]), "route") do
+         {:ok, filtered} <- Params.filter_params(conn.params, filters()),
+         {:ok, route_id} <- Map.fetch(filtered, "route") do
       route = State.Route.by_id(route_id)
 
       put_in(relationships[:route], %HasOne{

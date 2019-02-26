@@ -81,6 +81,24 @@ defmodule ApiWeb.ErrorView do
     })
   end
 
+  def render("400.json" <> _, %{error: :bad_filter}) do
+    ErrorSerializer.format(%{
+      code: :bad_request,
+      status: "400",
+      source: %{parameter: "filter"},
+      detail: "Unsupported filter."
+    })
+  end
+
+  def render("400.json" <> _, %{error: :bad_include}) do
+    ErrorSerializer.format(%{
+      code: :bad_request,
+      status: "400",
+      source: %{parameter: "include"},
+      detail: "Unsupported include."
+    })
+  end
+
   def render("406.json" <> _, _assigns) do
     ErrorSerializer.format(%{code: :not_acceptable, status: "406"})
   end

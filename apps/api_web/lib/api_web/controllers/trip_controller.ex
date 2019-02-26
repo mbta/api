@@ -50,16 +50,18 @@ defmodule ApiWeb.TripController do
   end
 
   def index_data(_conn, params) do
-    case params
-         |> Params.filter_params(@filters)
-         |> format_filters() do
-      filters when map_size(filters) > 0 ->
-        filters
-        |> Trip.filter_by()
-        |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters) do
+      case format_filters(filtered) do
+        filters when map_size(filters) > 0 ->
+          filters
+          |> Trip.filter_by()
+          |> State.all(Params.filter_opts(params, @pagination_opts))
 
-      _ ->
-        {:error, :filter_required}
+        _ ->
+          {:error, :filter_required}
+      end
+    else
+      {:error, _} = error -> error
     end
   end
 

@@ -6,6 +6,7 @@ defmodule ApiWeb.AlertController do
   @non_activity_filters ~w(id direction_id facility route route_type stop trip banner datetime lifecycle severity)
   @filters @activity_filters ++ @non_activity_filters
   @pagination_opts ~w(offset limit order_by)a
+  @includes ~w(stops routes trips facilities)
 
   def state_module, do: State.Alert
 
@@ -30,7 +31,7 @@ defmodule ApiWeb.AlertController do
     """)
 
     common_index_parameters(__MODULE__)
-    include_parameters(~w(stops routes trips facilities))
+    include_parameters(@includes)
 
     parameter(
       "filter[activity]",
@@ -115,15 +116,19 @@ defmodule ApiWeb.AlertController do
   end
 
   def index_data(_conn, params) do
-    params
-    |> Params.filter_params(@filters)
-    |> apply_filters()
-    |> case do
-      list when is_list(list) ->
-        State.all(list, Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      filtered
+      |> apply_filters()
+      |> case do
+        list when is_list(list) ->
+          State.all(list, Params.filter_opts(params, @pagination_opts))
 
-      {:error, _} = error ->
-        error
+        {:error, _} = error ->
+          error
+      end
+    else
+      {:error, _} = error -> error
     end
   end
 
@@ -137,19 +142,24 @@ defmodule ApiWeb.AlertController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for alert")
-    include_parameters(~w(stops routes trips facilities))
+    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
 
     response(200, "OK", Schema.ref(:Alert))
+    response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Alert.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Alert.by_id(id)
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp apply_filters(param_list) when param_list == %{} do

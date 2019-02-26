@@ -14,10 +14,13 @@ defmodule ApiWeb.Plugs.ValidateDate do
 
   def call(%Conn{query_params: query_params} = conn, []) do
     query_params
-    |> ApiWeb.Params.filter_params(["date"])
-    |> Map.get("date")
+    |> get_date
     |> validate_date(conn)
   end
+
+  defp get_date(%{"filter" => %{"date" => date}}), do: date
+  defp get_date(%{"date" => date}), do: date
+  defp get_date(_), do: nil
 
   defp validate_date(nil, conn), do: conn
 

@@ -9,6 +9,7 @@ defmodule ApiWeb.ShapeController do
 
   @filters ~w(route direction_id)s
   @pagination_opts ~w(offset limit)a
+  @includes ~w(route stops)
 
   def state_module, do: State.Shape
 
@@ -24,7 +25,7 @@ defmodule ApiWeb.ShapeController do
     """)
 
     common_index_parameters(__MODULE__)
-    include_parameters(~w(route stops))
+    include_parameters(@includes)
     filter_param(:id, name: :route, required: true)
     filter_param(:direction_id)
 
@@ -37,9 +38,12 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(_conn, params) do
-    params
-    |> Params.filter_params(@filters)
-    |> do_filter(params)
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      do_filter(filtered, params)
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp do_filter(%{"route" => route_ids} = filtered_params, params) do
@@ -62,20 +66,25 @@ defmodule ApiWeb.ShapeController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(~w(route stops))
+    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for shape")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
 
     response(200, "OK", Schema.ref(:Shape))
+    response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Shape.by_primary_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Shape.by_primary_id(id)
+    else
+      {:error, _} = error -> error
+    end
   end
 
   def swagger_definitions do

@@ -14,6 +14,7 @@ defmodule ApiWeb.PredictionController do
 
   @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type)s
   @pagination_opts ~w(offset limit order_by)a
+  @includes ~w(schedule stop route trip vehicle alerts)
 
   plug(:date)
 
@@ -48,7 +49,7 @@ defmodule ApiWeb.PredictionController do
     common_index_parameters(__MODULE__)
 
     include_parameters(
-      ~w(schedule stop route trip vehicle alerts),
+      @includes,
       description: include_example()
     )
 
@@ -69,38 +70,41 @@ defmodule ApiWeb.PredictionController do
   end
 
   def index_data(conn, params) do
-    filtered_params = Params.filter_params(params, @filters)
+    with {:ok, filtered_params} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      pagination_opts =
+        Params.filter_opts(params, @pagination_opts, order_by: {:arrival_time, :asc})
 
-    pagination_opts =
-      Params.filter_opts(params, @pagination_opts, order_by: {:arrival_time, :asc})
+      stop_ids = stop_ids(filtered_params, conn)
+      route_ids = Params.split_on_comma(filtered_params, "route")
+      route_types = Params.route_types(filtered_params)
 
-    stop_ids = stop_ids(filtered_params, conn)
-    route_ids = Params.split_on_comma(filtered_params, "route")
-    route_types = Params.route_types(filtered_params)
-
-    direction_id_matcher =
-      filtered_params
-      |> Params.direction_id()
-      |> direction_id_matcher()
-
-    matchers = stop_sequence_matchers(filtered_params, direction_id_matcher)
-
-    case filtered_params do
-      %{"route_type" => _} = p when map_size(p) == 1 ->
-        {:error, :only_route_type}
-
-      p when map_size(p) > 0 ->
+      direction_id_matcher =
         filtered_params
-        |> Params.split_on_comma("trip")
-        |> case do
-          [] -> all_stops_and_routes(stop_ids, route_ids, matchers)
-          trip_ids -> all_stops_and_trips(stop_ids, trip_ids, matchers)
-        end
-        |> Prediction.filter_by_route_type(route_types)
-        |> State.all(pagination_opts)
+        |> Params.direction_id()
+        |> direction_id_matcher()
 
-      _ ->
-        {:error, :filter_required}
+      matchers = stop_sequence_matchers(filtered_params, direction_id_matcher)
+
+      case filtered_params do
+        %{"route_type" => _} = p when map_size(p) == 1 ->
+          {:error, :only_route_type}
+
+        p when map_size(p) > 0 ->
+          filtered_params
+          |> Params.split_on_comma("trip")
+          |> case do
+            [] -> all_stops_and_routes(stop_ids, route_ids, matchers)
+            trip_ids -> all_stops_and_trips(stop_ids, trip_ids, matchers)
+          end
+          |> Prediction.filter_by_route_type(route_types)
+          |> State.all(pagination_opts)
+
+        _ ->
+          {:error, :filter_required}
+      end
+    else
+      {:error, _} = error -> error
     end
   end
 

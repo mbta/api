@@ -206,22 +206,6 @@ defmodule ApiWeb.StopControllerTest do
       end
     end
 
-    test "can include a route we're filtering on", %{conn: conn} do
-      set_up_stops_on_route()
-
-      response =
-        conn
-        |> get(
-          stop_path(conn, :index, %{"filter" => %{"route" => "route"}, "include" => "route"})
-        )
-        |> json_response(200)
-
-      assert %{
-               "type" => "route",
-               "id" => "route"
-             } = List.first(response["included"])
-    end
-
     test "can filter on route and direction_id", %{conn: base_conn} do
       set_up_stops_on_route()
 

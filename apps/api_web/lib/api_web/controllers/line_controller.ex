@@ -12,6 +12,7 @@ defmodule ApiWeb.LineController do
 
   @filters ~w(id)s
   @pagination_opts ~w(offset limit order_by)a
+  @includes ~w(routes)
 
   def state_module, do: State.Line
 
@@ -24,7 +25,7 @@ defmodule ApiWeb.LineController do
     """)
 
     common_index_parameters(__MODULE__)
-    include_parameters(~w(route))
+    include_parameters(@includes)
 
     parameter(
       "filter[id]",
@@ -43,18 +44,23 @@ defmodule ApiWeb.LineController do
   end
 
   def index_data(_conn, params) do
-    lines =
-      case Params.filter_params(params, @filters) do
-        %{"id" => ids} ->
-          ids
-          |> split_on_comma
-          |> State.Line.by_ids()
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      lines =
+        case filtered do
+          %{"id" => ids} ->
+            ids
+            |> split_on_comma
+            |> State.Line.by_ids()
 
-        _ ->
-          State.Line.all()
-      end
+          _ ->
+            State.Line.all()
+        end
 
-    State.all(lines, pagination_opts(params))
+      State.all(lines, pagination_opts(params))
+    else
+      {:error, _} = error -> error
+    end
   end
 
   defp pagination_opts(params) do
@@ -70,7 +76,7 @@ defmodule ApiWeb.LineController do
     Single line, which represents a combination of routes.
     """)
 
-    include_parameters(~w(route))
+    include_parameters(@includes)
 
     parameter(:id, :path, :string, "Unique identifier for a line")
 
@@ -78,13 +84,18 @@ defmodule ApiWeb.LineController do
     produces("application/vnd.api+json")
 
     response(200, "OK", Schema.ref(:Lines))
+    response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Line.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Line.by_id(id)
+    else
+      {:error, _} = error -> error
+    end
   end
 
   def swagger_definitions do
