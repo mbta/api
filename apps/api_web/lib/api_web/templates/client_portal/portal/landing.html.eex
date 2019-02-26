@@ -19,7 +19,8 @@
     <div class="landing-icon">{…}</div>
     <h3>1. Explore Documentation</h3>
     <p>
-      Take a look at the <%= link "documentation", to: "/docs/swagger" %> to learn what’s available and how it works.
+      Take a look at the <%= link "documentation", to: "/docs/swagger" %> and the <%= link "source code", to: "https://github.com/mbta/api" %>
+      to learn what’s available and how it works.
     </p>
   </li>
   <li class="col-xs-12 col-md-4">
