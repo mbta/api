@@ -69,10 +69,9 @@ defmodule ApiWeb.FacilityControllerTest do
       assert results == [facility_1]
     end
 
-    test "ignores invalid filters", %{conn: conn} do
-      facility_1 = State.Facility.by_id("7")
+    test "returns errors for invalid filters", %{conn: conn} do
       results = index_data(conn, %{"filter" => %{"stop" => "place-alfcl", "id" => "ignored"}})
-      assert results == [facility_1]
+      assert results == {:error, :bad_filter, ~w(id)}
     end
 
     test "can filter by stop_id and type", %{conn: conn} do

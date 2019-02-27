@@ -19,6 +19,7 @@ defmodule ApiWeb.ScheduleController do
   @filters ~w(date direction_id max_time min_time route stop stop_sequence
               trip)s
   @pagination_opts ~w(offset limit order_by)a
+  @includes ~w(stop trip prediction route)
 
   def state_module, do: State.Schedule
 
@@ -55,7 +56,7 @@ defmodule ApiWeb.ScheduleController do
     """)
 
     common_index_parameters(__MODULE__)
-    include_parameters(~w(stop trip prediction route))
+    include_parameters(@includes)
     filter_param(:date, description: "Filter schedule by date that they are active.")
     filter_param(:direction_id)
 
@@ -91,17 +92,20 @@ defmodule ApiWeb.ScheduleController do
   end
 
   def index_data(conn, params) do
-    case params
-         |> Params.filter_params(@filters)
-         |> format_filters(conn) do
-      filters when map_size(filters) > 1 ->
-        # greater than 1 because `date` is automatically included
-        filters
-        |> Schedule.filter_by()
-        |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      case format_filters(filtered, conn) do
+        filters when map_size(filters) > 1 ->
+          # greater than 1 because `date` is automatically included
+          filters
+          |> Schedule.filter_by()
+          |> State.all(Params.filter_opts(params, @pagination_opts))
 
-      _ ->
-        {:error, :filter_required}
+        _ ->
+          {:error, :filter_required}
+      end
+    else
+      {:error, _, _} = error -> error
     end
   end
 
@@ -249,7 +253,8 @@ defmodule ApiWeb.ScheduleController do
   """
   def date(%{params: params} = conn, []) do
     {conn, date} =
-      with date_string when date_string != nil <- Params.filter_params(params, ["date"])["date"],
+      with {:ok, %{"date" => date_string}} when date_string != nil <-
+             Params.filter_params(params, @filters),
            {:ok, parsed_date} <- Date.from_iso8601(date_string) do
         {conn, parsed_date}
       else

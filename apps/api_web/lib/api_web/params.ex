@@ -6,6 +6,7 @@ defmodule ApiWeb.Params do
   ## Defaults
 
   @max_limit 100
+  @default_params ~w(include sort page filter fields api_key)
 
   @doc """
   Returns a Keyword list of options from JSONAPI query params.
@@ -242,11 +243,11 @@ defmodule ApiWeb.Params do
   ## Examples
 
       iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3"}, ["sort"])
-      %{"sort" => "1,2,3"}
+      {:ok, %{}}
 
       iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3", "route" => "1,2,3"},
       ...>   ["route"])
-      %{"route" => "1,2,3"}
+      {:ok, %{"route" => "1,2,3"}}
 
       iex(1)> params = %{
       ...>      "sort" => "1,2,3",
@@ -256,23 +257,61 @@ defmodule ApiWeb.Params do
       ...>      }
       ...>    }
       iex(2)> ApiWeb.Params.filter_params(params, ["sort", "route"])
-      %{"sort" => "4,5,6", "route" => "1,2,3"}
+      {:ok, %{"sort" => "4,5,6", "route" => "1,2,3"}}
 
       iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3"}, [])
-      %{}
+      {:ok, %{}}
 
   """
-  @spec filter_params(map, [String.t()]) :: map
+  @spec filter_params(map, [String.t()]) :: {:ok, map} | {:error, atom, [String.t()]}
   def filter_params(params, keys) do
-    params
-    |> Map.take(keys)
-    |> Map.merge(json_api_filter_params(params, keys))
+    with top_level_params <- Map.drop(params, @default_params),
+         {:ok, filtered1} <- validate_filters(top_level_params, keys),
+         {:ok, filtered2} <- validate_filters(Map.get(params, "filter"), keys) do
+      {:ok, Map.merge(filtered1, filtered2)}
+    else
+      {:error, _, _} = error -> error
+    end
   end
 
-  defp json_api_filter_params(params, keys) do
-    case params["filter"] do
-      filter when is_map(filter) -> Map.take(filter, keys)
-      _ -> %{}
+  @spec validate_filters(map, [String.t()]) :: {:ok, map} | {:error, atom, [String.t()]}
+  def validate_filters(nil, _keys), do: {:ok, %{}}
+
+  def validate_filters(params, keys) do
+    case params do
+      filter when is_map(filter) ->
+        bad_filters = Map.keys(filter) -- keys
+
+        if bad_filters == [] do
+          {:ok, Map.take(filter, keys)}
+        else
+          {:error, :bad_filter, bad_filters}
+        end
+
+      _ ->
+        {:ok, %{}}
+    end
+  end
+
+  @spec validate_includes(map, [String.t()]) :: {:ok, [String.t()]} | {:error, atom, [String.t()]}
+  def validate_includes(params, includes) do
+    case Map.get(params, "include") do
+      values when is_binary(values) ->
+        split =
+          values
+          |> String.split(",", trim: true)
+          |> Enum.map(&(&1 |> String.split(".") |> List.first()))
+
+        bad_includes = split -- includes
+
+        if bad_includes == [] do
+          {:ok, split}
+        else
+          {:error, :bad_include, bad_includes}
+        end
+
+      _ ->
+        {:ok, nil}
     end
   end
 end

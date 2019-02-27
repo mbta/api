@@ -9,6 +9,7 @@ defmodule ApiWeb.RoutePatternController do
   alias State.RoutePattern
 
   @filters ~w(id route)
+  @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
   Route patterns are used to describe the subsets of a route, representing different possible patterns of where trips may serve. For example, a bus route may have multiple branches, and each branch may be modeled as a separate route pattern per direction. Hierarchically, the route pattern level may be considered to be larger than the trip level and smaller than the route level.
@@ -52,11 +53,15 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   def index_data(_conn, params) do
-    params
-    |> Params.filter_params(@filters)
-    |> format_filters()
-    |> RoutePattern.filter_by()
-    |> State.all(pagination_opts(params))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      filtered
+      |> format_filters()
+      |> RoutePattern.filter_by()
+      |> State.all(pagination_opts(params))
+    else
+      {:error, _, _} = error -> error
+    end
   end
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
@@ -96,8 +101,12 @@ defmodule ApiWeb.RoutePatternController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    RoutePattern.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      RoutePattern.by_id(id)
+    else
+      {:error, _, _} = error -> error
+    end
   end
 
   defp include_parameters(schema) do

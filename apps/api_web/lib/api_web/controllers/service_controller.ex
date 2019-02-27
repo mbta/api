@@ -43,11 +43,14 @@ defmodule ApiWeb.ServiceController do
 
   def index_data(_conn, params) do
     case Params.filter_params(params, @filters) do
-      %{"id" => ids} ->
+      {:ok, %{"id" => ids}} ->
         ids
         |> split_on_comma
         |> State.Service.by_ids()
         |> State.all(Params.filter_opts(params, @pagination_opts))
+
+      {:error, _, _} = error ->
+        error
 
       _ ->
         {:error, :filter_required}

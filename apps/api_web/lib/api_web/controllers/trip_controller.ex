@@ -12,6 +12,7 @@ defmodule ApiWeb.TripController do
 
   @filters ~w(id date direction_id route)s
   @pagination_opts ~w(offset limit order_by)a
+  @includes ~w(route vehicle service predictions)
 
   def state_module, do: State.Trip.Added
 
@@ -50,16 +51,19 @@ defmodule ApiWeb.TripController do
   end
 
   def index_data(_conn, params) do
-    case params
-         |> Params.filter_params(@filters)
-         |> format_filters() do
-      filters when map_size(filters) > 0 ->
-        filters
-        |> Trip.filter_by()
-        |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      case format_filters(filtered) do
+        filters when map_size(filters) > 0 ->
+          filters
+          |> Trip.filter_by()
+          |> State.all(Params.filter_opts(params, @pagination_opts))
 
-      _ ->
-        {:error, :filter_required}
+        _ ->
+          {:error, :filter_required}
+      end
+    else
+      {:error, _, _} = error -> error
     end
   end
 
@@ -125,8 +129,12 @@ defmodule ApiWeb.TripController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Trip.by_primary_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Trip.by_primary_id(id)
+    else
+      {:error, _, _} = error -> error
+    end
   end
 
   def swagger_definitions do

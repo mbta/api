@@ -6,6 +6,7 @@ defmodule ApiWeb.StopController do
 
   @filters ~w(id date direction_id latitude longitude radius route route_type)s
   @pagination_opts ~w(offset limit order_by distance)a
+  @includes ~w(parent_station child_stops facilities route)
 
   def state_module, do: State.Stop.Cache
 
@@ -27,7 +28,7 @@ defmodule ApiWeb.StopController do
     """)
 
     common_index_parameters(__MODULE__, :include_distance)
-    include_parameters(~w(parent_station child_stops))
+    include_parameters(@includes)
     filter_param(:date, description: "Filter by date when stop is in use")
     filter_param(:direction_id)
 
@@ -67,14 +68,16 @@ defmodule ApiWeb.StopController do
   def index_data(_conn, params) do
     filter_opts = Params.filter_opts(params, @pagination_opts)
 
-    if check_distance_filter?(filter_opts) do
-      params
-      |> Params.filter_params(@filters)
+    with true <- check_distance_filter?(filter_opts),
+         {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      filtered
       |> format_filters()
       |> Stop.filter_by()
       |> State.all(filter_opts)
     else
-      {:error, :distance_params}
+      false -> {:error, :distance_params}
+      {:error, _, _} = error -> error
     end
   end
 
@@ -171,20 +174,25 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(~w(parent_station child_stops))
+    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for stop")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
 
     response(200, "OK", Schema.ref(:Stop))
+    response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Stop.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      Stop.by_id(id)
+    else
+      {:error, _, _} = error -> error
+    end
   end
 
   def swagger_definitions do
@@ -327,4 +335,6 @@ defmodule ApiWeb.StopController do
     | `2`   | Inaccessible                                  |
     """
   end
+
+  def filters, do: @filters
 end
