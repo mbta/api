@@ -13,7 +13,8 @@ defmodule ApiWeb.RouteController do
 
   @filters ~w(id stop type direction_id date)
   @pagination_opts [:offset, :limit, :order_by]
-  @includes ~w(stop)
+  @includes_show ~w(stop)
+  @includes_index ~w(line) ++ @includes_show
 
   def state_module, do: State.Route
 
@@ -29,7 +30,7 @@ defmodule ApiWeb.RouteController do
     common_index_parameters(__MODULE__)
 
     include_parameters(
-      @includes,
+      @includes_index,
       description: "include=stop only works when `filter[stop]` is also used"
     )
 
@@ -73,7 +74,7 @@ defmodule ApiWeb.RouteController do
 
   def index_data(_conn, params) do
     with {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+         {:ok, _includes} <- Params.validate_includes(params, @includes_index) do
       filtered
       |> format_filters()
       |> do_filter()
@@ -171,6 +172,7 @@ defmodule ApiWeb.RouteController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for route")
+    include_parameters(@includes_show)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -182,8 +184,12 @@ defmodule ApiWeb.RouteController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Route.by_id(id)
+  def show_data(_conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes_show) do
+      Route.by_id(id)
+    else
+      {:error, _, _} = error -> error
+    end
   end
 
   defp pagination_opts(params) do
