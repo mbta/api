@@ -171,7 +171,6 @@ defmodule ApiWeb.RouteController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for route")
-    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -183,12 +182,8 @@ defmodule ApiWeb.RouteController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
-      Route.by_id(id)
-    else
-      {:error, _, _} = error -> error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    Route.by_id(id)
   end
 
   defp pagination_opts(params) do
