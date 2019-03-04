@@ -4,6 +4,7 @@ defmodule ApiWeb.LiveFacilityController do
 
   @filters ~w(id)
   @pagination_opts ~w(offset limit order_by)a
+  @includes ~w(facility)
 
   def state_module, do: State.Facility.Parking
 
@@ -17,6 +18,7 @@ defmodule ApiWeb.LiveFacilityController do
     """)
 
     common_index_parameters(__MODULE__)
+    include_parameters(@includes)
     filter_param(:id)
 
     parameter(
@@ -35,26 +37,28 @@ defmodule ApiWeb.LiveFacilityController do
   end
 
   def index_data(_conn, params) do
-    case Params.filter_params(params, @filters) do
-      {:ok, %{"id" => ids}} ->
-        ids
-        |> split_on_comma
-        |> State.Facility.Parking.by_facility_ids()
-        |> Enum.group_by(& &1.facility_id)
-        |> Enum.map(fn {facilty_id, properties} ->
-          %{
-            facility_id: facilty_id,
-            properties: properties,
-            updated_at: updated_at(properties)
-          }
-        end)
-        |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters),
+         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      case filtered do
+        %{"id" => ids} ->
+          ids
+          |> split_on_comma
+          |> State.Facility.Parking.by_facility_ids()
+          |> Enum.group_by(& &1.facility_id)
+          |> Enum.map(fn {facilty_id, properties} ->
+            %{
+              facility_id: facilty_id,
+              properties: properties,
+              updated_at: updated_at(properties)
+            }
+          end)
+          |> State.all(Params.filter_opts(params, @pagination_opts))
 
-      {:error, _, _} = error ->
-        error
-
-      _ ->
-        {:error, :filter_required}
+        _ ->
+          {:error, :filter_required}
+      end
+    else
+      {:error, _, _} = error -> error
     end
   end
 
@@ -67,6 +71,7 @@ defmodule ApiWeb.LiveFacilityController do
     #{swagger_path_description("/data/{index}")}
     """)
 
+    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for facility")
 
     consumes("application/vnd.api+json")
@@ -78,17 +83,21 @@ defmodule ApiWeb.LiveFacilityController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => facility_id}) do
-    case State.Facility.Parking.by_facility_id(facility_id) do
-      [] ->
-        nil
+  def show_data(_conn, %{"id" => facility_id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+      case State.Facility.Parking.by_facility_id(facility_id) do
+        [] ->
+          nil
 
-      properties ->
-        %{
-          facility_id: facility_id,
-          properties: properties,
-          updated_at: updated_at(properties)
-        }
+        properties ->
+          %{
+            facility_id: facility_id,
+            properties: properties,
+            updated_at: updated_at(properties)
+          }
+      end
+    else
+      {:error, _, _} = error -> error
     end
   end
 
