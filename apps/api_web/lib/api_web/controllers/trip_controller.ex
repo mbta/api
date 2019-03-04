@@ -12,7 +12,7 @@ defmodule ApiWeb.TripController do
 
   @filters ~w(id date direction_id route)s
   @pagination_opts ~w(offset limit order_by)a
-  @includes ~w(route vehicle service predictions)
+  @includes ~w(route vehicle service shape predictions)
 
   def state_module, do: State.Trip.Added
 
@@ -218,13 +218,14 @@ defmodule ApiWeb.TripController do
   defp include_parameters(schema) do
     ApiWeb.SwaggerHelpers.include_parameters(
       schema,
-      ~w(route vehicle service predictions),
+      @includes,
       description: """
       | include       | Description |
       |---------------|-------------|
       | `route`       | The *primary* route for the trip. |
       | `vehicle`     | The vehicle on this trip. |
       | `service`     | The service controlling when this trip is active. |
+      | `shape`       | The shape of the trip. |
       | `predictions` | Predictions of when the `vehicle` on this `trip` will arrive at or depart from each stop on the route(s) on the `trip`. |
       """
     )
