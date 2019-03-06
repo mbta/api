@@ -274,27 +274,22 @@ defmodule ApiWeb.Params do
     end
   end
 
-  @spec validate_filters(map, [String.t()]) :: {:ok, map} | {:error, atom, [String.t()]}
+  @spec validate_filters(map, [String.t()]) :: {:ok, map}
   def validate_filters(nil, _keys), do: {:ok, %{}}
 
   def validate_filters(params, keys) do
     case params do
       filter when is_map(filter) ->
-        bad_filters = Map.keys(filter) -- keys
-
-        if bad_filters == [] do
-          {:ok, Map.take(filter, keys)}
-        else
-          {:error, :bad_filter, bad_filters}
-        end
+        good_filters = Map.take(filter, keys)
+        {:ok, good_filters}
 
       _ ->
         {:ok, %{}}
     end
   end
 
-  @spec validate_includes(map, [String.t()]) :: {:ok, [String.t()]} | {:error, atom, [String.t()]}
-  def validate_includes(params, includes) do
+  @spec validate_includes(map, [String.t()]) :: {:ok, [String.t()]}
+  def validate_includes(params, _includes) do
     case Map.get(params, "include") do
       values when is_binary(values) ->
         split =
@@ -302,13 +297,7 @@ defmodule ApiWeb.Params do
           |> String.split(",", trim: true)
           |> Enum.map(&(&1 |> String.split(".") |> List.first()))
 
-        bad_includes = split -- includes
-
-        if bad_includes == [] do
-          {:ok, split}
-        else
-          {:error, :bad_include, bad_includes}
-        end
+        {:ok, split}
 
       _ ->
         {:ok, nil}
