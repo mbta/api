@@ -6,8 +6,8 @@ defmodule Parse.TripsTest do
 
   setup do
     blob = """
-    "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible"
-    "1","BUS22016-hbc26ns1-Weekday-02","30133120","Dudley","",1,"C01-12","010058",1
+    "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible","route_pattern_id"
+    "1","BUS22016-hbc26ns1-Weekday-02","30133120","Dudley","",1,"C01-12","010058",1,rpi
     """
 
     {:ok, %{blob: blob}}
@@ -25,7 +25,8 @@ defmodule Parse.TripsTest do
                block_id: "C01-12",
                shape_id: "010058",
                wheelchair_accessible: 1,
-               bikes_allowed: 0
+               bikes_allowed: 0,
+               route_pattern_id: "rpi"
              }
            ]
   end

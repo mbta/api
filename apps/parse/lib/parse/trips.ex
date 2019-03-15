@@ -25,6 +25,7 @@ defmodule Parse.Trips do
   * `"block_id"` - `Model.Trip.t` `block_id`
   * `"wheelchair_accessible"` - `Model.Trip.t` `wheelchair_accessible`
   * `"trip_route_type" - `Model.Route.route_type | nil`
+  * `"route_pattern_id"` - `Model.RoutePattern.id | nil`
 
   """
   def parse_row(row) do
@@ -39,9 +40,15 @@ defmodule Parse.Trips do
       block_id: copy(row["block_id"]),
       wheelchair_accessible: String.to_integer(row["wheelchair_accessible"]),
       route_type: trip_route_type(row["trip_route_type"]),
-      bikes_allowed: bikes_allowed(row["bikes_allowed"])
+      bikes_allowed: bikes_allowed(row["bikes_allowed"]),
+      route_pattern_id: optional_copy(Map.get(row, "route_pattern_id"))
     }
   end
+
+  defp optional_copy(""), do: nil
+  defp optional_copy(binary) when is_binary(binary), do: copy(binary)
+  # only happens in testing
+  defp optional_copy(nil), do: nil
 
   for route_type <- 0..4 do
     defp trip_route_type(unquote(Integer.to_string(route_type))), do: unquote(route_type)
