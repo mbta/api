@@ -15,14 +15,16 @@ defmodule State.RoutesAtStopTest do
     shape_id: "pattern",
     route_id: "route",
     direction_id: 1,
-    service_id: "service"
+    service_id: "service",
+    route_pattern_id: "rpi"
   }
   @other_trip %Model.Trip{
     id: "other_trip",
     shape_id: "other_pattern",
     route_id: "route",
     direction_id: 0,
-    service_id: "other_service"
+    service_id: "other_service",
+    route_pattern_id: "other_rpi"
   }
   @schedule %Model.Schedule{trip_id: "trip", stop_id: "stop", stop_sequence: 2}
   @other_schedule %Model.Schedule{trip_id: "other_trip", stop_id: "other_stop", stop_sequence: 1}

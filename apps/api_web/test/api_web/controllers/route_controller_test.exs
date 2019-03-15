@@ -108,7 +108,7 @@ defmodule ApiWeb.RouteControllerTest do
       stop = %Model.Stop{id: "1", latitude: 1, longitude: 2}
       stop2 = %Model.Stop{id: "2"}
       State.Stop.new_state([stop, stop2])
-      State.Trip.new_state([%Model.Trip{id: "trip", route_id: "1"}])
+      State.Trip.new_state([%Model.Trip{id: "trip", route_id: "1", route_pattern_id: "rpi"}])
 
       State.Schedule.new_state([
         %Model.Schedule{trip_id: "trip", stop_id: "1"},
@@ -131,8 +131,8 @@ defmodule ApiWeb.RouteControllerTest do
     end
 
     test "can filter by stop and direction_id", %{conn: conn} do
-      trip1 = %Model.Trip{id: "trip1", route_id: "1", direction_id: 0}
-      trip2 = %Model.Trip{id: "trip2", route_id: "2", direction_id: 1}
+      trip1 = %Model.Trip{id: "trip1", route_id: "1", direction_id: 0, route_pattern_id: "rpi"}
+      trip2 = %Model.Trip{id: "trip2", route_id: "2", direction_id: 1, route_pattern_id: "rpi"}
       State.Trip.new_state([trip1, trip2])
       stop1 = %Model.Stop{id: "1"}
       stop2 = %Model.Stop{id: "2"}
@@ -149,8 +149,8 @@ defmodule ApiWeb.RouteControllerTest do
     end
 
     test "can filter by stop and type", %{conn: conn} do
-      trip1 = %Model.Trip{id: "trip1", route_id: "1", direction_id: 0}
-      trip2 = %Model.Trip{id: "trip2", route_id: "3", direction_id: 1}
+      trip1 = %Model.Trip{id: "trip1", route_id: "1", direction_id: 0, route_pattern_id: "rpi"}
+      trip2 = %Model.Trip{id: "trip2", route_id: "3", direction_id: 1, route_pattern_id: "rpi"}
       State.Trip.new_state([trip1, trip2])
       stop1 = %Model.Stop{id: "1"}
       stop2 = %Model.Stop{id: "2"}
@@ -181,7 +181,14 @@ defmodule ApiWeb.RouteControllerTest do
       }
 
       route = %Model.Route{id: "route"}
-      trip = %Model.Trip{id: "trip", route_id: route.id, service_id: service.id}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: route.id,
+        service_id: service.id,
+        route_pattern_id: "rpi"
+      }
+
       schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id}
       State.Service.new_state([service])
       State.Trip.reset_gather()

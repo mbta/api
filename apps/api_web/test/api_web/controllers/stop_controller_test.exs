@@ -192,7 +192,8 @@ defmodule ApiWeb.StopControllerTest do
         stop2 = %Stop{id: random_id()}
         State.Stop.new_state([stop, stop2])
         State.Route.new_state([%Model.Route{id: "route"}])
-        State.Trip.new_state([%Model.Trip{id: "trip", route_id: "route"}])
+
+        State.Trip.new_state([%Model.Trip{id: "trip", route_id: "route", route_pattern_id: "rpi"}])
 
         State.Schedule.new_state([
           %Model.Schedule{trip_id: "trip", stop_id: stop.id, stop_sequence: 1},
@@ -248,7 +249,14 @@ defmodule ApiWeb.StopControllerTest do
       }
 
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route", service_id: "service"}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: "route",
+        service_id: "service",
+        route_pattern_id: "rpi"
+      }
+
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       feed = %Model.Feed{start_date: bad_date, end_date: future}
       State.Service.new_state([service])
@@ -443,8 +451,8 @@ defmodule ApiWeb.StopControllerTest do
     State.Route.new_state([%Model.Route{id: "route", type: 2}, %Model.Route{id: "other", type: 4}])
 
     State.Trip.new_state([
-      %Model.Trip{id: "trip", route_id: "route", direction_id: 1},
-      %Model.Trip{id: "other", route_id: "other", direction_id: 0}
+      %Model.Trip{id: "trip", route_id: "route", direction_id: 1, route_pattern_id: "rpi"},
+      %Model.Trip{id: "other", route_id: "other", direction_id: 0, route_pattern_id: "rpi"}
     ])
 
     State.Schedule.new_state([

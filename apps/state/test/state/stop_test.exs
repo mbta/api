@@ -104,7 +104,7 @@ defmodule State.StopTest do
     test "filters by route" do
       stop = %Stop{id: "1"}
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route"}
+      trip = %Model.Trip{id: "trip", route_id: "route", route_pattern_id: "rpi"}
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])
@@ -120,7 +120,7 @@ defmodule State.StopTest do
     test "filters by route and direction" do
       stop = %Stop{id: "1"}
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route", direction_id: 1}
+      trip = %Model.Trip{id: "trip", route_id: "route", direction_id: 1, route_pattern_id: "rpi"}
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])
@@ -136,7 +136,7 @@ defmodule State.StopTest do
     test "filtering by direction requires also filtering by routes" do
       stop = %Stop{id: "1"}
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route", direction_id: 1}
+      trip = %Model.Trip{id: "trip", route_id: "route", direction_id: 1, route_pattern_id: "rpi"}
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])
@@ -164,7 +164,14 @@ defmodule State.StopTest do
       }
 
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route", service_id: "service"}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: "route",
+        service_id: "service",
+        route_pattern_id: "rpi"
+      }
+
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Service.new_state([service])
       State.Trip.reset_gather()
@@ -193,7 +200,14 @@ defmodule State.StopTest do
       }
 
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route", service_id: "service"}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: "route",
+        service_id: "service",
+        route_pattern_id: "rpi"
+      }
+
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Service.new_state([service])
       State.Trip.reset_gather()
@@ -213,7 +227,7 @@ defmodule State.StopTest do
     test "filters by latitude and longitude" do
       stop = %Stop{id: "1", latitude: 1, longitude: 2}
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route"}
+      trip = %Model.Trip{id: "trip", route_id: "route", route_pattern_id: "rpi"}
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])
@@ -230,7 +244,7 @@ defmodule State.StopTest do
     test "filters by latitude, longitude, and radius" do
       stop = %Stop{id: "1", latitude: 1, longitude: 2}
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route"}
+      trip = %Model.Trip{id: "trip", route_id: "route", route_pattern_id: "rpi"}
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])
@@ -246,7 +260,7 @@ defmodule State.StopTest do
     test "filters by route type" do
       stop = %Stop{id: "1"}
       route = %Model.Route{id: "route", type: 2}
-      trip = %Model.Trip{id: "trip", route_id: "route"}
+      trip = %Model.Trip{id: "trip", route_id: "route", route_pattern_id: "rpi"}
       schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])

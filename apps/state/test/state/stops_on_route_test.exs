@@ -16,14 +16,16 @@ defmodule State.StopsOnRouteTest do
     route_id: "route",
     shape_id: "pattern",
     direction_id: 1,
-    service_id: "service"
+    service_id: "service",
+    route_pattern_id: "rpi"
   }
   @other_trip %Model.Trip{
     id: "other_trip",
     route_id: "route",
     shape_id: "other_pattern",
     direction_id: 0,
-    service_id: "other_service"
+    service_id: "other_service",
+    route_pattern_id: "other_rpi"
   }
   @schedule %Model.Schedule{trip_id: "trip", stop_id: "stop", stop_sequence: 2}
   @other_schedule %Model.Schedule{trip_id: "other_trip", stop_id: "other_stop", stop_sequence: 1}
@@ -119,12 +121,19 @@ defmodule State.StopsOnRouteTest do
             id: "#{trip_id}",
             direction_id: 0,
             shape_id: "#{shape_id}",
-            route_id: @route.id
+            route_id: @route.id,
+            route_pattern_id: "rpi"
           }
         end ++
           [
             # Inbound trip
-            %Model.Trip{id: "reverse", direction_id: 1, shape_id: "other", route_id: @route.id}
+            %Model.Trip{
+              id: "reverse",
+              direction_id: 1,
+              shape_id: "other",
+              route_id: @route.id,
+              route_pattern_id: "rpi"
+            }
           ]
 
       schedules =
@@ -184,7 +193,8 @@ defmodule State.StopsOnRouteTest do
             direction_id: 0,
             shape_id: shape_id,
             route_type: route_type,
-            route_id: @route.id
+            route_id: @route.id,
+            route_pattern_id: "rpi"
           }
         end
 
@@ -233,7 +243,8 @@ defmodule State.StopsOnRouteTest do
             id: "#{trip_id}",
             direction_id: 0,
             shape_id: "#{shape_id}",
-            route_id: @route.id
+            route_id: @route.id,
+            route_pattern_id: "rpi"
           }
         end
 

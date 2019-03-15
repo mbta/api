@@ -17,7 +17,8 @@ defmodule State.AlertTest do
     id: @trip_id,
     route_id: @route_id,
     direction_id: 1,
-    service_id: @service_id
+    service_id: @service_id,
+    route_pattern_id: "rpi"
   }
   @today Time.service_date()
   @service %Model.Service{
@@ -170,7 +171,8 @@ defmodule State.AlertTest do
       trip = %Model.Trip{
         id: "trip",
         route_id: "Red",
-        direction_id: 1
+        direction_id: 1,
+        route_pattern_id: "rpi"
       }
 
       State.Trip.new_state([trip])
@@ -200,7 +202,8 @@ defmodule State.AlertTest do
       trip = %Model.Trip{
         id: "trip",
         route_id: "Red",
-        direction_id: 1
+        direction_id: 1,
+        route_pattern_id: "rpi"
       }
 
       State.Trip.new_state([trip])
@@ -269,7 +272,8 @@ defmodule State.AlertTest do
       trip = %Model.Trip{
         id: "trip",
         route_id: route.id,
-        direction_id: 1
+        direction_id: 1,
+        route_pattern_id: "rpi"
       }
 
       State.Trip.new_state([trip])
@@ -305,7 +309,8 @@ defmodule State.AlertTest do
       trip = %Model.Trip{
         id: "trip",
         route_id: route.id,
-        direction_id: 1
+        direction_id: 1,
+        route_pattern_id: "rpi"
       }
 
       State.Trip.new_state([trip])
