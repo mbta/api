@@ -32,8 +32,8 @@ defmodule StateMediator.Integration.GtfsTest do
     end)
 
     receive_items(State.RoutesAtStop)
-    receive_items(State.Shape)
     receive_items(State.StopsOnRoute)
+    receive_items(State.Shape)
     Logger.configure(level: :warn)
   end
 
@@ -194,6 +194,24 @@ defmodule StateMediator.Integration.GtfsTest do
         end
 
       assert invalid_dates == []
+    end
+
+    test "keeps Winsor Gardens and Plimptonville in the right order" do
+      [direction_0, direction_1] =
+        for direction_id <- [0, 1] do
+          stops =
+            State.Stop.filter_by(%{
+              routes: ["CR-Franklin"],
+              direction_id: direction_id
+            })
+
+          stops
+          |> Enum.map(& &1.id)
+          |> Enum.filter(&(&1 in ["Windsor Gardens", "Plimptonville"]))
+        end
+
+      assert direction_0 == ["Windsor Gardens", "Plimptonville"]
+      assert direction_1 == ["Plimptonville", "Windsor Gardens"]
     end
   end
 

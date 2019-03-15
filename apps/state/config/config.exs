@@ -105,4 +105,12 @@ config :state, :shape,
     "-S" => -1
   }
 
+# Overrides for the stop ordering on routes where the trips themselves aren't enough
+config :state, :stops_on_route,
+  stop_order_overrides: %{
+    {"CR-Franklin", 0} => [
+      ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"]
+    ]
+  }
+
 import_config "#{Mix.env()}.exs"

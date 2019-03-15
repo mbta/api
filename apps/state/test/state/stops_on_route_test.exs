@@ -278,6 +278,61 @@ defmodule State.StopsOnRouteTest do
       update!()
       assert by_route_id(@route.id) == ["other_stop"]
     end
+
+    test "shows Plimptonville after Windsor Gardens even when they don't share a trip" do
+      State.Stop.new_state([
+        %Model.Stop{id: "place-sstat"},
+        %Model.Stop{id: "Windsor Gardens"},
+        %Model.Stop{id: "Plimptonville"},
+        %Model.Stop{id: "Walpole"},
+        %Model.Stop{id: "Franklin"}
+      ])
+
+      State.Route.new_state([%Model.Route{id: "CR-Franklin"}])
+
+      State.Trip.new_state([
+        %Model.Trip{
+          id: "via-plimptonville",
+          route_id: "CR-Franklin",
+          direction_id: 0,
+          service_id: "service",
+          route_pattern_id: "rpi"
+        },
+        %Model.Trip{
+          id: "via-windsor-gardens",
+          route_id: "CR-Franklin",
+          direction_id: 0,
+          service_id: "service",
+          route_pattern_id: "rpi"
+        }
+      ])
+
+      State.Schedule.new_state([
+        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "place-sstat", stop_sequence: 1},
+        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "Plimptonville", stop_sequence: 2},
+        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "Franklin", stop_sequence: 3},
+        # Windsor Gardens trip has more stops because this bug only shows up when the merge
+        # has windor gardens on the left and plimptonville on the right.
+        # They're sorted by length before merging, so this forces them to be in the order to make the bug appear.
+        %Model.Schedule{trip_id: "via-windsor-gardens", stop_id: "place-sstat", stop_sequence: 1},
+        %Model.Schedule{
+          trip_id: "via-windsor-gardens",
+          stop_id: "Windsor Gardens",
+          stop_sequence: 2
+        },
+        %Model.Schedule{trip_id: "via-windsor-gardens", stop_id: "Walpole", stop_sequence: 3},
+        %Model.Schedule{trip_id: "via-windsor-gardens", stop_id: "Franklin", stop_sequence: 4}
+      ])
+
+      update!()
+
+      stop_ids = by_route_id("CR-Franklin")
+
+      assert Enum.filter(stop_ids, &(&1 in ["Windsor Gardens", "Plimptonville"])) == [
+               "Windsor Gardens",
+               "Plimptonville"
+             ]
+    end
   end
 
   describe "by_route_ids/2" do
@@ -362,6 +417,129 @@ defmodule State.StopsOnRouteTest do
       # There isn't a single defined order (that we can determine) but we
       # know that there are only three items.
       assert [_, _, _] = merge_ids(stop_ids)
+    end
+
+    test "can use an override to order individual stops" do
+      stop_ids =
+        Enum.shuffle([
+          [1, 2, 3, 5, 6],
+          [1, 2, 4, 5, 6]
+        ])
+
+      overrides = [[2, 4, 3, 5]]
+
+      assert [1, 2, 4, 3, 5, 6] == merge_ids(stop_ids, overrides)
+    end
+
+    test "keeps the first order of stops if it's ambiguous" do
+      stops = [
+        [
+          "place-sstat",
+          "place-jfk",
+          "place-qnctr",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Kingston",
+          "Plymouth"
+        ],
+        [
+          "place-sstat",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Kingston",
+          "Plymouth"
+        ],
+        [
+          "place-sstat",
+          "place-jfk",
+          "place-qnctr",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Kingston"
+        ],
+        [
+          "place-sstat",
+          "place-jfk",
+          "place-qnctr",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Plymouth",
+          "Kingston"
+        ],
+        [
+          "place-sstat",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Kingston"
+        ],
+        [
+          "place-sstat",
+          "place-jfk",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Kingston"
+        ],
+        [
+          "place-sstat",
+          "place-qnctr",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Kingston"
+        ],
+        [
+          "place-sstat",
+          "place-qnctr",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Plymouth",
+          "Kingston"
+        ],
+        [
+          "place-sstat",
+          "place-brntn",
+          "South Weymouth",
+          "Abington",
+          "Whitman",
+          "Hanson",
+          "Halifax",
+          "Plymouth"
+        ]
+      ]
+
+      merged = merge_ids(stops)
+      assert List.last(merged) == "Plymouth"
     end
   end
 

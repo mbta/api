@@ -12,6 +12,9 @@ defmodule State.StopsOnRoute do
 
   @table __MODULE__
 
+  # ensure we recompile this module when the state config changes
+  @external_resource "apps/state/config/config.exs"
+
   @type stop_id_list :: [Model.Stop.id()]
 
   @typep record ::
@@ -72,7 +75,6 @@ defmodule State.StopsOnRoute do
     subscriptions = [
       {:new_state, State.Route},
       {:new_state, State.Trip},
-      {:new_state, State.Shape},
       {:new_state, State.Schedule}
     ]
 
@@ -115,14 +117,15 @@ defmodule State.StopsOnRoute do
     route.id
     |> State.Trip.by_route_id()
     |> Enum.group_by(& &1.direction_id)
-    |> Enum.flat_map(fn {_direction_id, trips} ->
-      do_gather_route_direction(route, trips)
+    |> Enum.flat_map(fn {direction_id, trips} ->
+      do_gather_route_direction(route, direction_id, trips)
     end)
   end
 
-  @spec do_gather_route_direction(Model.Route.t(), [Model.Trip.t()]) :: [record]
-  defp do_gather_route_direction(route, trips) do
-    global_stop_id_order = order_stop_ids_for_trips(trips)
+  @spec do_gather_route_direction(Model.Route.t(), Model.Direction.id(), [Model.Trip.t()]) ::
+          [record]
+  defp do_gather_route_direction(route, direction_id, trips) do
+    global_stop_id_order = order_stop_ids_for_trips(route, direction_id, trips)
 
     trips
     |> Enum.group_by(fn trip ->
@@ -137,7 +140,7 @@ defmodule State.StopsOnRoute do
 
     stop_ids =
       trip_group
-      |> stop_ids_for_trips
+      |> stop_ids_for_trips()
       |> merge_group_stop_ids(global_order)
 
     if stop_ids == [] do
@@ -161,11 +164,15 @@ defmodule State.StopsOnRoute do
     |> Enum.uniq()
   end
 
-  defp order_stop_ids_for_trips(trips) do
-    trips
-    |> Stream.reject(&ignore_trip_for_route?/1)
-    |> stop_ids_for_trips
-    |> merge_ids
+  defp order_stop_ids_for_trips(route, direction_id, trips) do
+    trip_stops =
+      trips
+      |> Stream.reject(&ignore_trip_for_route?/1)
+      |> stop_ids_for_trips()
+
+    overrides = stop_order_overrides(route.id, direction_id)
+
+    merge_ids(trip_stops, overrides)
   end
 
   @spec merge_group_stop_ids([stop_id_list], stop_id_list) :: stop_id_list
@@ -185,6 +192,12 @@ defmodule State.StopsOnRoute do
       |> Enum.reduce(&MapSet.union/2)
 
     Enum.filter(global_order, &MapSet.member?(group_stop_id_map, &1))
+  end
+
+  # additional ordered stop IDs to include during the merge
+  defp stop_order_overrides(route_id, direction_id) do
+    config = Application.get_env(:state, :stops_on_route)[:stop_order_overrides]
+    Map.get(config, {route_id, direction_id}, [])
   end
 
   defp do_reduce([], state) do
@@ -207,11 +220,18 @@ defmodule State.StopsOnRoute do
   defp stop_id_or_parent(%{parent_station: id}), do: id
 
   @spec merge_ids([stop_id_list]) :: stop_id_list
-  def merge_ids([]), do: []
+  @spec merge_ids([stop_id_list], [stop_id_list]) :: stop_id_list
+  def merge_ids(lists_of_ids, override_lists \\ [])
 
-  def merge_ids(lists_of_ids) do
-    lists_of_ids
-    |> Enum.sort_by(&list_merge_key/1, &>=/2)
+  def merge_ids([], _), do: []
+
+  def merge_ids(lists_of_ids, override_lists) do
+    sorted_lists = Enum.sort_by(lists_of_ids, &list_merge_key/1, &>=/2)
+    # overrides should be short or empty, so putting that first with ++ is
+    # fine.
+    lists_with_overrides = override_lists ++ sorted_lists
+
+    lists_with_overrides
     |> Enum.reduce(&merge_two_lists/2)
     |> Enum.uniq()
   end
@@ -236,13 +256,14 @@ defmodule State.StopsOnRoute do
 
   defp merge_differences(diff_list, side \\ :front)
 
-  defp merge_differences([], _side) do
-    []
-  end
-
   defp merge_differences([{:del, del}, {:ins, ins} | rest], :front = side) do
     # del is the shorter branch, so put that second if we're on the front side
     ins ++ del ++ merge_differences(rest, side)
+  end
+
+  defp merge_differences([{:del, copy}, {:eq, eq}, {:ins, copy} | rest], :back = side) do
+    # if we're duplicating data on the back side, keep the duplicate at the end
+    eq ++ copy ++ merge_differences(rest, side)
   end
 
   defp merge_differences([{:eq, items} | rest], _side) do
@@ -252,6 +273,10 @@ defmodule State.StopsOnRoute do
 
   defp merge_differences([{_cmd, items} | rest], side) do
     items ++ merge_differences(rest, side)
+  end
+
+  defp merge_differences([], _side) do
+    []
   end
 
   defp maybe_empty!(:full) do
