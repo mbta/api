@@ -15,7 +15,8 @@ defmodule Model.Trip do
     :wheelchair_accessible,
     :alternate_route,
     :route_type,
-    :bikes_allowed
+    :bikes_allowed,
+    :route_pattern_id
   ]
 
   @type id :: String.t()
@@ -32,7 +33,8 @@ defmodule Model.Trip do
           block_id: String.t() | nil,
           wheelchair_accessible: 0..2,
           alternate_route: boolean | nil,
-          bikes_allowed: 0..2
+          bikes_allowed: 0..2,
+          route_pattern_id: Model.RoutePattern.id()
         }
 
   @doc """

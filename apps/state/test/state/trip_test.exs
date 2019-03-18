@@ -139,8 +139,8 @@ defmodule State.TripTest do
                handle_event(
                  {:fetch, "trips.txt"},
                  """
-                 "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible","trip_route_type"
-                 "Logan-22","Logan-Weekday","Logan-22-Weekday-trip","Loop","",0,"","",1,""
+                 "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible","trip_route_type","route_pattern_id"
+                 "Logan-22","Logan-Weekday","Logan-22-Weekday-trip","Loop","",0,"","",1,"","Logan-22-1-0"
                  """,
                  callback_argument,
                  multi_route_trips_state

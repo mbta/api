@@ -25,6 +25,7 @@ defmodule Parse.Trips do
   * `"block_id"` - `Model.Trip.t` `block_id`
   * `"wheelchair_accessible"` - `Model.Trip.t` `wheelchair_accessible`
   * `"trip_route_type" - `Model.Route.route_type | nil`
+  * `"route_pattern_id" - `Model.RoutePattern.t`
 
   """
   def parse_row(row) do
@@ -39,7 +40,8 @@ defmodule Parse.Trips do
       block_id: copy(row["block_id"]),
       wheelchair_accessible: String.to_integer(row["wheelchair_accessible"]),
       route_type: trip_route_type(row["trip_route_type"]),
-      bikes_allowed: bikes_allowed(row["bikes_allowed"])
+      bikes_allowed: bikes_allowed(row["bikes_allowed"]),
+      route_pattern_id: copy(row["route_pattern_id"])
     }
   end
 
