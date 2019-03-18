@@ -49,10 +49,21 @@ defmodule ApiWeb.RouteControllerTest do
     id: "line-First",
     short_name: "First Line"
   }
+  @route_pattern1 %Model.RoutePattern{
+    id: "1",
+    route_id: "1",
+    name: "1-0-1"
+  }
+  @route_pattern2 %Model.RoutePattern{
+    id: "2",
+    route_id: "1",
+    name: "1-1-1"
+  }
 
   setup %{conn: conn} do
     State.Route.new_state([@route, @route2, @route3])
     State.Line.new_state([@line1])
+    State.RoutePattern.new_state([@route_pattern1, @route_pattern2])
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -244,7 +255,7 @@ defmodule ApiWeb.RouteControllerTest do
 
   describe "show" do
     test "shows chosen resource", %{conn: conn} do
-      conn = get(conn, route_path(conn, :show, @route))
+      conn = get(conn, route_path(conn, :show, @route), %{"include" => "route_patterns"})
 
       assert json_response(conn, 200)["data"] == %{
                "type" => "route",
@@ -270,6 +281,18 @@ defmodule ApiWeb.RouteControllerTest do
                      "id" => @line1.id,
                      "type" => "line"
                    }
+                 },
+                 "route_patterns" => %{
+                   "data" => [
+                     %{
+                       "id" => @route_pattern1.id,
+                       "type" => "route_pattern"
+                     },
+                     %{
+                       "id" => @route_pattern2.id,
+                       "type" => "route_pattern"
+                     }
+                   ]
                  }
                }
              }
