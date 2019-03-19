@@ -28,3 +28,4 @@ cover
 /apps/api_web/priv/static/swagger.json
 
 .vscode/
+.elixir_ls/

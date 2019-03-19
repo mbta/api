@@ -182,24 +182,28 @@ defmodule State.Trip do
     [new_trip | new_alternates]
   end
 
-  defp do_apply_filters(filters, trips \\ [])
+  defp do_apply_filters(filters, trips \\ all())
 
-  defp do_apply_filters(%{routes: route_ids} = filters, trips) do
+  defp do_apply_filters(%{routes: route_ids} = filters, _trips) do
     direction_id = filters[:direction_id]
 
     filtered_trips =
       for route_id <- route_ids do
         by_route_and_direction_id(route_id, direction_id)
       end
-
-    new_trips =
-      filtered_trips
       |> List.flatten()
-      |> Enum.concat(trips)
 
     filters
     |> Map.drop([:routes, :direction_id])
-    |> do_apply_filters(new_trips)
+    |> do_apply_filters(filtered_trips)
+  end
+
+  defp do_apply_filters(%{route_patterns: route_patterns} = filters, trips) do
+    trip_list = Enum.filter(trips, &Enum.member?(route_patterns, &1.route_pattern_id))
+
+    filters
+    |> Map.delete(:route_patterns)
+    |> do_apply_filters(trip_list)
   end
 
   defp do_apply_filters(%{date: date = %Date{}} = filters, trips) do
@@ -236,7 +240,7 @@ defmodule State.Trip do
     MapSet.member?(valid_services, trip.service_id)
   end
 
-  defp filter_by_ids(trips, %{ids: ids} = filters) when map_size(filters) > 1 do
+  defp filter_by_ids(trips, %{ids: ids}) do
     Enum.filter(trips, &(&1.id in ids))
   end
 

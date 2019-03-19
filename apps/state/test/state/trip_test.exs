@@ -249,10 +249,6 @@ defmodule State.TripTest do
   end
 
   describe "filter_by/1" do
-    test "returns empty list when no filters are provided" do
-      assert filter_by(%{}) == []
-    end
-
     test "filters by multiple ids" do
       trips = [
         trip1 = %Model.Trip{id: "1", route_id: "3", service_id: @service_id},
@@ -261,7 +257,7 @@ defmodule State.TripTest do
       ]
 
       new_state(%{multi_route_trips: [], trips: trips})
-      assert filter_by(%{ids: ["1", "3"]}) == [trip1, trip3]
+      assert filter_by(%{ids: ["1", "3"]}) |> Enum.sort_by(& &1.id) == [trip1, trip3]
       assert filter_by(%{ids: ["2", "badid"]}) == [trip2]
     end
 

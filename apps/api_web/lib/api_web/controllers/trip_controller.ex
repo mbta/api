@@ -10,7 +10,7 @@ defmodule ApiWeb.TripController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id route)s
+  @filters ~w(id date direction_id route route_pattern)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(route vehicle service shape predictions route_pattern)
 
@@ -33,6 +33,14 @@ defmodule ApiWeb.TripController do
     filter_param(:date, description: "Filter by trips on a particular date")
     filter_param(:direction_id)
     filter_param(:id, name: :route)
+
+    parameter(
+      "filter[route_pattern]",
+      :query,
+      :string,
+      "Filter by route patern IDs #{comma_separated_list()}.",
+      example: "Red-1-0,Red-1-1"
+    )
 
     parameter(
       "filter[id]",
@@ -95,6 +103,16 @@ defmodule ApiWeb.TripController do
 
       routes ->
         %{routes: routes}
+    end
+  end
+
+  defp do_format_filter({"route_pattern", route_pattern}) do
+    case Params.split_on_comma(route_pattern) do
+      [] ->
+        []
+
+      route_patterns ->
+        %{route_patterns: route_patterns}
     end
   end
 
