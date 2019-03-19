@@ -29,6 +29,12 @@ defmodule State.RoutePattern do
     by_ids(ids)
   end
 
+  def filter_by(%{route_ids: route_ids, direction_id: direction_id}) do
+    route_ids
+    |> by_route_ids()
+    |> Enum.filter(&(&1.direction_id == direction_id))
+  end
+
   def filter_by(%{route_ids: route_ids}) do
     by_route_ids(route_ids)
   end
