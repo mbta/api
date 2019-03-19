@@ -257,7 +257,7 @@ defmodule State.TripTest do
       ]
 
       new_state(%{multi_route_trips: [], trips: trips})
-      assert filter_by(%{ids: ["1", "3"]}) |> Enum.sort_by(& &1.id) == [trip1, trip3]
+      assert %{ids: ["1", "3"]} |> filter_by |> Enum.sort_by(& &1.id) == [trip1, trip3]
       assert filter_by(%{ids: ["2", "badid"]}) == [trip2]
     end
 

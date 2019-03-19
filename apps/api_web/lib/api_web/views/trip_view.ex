@@ -1,8 +1,8 @@
 defmodule ApiWeb.TripView do
   use ApiWeb.Web, :api_view
 
-  alias ApiWeb.{PredictionView, RouteView, ServiceView, ShapeView, VehicleView, RoutePatternView}
-  alias State.{Prediction, Service, Shape, Vehicle, RoutePattern}
+  alias ApiWeb.{PredictionView, RoutePatternView, RouteView, ServiceView, ShapeView, VehicleView}
+  alias State.{Prediction, RoutePattern, Service, Shape, Vehicle}
 
   location("/trips/:id")
 

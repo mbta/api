@@ -34,7 +34,7 @@ defmodule Model.Trip do
           wheelchair_accessible: 0..2,
           alternate_route: boolean | nil,
           bikes_allowed: 0..2,
-          route_pattern_id: Model.RoutePattern.id()
+          route_pattern_id: Model.RoutePattern.id() | nil
         }
 
   @doc """
