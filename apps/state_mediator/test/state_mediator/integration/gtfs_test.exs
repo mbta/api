@@ -234,6 +234,29 @@ defmodule StateMediator.Integration.GtfsTest do
                ["place-FB-0177", "place-FB-0166"]
              ]
     end
+
+    test "Broadway @ Temple (2725) is on the 101" do
+      invalid? = fn stops ->
+        ids = Enum.map(stops, & &1.id)
+        "2725" not in ids
+      end
+
+      refute invalid?.(State.Stop.filter_by(%{routes: ["101"], direction_id: 0}))
+
+      invalid_dates =
+        for date <- dates_of_rating(),
+            data =
+              State.Stop.filter_by(%{
+                routes: ["101"],
+                direction_id: 0,
+                date: date
+              }),
+            invalid?.(data) do
+          date
+        end
+
+      assert invalid_dates == []
+    end
   end
 
   describe "shapes" do
