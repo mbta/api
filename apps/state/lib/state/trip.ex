@@ -190,8 +190,8 @@ defmodule State.Trip do
     for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
   end
 
-  defp get_index(%{ids: ids}) when length(ids) > 0, do: :id
-  defp get_index(%{routes: ids}) when length(ids) > 0, do: :route_id
+  defp get_index(%{ids: ids}) when ids != [], do: :id
+  defp get_index(%{routes: ids}) when ids != [], do: :route_id
   defp get_index(_), do: nil
 
   @spec multi_route_trips_to_added_route_ids_by_trip_id([MultiRouteTrip.t()]) :: %{
