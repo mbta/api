@@ -8,7 +8,7 @@ defmodule ApiWeb.RoutePatternController do
   use ApiWeb.Web, :api_controller
   alias State.RoutePattern
 
-  @filters ~w(id route)
+  @filters ~w(id route direction_id)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
@@ -43,6 +43,7 @@ defmodule ApiWeb.RoutePatternController do
     )
 
     filter_param(:id, name: :route)
+    filter_param(:direction_id)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -68,8 +69,14 @@ defmodule ApiWeb.RoutePatternController do
   defp format_filters(filters) do
     Map.new(filters, fn {key, value} ->
       case {key, value} do
-        {"id", ids} -> {:ids, Params.split_on_comma(ids)}
-        {"route", route_ids} -> {:route_ids, Params.split_on_comma(route_ids)}
+        {"id", ids} ->
+          {:ids, Params.split_on_comma(ids)}
+
+        {"route", route_ids} ->
+          {:route_ids, Params.split_on_comma(route_ids)}
+
+        {"direction_id", direction_id} ->
+          {:direction_id, Params.direction_id(%{"direction_id" => direction_id})}
       end
     end)
   end

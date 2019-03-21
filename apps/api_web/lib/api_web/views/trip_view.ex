@@ -1,8 +1,8 @@
 defmodule ApiWeb.TripView do
   use ApiWeb.Web, :api_view
 
-  alias ApiWeb.{PredictionView, RouteView, ServiceView, ShapeView, VehicleView}
-  alias State.{Prediction, Service, Shape, Vehicle}
+  alias ApiWeb.{PredictionView, RoutePatternView, RouteView, ServiceView, ShapeView, VehicleView}
+  alias State.{Prediction, RoutePattern, Service, Shape, Vehicle}
 
   location("/trips/:id")
 
@@ -32,6 +32,12 @@ defmodule ApiWeb.TripView do
     serializer: ServiceView
   )
 
+  has_one(
+    :route_pattern,
+    type: :route_pattern,
+    serializer: RoutePatternView
+  )
+
   has_many(
     :predictions,
     type: :prediction,
@@ -44,6 +50,10 @@ defmodule ApiWeb.TripView do
 
   def service(%{service_id: service_id}, conn) do
     optional_relationship("service", service_id, &Service.by_id/1, conn)
+  end
+
+  def route_pattern(%{route_pattern_id: route_pattern_id}, conn) do
+    optional_relationship("route_pattern", route_pattern_id, &RoutePattern.by_id/1, conn)
   end
 
   def vehicle(%{id: trip_id}, _conn) do

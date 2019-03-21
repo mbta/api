@@ -42,7 +42,6 @@ defmodule State.TripTest do
     assert by_ids(["unknown"]) == []
     assert by_primary_id("unknown") == nil
     assert by_route_id("unknown") == []
-    assert by_route_and_direction_id("9", 0) == []
   end
 
   test "can query trips" do
@@ -50,7 +49,6 @@ defmodule State.TripTest do
     assert by_ids(["trip"]) == [@trip]
     assert by_primary_id("trip") == @trip
     assert by_route_id("9") == [@trip]
-    assert by_route_and_direction_id("9", 1) == [@trip]
   end
 
   test "can query added trips (which include a headsign)" do
@@ -91,7 +89,6 @@ defmodule State.TripTest do
     }
 
     assert by_primary_id(added_trip_id) == expected
-    assert by_route_and_direction_id(added_route_id, added_direction_id) == [expected]
   end
 
   describe "by_primary_id/1" do
@@ -139,8 +136,8 @@ defmodule State.TripTest do
                handle_event(
                  {:fetch, "trips.txt"},
                  """
-                 "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible","trip_route_type"
-                 "Logan-22","Logan-Weekday","Logan-22-Weekday-trip","Loop","",0,"","",1,""
+                 "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible","trip_route_type","route_pattern_id"
+                 "Logan-22","Logan-Weekday","Logan-22-Weekday-trip","Loop","",0,"","",1,"","Logan-22-1-0"
                  """,
                  callback_argument,
                  multi_route_trips_state
@@ -276,6 +273,38 @@ defmodule State.TripTest do
       assert filter_by(%{ids: ["1", "2"], routes: ["2", "3"]}) == [trip2]
       assert filter_by(%{ids: ["1", "2", "3"], routes: ["2"]}) == [trip2]
       assert filter_by(%{ids: ["1", "2", "3"], routes: ["4"]}) == []
+    end
+
+    test "filters by route pattern w/ and w/o other fields" do
+      trips = [
+        trip1 = %Model.Trip{
+          id: "1",
+          route_id: "1",
+          service_id: @service_id,
+          direction_id: 1,
+          route_pattern_id: "1-1-1"
+        },
+        trip2 = %Model.Trip{
+          id: "2",
+          route_id: "2",
+          service_id: @service_id,
+          direction_id: 1,
+          route_pattern_id: "2-1-1"
+        },
+        trip3 = %Model.Trip{
+          id: "3",
+          route_id: "3",
+          service_id: @service_id,
+          direction_id: 0,
+          route_pattern_id: "3-0-1"
+        }
+      ]
+
+      new_state(%{multi_route_trips: [], trips: trips})
+      assert filter_by(%{ids: ["1", "2"], route_patterns: ["1-1-1", "2-1-1"]}) == [trip1, trip2]
+      assert filter_by(%{route_patterns: ["1-1-1", "3-0-1"], routes: ["3"]}) == [trip3]
+      assert filter_by(%{route_patterns: ["2-1-1", "3-0-1"]}) == [trip2, trip3]
+      assert filter_by(%{route_patterns: ["2-1-1", "3-0-1"], direction_id: 0}) == [trip3]
     end
 
     test "returns primary routes for alternate trips" do

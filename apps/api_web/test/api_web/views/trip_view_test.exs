@@ -17,7 +17,8 @@ defmodule ApiWeb.TripViewTest do
     service_id: "service",
     shape_id: "shape",
     block_id: "block",
-    bikes_allowed: 0
+    bikes_allowed: 0,
+    route_pattern_id: "CR-Lowell-1-0"
   }
 
   test "render returns JSONAPI", %{conn: conn} do
@@ -38,7 +39,10 @@ defmodule ApiWeb.TripViewTest do
              %{
                "route" => %{"data" => %{"type" => "route", "id" => "CR-Lowell"}},
                "service" => %{"data" => %{"type" => "service", "id" => "service"}},
-               "shape" => %{"data" => %{"type" => "shape", "id" => "shape"}}
+               "shape" => %{"data" => %{"type" => "shape", "id" => "shape"}},
+               "route_pattern" => %{
+                 "data" => %{"type" => "route_pattern", "id" => "CR-Lowell-1-0"}
+               }
              }
   end
 

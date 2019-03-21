@@ -13,7 +13,7 @@ defmodule ApiWeb.RouteController do
 
   @filters ~w(id stop type direction_id date)
   @pagination_opts [:offset, :limit, :order_by]
-  @includes_show ~w(line)
+  @includes_show ~w(line route_patterns)
   @includes_index ~w(stop) ++ @includes_show
 
   def state_module, do: State.Route

@@ -29,6 +29,11 @@ defmodule State.RoutePattern do
     by_ids(ids)
   end
 
+  def filter_by(%{route_ids: route_ids, direction_id: direction_id}) do
+    matchers = for route_id <- route_ids, do: %{route_id: route_id, direction_id: direction_id}
+    select(matchers, :route_id)
+  end
+
   def filter_by(%{route_ids: route_ids}) do
     by_route_ids(route_ids)
   end

@@ -9,6 +9,12 @@ defmodule ApiWeb.RouteView do
     serializer: ApiWeb.LineView
   )
 
+  has_many(
+    :route_patterns,
+    type: :route_pattern,
+    serializer: ApiWeb.RoutePatternView
+  )
+
   # no cover
   attributes([
     :description,
@@ -42,6 +48,10 @@ defmodule ApiWeb.RouteView do
 
   def line(%{line_id: line_id}, conn) do
     optional_relationship("line", line_id, &State.Line.by_id/1, conn)
+  end
+
+  def route_patterns(%{id: route_id}, _conn) do
+    State.RoutePattern.by_route_id(route_id)
   end
 
   # Override attribute version of type to give the resource type

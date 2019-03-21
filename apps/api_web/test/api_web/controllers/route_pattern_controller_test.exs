@@ -75,6 +75,22 @@ defmodule ApiWeb.RoutePatternControllerTest do
              ]
     end
 
+    test "can filter by route and direction", %{conn: conn} do
+      State.RoutePattern.new_state([
+        %RoutePattern{id: "rp1", route_id: "route12", direction_id: 0},
+        %RoutePattern{id: "rp2", route_id: "route12", direction_id: 1},
+        %RoutePattern{id: "rp3", route_id: "route3", direction_id: 0},
+        %RoutePattern{id: "rp4", route_id: "route4", direction_id: 1}
+      ])
+
+      assert ApiWeb.RoutePatternController.index_data(conn, %{
+               "filter" => %{"route" => "route12,route3", "direction_id" => "0"}
+             }) == [
+               %RoutePattern{id: "rp1", route_id: "route12", direction_id: 0},
+               %RoutePattern{id: "rp3", route_id: "route3", direction_id: 0}
+             ]
+    end
+
     test "can include route and trip", %{conn: conn} do
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp", route_id: "routeid", representative_trip_id: "tripid"}

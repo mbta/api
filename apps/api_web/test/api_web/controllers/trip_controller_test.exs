@@ -86,7 +86,8 @@ defmodule ApiWeb.TripControllerTest do
         wheelchair_accessible: 1,
         service_id: "service",
         shape_id: "shape",
-        bikes_allowed: 0
+        bikes_allowed: 0,
+        route_pattern_id: "1-1-1"
       }
 
       State.Route.new_state([route])
@@ -280,7 +281,8 @@ defmodule ApiWeb.TripControllerTest do
         wheelchair_accessible: 1,
         service_id: "service",
         shape_id: "shape",
-        bikes_allowed: 0
+        bikes_allowed: 0,
+        route_pattern_id: "1-1-1"
       }
 
       State.Route.new_state([route])
