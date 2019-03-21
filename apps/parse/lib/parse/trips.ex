@@ -25,7 +25,7 @@ defmodule Parse.Trips do
   * `"block_id"` - `Model.Trip.t` `block_id`
   * `"wheelchair_accessible"` - `Model.Trip.t` `wheelchair_accessible`
   * `"trip_route_type" - `Model.Route.route_type | nil`
-  * `"route_pattern_id" - `Model.RoutePattern.t`
+  * `"route_pattern_id" - `Model.RoutePattern.t | nil`
 
   """
   def parse_row(row) do
