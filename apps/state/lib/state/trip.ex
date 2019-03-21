@@ -162,45 +162,37 @@ defmodule State.Trip do
     [new_trip | new_alternates]
   end
 
-  defp do_apply_filters(%{routes: []}), do: []
-  defp do_apply_filters(%{route_patterns: []}), do: []
-  defp do_apply_filters(%{ids: []}), do: []
-  defp do_apply_filters(%{direction_id: _id} = filters) when map_size(filters) == 1, do: []
-  defp do_apply_filters(%{date: _date} = filters) when map_size(filters) == 1, do: []
+  defp do_apply_filters(%{} = f) when map_size(f) == 0, do: []
+  defp do_apply_filters(%{direction_id: _id} = f) when map_size(f) == 1, do: []
+  defp do_apply_filters(%{date: _date} = f) when map_size(f) == 1, do: []
+  defp do_apply_filters(%{date: _date, direction_id: _id} = f) when map_size(f) == 2, do: []
 
   defp do_apply_filters(filters) do
     matchers =
-      []
+      [%{}]
       |> build_filters(:route_id, filters[:routes])
       |> build_filters(:direction_id, filters[:direction_id])
       |> build_filters(:route_pattern_id, filters[:route_patterns])
       |> build_filters(:id, filters[:ids])
 
-    trips = State.Trip.select(matchers) ++ State.Trip.Added.select(matchers)
+    idx = get_index(filters)
+    trips = State.Trip.select(matchers, idx) ++ State.Trip.Added.select(matchers, idx)
 
-    case filters[:date] do
-      nil -> trips
-      date -> Enum.filter(trips, &ServiceByDate.valid?(&1.service_id, date))
+    case Map.fetch(filters, :date) do
+      :error -> trips
+      {:ok, date} -> Enum.filter(trips, &ServiceByDate.valid?(&1.service_id, date))
     end
   end
 
   defp build_filters(matchers, _key, nil), do: matchers
 
-  defp build_filters(matchers, key, values) when is_list(values) do
-    if matchers == [] do
-      for value <- values, do: %{key => value}
-    else
-      for matcher <- matchers, value <- values, do: Map.put(matcher, key, value)
-    end
+  defp build_filters(matchers, key, values) do
+    for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
   end
 
-  defp build_filters(matchers, key, value) do
-    if matchers == [] do
-      [%{key => value}]
-    else
-      for matcher <- matchers, do: Map.put(matcher, key, value)
-    end
-  end
+  defp get_index(%{ids: ids}) when length(ids) > 0, do: :id
+  defp get_index(%{routes: ids}) when length(ids) > 0, do: :route_id
+  defp get_index(_), do: nil
 
   @spec multi_route_trips_to_added_route_ids_by_trip_id([MultiRouteTrip.t()]) :: %{
           Trip.id() => [Route.id(), ...]
