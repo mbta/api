@@ -30,9 +30,8 @@ defmodule State.RoutePattern do
   end
 
   def filter_by(%{route_ids: route_ids, direction_id: direction_id}) do
-    route_ids
-    |> by_route_ids()
-    |> Enum.filter(&(&1.direction_id == direction_id))
+    matchers = for route_id <- route_ids, do: %{route_id: route_id, direction_id: direction_id}
+    select(matchers, :route_id)
   end
 
   def filter_by(%{route_ids: route_ids}) do

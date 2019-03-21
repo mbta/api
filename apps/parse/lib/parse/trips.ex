@@ -41,7 +41,7 @@ defmodule Parse.Trips do
       wheelchair_accessible: String.to_integer(row["wheelchair_accessible"]),
       route_type: trip_route_type(row["trip_route_type"]),
       bikes_allowed: bikes_allowed(row["bikes_allowed"]),
-      route_pattern_id: copy(row["route_pattern_id"])
+      route_pattern_id: copy_if_not_blank(row["route_pattern_id"])
     }
   end
 
@@ -54,4 +54,10 @@ defmodule Parse.Trips do
   defp bikes_allowed(nil), do: 0
   defp bikes_allowed(""), do: 0
   defp bikes_allowed(allowed), do: String.to_integer(allowed)
+
+  defp copy_if_not_blank(binary) when byte_size(binary) > 0 do
+    copy(binary)
+  end
+
+  defp copy_if_not_blank(_), do: nil
 end

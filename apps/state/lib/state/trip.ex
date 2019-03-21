@@ -46,21 +46,6 @@ defmodule State.Trip do
     Enum.concat(trips)
   end
 
-  @spec by_route_and_direction_id(Route.id(), direction_id, []) :: [Trip.t()]
-  def by_route_and_direction_id(route_id, direction_id, opts \\ []) do
-    matcher = build_route_and_direction_matcher(route_id, direction_id)
-    modules = [__MODULE__, Added]
-    Enum.flat_map(modules, & &1.match(matcher, :route_id, opts))
-  end
-
-  defp build_route_and_direction_matcher(route_id, nil) do
-    %{route_id: route_id}
-  end
-
-  defp build_route_and_direction_matcher(route_id, direction_id) do
-    %{route_id: route_id, direction_id: direction_id}
-  end
-
   @doc """
   Applies a filtered search on trips based on a map of filter values.
 
@@ -68,16 +53,11 @@ defmodule State.Trip do
     :ids
     :routes
     :direction_id
+    :route_patterns
     :date
 
-  If filtering for :direction_id, :routes must also be applied for the
-  direction filter to apply.
-
-  If filtering for :date, :routes must also be applied for the date filter to
-  apply.
-
-  Note that the `:ids` filter is applied last to be able to get the
-  intersection of multiple filters when multiple filters are used.
+  If filtering for :date or :direction_id then some other filter must also
+  be applied for this filter to apply.
 
   """
   @spec filter_by(filter_opts) :: [Trip.t()]
@@ -88,7 +68,7 @@ defmodule State.Trip do
     |> do_apply_filters()
     |> Stream.map(&replace_alternate_trips(&1))
     |> Enum.uniq_by(& &1.id)
-    |> filter_by_ids(filters)
+    |> Enum.sort_by(& &1.id)
   end
 
   # Test only
@@ -182,39 +162,45 @@ defmodule State.Trip do
     [new_trip | new_alternates]
   end
 
-  defp do_apply_filters(filters, trips \\ all())
+  defp do_apply_filters(%{routes: []}), do: []
+  defp do_apply_filters(%{route_patterns: []}), do: []
+  defp do_apply_filters(%{ids: []}), do: []
+  defp do_apply_filters(%{direction_id: _id} = filters) when map_size(filters) == 1, do: []
+  defp do_apply_filters(%{date: _date} = filters) when map_size(filters) == 1, do: []
 
-  defp do_apply_filters(%{routes: route_ids} = filters, _trips) do
-    direction_id = filters[:direction_id]
+  defp do_apply_filters(filters) do
+    matchers =
+      []
+      |> build_filters(:route_id, filters[:routes])
+      |> build_filters(:direction_id, filters[:direction_id])
+      |> build_filters(:route_pattern_id, filters[:route_patterns])
+      |> build_filters(:id, filters[:ids])
 
-    filtered_trips =
-      for route_id <- route_ids do
-        by_route_and_direction_id(route_id, direction_id)
-      end
-      |> List.flatten()
+    trips = State.Trip.select(matchers) ++ State.Trip.Added.select(matchers)
 
-    filters
-    |> Map.drop([:routes, :direction_id])
-    |> do_apply_filters(filtered_trips)
+    case filters[:date] do
+      nil -> trips
+      date -> Enum.filter(trips, &ServiceByDate.valid?(&1.service_id, date))
+    end
   end
 
-  defp do_apply_filters(%{route_patterns: route_patterns} = filters, trips) do
-    trip_list = Enum.filter(trips, &Enum.member?(route_patterns, &1.route_pattern_id))
+  defp build_filters(matchers, _key, nil), do: matchers
 
-    filters
-    |> Map.delete(:route_patterns)
-    |> do_apply_filters(trip_list)
+  defp build_filters(matchers, key, values) when is_list(values) do
+    if matchers == [] do
+      for value <- values, do: %{key => value}
+    else
+      for matcher <- matchers, value <- values, do: Map.put(matcher, key, value)
+    end
   end
 
-  defp do_apply_filters(%{date: date = %Date{}} = filters, trips) do
-    new_trips = Enum.filter(trips, &ServiceByDate.valid?(&1.service_id, date))
-
-    filters
-    |> Map.delete(:date)
-    |> do_apply_filters(new_trips)
+  defp build_filters(matchers, key, value) do
+    if matchers == [] do
+      [%{key => value}]
+    else
+      for matcher <- matchers, do: Map.put(matcher, key, value)
+    end
   end
-
-  defp do_apply_filters(_filters, trips), do: trips
 
   @spec multi_route_trips_to_added_route_ids_by_trip_id([MultiRouteTrip.t()]) :: %{
           Trip.id() => [Route.id(), ...]
@@ -238,17 +224,5 @@ defmodule State.Trip do
 
   defp valid_service?(trip, valid_services) do
     MapSet.member?(valid_services, trip.service_id)
-  end
-
-  defp filter_by_ids(trips, %{ids: ids}) do
-    Enum.filter(trips, &(&1.id in ids))
-  end
-
-  defp filter_by_ids([] = _trips, %{ids: ids}) do
-    by_ids(ids)
-  end
-
-  defp filter_by_ids(trips, _) do
-    trips
   end
 end
