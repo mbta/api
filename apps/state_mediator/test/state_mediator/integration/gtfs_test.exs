@@ -91,12 +91,22 @@ defmodule StateMediator.Integration.GtfsTest do
   describe "stops" do
     test "correctly calculates first/last stops on routes" do
       assert_first_last_stop_id("Red", "place-alfcl", "place-brntn")
-      assert_first_last_stop_id("CR-Providence", "place-sstat", "Wickford Junction")
-      assert_first_last_stop_id("CR-Fairmount", "place-sstat", "Readville")
-      assert_first_last_stop_id("CR-Franklin", "place-sstat", "Forge Park / 495")
-      assert_first_last_stop_id("CR-Haverhill", "place-north", "Haverhill")
-      assert_first_last_stop_id("CR-Lowell", "place-north", "Lowell")
-      assert_first_last_stop_id("CR-Kingston", "place-sstat", "Plymouth")
+
+      assert_first_last_stop_id("CR-Providence", "place-sstat", [
+        "Wickford Junction",
+        "place-NEC-1659"
+      ])
+
+      assert_first_last_stop_id("CR-Fairmount", "place-sstat", ["Readville", "place-DB-0095"])
+
+      assert_first_last_stop_id("CR-Franklin", "place-sstat", [
+        "Forge Park / 495",
+        "place-FB-0303"
+      ])
+
+      assert_first_last_stop_id("CR-Haverhill", "place-north", ["Haverhill", "place-WR-0329"])
+      assert_first_last_stop_id("CR-Lowell", "place-north", ["Lowell", "place-NHRML-0254"])
+      assert_first_last_stop_id("CR-Kingston", "place-sstat", ["Plymouth", "place-PB-0356"])
       assert_first_last_stop_id("Green-B", "place-pktrm", "place-lake")
       assert_first_last_stop_id("Green-C", "place-north", "place-clmnl")
       assert_first_last_stop_id("Green-D", "place-gover", "place-river")
@@ -415,8 +425,12 @@ defmodule StateMediator.Integration.GtfsTest do
   end
 
   defp assert_first_last_stop_id(route_id, first_stop_id, last_stop_id) do
-    assert {%{id: ^first_stop_id}, %{id: ^last_stop_id}} = first_last(stops(route_id, 0))
-    assert {%{id: ^last_stop_id}, %{id: ^first_stop_id}} = first_last(stops(route_id, 1))
+    assert {first_0, last_0} = first_last(stops(route_id, 0))
+    assert {first_1, last_1} = first_last(stops(route_id, 1))
+    assert first_0.id in List.wrap(first_stop_id)
+    assert last_0.id in List.wrap(last_stop_id)
+    assert first_1.id in List.wrap(last_stop_id)
+    assert last_1.id in List.wrap(first_stop_id)
   end
 
   defp all_routes do
