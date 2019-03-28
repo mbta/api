@@ -108,7 +108,10 @@ config :state, :shape,
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
 config :state, :stops_on_route,
   stop_order_overrides: %{
-    {"CR-Franklin", 0} => ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"]
+    {"CR-Franklin", 0} => [
+      ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"],
+      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"]
+    ]
   }
 
 import_config "#{Mix.env()}.exs"
