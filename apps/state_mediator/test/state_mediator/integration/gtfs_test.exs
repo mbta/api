@@ -187,7 +187,9 @@ defmodule StateMediator.Integration.GtfsTest do
     test "each day has Kingston and Plymouth on CR-Kingston" do
       invalid? = fn stops ->
         ids = Enum.map(stops, & &1.id)
-        "Kingston" not in ids or "Plymouth" not in ids
+
+        ("Kingston" not in ids and "place-KB-0351" not in ids) or
+          ("Plymouth" not in ids and "place-PB-0356" not in ids)
       end
 
       invalid_dates =
@@ -217,11 +219,20 @@ defmodule StateMediator.Integration.GtfsTest do
 
           stops
           |> Enum.map(& &1.id)
-          |> Enum.filter(&(&1 in ["Windsor Gardens", "Plimptonville"]))
+          |> Enum.filter(
+            &(&1 in ["Windsor Gardens", "Plimptonville", "place-FB-0166", "place-FB-0177"])
+          )
         end
 
-      assert direction_0 == ["Windsor Gardens", "Plimptonville"]
-      assert direction_1 == ["Plimptonville", "Windsor Gardens"]
+      assert direction_0 in [
+               ["Windsor Gardens", "Plimptonville"],
+               ["place-FB-0166", "place-FB-0177"]
+             ]
+
+      assert direction_1 in [
+               ["Plimptonville", "Windsor Gardens"],
+               ["place-FB-0177", "place-FB-0166"]
+             ]
     end
   end
 

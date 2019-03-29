@@ -170,7 +170,7 @@ defmodule State.StopsOnRoute do
       |> Stream.reject(&ignore_trip_for_route?/1)
       |> stop_ids_for_trips()
 
-    overrides = stop_order_overrides(route.id, direction_id)
+    overrides = stop_order_overrides(route.id, direction_id, trip_stops)
 
     merge_ids(trip_stops, overrides)
   end
@@ -195,13 +195,20 @@ defmodule State.StopsOnRoute do
   end
 
   # additional ordered stop IDs to include during the merge
-  @spec stop_order_overrides(Model.Route.id(), Model.Direction.id()) :: [stop_id_list]
-  defp stop_order_overrides(route_id, direction_id) do
+  @spec stop_order_overrides(Model.Route.id(), Model.Direction.id(), [stop_id_list]) :: [
+          stop_id_list
+        ]
+  defp stop_order_overrides(route_id, direction_id, stop_lists) do
     config = Application.get_env(:state, :stops_on_route)[:stop_order_overrides]
 
     case Map.fetch(config, {route_id, direction_id}) do
       {:ok, overrides} ->
-        [overrides]
+        stop_set = Enum.reduce(stop_lists, MapSet.new(), &MapSet.union(&2, MapSet.new(&1)))
+        # filter out overrides which don't intersect these stops
+        for override <- overrides,
+            not MapSet.disjoint?(stop_set, MapSet.new(override)) do
+          override
+        end
 
       :error ->
         []
