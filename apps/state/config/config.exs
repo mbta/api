@@ -9,6 +9,10 @@ config :state, :shape,
     "810_0004" => -1,
     # Green-B (Lechmere)
     "810_0005" => -1,
+    # Green-B (Lechmere)
+    "810_0006" => -1,
+    # Green-B (Lechmere)
+    "810_0007" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
