@@ -32,6 +32,8 @@ defmodule ApiWeb.Plugs.AuthenticateTest do
     conn = conn_with_key(base_conn, @api_key)
     conn = call(conn, @opts)
     assert %ApiWeb.User{type: :registered} = conn.assigns.api_user
+    refute "api_key" in Map.keys(conn.query_params)
+    refute "api_key" in Map.keys(conn.params)
   end
 
   test "assigned registered user with valid API key from header", %{conn: base_conn} do
@@ -80,6 +82,7 @@ defmodule ApiWeb.Plugs.AuthenticateTest do
   end
 
   defp conn_with_key(conn, key) do
-    %{conn | query_params: %{"api_key" => key}}
+    params = %{"api_key" => key}
+    %{conn | query_params: params, params: params}
   end
 end

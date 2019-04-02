@@ -17,15 +17,11 @@ defmodule ApiWeb.Plugs.Authenticate do
   def call(conn, _) do
     conn
     |> api_key()
-    |> add_to_logger(conn)
-    |> authenticate(conn)
+    |> add_to_logger()
+    |> authenticate()
   end
 
-  defp authenticate(nil, conn) do
-    assign(conn, :api_user, ApiWeb.User.anon(conn_ip(conn)))
-  end
-
-  defp authenticate(key, conn) do
+  defp authenticate(%{assigns: %{api_key: key}} = conn) when is_binary(key) do
     case ApiAccounts.Keys.fetch_valid_key(key) do
       {:ok, %ApiAccounts.Key{} = key} ->
         api_user = ApiWeb.User.from_key(key)
@@ -40,32 +36,43 @@ defmodule ApiWeb.Plugs.Authenticate do
     end
   end
 
-  defp api_key(%{assigns: %{api_key: api_key}}) do
-    api_key
+  defp authenticate(conn) do
+    assign(conn, :api_user, ApiWeb.User.anon(conn_ip(conn)))
+  end
+
+  defp api_key(%{assigns: %{api_key: _}} = conn) do
+    conn
   end
 
   defp api_key(%{query_params: query_params} = conn) do
-    case Map.get(query_params, "api_key") do
-      nil -> get_api_key_from_header(conn)
-      api_key -> api_key
+    {api_key, query_params} = Map.pop(query_params, "api_key")
+
+    case api_key do
+      nil ->
+        get_api_key_from_header(conn)
+
+      api_key ->
+        params = Map.delete(conn.params, "api_key")
+        conn = %{conn | query_params: query_params, params: params}
+        assign(conn, :api_key, api_key)
     end
   end
 
   defp get_api_key_from_header(conn) do
     case get_req_header(conn, "x-api-key") do
-      [] -> nil
-      [api_key] -> api_key
+      [api_key] -> assign(conn, :api_key, api_key)
+      [] -> conn
     end
   end
 
-  defp add_to_logger(key, _conn) when is_binary(key) do
+  defp add_to_logger(%{assigns: %{api_key: key}} = conn) when is_binary(key) do
     _ = Logger.metadata(api_key: key, ip: nil)
-    key
+    conn
   end
 
-  defp add_to_logger(nil, conn) do
+  defp add_to_logger(conn) do
     _ = Logger.metadata(api_key: "anonymous", ip: conn_ip(conn))
-    nil
+    conn
   end
 
   defp conn_ip(conn) do
