@@ -16,20 +16,28 @@ defmodule State.StopsOnRouteTest do
     route_id: "route",
     shape_id: "pattern",
     direction_id: 1,
-    service_id: "service"
+    service_id: "service",
+    route_pattern_id: "route_pattern_id"
   }
   @other_trip %Model.Trip{
     id: "other_trip",
     route_id: "route",
     shape_id: "other_pattern",
     direction_id: 0,
-    service_id: "other_service"
+    service_id: "other_service",
+    route_pattern_id: "other_route_pattern_id"
   }
   @schedule %Model.Schedule{trip_id: "trip", stop_id: "stop", stop_sequence: 2}
   @other_schedule %Model.Schedule{trip_id: "other_trip", stop_id: "other_stop", stop_sequence: 1}
 
   setup do
     State.Stop.new_state([%Model.Stop{id: "stop"}, %Model.Stop{id: "other_stop"}])
+
+    State.RoutePattern.new_state([
+      %Model.RoutePattern{id: "route_pattern_id", typicality: 1},
+      %Model.RoutePattern{id: "other_route_pattern_id", typicality: 2}
+    ])
+
     State.Route.new_state([@route])
     State.Trip.new_state([@trip, @other_trip])
     State.Service.new_state([@service])
@@ -265,16 +273,10 @@ defmodule State.StopsOnRouteTest do
       refute first_ids == second_ids
     end
 
-    test "if a shape has a negative priority, it's not included" do
+    test "if trip doesn't have a route pattern, it's not included" do
       # "stop" is on this shape, "other_stop" is on a different shape
-      shape = %Model.Shape{
-        id: @trip.shape_id,
-        priority: -1
-      }
-
       trip = %{@trip | route_type: 2}
       State.Trip.new_state([trip, @other_trip])
-      State.Shape.new_state([shape])
       update!()
       assert by_route_id(@route.id) == ["other_stop"]
     end

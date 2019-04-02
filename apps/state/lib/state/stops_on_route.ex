@@ -38,7 +38,7 @@ defmodule State.StopsOnRoute do
 
     matchers =
       for service_id <- Keyword.get(opts, :service_ids, [:_]),
-          shape_id <- Keyword.get(opts, :shape_ids, [:_]),
+          shape_id <- Keyword.get(opts, :shape_ids, [:all]),
           route_id <- route_ids do
         {{route_id, direction_id, shape_id, service_id, alternate?, :"$1"}, [], [:"$1"]}
       end
@@ -125,12 +125,24 @@ defmodule State.StopsOnRoute do
   defp do_gather_route_direction(route, direction_id, trips) do
     global_stop_id_order = order_stop_ids_for_trips(route, direction_id, trips)
 
-    trips
-    |> Enum.group_by(fn trip ->
-      ignore? = ignore_trip_for_route?(trip)
-      {ignore?, trip.shape_id, trip.service_id, trip.direction_id}
-    end)
-    |> Enum.flat_map(&do_gather_direction_group(route, global_stop_id_order, &1))
+    # stops broken down by shape
+    shape_records =
+      trips
+      |> Enum.group_by(fn trip ->
+        ignore? = ignore_trip_for_route?(trip)
+        {ignore?, trip.shape_id, trip.service_id, trip.direction_id}
+      end)
+      |> Enum.flat_map(&do_gather_direction_group(route, global_stop_id_order, &1))
+
+    # stops not broken down by shape or pattern
+    other_records =
+      trips
+      |> Enum.group_by(fn trip ->
+        {ignore_trip_route_pattern?(trip), :all, trip.service_id, trip.direction_id}
+      end)
+      |> Enum.flat_map(&do_gather_direction_group(route, global_stop_id_order, &1))
+
+    Enum.concat(shape_records, other_records)
   end
 
   defp do_gather_direction_group(route, global_order, {group_key, trip_group}) do
