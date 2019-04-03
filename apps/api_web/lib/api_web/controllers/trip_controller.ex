@@ -10,7 +10,7 @@ defmodule ApiWeb.TripController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id route route_pattern)s
+  @filters ~w(id date direction_id route route_pattern name)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(route vehicle service shape predictions route_pattern)
 
@@ -48,6 +48,14 @@ defmodule ApiWeb.TripController do
       :string,
       "Filter by multiple IDs. #{comma_separated_list()}.",
       example: "1,2"
+    )
+
+    parameter(
+      "filter[name]",
+      :query,
+      :string,
+      "Filter by multiple names. #{comma_separated_list()}.",
+      example: "300,302"
     )
 
     consumes("application/vnd.api+json")
@@ -123,6 +131,16 @@ defmodule ApiWeb.TripController do
 
       parsed_direction_id ->
         %{direction_id: parsed_direction_id}
+    end
+  end
+
+  defp do_format_filter({"name", name}) do
+    case Params.split_on_comma(name) do
+      [] ->
+        []
+
+      names ->
+        %{names: names}
     end
   end
 

@@ -133,6 +133,17 @@ defmodule ApiWeb.TripControllerTest do
       assert index_data(conn, %{"route" => "2", "direction_id" => "0"}) == []
     end
 
+    test "filters by name", %{conn: conn} do
+      trip = %Model.Trip{id: "1", name: "name"}
+      :ok = State.Trip.new_state([trip])
+
+      [^trip] = State.Trip.filter_by(%{names: ["name"]})
+      [] = State.Trip.filter_by(%{names: ["not_a_name"]})
+
+      assert index_data(conn, %{"name" => "name"}) == [trip]
+      assert index_data(conn, %{"name" => "not_a_name"}) == []
+    end
+
     test "filters by date", %{conn: conn} do
       today = Parse.Time.service_date()
       bad_date = %{today | year: today.year - 1}
