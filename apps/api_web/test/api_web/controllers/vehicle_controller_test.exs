@@ -113,7 +113,10 @@ defmodule ApiWeb.VehicleControllerTest do
 
     test "can filter by label and route", %{conn: conn} do
       for vehicle <- @vehicles do
-        assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id}) == [vehicle]
+        assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id}) == [
+                 vehicle
+               ]
+
         assert index_data(conn, %{"label" => "not_a_label", "route" => vehicle.route_id}) == []
         assert index_data(conn, %{"label" => vehicle.label, "route" => "not_a_route"}) == []
       end
@@ -123,8 +126,17 @@ defmodule ApiWeb.VehicleControllerTest do
 
     test "can filter by label, route and direction_id", %{conn: conn} do
       for vehicle <- @vehicles do
-          assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id, "direction_id" => "1"}) == [vehicle]
-          assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id, "direction_id" => "0"}) == []
+        assert index_data(conn, %{
+                 "label" => vehicle.label,
+                 "route" => vehicle.route_id,
+                 "direction_id" => "1"
+               }) == [vehicle]
+
+        assert index_data(conn, %{
+                 "label" => vehicle.label,
+                 "route" => vehicle.route_id,
+                 "direction_id" => "0"
+               }) == []
       end
     end
 

@@ -16,7 +16,7 @@ defmodule State.Vehicle do
 
   @type direction_id :: Model.Trip.id() | nil
   @type routes :: [Model.Route.id()]
-  @type labels :: [Vehicle.label()]
+  @type labels :: [String.t()]
 
   @impl State.Server
   def post_load_hook(structs) do
