@@ -50,67 +50,23 @@ defmodule State.Vehicle do
     end
   end
 
-  @spec by_trip_ids([Vehicle.id()]) :: [Vehicle.t()]
-  def by_trip_ids(trip_ids) do
-    trip_ids
-    |> build_trip_matchers()
-    |> select(:trip_id)
-  end
-
-  defp build_trip_matchers(trip_ids) do
-    for trip_id <- trip_ids do
-      %{trip_id: trip_id}
-    end
-  end
-
-  @spec by_labels(labels) :: [Vehicle.t()]
-  def by_labels(labels) do
-    labels
-    |> build_label_matchers()
-    |> select(:label)
-  end
-
-  defp build_label_matchers(labels) do
-    for label <- labels do
-      %{label: label}
-    end
-  end
-
   @spec by_labels_and_routes(labels, routes, direction_id) :: [Vehicle.t()]
   def by_labels_and_routes(labels, route_ids, direction_id) do
-    labels
-    |> build_label_and_route_matchers(route_ids, direction_id)
+    route_ids
+    |> build_matchers(labels, direction_id || :_)
     |> select(:label)
-  end
-
-  defp build_label_and_route_matchers(labels, route_ids, nil) do
-    for label <- labels, route_id <- route_ids do
-      %{label: label, effective_route_id: route_id}
-    end
-  end
-
-  defp build_label_and_route_matchers(labels, route_ids, direction_id) do
-    for label <- labels, route_id <- route_ids do
-      %{label: label, effective_route_id: route_id, direction_id: direction_id}
-    end
   end
 
   @spec by_route_ids_and_direction_id(routes, direction_id) :: [Vehicle.t()]
   def by_route_ids_and_direction_id(route_ids, direction_id) do
     route_ids
-    |> build_route_and_direction_matchers(direction_id)
+    |> build_matchers(:_, direction_id || :_)
     |> select(:effective_route_id)
   end
 
-  defp build_route_and_direction_matchers(route_ids, nil) do
-    for route_id <- route_ids do
-      %{effective_route_id: route_id}
-    end
-  end
-
-  defp build_route_and_direction_matchers(route_ids, direction_id) do
-    for route_id <- route_ids do
-      %{effective_route_id: route_id, direction_id: direction_id}
+  defp build_matchers(route_ids, labels, direction_id) do
+    for route_id <- List.wrap(route_ids), label <- List.wrap(labels) do
+      %{label: label, effective_route_id: route_id, direction_id: direction_id}
     end
   end
 end
