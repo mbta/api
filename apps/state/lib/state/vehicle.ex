@@ -4,9 +4,10 @@ defmodule State.Vehicle do
   * vehicle ID
   * trip ID
   * route ID
+  * label
   """
   use State.Server,
-    indicies: [:id, :trip_id, :effective_route_id],
+    indicies: [:id, :trip_id, :effective_route_id, :label],
     parser: Parse.VehiclePositions,
     recordable: Model.Vehicle
 
@@ -15,6 +16,7 @@ defmodule State.Vehicle do
 
   @type direction_id :: Model.Trip.id() | nil
   @type routes :: [Model.Route.id()]
+  @type labels :: [Vehicle.label()]
 
   @impl State.Server
   def post_load_hook(structs) do
@@ -58,6 +60,38 @@ defmodule State.Vehicle do
   defp build_trip_matchers(trip_ids) do
     for trip_id <- trip_ids do
       %{trip_id: trip_id}
+    end
+  end
+
+  @spec by_labels(labels) :: [Vehicle.t()]
+  def by_labels(labels) do
+    labels
+    |> build_label_matchers()
+    |> select(:label)
+  end
+
+  defp build_label_matchers(labels) do
+    for label <- labels do
+      %{label: label}
+    end
+  end
+
+  @spec by_labels_and_routes(labels, routes, direction_id) :: [Vehicle.t()]
+  def by_labels_and_routes(labels, route_ids, direction_id) do
+    labels
+    |> build_label_and_route_matchers(route_ids, direction_id)
+    |> select(:label)
+  end
+
+  defp build_label_and_route_matchers(labels, route_ids, nil) do
+    for label <- labels, route_id <- route_ids do
+      %{label: label, effective_route_id: route_id}
+    end
+  end
+
+  defp build_label_and_route_matchers(labels, route_ids, direction_id) do
+    for label <- labels, route_id <- route_ids do
+      %{label: label, effective_route_id: route_id, direction_id: direction_id}
     end
   end
 

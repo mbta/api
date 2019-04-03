@@ -37,7 +37,7 @@ defmodule ApiWeb.VehicleControllerTest do
                   bearing: 5,
                   current_status: :in_transit_to,
                   current_stop_sequence: 3,
-                  label: "In Transit",
+                  label: "#{i}",
                   updated_at: updated_at,
                   latitude: 42.01,
                   longitude: -71.15,
@@ -100,6 +100,32 @@ defmodule ApiWeb.VehicleControllerTest do
     test "can filter by route that's the alternate", %{conn: conn} do
       assert [vehicle] = index_data(conn, %{"route" => @route_alt.id})
       assert vehicle.route_id == @route.id
+    end
+
+    test "can filter by label", %{conn: conn} do
+      for vehicle <- @vehicles do
+        assert index_data(conn, %{"label" => vehicle.label}) == [vehicle]
+        assert index_data(conn, %{"label" => "#{vehicle.label},not_a_label"}) == [vehicle]
+      end
+
+      assert index_data(conn, %{"label" => "not_a_label"}) == []
+    end
+
+    test "can filter by label and route", %{conn: conn} do
+      for vehicle <- @vehicles do
+        assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id}) == [vehicle]
+        assert index_data(conn, %{"label" => "not_a_label", "route" => vehicle.route_id}) == []
+        assert index_data(conn, %{"label" => vehicle.label, "route" => "not_a_route"}) == []
+      end
+
+      assert index_data(conn, %{"label" => "not_a_label", "route" => "not_a_route"}) == []
+    end
+
+    test "can filter by label, route and direction_id", %{conn: conn} do
+      for vehicle <- @vehicles do
+          assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id, "direction_id" => "1"}) == [vehicle]
+          assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id, "direction_id" => "0"}) == []
+      end
     end
 
     test "does not crash when only direction_id filter is given", %{conn: conn} do
