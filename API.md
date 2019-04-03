@@ -253,9 +253,10 @@ Returns a list of vehicles currently in service.  With no arguments, returns all
 
 Available filters:
 * `trip`: returns the vehicles on a comma-separated list of GTFS trip IDs
+* `label`: returns a list of vehicles on a comma-separated list of labels
 * `route` (optional `direction_id`): returns a list of vehicles on a comma-separated list of GTFS route IDs
 
-These filters can not be combined.
+The `trip` filter cannot be combined with the others.
 
 ### GET /vehicles/:id
 
