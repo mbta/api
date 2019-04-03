@@ -27,6 +27,29 @@ defmodule State.Helpers do
   def ignore_trip_for_route?(%Trip{} = trip), do: trip_on_hidden_shape?(trip)
 
   @doc """
+  Returns true if the given Model.Trip shouldn't be considered (by default) as being part of the route based on the pattern.
+
+  We ignore as alternate route trips, as well as very-atypical patterns.
+  """
+  @spec ignore_trip_route_pattern?(Model.Trip.t()) :: boolean
+  def ignore_trip_route_pattern?(trip)
+  def ignore_trip_route_pattern?(%Trip{route_type: int}) when is_integer(int), do: true
+  def ignore_trip_route_pattern?(%Trip{alternate_route: bool}) when is_boolean(bool), do: true
+
+  def ignore_trip_route_pattern?(%Trip{route_pattern_id: route_pattern_id})
+      when is_binary(route_pattern_id) do
+    case State.RoutePattern.by_id(route_pattern_id) do
+      %{typicality: typicality} when typicality < 4 ->
+        false
+
+      _ ->
+        true
+    end
+  end
+
+  def ignore_trip_route_pattern?(%Trip{route_pattern_id: nil}), do: true
+
+  @doc """
   Safely get the size of an ETS table
 
   If the table doesn't exist, we'll return a 0 size.
