@@ -53,7 +53,6 @@ defmodule ApiUmbrella.Mixfile do
 
   defp extras do
     [
-      "API.md": [filename: "api-endpoints", title: "API Endpoints"],
       "README.md": [filename: "readme", title: "API"],
       "apps/api_accounts/README.md": [filename: "api_accounts-readme", title: "API Accounts"],
       "apps/state_mediator/README.md": [
