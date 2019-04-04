@@ -28,6 +28,14 @@ defmodule State.VehicleTest do
     assert [%Vehicle{id: "1"}] = all()
   end
 
+  test "can add a vehicle and query it by label" do
+    vehicle = %Vehicle{id: "1", label: "2"}
+    new_state([vehicle])
+
+    assert [%Vehicle{id: "1"}] = by_label("2")
+    assert [%Vehicle{id: "1"}] = match(%{label: "2", id: "1"}, :label)
+  end
+
   test "can add vehicle from multiple routes and query it" do
     State.Trip.new_state([
       %Trip{id: "1", route_id: "1", alternate_route: false},

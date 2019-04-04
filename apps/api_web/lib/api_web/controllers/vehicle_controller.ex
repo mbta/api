@@ -8,7 +8,7 @@ defmodule ApiWeb.VehicleController do
   use ApiWeb.Web, :api_controller
   alias State.Vehicle
 
-  @filters ~w(trip route direction_id id)s
+  @filters ~w(trip route direction_id id label)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(trip stop route)
 
@@ -66,6 +66,10 @@ defmodule ApiWeb.VehicleController do
 
     filter_param(:id, name: :trip)
 
+    parameter("filter[label]", :query, :string, """
+    Filter by label. Multiple `label` #{comma_separated_list()}.
+    """)
+
     parameter("filter[route]", :query, :string, """
     Filter by route. If the vehicle is on a \
     [multi-route trip](https://groups.google.com/forum/#!msg/massdotdevelopers/1egrhNjT9eA/iy6NFymcCgAJ), it will be \
@@ -118,6 +122,21 @@ defmodule ApiWeb.VehicleController do
     trip
     |> Params.split_on_comma()
     |> Vehicle.by_trip_ids()
+  end
+
+  defp apply_filters(%{"label" => label, "route" => route} = filters) do
+    direction_id = Params.direction_id(filters)
+    routes = Params.split_on_comma(route)
+
+    label
+    |> Params.split_on_comma()
+    |> Vehicle.by_labels_and_routes(routes, direction_id)
+  end
+
+  defp apply_filters(%{"label" => label}) do
+    label
+    |> Params.split_on_comma()
+    |> Vehicle.by_labels()
   end
 
   defp apply_filters(%{"route" => route} = filters) do
