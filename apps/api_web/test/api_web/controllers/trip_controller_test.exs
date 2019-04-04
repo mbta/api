@@ -135,6 +135,7 @@ defmodule ApiWeb.TripControllerTest do
       assert index_data(conn, %{"name" => "name"}) == [trip]
       assert index_data(conn, %{"name" => "not_a_name"}) == []
       assert index_data(conn, %{"name" => ""}) == {:error, :filter_required}
+      assert index_data(conn, %{"name" => ","}) == {:error, :filter_required}
     end
 
     test "filters by date", %{conn: conn} do
