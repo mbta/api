@@ -170,6 +170,7 @@ defmodule State.Trip do
   defp do_apply_filters(filters) do
     matchers =
       [%{}]
+      |> build_filters(:name, filters[:names])
       |> build_filters(:route_id, filters[:routes])
       |> build_filters(:direction_id, filters[:direction_id])
       |> build_filters(:route_pattern_id, filters[:route_patterns])
