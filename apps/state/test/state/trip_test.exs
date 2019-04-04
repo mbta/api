@@ -15,7 +15,8 @@ defmodule State.TripTest do
     id: @trip_id,
     route_id: "9",
     direction_id: 1,
-    service_id: @service_id
+    service_id: @service_id,
+    name: "name"
   }
   @today Time.service_date()
   @service %Model.Service{
@@ -338,6 +339,11 @@ defmodule State.TripTest do
 
       assert filter_by(%{date: @today, routes: ["9"]}) == [@trip]
       assert filter_by(%{date: bad_date, routes: ["9"]}) == []
+    end
+
+    test "filters by name" do
+      assert filter_by(%{names: ["name"]}) == [@trip]
+      assert filter_by(%{names: ["not_a_name"]}) == []
     end
   end
 end
