@@ -351,40 +351,6 @@ defmodule StateMediator.Integration.GtfsTest do
   end
 
   describe "alerts" do
-    test "informed entity IDs match something in state" do
-      missing_alert_value = fn {key, value} ->
-        case key do
-          :route_type ->
-            value < 0 or value > 4
-
-          :route ->
-            is_nil(State.Route.by_id(value))
-
-          :stop ->
-            is_nil(State.Stop.by_id(value))
-
-          :trip ->
-            is_nil(State.Trip.by_id(value))
-
-          :facility ->
-            is_nil(State.Facility.by_id(value))
-
-          _ ->
-            false
-        end
-      end
-
-      missing_values =
-        for alert <- State.Alert.all(),
-            entity <- alert.informed_entity,
-            key_value <- entity,
-            missing_alert_value.(key_value) do
-          {alert.id, key_value}
-        end
-
-      assert missing_values == []
-    end
-
     test "all alerts with trips have route type, route, and direction_id" do
       missing_values = fn entity ->
         for expected <- [:route_type, :route, :direction_id], nil == Map.get(entity, expected) do
