@@ -106,8 +106,6 @@ defmodule ApiWeb.TripControllerTest do
       trip3 = %Model.Trip{id: "3", route_id: "2", direction_id: 1}
       :ok = State.Trip.new_state([trip1, trip2, trip3])
 
-      [^trip1, ^trip2] = State.Trip.filter_by(%{ids: ["1", "2"]})
-
       assert index_data(conn, %{"id" => "1,2"}) == [trip1, trip2]
     end
 
@@ -126,11 +124,18 @@ defmodule ApiWeb.TripControllerTest do
       trip = %Model.Trip{id: "1", route_id: "2", direction_id: 1}
       :ok = State.Trip.new_state([trip])
 
-      [^trip] = State.Trip.filter_by(%{routes: ["2"], direction_id: 1})
-      [] = State.Trip.filter_by(%{routes: ["2"], direction_id: 0})
-
       assert index_data(conn, %{"route" => "2", "direction_id" => "1"}) == [trip]
       assert index_data(conn, %{"route" => "2", "direction_id" => "0"}) == []
+    end
+
+    test "filters by name", %{conn: conn} do
+      trip = %Model.Trip{id: "1", name: "name"}
+      :ok = State.Trip.new_state([trip])
+
+      assert index_data(conn, %{"name" => "name"}) == [trip]
+      assert index_data(conn, %{"name" => "not_a_name"}) == []
+      assert index_data(conn, %{"name" => ""}) == {:error, :filter_required}
+      assert index_data(conn, %{"name" => ","}) == {:error, :filter_required}
     end
 
     test "filters by date", %{conn: conn} do
