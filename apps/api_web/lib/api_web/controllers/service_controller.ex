@@ -49,6 +49,9 @@ defmodule ApiWeb.ServiceController do
         |> State.Service.by_ids()
         |> State.all(Params.filter_opts(params, @pagination_opts))
 
+      {:error, _, _} = error ->
+        error
+
       _ ->
         {:error, :filter_required}
     end
