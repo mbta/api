@@ -41,8 +41,8 @@ defmodule ApiWeb.ServiceController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
-    case Params.filter_params(params, @filters) do
+  def index_data(conn, params) do
+    case Params.filter_params(params, @filters, conn) do
       {:ok, %{"id" => ids}} ->
         ids
         |> split_on_comma

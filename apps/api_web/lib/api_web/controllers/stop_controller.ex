@@ -65,12 +65,12 @@ defmodule ApiWeb.StopController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
+  def index_data(conn, params) do
     filter_opts = Params.filter_opts(params, @pagination_opts)
 
     with true <- check_distance_filter?(filter_opts),
-         {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> format_filters()
       |> Stop.filter_by()
@@ -187,8 +187,8 @@ defmodule ApiWeb.StopController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def show_data(conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       Stop.by_id(id)
     else
       {:error, _, _} = error -> error

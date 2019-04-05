@@ -77,7 +77,7 @@ defmodule ApiWeb.StopView do
     relationships = super(stop, conn)
 
     with true <- split_included?("route", conn),
-         {:ok, filtered} <- Params.filter_params(conn.params, filters()),
+         {:ok, filtered} <- Params.filter_params(conn.params, filters(), conn),
          {:ok, route_id} <- Map.fetch(filtered, "route") do
       route = State.Route.by_id(route_id)
 
