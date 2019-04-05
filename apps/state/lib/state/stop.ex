@@ -16,7 +16,8 @@ defmodule State.Stop do
           optional(:longitude) => WGS84.longitude(),
           optional(:latitude) => WGS84.latitude(),
           optional(:radius) => State.Stop.List.radius(),
-          optional(:route_types) => [Model.Route.route_type()]
+          optional(:route_types) => [Model.Route.route_type()],
+          optional(:location_type) => [Stop.location_type()]
         }
 
   @type post_search_filter_opts :: %{
@@ -75,6 +76,10 @@ defmodule State.Stop do
     []
   end
 
+  def by_location_type(location_types) do
+    State.Stop.Cache.by_location_types(location_types)
+  end
+
   def siblings(id) when is_binary(id) do
     case by_id(id) do
       %{parent_station: station_id} ->
@@ -125,6 +130,7 @@ defmodule State.Stop do
     :longitude
     :latitude
     :radius
+    :location_type
 
   If filtering for :direction_id, :routes must also be applied for the
   direction filter to apply.
@@ -189,6 +195,15 @@ defmodule State.Stop do
     |> build_filtered_searches([search_operation | searches])
   end
 
+  defp build_filtered_searches(%{location_types: location_types} = filters, searches) do
+    search_operation = fn -> by_location_type(location_types) end
+    searches = [search_operation | searches]
+
+    filters
+    |> Map.drop([:location_types])
+    |> build_filtered_searches(searches)
+  end
+
   defp build_filtered_searches(%{ids: ids} = filters, searches) do
     search_operation = fn -> by_ids(ids) end
     searches = [search_operation | searches]
@@ -204,8 +219,8 @@ defmodule State.Stop do
   defp do_searches([]), do: all()
 
   defp do_searches(search_operations) when is_list(search_operations) do
-    stops =
-      Stream.flat_map(search_operations, fn search_operation ->
+    search_results =
+      Stream.map(search_operations, fn search_operation ->
         case search_operation.() do
           results when is_list(results) ->
             results
@@ -215,7 +230,13 @@ defmodule State.Stop do
         end
       end)
 
-    Enum.uniq_by(stops, & &1.id)
+    search_results
+    |> Enum.to_list()
+    |> Enum.reduce(all(), fn results, acc ->
+      acc_set = MapSet.new(acc)
+      Enum.filter(results, fn stop -> stop in acc_set end)
+    end)
+    |> Enum.uniq_by(& &1.id)
   end
 
   @spec do_post_search_filters([Stop.t()], post_search_filter_opts) :: [Stop.t()]

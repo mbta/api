@@ -4,7 +4,7 @@ defmodule ApiWeb.StopController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id latitude longitude radius route route_type)s
+  @filters ~w(id date direction_id latitude longitude radius route route_type location_type)s
   @pagination_opts ~w(offset limit order_by distance)a
   @includes ~w(parent_station child_stops facilities route)
 
@@ -56,6 +56,12 @@ defmodule ApiWeb.StopController do
 
     filter_param(:route_type)
     filter_param(:id, name: :route)
+
+    parameter("filter[location_type]", :query, :string, """
+    Filter by location_type https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#stopstxt. Multiple location_type #{
+      comma_separated_list()
+    }
+    """)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -151,6 +157,27 @@ defmodule ApiWeb.StopController do
 
       parsed_direction_id ->
         %{direction_id: parsed_direction_id}
+    end
+  end
+
+  defp do_format_filter({"location_type", type_string}) do
+    location_types =
+      type_string
+      |> Params.split_on_comma()
+      |> Enum.flat_map(fn type_id_string ->
+        case Integer.parse(type_id_string) do
+          {type_id, ""} ->
+            [type_id]
+
+          _ ->
+            []
+        end
+      end)
+
+    if location_types == [] do
+      []
+    else
+      %{location_types: location_types}
     end
   end
 
