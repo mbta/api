@@ -179,10 +179,8 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(@includes,
-      description:
-        "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`. Use [/stops](#/Stop/ApiWeb_StopController_index) with `filter[id]` and `filter[route]` to include `route` with a specific stop."
-    )
+    # For show, it's not possible to include a route, so exclude it from the list of include parameters.
+    include_parameters(@includes -- ["route"])
 
     parameter(:id, :path, :string, "Unique identifier for stop")
 
