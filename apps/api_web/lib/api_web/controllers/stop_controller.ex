@@ -7,6 +7,7 @@ defmodule ApiWeb.StopController do
   @filters ~w(id date direction_id latitude longitude radius route route_type)s
   @pagination_opts ~w(offset limit order_by distance)a
   @includes ~w(parent_station child_stops facilities route)
+  @show_includes ~w(parent_station child_stops facilities)
 
   def state_module, do: State.Stop.Cache
 
@@ -28,7 +29,12 @@ defmodule ApiWeb.StopController do
     """)
 
     common_index_parameters(__MODULE__, :include_distance)
-    include_parameters(@includes)
+
+    include_parameters(@includes,
+      description:
+        "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`."
+    )
+
     filter_param(:date, description: "Filter by date when stop is in use")
     filter_param(:direction_id)
 
@@ -174,7 +180,8 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(@includes)
+    include_parameters(@show_includes)
+
     parameter(:id, :path, :string, "Unique identifier for stop")
 
     consumes("application/vnd.api+json")
@@ -188,7 +195,7 @@ defmodule ApiWeb.StopController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with {:ok, _includes} <- Params.validate_includes(params, @show_includes, conn) do
       Stop.by_id(id)
     else
       {:error, _, _} = error -> error
