@@ -231,6 +231,7 @@ defmodule State.Stop do
       end)
 
     [first_result] = Enum.take(search_results, 1)
+
     search_results
     |> Stream.drop(1)
     |> Enum.reduce(first_result, fn results, acc ->
