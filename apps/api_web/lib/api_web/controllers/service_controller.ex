@@ -41,13 +41,16 @@ defmodule ApiWeb.ServiceController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
-    case Params.filter_params(params, @filters) do
+  def index_data(conn, params) do
+    case Params.filter_params(params, @filters, conn) do
       {:ok, %{"id" => ids}} ->
         ids
         |> split_on_comma
         |> State.Service.by_ids()
         |> State.all(Params.filter_opts(params, @pagination_opts))
+
+      {:error, _, _} = error ->
+        error
 
       _ ->
         {:error, :filter_required}

@@ -36,8 +36,8 @@ defmodule ApiWeb.VehicleController do
   end
 
   @spec show_data(Plug.Conn.t(), %{String.t() => String.t()}) :: Model.Vehicle.t() | nil
-  def show_data(_conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def show_data(conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       State.Vehicle.by_id(id)
     else
       {:error, _, _} = error -> error
@@ -90,8 +90,8 @@ defmodule ApiWeb.VehicleController do
   def index_data(conn, params) do
     params = backwards_compatible_params(conn.assigns.api_version, params)
 
-    with {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> apply_filters()
       |> State.all(Params.filter_opts(params, @pagination_opts))

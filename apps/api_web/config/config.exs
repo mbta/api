@@ -30,9 +30,10 @@ config :api_web, :versions,
     "2017-11-28",
     "2018-05-07",
     "2018-07-23",
-    "2019-02-12"
+    "2019-02-12",
+    "2019-04-05"
   ],
-  default: "2019-02-12"
+  default: "2019-04-05"
 
 config :logger, :console,
   format: "$date $time $metadata[$level] $message\n",

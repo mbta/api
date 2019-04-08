@@ -36,9 +36,9 @@ defmodule ApiWeb.LiveFacilityController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def index_data(conn, params) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       case filtered do
         %{"id" => ids} ->
           ids
@@ -83,8 +83,8 @@ defmodule ApiWeb.LiveFacilityController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => facility_id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def show_data(conn, %{"id" => facility_id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       case State.Facility.Parking.by_facility_id(facility_id) do
         [] ->
           nil
