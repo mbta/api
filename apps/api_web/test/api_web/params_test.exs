@@ -69,7 +69,12 @@ defmodule ApiWeb.ParamsTest do
 
     test "returns error in case of unsupported filter", %{params: params, conn: conn} do
       assert Params.filter_params(params, ["route"], conn) == {:error, :bad_filter, ~w(stop trip)}
+    end
 
+    test "doesn't return error for unsupported filters for older key versions", %{
+      params: params,
+      conn: conn
+    } do
       conn = assign(conn, :api_version, "2019-02-12")
       assert Params.filter_params(params, ["route"], conn) == {:ok, %{"route" => "1,2,3"}}
     end
@@ -84,7 +89,9 @@ defmodule ApiWeb.ParamsTest do
     test "returns error for invalid includes", %{conn: conn} do
       assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
                {:error, :bad_include, ~w(routes)}
+    end
 
+    test "doesn't return error for invalid includes for older key versions", %{conn: conn} do
       conn = assign(conn, :api_version, "2019-02-12")
 
       assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
