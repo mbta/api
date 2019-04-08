@@ -240,56 +240,42 @@ defmodule ApiWeb.Params do
   Query params that are in the `filter` namespace have priority over duplicate
   query params.
 
-  ## Examples
-
-      iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3"}, ["sort"])
-      {:ok, %{}}
-
-      iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3", "route" => "1,2,3"},
-      ...>   ["route"])
-      {:ok, %{"route" => "1,2,3"}}
-
-      iex(1)> params = %{
-      ...>      "sort" => "1,2,3",
-      ...>      "filter" => %{
-      ...>        "sort" => "4,5,6",
-      ...>        "route" => "1,2,3"
-      ...>      }
-      ...>    }
-      iex(2)> ApiWeb.Params.filter_params(params, ["sort", "route"])
-      {:ok, %{"sort" => "4,5,6", "route" => "1,2,3"}}
-
-      iex> ApiWeb.Params.filter_params(%{"sort" => "1,2,3"}, [])
-      {:ok, %{}}
-
   """
-  @spec filter_params(map, [String.t()]) :: {:ok, map} | {:error, atom, [String.t()]}
-  def filter_params(params, keys) do
+  @spec filter_params(map, [String.t()], Plug.Conn.t()) ::
+          {:ok, map} | {:error, atom, [String.t()]}
+  def filter_params(params, keys, conn) do
     with top_level_params <- Map.drop(params, @default_params),
-         {:ok, filtered1} <- validate_filters(top_level_params, keys),
-         {:ok, filtered2} <- validate_filters(Map.get(params, "filter"), keys) do
+         {:ok, filtered1} <- validate_filters(top_level_params, keys, conn),
+         {:ok, filtered2} <- validate_filters(Map.get(params, "filter"), keys, conn) do
       {:ok, Map.merge(filtered1, filtered2)}
     else
       {:error, _, _} = error -> error
     end
   end
 
-  @spec validate_filters(map, [String.t()]) :: {:ok, map}
-  def validate_filters(nil, _keys), do: {:ok, %{}}
+  @spec validate_filters(map, [String.t()], Plug.Conn.t()) ::
+          {:ok, map} | {:error, atom, [String.t()]}
+  def validate_filters(nil, _keys, _conn), do: {:ok, %{}}
 
-  def validate_filters(params, keys) do
+  def validate_filters(params, keys, conn) do
     case params do
       filter when is_map(filter) ->
-        good_filters = Map.take(filter, keys)
-        {:ok, good_filters}
+        bad_filters = Map.keys(filter) -- keys
+
+        if conn.assigns.api_version < "2019-04-05" or bad_filters == [] do
+          {:ok, Map.take(filter, keys)}
+        else
+          {:error, :bad_filter, bad_filters}
+        end
 
       _ ->
         {:ok, %{}}
     end
   end
 
-  @spec validate_includes(map, [String.t()]) :: {:ok, [String.t()]}
-  def validate_includes(params, _includes) do
+  @spec validate_includes(map, [String.t()], Plug.Conn.t()) ::
+          {:ok, [String.t()]} | {:error, atom, [String.t()]}
+  def validate_includes(params, includes, conn) do
     case Map.get(params, "include") do
       values when is_binary(values) ->
         split =
@@ -297,7 +283,13 @@ defmodule ApiWeb.Params do
           |> String.split(",", trim: true)
           |> Enum.map(&(&1 |> String.split(".") |> List.first()))
 
-        {:ok, split}
+        bad_includes = split -- includes
+
+        if conn.assigns.api_version < "2019-04-05" or bad_includes == [] do
+          {:ok, split}
+        else
+          {:error, :bad_include, bad_includes}
+        end
 
       _ ->
         {:ok, nil}

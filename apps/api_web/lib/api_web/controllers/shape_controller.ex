@@ -37,9 +37,9 @@ defmodule ApiWeb.ShapeController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def index_data(conn, params) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       do_filter(filtered, params)
     else
       {:error, _, _} = error -> error
@@ -79,8 +79,8 @@ defmodule ApiWeb.ShapeController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def show_data(conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       Shape.by_primary_id(id)
     else
       {:error, _, _} = error -> error

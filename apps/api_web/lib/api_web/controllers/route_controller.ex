@@ -72,9 +72,9 @@ defmodule ApiWeb.RouteController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes_index) do
+  def index_data(conn, params) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes_index, conn) do
       filtered
       |> format_filters()
       |> do_filter()
@@ -184,8 +184,8 @@ defmodule ApiWeb.RouteController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes_show) do
+  def show_data(conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes_show, conn) do
       Route.by_id(id)
     else
       {:error, _, _} = error -> error
