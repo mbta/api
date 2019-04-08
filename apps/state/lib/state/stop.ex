@@ -230,9 +230,10 @@ defmodule State.Stop do
         end
       end)
 
+    [first_result] = Enum.take(search_results, 1)
     search_results
-    |> Enum.to_list()
-    |> Enum.reduce(all(), fn results, acc ->
+    |> Stream.drop(1)
+    |> Enum.reduce(first_result, fn results, acc ->
       acc_set = MapSet.new(acc)
       Enum.filter(results, fn stop -> stop in acc_set end)
     end)
