@@ -28,7 +28,12 @@ defmodule ApiWeb.StopController do
     """)
 
     common_index_parameters(__MODULE__, :include_distance)
-    include_parameters(@includes)
+
+    include_parameters(@includes,
+      description:
+        "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`."
+    )
+
     filter_param(:date, description: "Filter by date when stop is in use")
     filter_param(:direction_id)
 
@@ -174,7 +179,11 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(@includes)
+    include_parameters(@includes,
+      description:
+        "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`. Use [/stops](#/Stop/ApiWeb_StopController_index) with `filter[id]` and `filter[route]` to include `route` with a specific stop."
+    )
+
     parameter(:id, :path, :string, "Unique identifier for stop")
 
     consumes("application/vnd.api+json")
