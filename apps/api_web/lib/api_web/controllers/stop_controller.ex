@@ -7,6 +7,7 @@ defmodule ApiWeb.StopController do
   @filters ~w(id date direction_id latitude longitude radius route route_type)s
   @pagination_opts ~w(offset limit order_by distance)a
   @includes ~w(parent_station child_stops facilities route)
+  @show_includes ~w(parent_station child_stops facilities)
 
   def state_module, do: State.Stop.Cache
 
@@ -179,8 +180,7 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    # For show, it's not possible to include a route, so exclude it from the list of include parameters.
-    include_parameters(@includes -- ["route"])
+    include_parameters(@show_includes)
 
     parameter(:id, :path, :string, "Unique identifier for stop")
 
@@ -195,7 +195,7 @@ defmodule ApiWeb.StopController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with {:ok, _includes} <- Params.validate_includes(params, @show_includes, conn) do
       Stop.by_id(id)
     else
       {:error, _, _} = error -> error
