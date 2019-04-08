@@ -34,7 +34,8 @@ defmodule State do
       worker(State.RoutesAtStop, []),
       worker(State.ServiceByDate, []),
       worker(State.Shape, []),
-      worker(State.Feed, [])
+      worker(State.Feed, []),
+      worker(State.Transfer, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

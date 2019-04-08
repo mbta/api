@@ -32,6 +32,14 @@ defmodule ApiWeb.StopView do
   )
 
   has_many(
+    :recommended_transfers,
+    type: :stop,
+    serializer: ApiWeb.StopView,
+    identifiers: :when_included,
+    field: :recommended_transfers
+  )
+
+  has_many(
     :facilities,
     type: :facility,
     serializer: ApiWeb.FacilityView,
@@ -69,6 +77,10 @@ defmodule ApiWeb.StopView do
 
   def child_stops(%{id: parent_id}, _conn) do
     State.Stop.by_parent_station(parent_id)
+  end
+
+  def recommended_transfers(%{id: stop_id}, _conn) do
+    State.Transfer.recommended_transfers_from(stop_id)
   end
 
   def relationships(stop, %Plug.Conn{private: %{phoenix_view: __MODULE__}} = conn) do

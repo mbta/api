@@ -1,6 +1,6 @@
 defmodule ApiWeb.StopControllerTest do
   use ApiWeb.ConnCase
-  alias Model.{Facility, Stop}
+  alias Model.{Facility, Stop, Transfer}
 
   setup %{conn: conn} do
     State.Stop.new_state([])
@@ -356,6 +356,29 @@ defmodule ApiWeb.StopControllerTest do
       response = json_response(conn, 200)
 
       assert response["data"]["relationships"]["child_stops"]["data"] == [
+               %{"type" => "stop", "id" => "2"}
+             ]
+
+      [included] = response["included"]
+      assert included["id"] == "2"
+    end
+
+    test "can include recommended transfers", %{conn: conn} do
+      from = %Stop{id: "1"}
+      to = %Stop{id: "2"}
+      transfer = %Transfer{from_stop_id: "1", to_stop_id: "2", transfer_type: 0}
+      State.Stop.new_state([from, to])
+      State.Transfer.new_state([transfer])
+
+      conn = get(conn, stop_path(conn, :show, from))
+      response = json_response(conn, 200)
+
+      refute response["data"]["relationships"]["recommended_transfers"]["data"]
+
+      conn = get(conn, stop_path(conn, :show, from), %{include: "recommended_transfers"})
+      response = json_response(conn, 200)
+
+      assert response["data"]["relationships"]["recommended_transfers"]["data"] == [
                %{"type" => "stop", "id" => "2"}
              ]
 

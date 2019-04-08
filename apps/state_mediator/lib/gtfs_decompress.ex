@@ -21,7 +21,8 @@ defmodule GtfsDecompress do
                         facilities
                         facilities_properties
                         directions
-                        lines)
+                        lines
+                        transfers)
 
   def filenames do
     for filename <- @filename_prefixes do
