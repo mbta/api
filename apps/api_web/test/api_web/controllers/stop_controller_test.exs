@@ -273,6 +273,25 @@ defmodule ApiWeb.StopControllerTest do
       assert Enum.map(json_response(conn, 200)["data"], & &1["id"]) == []
     end
 
+    test "can filter by location_type", %{conn: base_conn} do
+      stop = %Stop{id: 1, location_type: 0}
+      State.Stop.new_state([stop])
+
+      conn =
+        get(base_conn, stop_path(base_conn, :index), %{
+          "location_type" => "1,2"
+        })
+
+      assert json_response(conn, 200)["data"] == []
+
+      conn =
+        get(base_conn, stop_path(base_conn, :index), %{
+          "location_type" => "0"
+        })
+
+      assert Enum.map(json_response(conn, 200)["data"], & &1["id"]) == ["1"]
+    end
+
     test "can be paginated and sorted", %{conn: base_conn} do
       set_up_stops_on_route()
 

@@ -259,6 +259,25 @@ defmodule State.StopTest do
       assert State.Stop.filter_by(%{route_types: [2]}) == [stop]
       assert State.Stop.filter_by(%{route_types: [0, 1, 2]}) == [stop]
     end
+
+    test "filters by location type" do
+      stop = %Stop{id: "1", location_type: 0}
+      entrance = %Stop{id: "2", location_type: 2}
+      State.Stop.new_state([stop, entrance])
+
+      assert State.Stop.filter_by(%{location_types: [0]}) == [stop]
+      assert State.Stop.filter_by(%{location_types: [0, 1]}) == [stop]
+      assert State.Stop.filter_by(%{location_types: [2]}) == [entrance]
+      assert State.Stop.filter_by(%{location_types: [1]}) == []
+    end
+
+    test "filters by location type and id" do
+      stop = %Stop{id: "1", location_type: 0}
+      State.Stop.new_state([stop])
+
+      assert State.Stop.filter_by(%{ids: [stop.id], location_types: [0]}) == [stop]
+      assert State.Stop.filter_by(%{ids: [stop.id], location_types: [1, 2]}) == []
+    end
   end
 
   test "last_updated/0" do
