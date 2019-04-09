@@ -1,7 +1,7 @@
 defmodule State.TransferTest do
   use ExUnit.Case
   import State.Transfer
-  alias Model.{Transfer, Stop}
+  alias Model.{Stop, Transfer}
 
   setup do
     State.Transfer.new_state([])
