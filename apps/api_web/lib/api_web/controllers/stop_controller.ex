@@ -4,9 +4,10 @@ defmodule ApiWeb.StopController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id latitude longitude radius route route_type)s
+  @filters ~w(id date direction_id latitude longitude radius route route_type location_type)s
   @pagination_opts ~w(offset limit order_by distance)a
   @includes ~w(parent_station child_stops facilities route)
+  @show_includes ~w(parent_station child_stops facilities)
 
   def state_module, do: State.Stop.Cache
 
@@ -28,7 +29,12 @@ defmodule ApiWeb.StopController do
     """)
 
     common_index_parameters(__MODULE__, :include_distance)
-    include_parameters(@includes)
+
+    include_parameters(@includes,
+      description:
+        "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`."
+    )
+
     filter_param(:date, description: "Filter by date when stop is in use")
     filter_param(:direction_id)
 
@@ -57,6 +63,12 @@ defmodule ApiWeb.StopController do
     filter_param(:route_type)
     filter_param(:id, name: :route)
 
+    parameter("filter[location_type]", :query, :string, """
+    Filter by location_type https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#stopstxt. Multiple location_type #{
+      comma_separated_list()
+    }
+    """)
+
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
     response(200, "OK", Schema.ref(:Stops))
@@ -65,12 +77,12 @@ defmodule ApiWeb.StopController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(_conn, params) do
+  def index_data(conn, params) do
     filter_opts = Params.filter_opts(params, @pagination_opts)
 
     with true <- check_distance_filter?(filter_opts),
-         {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> format_filters()
       |> Stop.filter_by()
@@ -154,6 +166,27 @@ defmodule ApiWeb.StopController do
     end
   end
 
+  defp do_format_filter({"location_type", type_string}) do
+    location_types =
+      type_string
+      |> Params.split_on_comma()
+      |> Enum.flat_map(fn type_id_string ->
+        case Integer.parse(type_id_string) do
+          {type_id, ""} ->
+            [type_id]
+
+          _ ->
+            []
+        end
+      end)
+
+    if location_types == [] do
+      []
+    else
+      %{location_types: location_types}
+    end
+  end
+
   defp do_format_filter({key, value})
        when key in ["radius", "longitude", "latitude"] do
     case Float.parse(value) do
@@ -174,7 +207,8 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(@includes)
+    include_parameters(@show_includes)
+
     parameter(:id, :path, :string, "Unique identifier for stop")
 
     consumes("application/vnd.api+json")
@@ -187,8 +221,8 @@ defmodule ApiWeb.StopController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes) do
+  def show_data(conn, %{"id" => id} = params) do
+    with {:ok, _includes} <- Params.validate_includes(params, @show_includes, conn) do
       Stop.by_id(id)
     else
       {:error, _, _} = error -> error

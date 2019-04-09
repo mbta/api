@@ -92,8 +92,8 @@ defmodule ApiWeb.ScheduleController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters),
-         {:ok, _includes} <- Params.validate_includes(params, @includes) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       case format_filters(filtered, conn) do
         filters when map_size(filters) > 1 ->
           # greater than 1 because `date` is automatically included
@@ -254,7 +254,7 @@ defmodule ApiWeb.ScheduleController do
   def date(%{params: params} = conn, []) do
     {conn, date} =
       with {:ok, %{"date" => date_string}} when date_string != nil <-
-             Params.filter_params(params, @filters),
+             Params.filter_params(params, @filters, conn),
            {:ok, parsed_date} <- Date.from_iso8601(date_string) do
         {conn, parsed_date}
       else

@@ -1,5 +1,5 @@
 defmodule ApiWeb.ParamsTest do
-  use ExUnit.Case, async: true
+  use ApiWeb.ConnCase, async: true
   doctest ApiWeb.Params
   alias ApiWeb.Params
 
@@ -44,7 +44,7 @@ defmodule ApiWeb.ParamsTest do
   end
 
   describe "filter_params/2" do
-    setup do
+    setup %{conn: conn} do
       params = %{
         "stop" => "1,2,3",
         "trip" => "1,2,3",
@@ -54,17 +54,53 @@ defmodule ApiWeb.ParamsTest do
         }
       }
 
-      {:ok, %{params: params}}
+      {:ok, %{params: params, conn: conn}}
     end
 
-    test "filters items from 2nd arg", %{params: params} do
-      assert Params.filter_params(params, ["route", "trip", "stop"]) ==
+    test "filters items from 2nd arg", %{params: params, conn: conn} do
+      assert Params.filter_params(params, ["route", "trip", "stop"], conn) ==
                {:ok,
                 %{
                   "route" => "1,2,3",
                   "trip" => "1,2,3",
                   "stop" => "4,5,6"
                 }}
+    end
+
+    test "returns error in case of unsupported filter", %{params: params, conn: conn} do
+      assert Params.filter_params(params, ["route"], conn) == {:error, :bad_filter, ~w(stop trip)}
+    end
+
+    test "doesn't return error for unsupported filters for older key versions", %{
+      params: params,
+      conn: conn
+    } do
+      conn = assign(conn, :api_version, "2019-02-12")
+      assert Params.filter_params(params, ["route"], conn) == {:ok, %{"route" => "1,2,3"}}
+    end
+  end
+
+  describe "validate_includes/2" do
+    test "returns ok for valid includes", %{conn: conn} do
+      assert Params.validate_includes(%{"include" => "stops,trips"}, ~w(stops routes trips), conn) ==
+               {:ok, ~w(stops trips)}
+    end
+
+    test "returns error for invalid includes", %{conn: conn} do
+      assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
+               {:error, :bad_include, ~w(routes)}
+    end
+
+    test "doesn't return error for invalid includes for older key versions", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-02-12")
+
+      assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
+               {:ok, ~w(stops routes)}
+    end
+
+    test "supports dot notation", %{conn: conn} do
+      assert Params.validate_includes(%{"include" => "stops.id"}, ~w(stops routes trips), conn) ==
+               {:ok, ~w(stops)}
     end
   end
 end
