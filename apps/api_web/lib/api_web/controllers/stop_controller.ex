@@ -6,8 +6,8 @@ defmodule ApiWeb.StopController do
 
   @filters ~w(id date direction_id latitude longitude radius route route_type location_type)s
   @pagination_opts ~w(offset limit order_by distance)a
-  @includes ~w(parent_station child_stops facilities route)
-  @show_includes ~w(parent_station child_stops facilities)
+  @includes ~w(parent_station child_stops recommended_transfers facilities route)
+  @show_includes ~w(parent_station child_stops recommended_transfers facilities)
 
   def state_module, do: State.Stop.Cache
 
