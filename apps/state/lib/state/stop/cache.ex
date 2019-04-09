@@ -4,7 +4,7 @@ defmodule State.Stop.Cache do
   """
 
   use State.Server,
-    indicies: [:id, :parent_station],
+    indicies: [:id, :parent_station, :location_type],
     recordable: Model.Stop
 
   def by_id(id) do
