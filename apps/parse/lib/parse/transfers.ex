@@ -18,7 +18,7 @@ defmodule Parse.Transfers do
     %Model.Transfer{
       from_stop_id: copy(row["from_stop_id"]),
       to_stop_id: copy(row["to_stop_id"]),
-      transfer_type: String.to_integer(row["transfer_type"]),
+      transfer_type: to_integer_if_not_blank(row["transfer_type"]) || 0,
       min_transfer_time: to_integer_if_not_blank(row["min_transfer_time"]),
       min_walk_time: to_integer_if_not_blank(row["min_walk_time"]),
       min_wheelchair_time: to_integer_if_not_blank(row["min_wheelchair_time"]),
