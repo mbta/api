@@ -1,6 +1,6 @@
 defmodule Events do
   @moduledoc """
-  A simple wrapper around gproc for event pub/sub.
+  A simple wrapper around Registry for event pub/sub.
 
   Example:
 
