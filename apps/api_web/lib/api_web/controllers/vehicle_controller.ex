@@ -60,11 +60,18 @@ defmodule ApiWeb.VehicleController do
       "filter[id]",
       :query,
       :string,
-      "Filter by multiple IDs. Multiple IDs #{comma_separated_list()}.",
+      "Filter by multiple IDs. Multiple IDs #{comma_separated_list()}. Cannot be combined with any other filter.",
       example: "1,2"
     )
 
-    filter_param(:id, name: :trip)
+    parameter(
+      "filter[trip]",
+      :query,
+      :string,
+      "Filter by `/data/{index}/relationships/trip/data/id`. Multiple `/data/{index}/relationships/trip/data/id` #{
+        comma_separated_list()
+      }. Cannot be combined with any other filter."
+    )
 
     parameter("filter[label]", :query, :string, """
     Filter by label. Multiple `label` #{comma_separated_list()}.
@@ -76,7 +83,13 @@ defmodule ApiWeb.VehicleController do
     returned for any of the routes. Multiple `route_id` #{comma_separated_list()}.
     """)
 
-    filter_param(:direction_id)
+    filter_param(:direction_id, desc: "Only used if `filter[route]` is also present.")
+
+    parameter("filter[route_type]", :query, :string, """
+    Filter by `route_type`. Corresponds to [GTFS `routes.txt` `route_type`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#routestxt). Multiple `route_type` #{
+      comma_separated_list()
+    }.
+    """)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
