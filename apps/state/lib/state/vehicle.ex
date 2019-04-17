@@ -14,9 +14,14 @@ defmodule State.Vehicle do
   alias Model.Vehicle
   alias State.Trip
 
-  @type direction_id :: Model.Trip.id() | nil
-  @type routes :: [Model.Route.id()]
-  @type labels :: [String.t()]
+  @type filter_opts :: %{
+          optional(:labels) => [String.t()],
+          optional(:routes) => [Model.Route.id()],
+          optional(:direction_id) => Model.Direction.id() | nil,
+          optional(:route_types) => [Model.Route.route_type()]
+        }
+
+  @type vehicle_search :: (() -> [Vehicle.t()])
 
   @impl State.Server
   def post_load_hook(structs) do
@@ -50,23 +55,54 @@ defmodule State.Vehicle do
     end
   end
 
-  @spec by_labels_and_routes(labels, routes, direction_id) :: [Vehicle.t()]
-  def by_labels_and_routes(labels, route_ids, direction_id) do
-    route_ids
-    |> build_matchers(labels, direction_id || :_)
-    |> select(:label)
+  @spec filter_by(filter_opts) :: [Vehicle.t()]
+  def filter_by(filters) do
+    matchers =
+      [%{}]
+      |> build_filters(:label, filters[:labels], filters)
+      |> build_filters(:effective_route_id, filters[:routes], filters)
+      |> build_filters(:route_type, filters[:route_types], filters)
+
+    idx = get_index(filters)
+    State.Vehicle.select(matchers, idx)
   end
 
-  @spec by_route_ids_and_direction_id(routes, direction_id) :: [Vehicle.t()]
-  def by_route_ids_and_direction_id(route_ids, direction_id) do
-    route_ids
-    |> build_matchers(:_, direction_id || :_)
-    |> select(:effective_route_id)
-  end
+  defp get_index(%{labels: labels}) when labels != [], do: :label
+  defp get_index(%{routes: routes}) when routes != [], do: :effective_route_id
+  defp get_index(_filters), do: nil
 
-  defp build_matchers(route_ids, labels, direction_id) do
-    for route_id <- List.wrap(route_ids), label <- List.wrap(labels) do
-      %{label: label, effective_route_id: route_id, direction_id: direction_id}
+  defp build_filters(matchers, _key, nil, _filters), do: matchers
+
+  defp build_filters(matchers, :route_type, route_types, _filters) do
+    route_ids =
+      route_types
+      |> State.Route.by_types()
+      |> Enum.map(& &1.id)
+
+    valid_route_id? = fn matcher, route_id ->
+      case matcher[:effective_route_id] do
+        nil -> true
+        ^route_id -> true
+        _ -> false
+      end
     end
+
+    for matcher <- matchers, route_id <- route_ids, valid_route_id?.(matcher, route_id) do
+      Map.put(matcher, :effective_route_id, route_id)
+    end
+  end
+
+  defp build_filters(matchers, :effective_route_id, route_ids, filters) do
+    direction_id = filters[:direction_id] || :_
+
+    for matcher <- matchers, route_id <- List.wrap(route_ids) do
+      matcher
+      |> Map.put(:effective_route_id, route_id)
+      |> Map.put(:direction_id, direction_id)
+    end
+  end
+
+  defp build_filters(matchers, key, values, _filters) do
+    for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
   end
 end
