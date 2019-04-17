@@ -21,8 +21,6 @@ defmodule State.Vehicle do
           optional(:route_types) => [Model.Route.route_type()]
         }
 
-  @type vehicle_search :: (() -> [Vehicle.t()])
-
   @impl State.Server
   def post_load_hook(structs) do
     Enum.uniq_by(structs, & &1.trip_id)
