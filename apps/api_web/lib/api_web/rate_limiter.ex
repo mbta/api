@@ -12,6 +12,17 @@ defmodule ApiWeb.RateLimiter do
   @max_anon_per_interval ApiWeb.config(:rate_limiter, :max_anon_per_interval)
   @max_registered_per_interval ApiWeb.config(:rate_limiter, :max_registered_per_interval)
 
+  @type request_status :: :ok | {:error, :rate_limited}
+  @type limit_data :: %{
+          :limit => non_neg_integer,
+          :remaining => non_neg_integer,
+          :reset_ms => non_neg_integer
+        }
+  @type log_result :: %{
+          :status => request_status,
+          optional(:limit_data) => limit_data
+        }
+
   ## Client
 
   def start_link(_opts \\ []) do
@@ -35,17 +46,32 @@ defmodule ApiWeb.RateLimiter do
     @intervals_per_day
   }` |
   """
-  @spec log_request(any, String.t()) :: :ok | {:error, :rate_limited}
-  def log_request(_, "/_health" <> _), do: :ok
+  @spec log_request(any, String.t()) :: log_result
+  def log_request(_, "/_health" <> _), do: %{status: :ok}
 
   def log_request(user, _request_path) do
     max = max_requests(user)
+    {key, reset_ms} = key_and_reset_time(user)
+    {rate_limited, requests} = @limiter.rate_limited?(key, max)
 
-    if @limiter.rate_limited?(user.id, max) do
-      {:error, :rate_limited}
+    if rate_limited do
+      %{
+        status: {:error, :rate_limited},
+        limit_data: %{limit: max, remaining: 0, reset_ms: reset_ms}
+      }
     else
-      :ok
+      %{
+        status: :ok,
+        limit_data: %{limit: max, remaining: max - requests, reset_ms: reset_ms}
+      }
     end
+  end
+
+  defp key_and_reset_time(user) do
+    time_bucket = div(System.system_time(:millisecond), @clear_interval)
+    key = "#{user.id}_#{time_bucket}"
+    reset_ms = (time_bucket + 1) * @clear_interval
+    {key, reset_ms}
   end
 
   @doc false

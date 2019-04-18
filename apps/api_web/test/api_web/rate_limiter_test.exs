@@ -42,15 +42,43 @@ defmodule ApiWeb.RateLimiterTest do
     anon2 = anon_user("anon2")
 
     for _ <- 1..ApiWeb.config(:rate_limiter, :max_anon_per_interval) do
-      assert :ok = RateLimiter.log_request(anon, "/foo")
-      assert :ok = RateLimiter.log_request(registered_user, "/foo")
+      assert %{status: :ok} = RateLimiter.log_request(anon, "/foo")
+      assert %{status: :ok} = RateLimiter.log_request(registered_user, "/foo")
     end
 
-    assert {:error, :rate_limited} = RateLimiter.log_request(anon, "/foo")
-    assert :ok = RateLimiter.log_request(registered_user, "/foo")
-    assert :ok = RateLimiter.log_request(anon2, "/foo")
+    assert %{status: {:error, :rate_limited}} = RateLimiter.log_request(anon, "/foo")
+    assert %{status: :ok} = RateLimiter.log_request(registered_user, "/foo")
+    assert %{status: :ok} = RateLimiter.log_request(anon2, "/foo")
     wait_for_clear()
-    assert :ok = RateLimiter.log_request(anon, "/foo")
+    assert %{status: :ok} = RateLimiter.log_request(anon, "/foo")
+  end
+
+  test "log_request returns correct header values" do
+    anon = anon_user("anon")
+
+    for n <- 1..ApiWeb.config(:rate_limiter, :max_anon_per_interval) do
+      before_ms = System.system_time(:millisecond)
+
+      assert %{status: :ok, limit_data: %{limit: limit, remaining: remaining, reset_ms: reset_ms}} =
+               RateLimiter.log_request(anon, "/foo")
+
+      assert limit == ApiWeb.config(:rate_limiter, :max_anon_per_interval)
+      assert remaining == ApiWeb.config(:rate_limiter, :max_anon_per_interval) - n
+      assert reset_ms < before_ms + ApiWeb.config(:rate_limiter, :clear_interval)
+    end
+
+    for _ <- 1..2 do
+      before_ms = System.system_time(:millisecond)
+
+      assert %{
+               status: {:error, :rate_limited},
+               limit_data: %{limit: limit, remaining: remaining, reset_ms: reset_ms}
+             } = RateLimiter.log_request(anon, "/foo")
+
+      assert limit == ApiWeb.config(:rate_limiter, :max_anon_per_interval)
+      assert remaining == 0
+      assert reset_ms < before_ms + ApiWeb.config(:rate_limiter, :clear_interval)
+    end
   end
 
   test "clears the table periodically" do

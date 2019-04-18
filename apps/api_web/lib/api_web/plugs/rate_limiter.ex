@@ -11,15 +11,32 @@ defmodule ApiWeb.Plugs.RateLimiter do
 
   def call(%{assigns: assigns, request_path: request_path} = conn, _) do
     case ApiWeb.RateLimiter.log_request(assigns.api_user, request_path) do
-      :ok ->
+      %{status: :ok, limit_data: %{limit: limit, remaining: remaining, reset_ms: reset_ms}} ->
+        conn
+        |> put_rate_limit_headers(limit, remaining, reset_ms)
+
+      %{status: :ok} ->
         conn
 
-      {:error, :rate_limited} ->
+      %{
+        status: {:error, :rate_limited},
+        limit_data: %{limit: limit, remaining: remaining, reset_ms: reset_ms}
+      } ->
         conn
+        |> put_rate_limit_headers(limit, remaining, reset_ms)
         |> put_status(429)
         |> put_view(ApiWeb.ErrorView)
         |> render("429.json-api", [])
         |> halt()
     end
+  end
+
+  defp put_rate_limit_headers(conn, limit, remaining, reset_ms) do
+    reset_seconds = div(reset_ms, 1_000)
+
+    conn
+    |> put_resp_header("x-ratelimit-limit", "#{limit}")
+    |> put_resp_header("x-ratelimit-remaining", "#{remaining}")
+    |> put_resp_header("x-ratelimit-reset", "#{reset_seconds}")
   end
 end
