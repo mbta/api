@@ -15,10 +15,10 @@ defmodule State.Vehicle do
   alias State.Trip
 
   @type filter_opts :: %{
-          optional(:labels) => [String.t()],
-          optional(:routes) => [Model.Route.id()],
+          optional(:labels) => [String.t(), ...],
+          optional(:routes) => [Model.Route.id(), ...],
           optional(:direction_id) => Model.Direction.id() | nil,
-          optional(:route_types) => [Model.Route.route_type()]
+          optional(:route_types) => [Model.Route.route_type(), ...]
         }
 
   @impl State.Server
@@ -54,12 +54,12 @@ defmodule State.Vehicle do
   end
 
   @spec filter_by(filter_opts) :: [Vehicle.t()]
-  def filter_by(filters) do
+  def filter_by(%{} = filters) do
     matchers =
       [%{}]
-      |> build_filters(:label, filters[:labels], filters)
-      |> build_filters(:effective_route_id, filters[:routes], filters)
-      |> build_filters(:route_type, filters[:route_types], filters)
+      |> build_filters(:label, Map.get(filters, :labels), filters)
+      |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
+      |> build_filters(:route_type, Map.get(filters, :route_types), filters)
 
     idx = get_index(filters)
     State.Vehicle.select(matchers, idx)
@@ -78,10 +78,10 @@ defmodule State.Vehicle do
       |> Enum.map(& &1.id)
 
     valid_route_id? = fn matcher, route_id ->
-      case matcher[:effective_route_id] do
-        nil -> true
-        ^route_id -> true
-        _ -> false
+      case matcher do
+        %{effective_route_id: ^route_id} -> true
+        %{effective_route_id: _} -> false
+        _ -> true
       end
     end
 
@@ -93,7 +93,7 @@ defmodule State.Vehicle do
   defp build_filters(matchers, :effective_route_id, route_ids, filters) do
     direction_id = filters[:direction_id] || :_
 
-    for matcher <- matchers, route_id <- List.wrap(route_ids) do
+    for matcher <- matchers, route_id <- route_ids do
       matcher
       |> Map.put(:effective_route_id, route_id)
       |> Map.put(:direction_id, direction_id)
@@ -101,6 +101,6 @@ defmodule State.Vehicle do
   end
 
   defp build_filters(matchers, key, values, _filters) do
-    for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
+    for matcher <- matchers, value <- values, do: Map.put(matcher, key, value)
   end
 end
