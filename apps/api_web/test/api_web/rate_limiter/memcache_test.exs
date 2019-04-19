@@ -9,25 +9,17 @@ defmodule ApiWeb.RateLimiter.MemcacheTest do
       {:ok, _} = start_link(clear_interval: 1000)
       user_id = "#{System.monotonic_time()}"
 
-      {has_limit, _} = rate_limited?(user_id, 1)
-      refute has_limit
-
-      {has_limit, _} = rate_limited?(user_id, 1)
-      assert has_limit
+      assert {:remaining, _} = rate_limited?(user_id, 1)
+      assert :rate_limited == rate_limited?(user_id, 1)
     end
 
     test "returns the correct number of requests" do
       {:ok, _} = start_link(clear_interval: 1000)
       user_id = "#{System.monotonic_time()}"
 
-      {_, requests} = rate_limited?(user_id, 2)
-      assert requests == 1
-
-      {_, requests} = rate_limited?(user_id, 2)
-      assert requests == 2
-
-      {_, requests} = rate_limited?(user_id, 2)
-      assert requests == 2
+      assert {:remaining, 1} = rate_limited?(user_id, 2)
+      assert {:remaining, 0} = rate_limited?(user_id, 2)
+      assert :rate_limited == rate_limited?(user_id, 2)
     end
   end
 end

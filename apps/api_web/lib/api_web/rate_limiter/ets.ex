@@ -15,7 +15,12 @@ defmodule ApiWeb.RateLimiter.ETS do
   @impl ApiWeb.RateLimiter.Limiter
   def rate_limited?(key, max_requests) do
     counter = :ets.update_counter(@tab, key, {2, 1}, {key, 0})
-    {counter > max_requests, counter}
+
+    if counter > max_requests do
+      :rate_limited
+    else
+      {:remaining, max_requests - counter}
+    end
   end
 
   @impl ApiWeb.RateLimiter.Limiter

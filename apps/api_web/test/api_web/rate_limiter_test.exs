@@ -42,15 +42,15 @@ defmodule ApiWeb.RateLimiterTest do
     anon2 = anon_user("anon2")
 
     for _ <- 1..ApiWeb.config(:rate_limiter, :max_anon_per_interval) do
-      assert %{status: :ok} = RateLimiter.log_request(anon, "/foo")
-      assert %{status: :ok} = RateLimiter.log_request(registered_user, "/foo")
+      assert {:ok, _} = RateLimiter.log_request(anon, "/foo")
+      assert {:ok, _} = RateLimiter.log_request(registered_user, "/foo")
     end
 
-    assert %{status: {:error, :rate_limited}} = RateLimiter.log_request(anon, "/foo")
-    assert %{status: :ok} = RateLimiter.log_request(registered_user, "/foo")
-    assert %{status: :ok} = RateLimiter.log_request(anon2, "/foo")
+    assert {:rate_limited, _} = RateLimiter.log_request(anon, "/foo")
+    assert {:ok, _} = RateLimiter.log_request(registered_user, "/foo")
+    assert {:ok, _} = RateLimiter.log_request(anon2, "/foo")
     wait_for_clear()
-    assert %{status: :ok} = RateLimiter.log_request(anon, "/foo")
+    assert {:ok, _} = RateLimiter.log_request(anon, "/foo")
   end
 
   test "log_request returns correct header values" do
@@ -59,9 +59,7 @@ defmodule ApiWeb.RateLimiterTest do
     for n <- 1..ApiWeb.config(:rate_limiter, :max_anon_per_interval) do
       before_ms = System.system_time(:millisecond)
 
-      assert %{status: :ok, limit_data: %{limit: limit, remaining: remaining, reset_ms: reset_ms}} =
-               RateLimiter.log_request(anon, "/foo")
-
+      assert {:ok, {limit, remaining, reset_ms}} = RateLimiter.log_request(anon, "/foo")
       assert limit == ApiWeb.config(:rate_limiter, :max_anon_per_interval)
       assert remaining == ApiWeb.config(:rate_limiter, :max_anon_per_interval) - n
       assert reset_ms < before_ms + ApiWeb.config(:rate_limiter, :clear_interval)
@@ -70,11 +68,7 @@ defmodule ApiWeb.RateLimiterTest do
     for _ <- 1..2 do
       before_ms = System.system_time(:millisecond)
 
-      assert %{
-               status: {:error, :rate_limited},
-               limit_data: %{limit: limit, remaining: remaining, reset_ms: reset_ms}
-             } = RateLimiter.log_request(anon, "/foo")
-
+      assert {:rate_limited, {limit, remaining, reset_ms}} = RateLimiter.log_request(anon, "/foo")
       assert limit == ApiWeb.config(:rate_limiter, :max_anon_per_interval)
       assert remaining == 0
       assert reset_ms < before_ms + ApiWeb.config(:rate_limiter, :clear_interval)

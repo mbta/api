@@ -19,13 +19,13 @@ defmodule ApiWeb.RateLimiter.Memcache do
   def rate_limited?(key, max_requests) do
     case Memcache.decr(__MODULE__, key, default: max_requests) do
       {:ok, 0} ->
-        {true, max_requests}
+        :rate_limited
 
       {:ok, n} when is_integer(n) ->
-        {false, max_requests - n + 1}
+        {:remaining, n - 1}
 
       _ ->
-        {false, 0}
+        {:remaining, max_requests}
     end
   end
 end

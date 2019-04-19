@@ -10,7 +10,8 @@ defmodule ApiWeb.RateLimiter.Limiter do
 
   """
   @callback start_link(Keyword.t()) :: {:ok, pid}
-  @callback rate_limited?(String.t(), non_neg_integer) :: {boolean, non_neg_integer}
+  @callback rate_limited?(String.t(), non_neg_integer) ::
+              {:remaining, non_neg_integer} | :rate_limited
   @callback clear() :: :ok
   @callback list() :: [String.t()]
 
