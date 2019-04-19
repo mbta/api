@@ -2,7 +2,7 @@ defmodule State.VehicleTest do
   @moduledoc false
   use ExUnit.Case
 
-  alias Model.{Trip, Vehicle}
+  alias Model.{Route, Trip, Vehicle}
   import State.Vehicle
 
   setup _ do
@@ -34,6 +34,27 @@ defmodule State.VehicleTest do
 
     assert [%Vehicle{id: "1"}] = by_label("2")
     assert [%Vehicle{id: "1"}] = match(%{label: "2", id: "1"}, :label)
+  end
+
+  test "can add vehicle and query it by route_type" do
+    route = %Route{id: "route", type: 1}
+    State.Route.new_state([route])
+
+    vehicle = %Vehicle{id: "1", route_id: "route", effective_route_id: "route"}
+    new_state([vehicle])
+
+    assert [vehicle] == filter_by(%{route_types: [1]})
+    assert [] == filter_by(%{route_types: [0]})
+  end
+
+  test "can add vehicle and query it by route and direction_id" do
+    vehicle = %Vehicle{id: "1", route_id: "route", effective_route_id: "route", direction_id: 1}
+    new_state([vehicle])
+
+    assert [vehicle] == filter_by(%{routes: ["route"]})
+    assert [vehicle] == filter_by(%{routes: ["route"], direction_id: 1})
+    assert [] == filter_by(%{routes: ["route"], direction_id: 0})
+    assert [vehicle] == filter_by(%{direction_id: 0})
   end
 
   test "can add vehicle from multiple routes and query it" do
