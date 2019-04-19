@@ -6,7 +6,8 @@ defmodule ApiWeb.VehicleControllerTest do
   @moduletag vehicles: true
 
   @route %Route{
-    id: "CR-Haverhill"
+    id: "CR-Haverhill",
+    type: 2
   }
   @route_alt %Route{
     id: "CR-Lowell"
@@ -138,6 +139,36 @@ defmodule ApiWeb.VehicleControllerTest do
                  "direction_id" => "0"
                }) == []
       end
+    end
+
+    test "can filter by route_type", %{conn: conn} do
+      State.Vehicle.new_state([@vehicle])
+
+      assert index_data(conn, %{"route_type" => "0,1"}) == []
+      assert index_data(conn, %{"route_type" => "2"}) == [@vehicle]
+    end
+
+    test "can filter by route and route_type", %{conn: conn} do
+      State.Vehicle.new_state([@vehicle])
+
+      assert index_data(conn, %{"route" => "CR-Haverhill", "route_type" => "2"}) == [@vehicle]
+      assert index_data(conn, %{"route" => "CR-Haverhill", "route_type" => "0,1"}) == []
+    end
+
+    test "can filter by route_type, route and direction_id", %{conn: conn} do
+      State.Vehicle.new_state([@vehicle])
+
+      assert index_data(conn, %{
+               "route" => "CR-Haverhill",
+               "route_type" => "2",
+               "direction_id" => "1"
+             }) == [@vehicle]
+
+      assert index_data(conn, %{
+               "route" => "CR-Haverhill",
+               "route_type" => "2",
+               "direction_id" => "0"
+             }) == []
     end
 
     test "does not crash when only direction_id filter is given", %{conn: conn} do
