@@ -3,6 +3,15 @@ defmodule ApiWeb.Router do
 
   defdelegate set_content_type(conn, opts), to: JaSerializer.ContentTypeNegotiation
 
+  @rate_limit_headers """
+  The HTTP headers returned in any API response show your rate limit status:
+  | Header | Description |
+  | ------ | ----------- |
+  | `x-ratelimit-limit` | The maximum number of requests you're allowed to make per time window. |
+  | `x-ratelimit-remaining` | The number of requests remaining in the current time window. |
+  | `x-ratelimit-reset` | The time at which the current rate limit time window ends in UTC epoch seconds. |
+  """
+
   pipeline :secure do
     if force_ssl = Application.get_env(:site, :secure_pipeline)[:force_ssl] do
       plug(Plug.SSL, force_ssl)
@@ -335,6 +344,8 @@ defmodule ApiWeb.Router do
           ##### Query Parameter
           Without an api key in the query string or as a request header, requests will be tracked by IP address and have stricter rate limit. \
           [Register for a key](/register)
+
+          #{@rate_limit_headers}
           """
         },
         api_key_in_header: %{
@@ -345,6 +356,8 @@ defmodule ApiWeb.Router do
           ##### Header
           Without an api key as a request header or in the query string, requests will be tracked by IP address and have stricter rate limit. \
           [Register for a key](/register)
+
+          #{@rate_limit_headers}
           """
         }
       },

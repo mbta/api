@@ -10,13 +10,22 @@ defmodule ApiWeb.RateLimiter.Memcache do
     clear_interval = div(clear_interval_ms, 1000)
 
     connection_opts =
-      [ttl: clear_interval] ++ ApiWeb.config(RateLimiter.Memcache, :connection_opts)
+      [ttl: clear_interval * 2] ++ ApiWeb.config(RateLimiter.Memcache, :connection_opts)
 
     Memcache.start_link(connection_opts, name: __MODULE__)
   end
 
   @impl ApiWeb.RateLimiter.Limiter
-  def rate_limited?(user_id, max_requests) do
-    Memcache.decr(__MODULE__, user_id, default: max_requests) == {:ok, 0}
+  def rate_limited?(key, max_requests) do
+    case Memcache.decr(__MODULE__, key, default: max_requests) do
+      {:ok, 0} ->
+        :rate_limited
+
+      {:ok, n} when is_integer(n) ->
+        {:remaining, n - 1}
+
+      _ ->
+        {:remaining, max_requests}
+    end
   end
 end

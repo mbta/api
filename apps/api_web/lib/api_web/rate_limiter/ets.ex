@@ -13,8 +13,14 @@ defmodule ApiWeb.RateLimiter.ETS do
   end
 
   @impl ApiWeb.RateLimiter.Limiter
-  def rate_limited?(user_id, max_requests) do
-    :ets.update_counter(@tab, user_id, {2, 1}, {user_id, 0}) > max_requests
+  def rate_limited?(key, max_requests) do
+    counter = :ets.update_counter(@tab, key, {2, 1}, {key, 0})
+
+    if counter > max_requests do
+      :rate_limited
+    else
+      {:remaining, max_requests - counter}
+    end
   end
 
   @impl ApiWeb.RateLimiter.Limiter
@@ -59,7 +65,11 @@ defmodule ApiWeb.RateLimiter.ETS do
   defp schedule_clear(state) do
     _ = if state.ref, do: Process.cancel_timer(state.ref)
 
-    ref = Process.send_after(self(), :clear, state.clear_interval)
+    current_time_ms = System.system_time(:millisecond)
+    time_bucket = div(current_time_ms, state.clear_interval)
+    next_clear_time = (time_bucket + 1) * state.clear_interval
+
+    ref = Process.send_after(self(), :clear, next_clear_time - current_time_ms)
     %{state | ref: ref}
   end
 

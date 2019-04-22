@@ -58,4 +58,18 @@ defmodule ApiWeb.Plugs.RateLimiterTest do
       assert json_response(conn, :forbidden)["errors"]
     end
   end
+
+  describe "requests" do
+    setup %{conn: conn} do
+      ApiWeb.RateLimiter.force_clear()
+      {:ok, conn: conn}
+    end
+
+    test "have rate limiting headers in response", %{conn: conn} do
+      conn = get(conn, @url)
+      refute [] == get_resp_header(conn, "x-ratelimit-limit")
+      refute [] == get_resp_header(conn, "x-ratelimit-remaining")
+      refute [] == get_resp_header(conn, "x-ratelimit-reset")
+    end
+  end
 end
