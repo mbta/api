@@ -8,7 +8,7 @@ defmodule ApiWeb.VehicleController do
   use ApiWeb.Web, :api_controller
   alias State.Vehicle
 
-  @filters ~w(trip route direction_id id label)s
+  @filters ~w(trip route direction_id id label route_type)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(trip stop route)
 
@@ -60,11 +60,18 @@ defmodule ApiWeb.VehicleController do
       "filter[id]",
       :query,
       :string,
-      "Filter by multiple IDs. Multiple IDs #{comma_separated_list()}.",
+      "Filter by multiple IDs. Multiple IDs #{comma_separated_list()}. Cannot be combined with any other filter.",
       example: "1,2"
     )
 
-    filter_param(:id, name: :trip)
+    parameter(
+      "filter[trip]",
+      :query,
+      :string,
+      "Filter by `/data/{index}/relationships/trip/data/id`. Multiple `/data/{index}/relationships/trip/data/id` #{
+        comma_separated_list()
+      }. Cannot be combined with any other filter."
+    )
 
     parameter("filter[label]", :query, :string, """
     Filter by label. Multiple `label` #{comma_separated_list()}.
@@ -76,7 +83,13 @@ defmodule ApiWeb.VehicleController do
     returned for any of the routes. Multiple `route_id` #{comma_separated_list()}.
     """)
 
-    filter_param(:direction_id)
+    filter_param(:direction_id, desc: "Only used if `filter[route]` is also present.")
+
+    parameter("filter[route_type]", :query, :string, """
+    Filter by `route_type`. Corresponds to [GTFS `routes.txt` `route_type`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#routestxt). Multiple `route_type` #{
+      comma_separated_list()
+    }.
+    """)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -124,32 +137,49 @@ defmodule ApiWeb.VehicleController do
     |> Vehicle.by_trip_ids()
   end
 
-  defp apply_filters(%{"label" => label, "route" => route} = filters) do
-    direction_id = Params.direction_id(filters)
-    routes = Params.split_on_comma(route)
-
-    label
-    |> Params.split_on_comma()
-    |> Vehicle.by_labels_and_routes(routes, direction_id)
-  end
-
-  defp apply_filters(%{"label" => label}) do
-    label
-    |> Params.split_on_comma()
-    |> Vehicle.by_labels()
-  end
-
-  defp apply_filters(%{"route" => route} = filters) do
-    direction_id = Params.direction_id(filters)
-
-    route
-    |> Params.split_on_comma()
-    |> Vehicle.by_route_ids_and_direction_id(direction_id)
+  # If no id or trip present, evaluate all remaining filters together
+  defp apply_filters(%{} = filters) when map_size(filters) > 0 do
+    filters
+    |> Stream.flat_map(&do_format_filter(&1))
+    |> Enum.into(%{})
+    |> Vehicle.filter_by()
   end
 
   defp apply_filters(_filters) do
     Vehicle.all()
   end
+
+  defp do_format_filter({key, string}) when key in ["label", "route"] do
+    case Params.split_on_comma(string) do
+      [] ->
+        []
+
+      values ->
+        %{String.to_existing_atom("#{key}s") => values}
+    end
+  end
+
+  defp do_format_filter({"route_type", route_type}) do
+    case Params.integer_values(route_type) do
+      [] ->
+        []
+
+      route_types ->
+        %{route_types: route_types}
+    end
+  end
+
+  defp do_format_filter({"direction_id", direction_id}) do
+    case Params.direction_id(%{"direction_id" => direction_id}) do
+      nil ->
+        []
+
+      parsed_direction_id ->
+        %{direction_id: parsed_direction_id}
+    end
+  end
+
+  defp do_format_filter(_), do: []
 
   def swagger_definitions do
     import PhoenixSwagger.JsonApi, except: [page: 1]
