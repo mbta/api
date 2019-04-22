@@ -3,7 +3,9 @@ defmodule ApiWeb.RateLimiter.Limiter do
   Behavior for backends to the V3 API rate limiter.
 
   - `start_link(opts)` is called to start the backend by the supervisor.
-  - `rate_limited?(user_id, max_requests)` returns true if the user_id has used too many requests, along with the number of requests the user_id has used in this time period.
+  - `rate_limited?(user_id, max_requests)` returns :rate_limited if the user_id has used too many
+    requests, or else {:remaining, N} where N is the number of requests remaining for the user_id
+    in this time period.
 
   The main option passed to `start_link/1` is `clear_interval` which is a
   number of milliseconds to bucket the requests into.

@@ -67,11 +67,9 @@ defmodule ApiWeb.Plugs.RateLimiterTest do
 
     test "have rate limiting headers in response", %{conn: conn} do
       conn = get(conn, @url)
-      resp_headers = conn.resp_headers
-
-      assert {"x-ratelimit-limit", _} = List.keyfind(resp_headers, "x-ratelimit-limit", 0)
-      assert {"x-ratelimit-remaining", _} = List.keyfind(resp_headers, "x-ratelimit-remaining", 0)
-      assert {"x-ratelimit-reset", _} = List.keyfind(resp_headers, "x-ratelimit-reset", 0)
+      refute [] == get_resp_header(conn, "x-ratelimit-limit")
+      refute [] == get_resp_header(conn, "x-ratelimit-remaining")
+      refute [] == get_resp_header(conn, "x-ratelimit-reset")
     end
   end
 end
