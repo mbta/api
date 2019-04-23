@@ -22,4 +22,11 @@ defmodule ApiWeb.ControllerHelpers do
         {conn, date}
     end
   end
+
+  @doc """
+  Returns true if the request is for an event stream.
+  """
+  def is_streaming?(conn) do
+    get_req_header(conn, "accept") == ["text/event-stream"]
+  end
 end

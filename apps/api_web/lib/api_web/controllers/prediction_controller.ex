@@ -101,7 +101,7 @@ defmodule ApiWeb.PredictionController do
           |> State.all(pagination_opts)
 
         _ ->
-          {:error, :filter_required}
+          if is_streaming?(conn), do: Prediction.all(), else: {:error, :filter_required}
       end
     else
       {:error, _, _} = error -> error
