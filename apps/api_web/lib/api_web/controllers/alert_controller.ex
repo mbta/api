@@ -155,7 +155,8 @@ defmodule ApiWeb.AlertController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn),
+         {:ok, _filtered} <- Params.filter_params(params, ["id"], conn) do
       Alert.by_id(id)
     else
       {:error, _, _} = error -> error

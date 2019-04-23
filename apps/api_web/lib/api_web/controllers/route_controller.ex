@@ -185,7 +185,8 @@ defmodule ApiWeb.RouteController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes_show, conn) do
+    with {:ok, _includes} <- Params.validate_includes(params, @includes_show, conn),
+         {:ok, _filtered} <- Params.filter_params(params, ["id"], conn) do
       Route.by_id(id)
     else
       {:error, _, _} = error -> error

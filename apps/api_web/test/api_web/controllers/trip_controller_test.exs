@@ -250,7 +250,6 @@ defmodule ApiWeb.TripControllerTest do
             conn,
             :show,
             trip.id,
-            route: "route",
             include: "predictions"
           )
         )
@@ -263,6 +262,15 @@ defmodule ApiWeb.TripControllerTest do
                  }
                }
              } = json_response(conn, 200)["data"]
+    end
+
+    test "does not allow filtering", %{conn: conn} do
+      trip = %Model.Trip{id: "trip"}
+
+      State.Trip.new_state([trip])
+
+      conn = get(conn, trip_path(conn, :show, trip.id, %{"filter[route]" => "1"}))
+      assert json_response(conn, 400)
     end
 
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do

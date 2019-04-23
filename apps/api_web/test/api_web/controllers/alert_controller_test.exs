@@ -233,6 +233,14 @@ defmodule ApiWeb.AlertControllerTest do
       assert validate_resp_schema(response, schema, "Alert")
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      alert = %Model.Alert{id: "1"}
+      State.Alert.new_state([alert])
+
+      response = get(conn, alert_path(conn, :show, alert.id, %{"filter[route]" => "1"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_shema

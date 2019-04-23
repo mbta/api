@@ -40,6 +40,14 @@ defmodule ApiWeb.ShapeControllerTest do
       assert validate_resp_schema(response, schema, "Shape")
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      shape = %Shape{id: "1"}
+      State.Shape.new_state([shape])
+
+      response = get(conn, shape_path(conn, :show, shape.id, %{"filter[route]" => "1"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_shema

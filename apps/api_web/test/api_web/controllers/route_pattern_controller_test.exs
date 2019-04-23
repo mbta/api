@@ -194,6 +194,14 @@ defmodule ApiWeb.RoutePatternControllerTest do
              }
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      route_pattern = %RoutePattern{id: "1"}
+      State.RoutePattern.new_state([route_pattern])
+
+      conn = get(conn, route_pattern_path(conn, :show, route_pattern, %{"filter[route]" => "1"}))
+      assert json_response(conn, 400)
+    end
+
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
       route_pattern = %RoutePattern{
         id: "route pattern id",
