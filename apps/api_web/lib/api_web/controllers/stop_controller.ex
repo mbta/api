@@ -222,8 +222,7 @@ defmodule ApiWeb.StopController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @show_includes, conn),
-         {:ok, _filtered} <- Params.filter_params(params, ["id"], conn) do
+    with {:ok, _includes} <- Params.validate_includes(params, @show_includes, conn) do
       Stop.by_id(id)
     else
       {:error, _, _} = error -> error
