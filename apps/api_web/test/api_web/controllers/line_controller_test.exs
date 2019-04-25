@@ -108,6 +108,14 @@ defmodule ApiWeb.LineControllerTest do
       assert validate_resp_schema(response, schema, "Line")
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      line = %Line{id: "1"}
+      State.Line.new_state([line])
+
+      response = get(conn, line_path(conn, :show, line.id, %{"filter[id]" => "1"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_schema

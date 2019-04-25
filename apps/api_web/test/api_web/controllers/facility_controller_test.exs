@@ -90,6 +90,14 @@ defmodule ApiWeb.FacilityControllerTest do
       assert validate_resp_schema(response, schema, "Facility")
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      facility = %Facility{id: "1"}
+      State.Facility.new_state([facility])
+
+      response = get(conn, facility_path(conn, :show, facility.id, %{"filter[stop]" => "1"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_schema

@@ -69,6 +69,11 @@ defmodule ApiWeb.ServiceControllerTest do
       assert validate_resp_schema(response, schema, "Service")
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      response = get(conn, service_path(conn, :show, "1", %{"filter[id]" => "1"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_schema

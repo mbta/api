@@ -298,6 +298,12 @@ defmodule ApiWeb.RouteControllerTest do
              }
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      State.Route.new_state([@route])
+      conn = get(conn, route_path(conn, :show, @route, %{"filter[stop]" => "stop"}))
+      assert json_response(conn, 400)
+    end
+
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
       response = get(conn, route_path(conn, :show, @route))
 

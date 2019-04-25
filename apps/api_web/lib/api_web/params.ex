@@ -295,4 +295,33 @@ defmodule ApiWeb.Params do
         {:ok, nil}
     end
   end
+
+  @spec validate_show_params(map, Plug.Conn.t()) :: :ok | {:error, atom, [String.t()]}
+  def validate_show_params(params, conn)
+
+  def validate_show_params(params, %{assigns: %{api_version: version}})
+      when version >= "2019-04-05" do
+    bad_query_params =
+      params
+      |> Map.drop(["id", "filter", "include", "fields"])
+      |> Map.keys()
+
+    bad_filters =
+      case Map.get(params, "filter") do
+        %{} = filters ->
+          Map.keys(filters)
+
+        _ ->
+          []
+      end
+
+    case {bad_query_params, bad_filters} do
+      {[], []} -> :ok
+      {a, b} -> {:error, :bad_filter, a ++ b}
+    end
+  end
+
+  def validate_show_params(_params, _conn) do
+    :ok
+  end
 end

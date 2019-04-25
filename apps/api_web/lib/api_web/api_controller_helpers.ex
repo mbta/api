@@ -107,7 +107,12 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def show(module, conn, params) do
-    data = module.show_data(conn, params)
+    data =
+      with :ok <- ApiWeb.Params.validate_show_params(params, conn) do
+        module.show_data(conn, params)
+      else
+        {:error, _, _} = error -> error
+      end
 
     ApiControllerHelpers.render_show(conn, params, data)
   end

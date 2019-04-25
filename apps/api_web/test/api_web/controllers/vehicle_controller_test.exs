@@ -258,6 +258,14 @@ defmodule ApiWeb.VehicleControllerTest do
              }
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      State.Trip.new_state([%Model.Trip{id: "2"}])
+      vehicle = %Vehicle{id: "1", trip_id: "2"}
+      State.Vehicle.new_state([vehicle])
+      conn = get(conn, vehicle_path(conn, :show, vehicle, %{"filter[label]" => "1"}))
+      assert json_response(conn, 400)
+    end
+
     test "version 2018-05-07 does not include last_updated", %{conn: conn} do
       vehicle = %Vehicle{id: "1", trip_id: "2"}
       State.Vehicle.new_state([vehicle])

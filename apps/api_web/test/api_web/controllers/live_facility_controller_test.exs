@@ -94,6 +94,15 @@ defmodule ApiWeb.LiveFacilityControllerTest do
     end
   end
 
+  describe "show/2" do
+    test "does not allow filtering", %{conn: conn} do
+      response =
+        get(conn, live_facility_path(conn, :show, @facility_id, %{"filter[id]" => @facility_id}))
+
+      assert json_response(response, 400)
+    end
+  end
+
   defp assert_valid_live_facility(actual) do
     assert %{
              facility_id: @facility_id,

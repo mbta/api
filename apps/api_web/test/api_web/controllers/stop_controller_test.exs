@@ -327,6 +327,13 @@ defmodule ApiWeb.StopControllerTest do
       assert json_response(conn, 200)["data"]["id"] == stop.id
     end
 
+    test "does not allow filtering", %{conn: conn} do
+      stop = %Stop{id: "1"}
+      State.Stop.new_state([stop])
+      conn = get(conn, stop_path(conn, :show, stop.id, %{"filter[route]" => "1"}))
+      assert json_response(conn, 400)
+    end
+
     test "does not crash when given weird input", %{conn: conn} do
       conn = get(conn, stop_path(conn, :show, "%"))
       assert json_response(conn, 404)

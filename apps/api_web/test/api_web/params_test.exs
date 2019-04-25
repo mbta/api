@@ -43,7 +43,7 @@ defmodule ApiWeb.ParamsTest do
     end
   end
 
-  describe "filter_params/2" do
+  describe "filter_params/3" do
     setup %{conn: conn} do
       params = %{
         "stop" => "1,2,3",
@@ -80,7 +80,7 @@ defmodule ApiWeb.ParamsTest do
     end
   end
 
-  describe "validate_includes/2" do
+  describe "validate_includes/3" do
     test "returns ok for valid includes", %{conn: conn} do
       assert Params.validate_includes(%{"include" => "stops,trips"}, ~w(stops routes trips), conn) ==
                {:ok, ~w(stops trips)}
@@ -101,6 +101,23 @@ defmodule ApiWeb.ParamsTest do
     test "supports dot notation", %{conn: conn} do
       assert Params.validate_includes(%{"include" => "stops.id"}, ~w(stops routes trips), conn) ==
                {:ok, ~w(stops)}
+    end
+  end
+
+  describe "validate_show_params/2" do
+    test "returns ok for valid request", %{conn: conn} do
+      assert :ok == Params.validate_show_params(%{"id" => "1"}, conn)
+    end
+
+    test "returns error when filter is present", %{conn: conn} do
+      assert {:error, :bad_filter, _} =
+               Params.validate_show_params(%{"id" => "1", "filter" => %{"id" => "3"}}, conn)
+    end
+
+    test "doesn't return error when using a filter for older key versions", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-02-12")
+
+      assert :ok == Params.validate_show_params(%{"id" => "1", "filter" => %{"id" => "3"}}, conn)
     end
   end
 end
