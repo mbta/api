@@ -297,7 +297,10 @@ defmodule ApiWeb.Params do
   end
 
   @spec validate_show_params(map, Plug.Conn.t()) :: :ok | {:error, atom, [String.t()]}
-  def validate_show_params(params, conn) do
+  def validate_show_params(params, conn)
+
+  def validate_show_params(params, %{assigns: %{api_version: version}})
+      when version >= "2019-04-05" do
     bad_query_params =
       params
       |> Map.drop(["id", "filter", "include", "fields"])
@@ -312,16 +315,13 @@ defmodule ApiWeb.Params do
           []
       end
 
-    case bad_filters ++ bad_query_params do
-      [] ->
-        :ok
-
-      bad_params ->
-        if conn.assigns.api_version < "2019-04-05" do
-          :ok
-        else
-          {:error, :bad_filter, bad_params}
-        end
+    case {bad_query_params, bad_filters} do
+      {[], []} -> :ok
+      {a, b} -> {:error, :bad_filter, a ++ b}
     end
+  end
+
+  def validate_show_params(_params, _conn) do
+    :ok
   end
 end
