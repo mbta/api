@@ -26,7 +26,7 @@ defmodule ApiWeb.StopView do
   has_one(
     :zone,
     type: :zone,
-    field: :zone
+    field: :zone_id
   )
 
   has_many(
@@ -88,8 +88,6 @@ defmodule ApiWeb.StopView do
   def recommended_transfers(%{id: stop_id}, _conn) do
     State.Transfer.recommended_transfers_from(stop_id)
   end
-
-  def zone(%{zone_id: zone_id}, _conn), do: zone_id
 
   def relationships(stop, %Plug.Conn{private: %{phoenix_view: __MODULE__}} = conn) do
     # only do this include if we're the top-level view, not if we're included
