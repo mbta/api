@@ -433,6 +433,32 @@ defmodule ApiWeb.StopControllerTest do
       assert json_response(conn, 200)["data"]["attributes"] == %{}
     end
 
+    test "has zone relationship in response", %{conn: conn} do
+      stop1 = %Stop{id: "1", zone_id: "CR-zone-6"}
+      stop2 = %Stop{id: "2", zone_id: nil}
+      State.Stop.new_state([stop1, stop2])
+
+      conn = get(conn, stop_path(conn, :show, stop1))
+      response = json_response(conn, 200)
+
+      assert response["data"]["relationships"]["zone"]["data"] == %{
+               "id" => "CR-zone-6",
+               "type" => "zone"
+             }
+
+      conn = get(conn, stop_path(conn, :show, stop2))
+      response = json_response(conn, 200)
+      refute response["data"]["relationships"]["zone"]["data"]
+    end
+
+    test "cannot include zone", %{conn: conn} do
+      stop = %Stop{id: "1", zone_id: "CR-zone-6"}
+      State.Stop.new_state([stop])
+
+      response = get(conn, stop_path(conn, :show, stop, %{"include" => "zone"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_shema

@@ -7,7 +7,7 @@ defmodule Parse.StopsTest do
     "stop_id","stop_code","stop_name","stop_desc","platform_code","platform_name","stop_lat","stop_lon","stop_address","zone_id","stop_url","level_id","location_type","parent_station","wheelchair_boarding"
     "place-alfcl","","Alewife","","","",42.395428,-71.142483,"Alewife Brook Parkway and Cambridge Park Drive, Cambridge, MA 02140","","","",1,"",1
     "70061","70061","Alewife","Alewife - Red Line","","Red Line",42.395428,-71.142483,"","","","",0,"place-alfcl",1
-    "Back Bay-01","","Back Bay","Back Bay - Commuter Rail - Track 1","1","Commuter Rail - Track 1",42.347283,-71.075312,"","","","",0,"place-bbsta",1
+    "Back Bay-01","","Back Bay","Back Bay - Commuter Rail - Track 1","1","Commuter Rail - Track 1",42.347283,-71.075312,"","CR-zone-1A","","",0,"place-bbsta",1
     """
 
     {:ok, %{blob: blob}}
@@ -22,7 +22,8 @@ defmodule Parse.StopsTest do
                latitude: 42.395428,
                longitude: -71.142483,
                wheelchair_boarding: 1,
-               location_type: 1
+               location_type: 1,
+               zone_id: nil
              },
              %Stop{
                id: "70061",
@@ -33,7 +34,8 @@ defmodule Parse.StopsTest do
                longitude: -71.142483,
                parent_station: "place-alfcl",
                wheelchair_boarding: 1,
-               location_type: 0
+               location_type: 0,
+               zone_id: nil
              },
              %Stop{
                id: "Back Bay-01",
@@ -44,7 +46,8 @@ defmodule Parse.StopsTest do
                platform_code: "1",
                platform_name: "Commuter Rail - Track 1",
                parent_station: "place-bbsta",
-               wheelchair_boarding: 1
+               wheelchair_boarding: 1,
+               zone_id: "CR-zone-1A"
              }
            ]
   end

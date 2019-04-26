@@ -26,7 +26,8 @@ defmodule Parse.Stops do
       longitude: String.to_float(row["stop_lon"]),
       parent_station: copy_if_not_blank(row["parent_station"]),
       wheelchair_boarding: String.to_integer(row["wheelchair_boarding"]),
-      location_type: String.to_integer(row["location_type"])
+      location_type: String.to_integer(row["location_type"]),
+      zone_id: copy_if_not_blank(row["zone_id"])
     }
   end
 

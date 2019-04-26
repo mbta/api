@@ -23,6 +23,12 @@ defmodule ApiWeb.StopView do
     field: :parent_station
   )
 
+  has_one(
+    :zone,
+    type: :zone,
+    field: :zone_id
+  )
+
   has_many(
     :child_stops,
     type: :stop,
