@@ -80,6 +80,16 @@ defmodule State.Stop do
     State.Stop.Cache.by_location_types(location_types)
   end
 
+  def zone_id(stop_id) do
+    case by_id(stop_id) do
+      nil ->
+        nil
+
+      stop ->
+        stop.zone_id
+    end
+  end
+
   def siblings(id) when is_binary(id) do
     case by_id(id) do
       %{parent_station: station_id} ->

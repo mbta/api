@@ -23,6 +23,12 @@ defmodule ApiWeb.StopView do
     field: :parent_station
   )
 
+  has_one(
+    :zone,
+    type: :zone,
+    field: :zone
+  )
+
   has_many(
     :child_stops,
     type: :stop,
@@ -81,6 +87,10 @@ defmodule ApiWeb.StopView do
 
   def recommended_transfers(%{id: stop_id}, _conn) do
     State.Transfer.recommended_transfers_from(stop_id)
+  end
+
+  def zone(%{id: stop_id}, _conn) do
+    State.Stop.zone_id(stop_id)
   end
 
   def relationships(stop, %Plug.Conn{private: %{phoenix_view: __MODULE__}} = conn) do

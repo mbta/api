@@ -14,6 +14,7 @@ defmodule Model.Stop do
     :latitude,
     :longitude,
     :parent_station,
+    :zone_id,
     wheelchair_boarding: 0,
     location_type: 0
   ]
@@ -80,6 +81,7 @@ defmodule Model.Stop do
           longitude: WGS84.longitude(),
           parent_station: id | nil,
           wheelchair_boarding: wheelchair_boarding,
-          location_type: location_type
+          location_type: location_type,
+          zone_id: String.t() | nil
         }
 end
