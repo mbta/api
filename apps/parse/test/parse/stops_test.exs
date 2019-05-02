@@ -8,6 +8,7 @@ defmodule Parse.StopsTest do
     "place-alfcl","","Alewife","","","",42.395428,-71.142483,"Alewife Brook Parkway and Cambridge Park Drive, Cambridge, MA 02140","","","",1,"",1
     "70061","70061","Alewife","Alewife - Red Line","","Red Line",42.395428,-71.142483,"","","","",0,"place-alfcl",1
     "Back Bay-01","","Back Bay","Back Bay - Commuter Rail - Track 1","1","Commuter Rail - Track 1",42.347283,-71.075312,"","CR-zone-1A","","",0,"place-bbsta",1
+    "node-bbsta","","Generic Node","Back Bay Generic Node",,,,,,,,,3,"place-bbsta",1
     """
 
     {:ok, %{blob: blob}}
@@ -48,6 +49,14 @@ defmodule Parse.StopsTest do
                parent_station: "place-bbsta",
                wheelchair_boarding: 1,
                zone_id: "CR-zone-1A"
+             },
+             %Stop{
+               id: "node-bbsta",
+               name: "Generic Node",
+               description: "Back Bay Generic Node",
+               parent_station: "place-bbsta",
+               wheelchair_boarding: 1,
+               location_type: 3
              }
            ]
   end
