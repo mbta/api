@@ -22,8 +22,8 @@ defmodule Parse.Stops do
       address: copy_if_not_blank(row["stop_address"]),
       platform_code: copy_if_not_blank(row["platform_code"]),
       platform_name: copy_if_not_blank(row["platform_name"]),
-      latitude: String.to_float(row["stop_lat"]),
-      longitude: String.to_float(row["stop_lon"]),
+      latitude: optional_float(Map.get(row, "stop_lat")),
+      longitude: optional_float(Map.get(row, "stop_lon")),
       parent_station: copy_if_not_blank(row["parent_station"]),
       wheelchair_boarding: String.to_integer(row["wheelchair_boarding"]),
       location_type: String.to_integer(row["location_type"]),
@@ -36,4 +36,7 @@ defmodule Parse.Stops do
   end
 
   defp copy_if_not_blank(_), do: nil
+
+  defp optional_float(""), do: nil
+  defp optional_float(binary) when is_binary(binary), do: String.to_float(binary)
 end
