@@ -20,6 +20,7 @@ defmodule State.Stop.List do
   @spec new([Model.Stop.t()]) :: t
   def new(list_of_stops) do
     list_of_stops
+    |> Stream.filter(&Model.Stop.located?/1)
     |> Stream.map(&point_for_stop/1)
     |> Enum.reduce(:rstar.new(2), &insert_point/2)
   end
