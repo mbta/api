@@ -84,4 +84,24 @@ defmodule Model.Stop do
           location_type: location_type,
           zone_id: String.t() | nil
         }
+
+  @doc """
+  Returns a boolean indicating whether the stop has a location.
+
+  ## Examples
+  iex> located?(%Stop{latitude: 1, longitude: -2})
+  true
+
+  iex> located?(%Stop{})
+  false
+  """
+  def located?(%__MODULE__{} = stop) do
+    case stop do
+      %{latitude: lat, longitude: lon} when is_number(lat) and is_number(lon) ->
+        true
+
+      _ ->
+        false
+    end
+  end
 end
