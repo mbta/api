@@ -63,7 +63,19 @@ defmodule ApiWeb.RouteView do
     relationships = super(route, conn)
 
     if split_included?("stop", conn) do
-      stop = State.Stop.by_id(conn.params["stop"])
+      stop_id =
+        case conn.params do
+          %{"filter" => %{"stop" => stop_id}} ->
+            stop_id
+
+          %{"stop" => stop_id} ->
+            stop_id
+
+          _ ->
+            nil
+        end
+
+      stop = State.Stop.by_id(stop_id)
 
       put_in(relationships[:stop], %HasOne{
         type: :stop,
