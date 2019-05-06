@@ -283,7 +283,8 @@ defmodule ApiWeb.Params do
           |> String.split(",", trim: true)
           |> Enum.map(&(&1 |> String.split(".") |> List.first()))
 
-        bad_includes = Enum.filter(split, fn el -> el not in includes end)
+        includes_set = MapSet.new(includes)
+        bad_includes = Enum.filter(split, fn el -> el not in includes_set end)
 
         if conn.assigns.api_version < "2019-04-05" or bad_includes == [] do
           {:ok, split}
