@@ -139,6 +139,14 @@ defmodule ApiWeb.RouteControllerTest do
                "type" => "stop",
                "id" => "1"
              } = List.first(response["included"])
+
+      conn = get(conn, route_path(conn, :index, %{"filter[stop]" => "1", "include" => "stop"}))
+      response = json_response(conn, 200)
+
+      assert %{
+               "type" => "stop",
+               "id" => "1"
+             } = List.first(response["included"])
     end
 
     test "can filter by stop and direction_id", %{conn: conn} do
