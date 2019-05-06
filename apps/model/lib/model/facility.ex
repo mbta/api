@@ -1,6 +1,6 @@
 defmodule Model.Facility do
   @moduledoc """
-  An escalator or elevator: a way for a rider to get from one level of a station to another.
+  Station amenities such as elevators, escalators, parking lots and bike storage.
   """
 
   use Recordable, [
@@ -8,6 +8,7 @@ defmodule Model.Facility do
     :stop_id,
     :type,
     :name,
+    :short_name,
     :latitude,
     :longitude
   ]
@@ -18,15 +19,17 @@ defmodule Model.Facility do
 
   @typedoc """
   * `:id` -  Unique ID
-  * `:name` - Name of elevator or escalator that includes the parts of the station being connected by the facility.
+  * `:name` - Descriptive name of facility which can be used without any additional context.
+  * `:short_name` - Short name of facility which might not include its station or type.
   * `:stop_id` - The `Model.Stop.id` of the station where facility is.
-  * `:type` - Whether this is an elevator or escalator.
+  * `:type` - What kind of amenity the facility is.
   * `:latitude` - Latitude of the facility
   * `:longitude` - Longitude of the facility
   """
   @type t :: %__MODULE__{
           id: id,
-          name: String.t(),
+          name: String.t() | nil,
+          short_name: String.t() | nil,
           stop_id: Model.Stop.id(),
           type: String.t(),
           latitude: WGS84.latitude() | nil,

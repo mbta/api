@@ -8,6 +8,7 @@ defmodule ApiWeb.FacilityViewTest do
     id: "id",
     stop_id: "place-sstat",
     name: "name",
+    short_name: "short_name",
     type: "ESCALATOR",
     latitude: 42.260381,
     longitude: -71.794593
@@ -25,6 +26,7 @@ defmodule ApiWeb.FacilityViewTest do
 
     assert rendered["attributes"] == %{
              "name" => @facility.name,
+             "short_name" => @facility.short_name,
              "type" => @facility.type,
              "properties" => [],
              "latitude" => @facility.latitude,

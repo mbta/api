@@ -147,6 +147,12 @@ defmodule ApiWeb.FacilityController do
               example: "SHAWMUT - Ashmont Bound Platform to Lobby"
             )
 
+            short_name(
+              :string,
+              "Short name of the facility",
+              example: "Ashmont platform to lobby"
+            )
+
             latitude(
               :number,
               """
