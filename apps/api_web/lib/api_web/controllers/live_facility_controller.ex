@@ -19,13 +19,12 @@ defmodule ApiWeb.LiveFacilityController do
 
     common_index_parameters(__MODULE__, :live_facility)
     include_parameters(@includes)
-    filter_param(:id)
 
     parameter(
       "filter[id]",
       :query,
       :string,
-      "Filter by parking facility id."
+      "Filter by multiple parking facility ids. #{comma_separated_list()}."
     )
 
     consumes("application/vnd.api+json")
