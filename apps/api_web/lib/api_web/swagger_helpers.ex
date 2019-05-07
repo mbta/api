@@ -10,7 +10,7 @@ defmodule ApiWeb.SwaggerHelpers do
 
   def comma_separated_list, do: ~S|**MUST** be a comma-separated (U+002C COMMA, ",") list|
 
-  def common_index_parameters(path_object, module, name \\ nil, include_distance \\ nil)
+  def common_index_parameters(path_object, module, name, include_distance \\ nil)
       when is_atom(module) do
     sort_pairs = sort_pairs(module)
 
@@ -242,23 +242,17 @@ defmodule ApiWeb.SwaggerHelpers do
   defp direction_to_prefix("descending"), do: "-"
 
   defp fields_param(path_object, name) do
-    case name do
-      nil ->
-        path_object
+    Path.parameter(
+      path_object,
+      "fields[#{name}]",
+      :query,
+      :string,
+      """
+      Fields to include with the response. Multiple fields #{comma_separated_list()}.
 
-      name ->
-        Path.parameter(
-          path_object,
-          "fields[#{name}]",
-          :query,
-          :string,
-          """
-          Fields to include with the response. Multiple fields #{comma_separated_list()}.
-
-          Note that fields can also be selected for included data types: see the [V3 API Best Practices](https://www.mbta.com/developers/v3-api/best-practices) for an example.
-          """
-        )
-    end
+      Note that fields can also be selected for included data types: see the [V3 API Best Practices](https://www.mbta.com/developers/v3-api/best-practices) for an example.
+      """
+    )
   end
 
   defp sort_enum(sort_pairs), do: Enum.map(sort_pairs, &sort_pair_to_sort/1)
