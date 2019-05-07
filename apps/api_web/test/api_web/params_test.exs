@@ -102,6 +102,14 @@ defmodule ApiWeb.ParamsTest do
       assert Params.validate_includes(%{"include" => "stops.id"}, ~w(stops routes trips), conn) ==
                {:ok, ~w(stops)}
     end
+
+    test "doesn't return error for duplicate includes", %{conn: conn} do
+      assert Params.validate_includes(
+               %{"include" => "representative_trip.service,representative_trip.shape"},
+               ~w(route representative_trip),
+               conn
+             ) == {:ok, ["representative_trip", "representative_trip"]}
+    end
   end
 
   describe "validate_show_params/2" do
