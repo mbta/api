@@ -171,7 +171,13 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   defp view_module_for_type(type) do
-    view_name = String.capitalize(type) <> "View"
+    view_name =
+      (type
+       |> String.split("_")
+       |> Enum.map(&String.capitalize/1)
+       |> Enum.join("")) <>
+        "View"
+
     Module.safe_concat([ApiWeb, view_name])
   end
 
