@@ -9,6 +9,7 @@ defmodule ApiWeb.FacilityControllerTest do
       %Facility{
         id: "6",
         name: "name",
+        short_name: "short_name",
         type: "ELEVATOR",
         stop_id: "place-qnctr",
         latitude: 42.260381,
@@ -17,6 +18,7 @@ defmodule ApiWeb.FacilityControllerTest do
       %Facility{
         id: "7",
         name: "name",
+        short_name: "short_name",
         type: "ESCALATOR",
         stop_id: "place-alfcl",
         latitude: 42.260381,
@@ -25,6 +27,7 @@ defmodule ApiWeb.FacilityControllerTest do
       %Facility{
         id: "8",
         name: "name",
+        short_name: "short_name",
         type: "ESCALATOR",
         stop_id: "place-qnctr",
         latitude: 42.260381,

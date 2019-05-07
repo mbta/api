@@ -12,7 +12,7 @@ defmodule ApiWeb.FacilityView do
     serializer: ApiWeb.StopView
   )
 
-  attributes([:name, :type, :properties, :latitude, :longitude])
+  attributes([:name, :short_name, :type, :properties, :latitude, :longitude])
 
   def preload([_ | _] = facilities, conn, include_opts) do
     facilities = super(facilities, conn, include_opts)
@@ -38,7 +38,7 @@ defmodule ApiWeb.FacilityView do
   end
 
   def attributes(%Model.Facility{} = facility, conn) do
-    attrs = Map.take(facility, ~w(name type properties latitude longitude)a)
+    attrs = Map.take(facility, ~w(name short_name type properties latitude longitude)a)
 
     if Map.get(attrs, :properties) == nil and load_properties?(conn) do
       properties =
