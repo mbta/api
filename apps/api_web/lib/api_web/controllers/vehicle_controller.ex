@@ -23,8 +23,9 @@ defmodule ApiWeb.VehicleController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters()
     parameter(:id, :path, :string, "Unique identifier for a vehicle")
+    common_show_parameters(:vehicle)
+    include_parameters()
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -53,7 +54,7 @@ defmodule ApiWeb.VehicleController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :vehicle)
     include_parameters()
 
     parameter(

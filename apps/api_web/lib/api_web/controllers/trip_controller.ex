@@ -28,7 +28,7 @@ defmodule ApiWeb.TripController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :trip)
     include_parameters()
     filter_param(:date, description: "Filter by trips on a particular date")
     filter_param(:direction_id)
@@ -153,8 +153,9 @@ defmodule ApiWeb.TripController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters()
     parameter(:id, :path, :string, "Unique identifier for a trip")
+    common_show_parameters(:trip)
+    include_parameters()
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")

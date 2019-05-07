@@ -28,7 +28,7 @@ defmodule ApiWeb.StopController do
     half mile).
     """)
 
-    common_index_parameters(__MODULE__, :include_distance)
+    common_index_parameters(__MODULE__, :stop, :include_distance)
 
     include_parameters(@includes,
       description:
@@ -207,9 +207,9 @@ defmodule ApiWeb.StopController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(@show_includes)
-
     parameter(:id, :path, :string, "Unique identifier for stop")
+    common_show_parameters(:stop)
+    include_parameters(@show_includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")

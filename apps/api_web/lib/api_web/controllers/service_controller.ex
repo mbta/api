@@ -23,7 +23,7 @@ defmodule ApiWeb.ServiceController do
     is valid.
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :service)
 
     parameter(
       "filter[id]",
@@ -66,6 +66,7 @@ defmodule ApiWeb.ServiceController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for a service")
+    common_show_parameters(:service)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")

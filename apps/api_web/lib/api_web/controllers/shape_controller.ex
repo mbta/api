@@ -24,7 +24,7 @@ defmodule ApiWeb.ShapeController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :shape)
     include_parameters(@includes)
     filter_param(:id, name: :route, required: true)
     filter_param(:direction_id)
@@ -66,8 +66,9 @@ defmodule ApiWeb.ShapeController do
     #{swagger_path_description("/data")}
     """)
 
-    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for shape")
+    common_show_parameters(:shape)
+    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")

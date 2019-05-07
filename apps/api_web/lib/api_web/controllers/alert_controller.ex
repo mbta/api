@@ -30,7 +30,7 @@ defmodule ApiWeb.AlertController do
     #{filter_activity_accessibility()}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :alert)
     include_parameters(@includes)
 
     parameter(
@@ -142,6 +142,7 @@ defmodule ApiWeb.AlertController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for alert")
+    common_show_parameters(:alert)
     include_parameters(@includes)
 
     consumes("application/vnd.api+json")

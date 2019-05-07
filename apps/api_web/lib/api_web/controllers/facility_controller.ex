@@ -17,7 +17,7 @@ defmodule ApiWeb.FacilityController do
     #{swagger_path_description("/data")}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :facility)
     include_parameters(@includes)
     filter_param(:id, name: :stop)
 
@@ -85,8 +85,9 @@ defmodule ApiWeb.FacilityController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for facility")
+    common_show_parameters(:facility)
+    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
