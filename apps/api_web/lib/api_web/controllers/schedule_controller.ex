@@ -55,7 +55,7 @@ defmodule ApiWeb.ScheduleController do
 
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :schedule)
     include_parameters(@includes)
     filter_param(:date, description: "Filter schedule by date that they are active.")
     filter_param(:direction_id)

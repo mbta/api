@@ -27,7 +27,7 @@ defmodule ApiWeb.RouteController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :route)
 
     include_parameters(
       @includes_index,
@@ -172,6 +172,7 @@ defmodule ApiWeb.RouteController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for route")
+    common_show_parameters(:route)
     include_parameters(@includes_show)
 
     consumes("application/vnd.api+json")

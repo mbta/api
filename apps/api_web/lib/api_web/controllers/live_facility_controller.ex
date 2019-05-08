@@ -70,8 +70,8 @@ defmodule ApiWeb.LiveFacilityController do
     #{swagger_path_description("/data/{index}")}
     """)
 
-    include_parameters(@includes)
     parameter(:id, :path, :string, "Unique identifier for facility")
+    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")

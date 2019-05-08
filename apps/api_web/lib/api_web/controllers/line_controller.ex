@@ -24,7 +24,7 @@ defmodule ApiWeb.LineController do
     when displaying them to customers, such as for routes which serve the same trunk corridor or bus terminal.
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :line)
     include_parameters(@includes)
 
     parameter(
@@ -76,9 +76,9 @@ defmodule ApiWeb.LineController do
     Single line, which represents a combination of routes.
     """)
 
-    include_parameters(@includes)
-
     parameter(:id, :path, :string, "Unique identifier for a line")
+    common_show_parameters(:line)
+    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")

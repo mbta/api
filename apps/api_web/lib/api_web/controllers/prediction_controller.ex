@@ -46,7 +46,7 @@ defmodule ApiWeb.PredictionController do
 
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :prediction)
 
     include_parameters(
       @includes,
