@@ -4,6 +4,16 @@ defmodule ApiWeb.Plugs.RateLimiterTest do
   @url "/stops/"
 
   defp simulate_max_anon_requests do
+    # Wait for clear if we're close to clearing the rate limit.
+    # This avoids spurious test failures due to the limit clearing in the middle of our requests.
+    interval_ms = ApiWeb.config(:rate_limiter, :clear_interval)
+    remaining_ms = rem(System.system_time(:millisecond), interval_ms)
+    clear_ms = interval_ms - remaining_ms
+
+    if clear_ms < interval_ms / 2 do
+      Process.sleep(clear_ms + div(interval_ms, 10))
+    end
+
     for _ <- 1..ApiWeb.config(:rate_limiter, :max_anon_per_interval) do
       assert get(build_conn(), @url).status == 200
     end
