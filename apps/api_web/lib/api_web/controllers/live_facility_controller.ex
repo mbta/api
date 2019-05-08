@@ -17,7 +17,7 @@ defmodule ApiWeb.LiveFacilityController do
     #{swagger_path_description("/data")}
     """)
 
-    common_index_parameters(__MODULE__, :live_facility)
+    common_index_parameters(__MODULE__)
     include_parameters(@includes)
 
     parameter(
@@ -71,7 +71,6 @@ defmodule ApiWeb.LiveFacilityController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for facility")
-    common_show_parameters(:live_facility)
     include_parameters(@includes)
 
     consumes("application/vnd.api+json")

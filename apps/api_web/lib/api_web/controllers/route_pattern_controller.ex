@@ -30,7 +30,7 @@ defmodule ApiWeb.RoutePatternController do
     #{@description}
     """)
 
-    common_index_parameters(__MODULE__, :route_pattern)
+    common_index_parameters(__MODULE__)
 
     include_parameters()
 
@@ -97,7 +97,6 @@ defmodule ApiWeb.RoutePatternController do
     """)
 
     parameter(:id, :path, :string, "Unique identifier for route_pattern")
-    common_show_parameters(:route_pattern)
     include_parameters()
 
     consumes("application/vnd.api+json")

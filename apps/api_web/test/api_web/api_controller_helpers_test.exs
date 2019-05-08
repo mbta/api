@@ -112,15 +112,6 @@ defmodule ApiWeb.ApiControllerHelpersTest do
       params = %{"stop" => nil}
       assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) == %{"stop" => []}
     end
-
-    test "can provide fields for multi-word types" do
-      params = %{"live_facility" => "updated_at", "route_pattern" => "name,typicality"}
-
-      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) == %{
-               "live_facility" => [:updated_at],
-               "route_pattern" => [:name, :typicality]
-             }
-    end
   end
 
   describe "opts_for_params/1" do
