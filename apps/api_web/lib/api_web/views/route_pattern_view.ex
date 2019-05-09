@@ -26,6 +26,6 @@ defmodule ApiWeb.RoutePatternView do
   ])
 
   def representative_trip(%{representative_trip_id: trip_id}, conn) do
-    optional_relationship("representative_trip", trip_id, &State.Trip.by_id/1, conn)
+    optional_relationship("representative_trip", trip_id, &State.Trip.by_primary_id/1, conn)
   end
 end

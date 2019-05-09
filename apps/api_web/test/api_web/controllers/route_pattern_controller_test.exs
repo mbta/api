@@ -117,6 +117,13 @@ defmodule ApiWeb.RoutePatternControllerTest do
                %{"type" => "route", "id" => "routeid"},
                %{"type" => "trip", "id" => "tripid"}
              ] = response["included"]
+
+      [%{"relationships" => relationships}] = response["data"]
+
+      assert %{
+               "representative_trip" => %{"data" => %{"id" => "tripid", "type" => "trip"}},
+               "route" => %{"data" => %{"id" => "routeid", "type" => "route"}}
+             } == relationships
     end
 
     test "pagination", %{conn: conn} do
