@@ -25,7 +25,14 @@ defmodule ApiWeb.RoutePatternView do
     :sort_order
   ])
 
+  defp fetch_representative_trip(trip_id) do
+    case State.Trip.by_id(trip_id) do
+      [] -> nil
+      [trip] -> trip
+    end
+  end
+
   def representative_trip(%{representative_trip_id: trip_id}, conn) do
-    optional_relationship("representative_trip", trip_id, &State.Trip.by_id/1, conn)
+    optional_relationship("representative_trip", trip_id, &fetch_representative_trip/1, conn)
   end
 end
