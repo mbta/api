@@ -44,7 +44,11 @@ defmodule ApiWeb.RouteController do
       "filter[type]",
       :query,
       :string,
-      route_type_description(),
+      """
+      #{route_type_description()}
+
+      Multiple `route_type` #{comma_separated_list()}.
+      """,
       example: 0
     )
 

@@ -70,8 +70,11 @@ defmodule ApiWeb.SwaggerHelpers do
       "filter[route_type]",
       :query,
       :string,
-      "Filter by route type" <>
-        " https://developers.google.com/transit/gtfs/reference/routes-file",
+      """
+      Filter by route_type: https://developers.google.com/transit/gtfs/reference/routes-file.
+
+      Multiple `route_type` #{comma_separated_list()}.
+      """,
       enum: ["0", "1", "2", "3", "4"]
     )
   end
