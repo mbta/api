@@ -85,12 +85,7 @@ defmodule ApiWeb.VehicleController do
     """)
 
     filter_param(:direction_id, desc: "Only used if `filter[route]` is also present.")
-
-    parameter("filter[route_type]", :query, :string, """
-    Filter by `route_type`. Corresponds to [GTFS `routes.txt` `route_type`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#routestxt). Multiple `route_type` #{
-      comma_separated_list()
-    }.
-    """)
+    filter_param(:route_type)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
