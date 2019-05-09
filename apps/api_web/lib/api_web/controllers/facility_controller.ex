@@ -137,8 +137,7 @@ defmodule ApiWeb.FacilityController do
             type(
               :string,
               "The type of the facility.",
-              enum:
-                ~w(BIKE_STORAGE ELECTRIC_CAR_CHARGERS ELEVATOR ESCALATOR PARKING_AREA PICK_DROP PORTABLE_BOARDING_LIFT TTY_PHONE ELEVATED_SUBPLATFORM),
+              enum: State.Facility.facility_types(),
               example: "ELEVATOR"
             )
 
@@ -194,8 +193,8 @@ defmodule ApiWeb.FacilityController do
 
   defp swagger_path_description(parent_pointer) do
     """
-    A facility at a station stop (`#{parent_pointer}/relationships/stop`) that connects one part of the station to
-    another.
+    Amenities at a station stop (`#{parent_pointer}/relationships/stop`) such as elevators, escalators, parking lots, \
+    and bike storage.
 
     An [MBTA extension](https://groups.google.com/forum/#!topic/gtfs-changes/EzC5m9k45pA).  This spec is not yet \
     finalized.
