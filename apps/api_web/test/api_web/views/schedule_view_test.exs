@@ -31,7 +31,8 @@ defmodule ApiWeb.ScheduleViewTest do
              "stop_sequence" => 1,
              "pickup_type" => 2,
              "drop_off_type" => 3,
-             "timepoint" => true
+             "timepoint" => true,
+             "direction_id" => 1
            }
   end
 
