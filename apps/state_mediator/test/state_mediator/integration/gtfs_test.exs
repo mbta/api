@@ -408,7 +408,7 @@ defmodule StateMediator.Integration.GtfsTest do
   describe "facilities" do
     test "have valid types" do
       for facility <- State.Facility.all() do
-        assert facility.type in ApiWeb.FacilityController.facility_types()
+        assert facility.type in State.Facility.facility_types()
       end
     end
   end

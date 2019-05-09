@@ -6,30 +6,6 @@ defmodule ApiWeb.FacilityController do
   @pagination_opts [:offset, :limit, :order_by]
   @includes ~w(stop)
 
-  # If you change this list, be sure to also update the gtfs-documentation
-  @facility_types ~w(
-    BIKE_STORAGE
-    BRIDGE_PLATE
-    ELECTRIC_CAR_CHARGERS
-    ELEVATED_SUBPLATFORM
-    ELEVATOR
-    ESCALATOR
-    FARE_MEDIA_ASSISTANCE_FACILITY
-    FARE_MEDIA_ASSISTANT
-    FARE_VENDING_MACHINE
-    FARE_VENDING_RETAILER
-    FULLY_ELEVATED_PLATFORM
-    OTHER
-    PARKING_AREA
-    PICK_DROP
-    PORTABLE_BOARDING_LIFT
-    RAMP
-    TAXI_STAND
-    TICKET_WINDOW
-  )
-
-  def facility_types, do: @facility_types
-
   def state_module, do: State.Facility
 
   swagger_path :index do
@@ -161,7 +137,7 @@ defmodule ApiWeb.FacilityController do
             type(
               :string,
               "The type of the facility.",
-              enum: @facility_types,
+              enum: State.Facility.facility_types(),
               example: "ELEVATOR"
             )
 
