@@ -6,6 +6,30 @@ defmodule ApiWeb.FacilityController do
   @pagination_opts [:offset, :limit, :order_by]
   @includes ~w(stop)
 
+  # If you change this list, be sure to also update the gtfs-documentation
+  @facility_types ~w(
+    BIKE_STORAGE
+    BRIDGE_PLATE
+    ELECTRIC_CAR_CHARGERS
+    ELEVATED_SUBPLATFORM
+    ELEVATOR
+    ESCALATOR
+    FARE_MEDIA_ASSISTANCE_FACILITY
+    FARE_MEDIA_ASSISTANT
+    FARE_VENDING_MACHINE
+    FARE_VENDING_RETAILER
+    FULLY_ELEVATED_PLATFORM
+    OTHER
+    PARKING_AREA
+    PICK_DROP
+    PORTABLE_BOARDING_LIFT
+    RAMP
+    TAXI_STAND
+    TICKET_WINDOW
+  )
+
+  def facility_types, do: @facility_types
+
   def state_module, do: State.Facility
 
   swagger_path :index do
@@ -137,8 +161,7 @@ defmodule ApiWeb.FacilityController do
             type(
               :string,
               "The type of the facility.",
-              enum:
-                ~w(BIKE_STORAGE BRIDGE_PLATE ELECTRIC_CAR_CHARGERS ELEVATED_SUBPLATFORM ELEVATOR ESCALATOR FARE_MEDIA_ASSISTANCE_FACILITY FARE_MEDIA_ASSISTANT FARE_VENDING_MACHINE FARE_VENDING_RETAILER FULLY_ELEVATED_PLATFORM OTHER PARKING_AREA PICK_DROP PORTABLE_BOARDING_LIFT RAMP TAXI_STAND TICKET_WINDOW),
+              enum: @facility_types,
               example: "ELEVATOR"
             )
 
@@ -194,8 +217,8 @@ defmodule ApiWeb.FacilityController do
 
   defp swagger_path_description(parent_pointer) do
     """
-    A facility at a station stop (`#{parent_pointer}/relationships/stop`) that connects one part of the station to
-    another.
+    Amenities at a station stop (`#{parent_pointer}/relationships/stop`) such as elevators, escalators, parking lots, \
+    and bike storage.
 
     An [MBTA extension](https://groups.google.com/forum/#!topic/gtfs-changes/EzC5m9k45pA).  This spec is not yet \
     finalized.

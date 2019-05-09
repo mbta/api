@@ -405,6 +405,14 @@ defmodule StateMediator.Integration.GtfsTest do
     end
   end
 
+  describe "facilities" do
+    test "have valid types" do
+      for facility <- State.Facility.all() do
+        assert facility.type in ApiWeb.FacilityController.facility_types()
+      end
+    end
+  end
+
   defp receive_items(module) do
     clear_inbox!()
 
