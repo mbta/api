@@ -24,7 +24,8 @@ defmodule ApiWeb.ScheduleView do
     :stop_sequence,
     :pickup_type,
     :drop_off_type,
-    :timepoint
+    :timepoint,
+    :direction_id
   ])
 
   def attributes(schedule, conn) do
@@ -34,7 +35,8 @@ defmodule ApiWeb.ScheduleView do
       stop_sequence: schedule.stop_sequence,
       pickup_type: schedule.pickup_type,
       drop_off_type: schedule.drop_off_type,
-      timepoint: schedule.timepoint?
+      timepoint: schedule.timepoint?,
+      direction_id: schedule.direction_id
     }
 
     opts = Map.get(conn.assigns, :opts, [])
