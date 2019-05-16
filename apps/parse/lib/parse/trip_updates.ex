@@ -19,11 +19,12 @@ defmodule Parse.TripUpdates do
     |> Stream.flat_map(&parse_trip_update/1)
   end
 
-  defp parse_trip_update(update) do
+  def parse_trip_update(update) do
     base = %Prediction{
       trip_id: copy(update.trip.trip_id),
       route_id: copy(update.trip.route_id),
       direction_id: update.trip.direction_id,
+      vehicle_id: vehicle_id(update.vehicle),
       schedule_relationship: trip_relationship(update.trip.schedule_relationship)
     }
 
@@ -52,6 +53,9 @@ defmodule Parse.TripUpdates do
   def parse_stop_time_event(_) do
     nil
   end
+
+  defp vehicle_id(%{id: id}), do: id
+  defp vehicle_id(_), do: nil
 
   defp trip_relationship(nil) do
     nil

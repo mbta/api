@@ -23,7 +23,7 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
       body =
         Jason.encode!(%{entity: [%{trip_update: %{trip: @trip, stop_time_update: [@update]}}]})
 
-      expected = [prediction(@update, @trip)]
+      expected = [prediction(@update, base_prediction(@trip, %{}))]
       actual = parse(body)
       assert actual == expected
     end
@@ -38,7 +38,7 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
         }
       }
 
-      expected = [prediction(@update, @trip)]
+      expected = [prediction(@update, base_prediction(@trip, %{}))]
       actual = parse_entity(entity)
       assert actual == expected
     end
@@ -56,8 +56,38 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
     end
   end
 
-  describe "prediction/2" do
+  describe "base_prediction/2" do
     test "returns a %Model.Prediction{}" do
+      expected = %Model.Prediction{
+        trip_id: @trip["trip_id"],
+        route_id: @trip["route_id"],
+        direction_id: @trip["direction_id"]
+      }
+
+      actual = base_prediction(@trip, %{})
+      assert actual == expected
+    end
+
+    test "handles other kinds of relationship" do
+      trip = put_in(@trip["schedule_relationship"], "ADDED")
+      actual = base_prediction(trip, %{})
+      assert %Model.Prediction{schedule_relationship: :added} = actual
+    end
+
+    test "includes the vehicle ID if present" do
+      actual = base_prediction(@trip, %{"trip" => @trip, "vehicle" => %{"id" => "vehicle_id"}})
+      assert actual.vehicle_id == "vehicle_id"
+    end
+  end
+
+  describe "prediction/2" do
+    @base %Model.Prediction{
+      trip_id: @trip["trip_id"],
+      route_id: @trip["route_id"],
+      direction_id: @trip["direction_id"]
+    }
+
+    test "returns an %Model.Prediction{}" do
       expected = %Model.Prediction{
         trip_id: @trip["trip_id"],
         stop_id: @update["stop_id"],
@@ -71,35 +101,35 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
         track: nil
       }
 
-      actual = prediction(@update, @trip)
+      actual = prediction(@update, @base)
       assert actual == expected
     end
 
     test "keeps the status the same" do
       update = put_in(@update["boarding_status"], "Stopped 1_0 miles away")
-      actual = prediction(update, @trip)
+      actual = prediction(update, @base)
       assert actual.status == "Stopped 1_0 miles away"
     end
 
     test "handles both track and platform_id" do
-      prediction = prediction(Map.put(@update, "track", "1"), @trip)
+      prediction = prediction(Map.put(@update, "track", "1"), @base)
       assert prediction.track == "1"
 
-      prediction = prediction(Map.put(@update, "platform_id", "North Station-02"), @trip)
+      prediction = prediction(Map.put(@update, "platform_id", "North Station-02"), @base)
       assert prediction.track == "2"
     end
 
     test "handles other kinds of relationship" do
       update = put_in(@update["schedule_relationship"], "SKIPPED")
-      actual = prediction(update, @trip)
+      actual = prediction(update, @base)
       assert %Model.Prediction{schedule_relationship: :skipped} = actual
 
-      trip = put_in(@trip["schedule_relationship"], "ADDED")
-      actual = prediction(@update, trip)
+      base = %{@base | schedule_relationship: :added}
+      actual = prediction(@update, base)
       assert %Model.Prediction{schedule_relationship: :added} = actual
 
       # prefers the relationship from the update
-      actual = prediction(update, @trip)
+      actual = prediction(update, base)
       assert %Model.Prediction{schedule_relationship: :skipped} = actual
     end
 
@@ -110,7 +140,7 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
             %{"time" => nil}
           ] do
         update = put_in(@update["departure"], departure)
-        actual = prediction(update, @trip)
+        actual = prediction(update, @base)
         assert %Model.Prediction{departure_time: nil} = actual
       end
     end
