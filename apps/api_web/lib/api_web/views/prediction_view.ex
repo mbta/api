@@ -67,23 +67,15 @@ defmodule ApiWeb.PredictionView do
         data: trip(prediction, conn),
         identifiers: :always,
         serializer: ApiWeb.TripView
+      },
+      %HasOne{
+        type: :vehicle,
+        name: :vehicle,
+        identifiers: :always,
+        data: vehicle(prediction, conn),
+        serializer: ApiWeb.VehicleView
       }
     ]
-
-    relationships =
-      if split_included?("vehicle", conn) do
-        [
-          %HasOne{
-            type: :vehicle,
-            name: :vehicle,
-            data: vehicle(prediction, conn),
-            serializer: ApiWeb.VehicleView
-          }
-          | relationships
-        ]
-      else
-        relationships
-      end
 
     relationships =
       if split_included?("schedule", conn) do

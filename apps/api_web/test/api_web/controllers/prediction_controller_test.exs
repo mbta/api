@@ -36,6 +36,7 @@ defmodule ApiWeb.PredictionControllerTest do
                         route_id: "2",
                         stop_sequence: i,
                         trip_id: "trip",
+                        vehicle_id: "vehicle",
                         status: "On Time",
                         direction_id: 1
                       }
@@ -295,12 +296,11 @@ defmodule ApiWeb.PredictionControllerTest do
     assert validate_resp_schema(response, schema, "Predictions")
   end
 
-  test "does not include schedule or vehicles by default", %{conn: conn} do
+  test "does not include schedule by default", %{conn: conn} do
     conn = get(conn, prediction_path(conn, :index), trip: "trip")
     response = json_response(conn, 200)
     [prediction | _] = response["data"]
     refute "schedule" in Map.keys(prediction["relationships"])
-    refute "vehicle" in Map.keys(prediction["relationships"])
   end
 
   test "can include schedule", %{conn: conn} do
