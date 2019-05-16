@@ -38,6 +38,73 @@ defmodule Parse.TripUpdatesTest do
     end
   end
 
+  describe "parse_trip_update/1" do
+    test "parses a vehicle ID if present" do
+      update = %{
+        trip: %{
+          trip_id: "trip",
+          route_id: "route",
+          direction_id: 0,
+          schedule_relationship: :SCHEDULED
+        },
+        stop_time_update: [
+          %{
+            stop_id: "stop",
+            stop_sequence: 5,
+            arrival: %{
+              time: 1
+            },
+            departure: nil,
+            schedule_relationship: :SCHEDULED
+          }
+        ],
+        vehicle: %{
+          id: "vehicle"
+        }
+      }
+
+      [actual] = parse_trip_update(update)
+
+      assert %Model.Prediction{
+               trip_id: "trip",
+               route_id: "route",
+               stop_id: "stop",
+               vehicle_id: "vehicle",
+               stop_sequence: 5,
+               arrival_time: %DateTime{}
+             } = actual
+    end
+
+    test "does not require a vehicle ID" do
+      update = %{
+        trip: %{
+          trip_id: "trip",
+          route_id: "route",
+          direction_id: 0,
+          schedule_relationship: :SCHEDULED
+        },
+        stop_time_update: [
+          %{
+            stop_id: "stop",
+            stop_sequence: 5,
+            arrival: %{
+              time: 1
+            },
+            departure: nil,
+            schedule_relationship: :SCHEDULED
+          }
+        ],
+        vehicle: nil
+      }
+
+      [actual] = parse_trip_update(update)
+
+      assert %Model.Prediction{
+               vehicle_id: nil
+             } = actual
+    end
+  end
+
   describe "parse_stop_time_event/1" do
     test "returns a local datetime if the time is present" do
       ndt = ~N[2017-01-01T00:00:00]
