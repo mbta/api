@@ -122,6 +122,10 @@ defmodule ApiWeb.ApiViewHelpers do
     vehicle
   end
 
+  def vehicle(%{vehicle_id: vehicle_id}, conn) do
+    optional_relationship("vehicle", vehicle_id, &Vehicle.by_id/1, conn)
+  end
+
   def vehicle(%{trip_id: trip_id}, _conn) do
     case Vehicle.by_trip_id(trip_id) do
       [] -> nil

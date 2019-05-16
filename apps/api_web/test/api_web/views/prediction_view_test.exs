@@ -13,6 +13,7 @@ defmodule ApiWeb.PredictionViewTest do
     trip_id: "trip",
     stop_id: "North Station-02",
     route_id: "CR-Lowell",
+    vehicle_id: "vehicle",
     direction_id: 0,
     arrival_time: nil,
     departure_time: @datetime,
@@ -35,14 +36,15 @@ defmodule ApiWeb.PredictionViewTest do
            }
   end
 
-  test "includes trip/stop/route relationships by default", %{conn: conn} do
+  test "includes trip/stop/route/vehicle relationships by default", %{conn: conn} do
     rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
 
     assert rendered["data"]["relationships"] ==
              %{
                "trip" => %{"data" => %{"type" => "trip", "id" => "trip"}},
                "stop" => %{"data" => %{"type" => "stop", "id" => "North Station-02"}},
-               "route" => %{"data" => %{"type" => "route", "id" => "CR-Lowell"}}
+               "route" => %{"data" => %{"type" => "route", "id" => "CR-Lowell"}},
+               "vehicle" => %{"data" => %{"type" => "vehicle", "id" => "vehicle"}}
              }
   end
 
@@ -51,15 +53,6 @@ defmodule ApiWeb.PredictionViewTest do
     rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
     assert rendered["data"]["attributes"]["track"] == "2"
     assert rendered["data"]["relationships"]["stop"]["data"]["id"] == "North Station"
-  end
-
-  test "render includes the vehicle if explicitly included", %{conn: conn} do
-    conn =
-      %{conn | params: %{"include" => "vehicle"}}
-      |> ApiWeb.ApiControllerHelpers.split_include([])
-
-    rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
-    refute rendered["data"]["relationships"]["vehicle"] == nil
   end
 
   test "handles DST times", %{conn: conn} do
