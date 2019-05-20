@@ -179,6 +179,7 @@ defmodule ApiWeb.ApiControllerHelpers do
     split_include =
       case params["include"] do
         nil -> []
+        %{} -> []
         include -> include |> String.split(~r"[.,]") |> MapSet.new()
       end
 

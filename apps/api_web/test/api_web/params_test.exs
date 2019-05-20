@@ -89,6 +89,9 @@ defmodule ApiWeb.ParamsTest do
     test "returns error for invalid includes", %{conn: conn} do
       assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
                {:error, :bad_include, ~w(routes)}
+
+      assert Params.validate_includes(%{"include" => %{"bad" => ""}}, ~w(anything), conn) ==
+               {:error, :bad_include, ~w(bad)}
     end
 
     test "doesn't return error for invalid includes for older key versions", %{conn: conn} do

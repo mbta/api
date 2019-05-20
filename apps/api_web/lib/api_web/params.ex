@@ -292,6 +292,9 @@ defmodule ApiWeb.Params do
           {:error, :bad_include, bad_includes}
         end
 
+      values when is_map(values) ->
+        {:error, :bad_include, Map.keys(values)}
+
       _ ->
         {:ok, nil}
     end
