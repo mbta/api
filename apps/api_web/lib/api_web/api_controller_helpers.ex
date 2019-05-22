@@ -178,9 +178,13 @@ defmodule ApiWeb.ApiControllerHelpers do
   def split_include(%{params: params} = conn, []) do
     split_include =
       case params["include"] do
-        nil -> []
-        %{} -> []
-        include -> include |> String.split(~r"[.,]") |> MapSet.new()
+        include when is_binary(include) ->
+          include
+          |> String.split([",", "."])
+          |> MapSet.new()
+
+        _ ->
+          []
       end
 
     assign(conn, :split_include, split_include)
