@@ -60,6 +60,25 @@ defmodule ApiWeb.ServiceControllerTest do
 
       assert validate_resp_schema(response, schema, "Services")
     end
+
+    test "can filter by route", %{conn: conn} do
+      trip = %Model.Trip{
+        block_id: "block_id",
+        id: "trip_id",
+        route_id: "1",
+        direction_id: 1,
+        service_id: "2",
+        name: "name"
+      }
+
+      State.Trip.new_state([trip])
+
+      conn = get(conn, service_path(conn, :index, %{"filter[route]" => "1,2"}))
+      assert [%{"id" => "2"}] = json_response(conn, 200)["data"]
+
+      conn = get(conn, service_path(conn, :index, %{"filter[route]" => "2"}))
+      assert json_response(conn, 200)["data"] == []
+    end
   end
 
   describe "show/2" do
