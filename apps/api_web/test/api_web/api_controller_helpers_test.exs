@@ -127,4 +127,14 @@ defmodule ApiWeb.ApiControllerHelpersTest do
       assert result[:fields] == %{"shape" => [:priority, :name]}
     end
   end
+
+  describe "split_include/2" do
+    test "doesn't error when includes is a map" do
+      conn =
+        %Plug.Conn{params: %{"include" => %{"bad" => ""}}}
+        |> ApiWeb.ApiControllerHelpers.split_include([])
+
+      assert conn.assigns[:split_include] == []
+    end
+  end
 end
