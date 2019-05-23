@@ -57,20 +57,38 @@ defmodule State.ServiceTest do
 
     State.Service.new_state({calendar, calendar_attributes, calendar_dates})
 
-    assert State.Service.by_id("service") == %Service{
-             id: "service",
-             start_date: Timex.today(),
-             end_date: Timex.shift(Timex.today(), days: 2),
-             valid_days: [1, 2, 5],
-             description: "description",
-             schedule_name: "name",
-             schedule_type: "type",
-             schedule_typicality: 1,
-             added_dates: [Timex.today()],
-             added_dates_notes: ["This Code's Birthday"],
-             removed_dates: [Timex.shift(Timex.today(), days: 1)],
-             removed_dates_notes: [nil]
-           }
+    service = %Service{
+      id: "service",
+      start_date: Timex.today(),
+      end_date: Timex.shift(Timex.today(), days: 2),
+      valid_days: [1, 2, 5],
+      description: "description",
+      schedule_name: "name",
+      schedule_type: "type",
+      schedule_typicality: 1,
+      added_dates: [Timex.today()],
+      added_dates_notes: ["This Code's Birthday"],
+      removed_dates: [Timex.shift(Timex.today(), days: 1)],
+      removed_dates_notes: [nil]
+    }
+
+    assert State.Service.by_id("service") == service
+
+    trip = %Model.Trip{
+      block_id: "block_id",
+      id: "trip_id",
+      route_id: "1",
+      direction_id: 1,
+      service_id: "service",
+      name: "name"
+    }
+
+    State.Trip.new_state([trip])
+
+    assert State.Service.by_route_id("1") == [service]
+    assert State.Service.by_route_id("2") == []
+    assert State.Service.by_route_ids(["1"]) == [service]
+    assert State.Service.by_route_ids(["1", "2"]) == [service]
   end
 
   test "it can add services which are only present in CalendarDates" do

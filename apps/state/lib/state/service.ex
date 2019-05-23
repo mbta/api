@@ -21,6 +21,18 @@ defmodule State.Service do
     end
   end
 
+  def by_route_ids(route_ids) do
+    route_ids
+    |> State.Trip.by_route_ids()
+    |> MapSet.new(& &1.service_id)
+    |> MapSet.to_list()
+    |> by_ids
+  end
+
+  def by_route_id(route_id) do
+    by_route_ids([route_id])
+  end
+
   @doc """
   Returns all Services that are valid today or any date in the future.
   """

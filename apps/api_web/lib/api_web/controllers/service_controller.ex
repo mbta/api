@@ -6,11 +6,10 @@ defmodule ApiWeb.ServiceController do
   """
   use ApiWeb.Web, :api_controller
   alias State.Service
-  import ApiWeb.Params
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id)s
+  @filters ~w(id route)s
   @pagination_opts ~w(offset limit order_by)a
 
   def state_module, do: State.Service
@@ -33,6 +32,13 @@ defmodule ApiWeb.ServiceController do
       example: "1,2"
     )
 
+    parameter(
+      "filter[route]",
+      :query,
+      :string,
+      "Filter by route. Multiple `route` #{comma_separated_list()}."
+    )
+
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
     response(200, "OK", Schema.ref(:Services))
@@ -43,10 +49,9 @@ defmodule ApiWeb.ServiceController do
 
   def index_data(conn, params) do
     case Params.filter_params(params, @filters, conn) do
-      {:ok, %{"id" => ids}} ->
-        ids
-        |> split_on_comma
-        |> State.Service.by_ids()
+      {:ok, filters} when map_size(filters) > 0 ->
+        filters
+        |> apply_filters()
         |> State.all(Params.filter_opts(params, @pagination_opts))
 
       {:error, _, _} = error ->
@@ -55,6 +60,18 @@ defmodule ApiWeb.ServiceController do
       _ ->
         {:error, :filter_required}
     end
+  end
+
+  defp apply_filters(%{"id" => id}) do
+    id
+    |> Params.split_on_comma()
+    |> Service.by_ids()
+  end
+
+  defp apply_filters(%{"route" => route}) do
+    route
+    |> Params.split_on_comma()
+    |> Service.by_route_ids()
   end
 
   swagger_path :show do
