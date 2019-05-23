@@ -36,7 +36,7 @@ defmodule ApiWeb.ServiceController do
       "filter[route]",
       :query,
       :string,
-      "Filter by route. Multiple `route_id` #{comma_separated_list()}."
+      "Filter by route. Multiple `route` #{comma_separated_list()}."
     )
 
     consumes("application/vnd.api+json")

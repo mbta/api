@@ -24,7 +24,7 @@ defmodule State.Service do
   def by_route_ids(route_ids) do
     route_ids
     |> State.Trip.by_route_ids()
-    |> Enum.into(MapSet.new(), & &1.service_id)
+    |> MapSet.new(& &1.service_id)
     |> MapSet.to_list()
     |> by_ids
   end
