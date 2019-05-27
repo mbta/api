@@ -22,7 +22,8 @@ defmodule State.Schedule do
           optional(:stop_sequence) => stop_sequence,
           optional(:date) => Date.t(),
           optional(:min_time) => non_neg_integer,
-          optional(:max_time) => non_neg_integer
+          optional(:max_time) => non_neg_integer,
+          optional(:remove_unsupported_times) => boolean
         }
 
   @typep convert_filters :: %{
@@ -257,6 +258,13 @@ defmodule State.Schedule do
 
   defp do_post_search_filter(schedules, %{max_time: max}) do
     do_time_filter(schedules, 0, max)
+  end
+
+  defp do_post_search_filter(schedules, %{remove_unsupported_times: true}) do
+    for s <- schedules do
+      s = if s.pickup_type == 1, do: %Model.Schedule{s | departure_time: nil}, else: s
+      if s.drop_off_type == 1, do: %Model.Schedule{s | arrival_time: nil}, else: s
+    end
   end
 
   defp do_post_search_filter(schedules, _), do: schedules
