@@ -321,6 +321,7 @@ defmodule ApiWeb.SchedulerControllerTest do
 
       params = %{"trip" => "trip"}
 
+      conn = assign(conn, :api_version, "2019-07-01")
       assert index_data(conn, params) == [
                %Model.Schedule{schedule | arrival_time: nil, departure_time: nil}
              ]
