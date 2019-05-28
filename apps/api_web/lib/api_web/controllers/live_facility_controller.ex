@@ -35,29 +35,40 @@ defmodule ApiWeb.LiveFacilityController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      case filtered do
-        %{"id" => ids} ->
-          ids
-          |> split_on_comma
-          |> State.Facility.Parking.by_facility_ids()
-          |> Enum.group_by(& &1.facility_id)
-          |> Enum.map(fn {facilty_id, properties} ->
-            %{
-              facility_id: facilty_id,
-              properties: properties,
-              updated_at: updated_at(properties)
-            }
-          end)
-          |> State.all(Params.filter_opts(params, @pagination_opts))
+  def check_version(conn) do
+    (String.starts_with?(conn.request_path, "/live_facilities") and
+       conn.assigns.api_version >= "2019-07-01") or
+      (String.starts_with?(conn.request_path, "/live-facilities") and
+         conn.assigns.api_version < "2019-07-01")
+  end
 
-        _ ->
-          {:error, :filter_required}
+  def index_data(conn, params) do
+    if check_version(conn) do
+      with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+           {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+        case filtered do
+          %{"id" => ids} ->
+            ids
+            |> split_on_comma
+            |> State.Facility.Parking.by_facility_ids()
+            |> Enum.group_by(& &1.facility_id)
+            |> Enum.map(fn {facilty_id, properties} ->
+              %{
+                facility_id: facilty_id,
+                properties: properties,
+                updated_at: updated_at(properties)
+              }
+            end)
+            |> State.all(Params.filter_opts(params, @pagination_opts))
+
+          _ ->
+            {:error, :filter_required}
+        end
+      else
+        {:error, _, _} = error -> error
       end
     else
-      {:error, _, _} = error -> error
+      {:error, :not_found, nil}
     end
   end
 
@@ -83,20 +94,24 @@ defmodule ApiWeb.LiveFacilityController do
   end
 
   def show_data(conn, %{"id" => facility_id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      case State.Facility.Parking.by_facility_id(facility_id) do
-        [] ->
-          nil
+    if check_version(conn) do
+      with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+        case State.Facility.Parking.by_facility_id(facility_id) do
+          [] ->
+            nil
 
-        properties ->
-          %{
-            facility_id: facility_id,
-            properties: properties,
-            updated_at: updated_at(properties)
-          }
+          properties ->
+            %{
+              facility_id: facility_id,
+              properties: properties,
+              updated_at: updated_at(properties)
+            }
+        end
+      else
+        {:error, _, _} = error -> error
       end
     else
-      {:error, _, _} = error -> error
+      nil
     end
   end
 

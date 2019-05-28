@@ -7,6 +7,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
   alias Model.Trip
 
   setup %{conn: conn} do
+    conn = assign(conn, :api_version, "2019-04-05")
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -51,11 +52,9 @@ defmodule ApiWeb.RoutePatternControllerTest do
         %RoutePattern{id: "rp3"}
       ])
 
-      assert ApiWeb.RoutePatternController.index_data(conn, %{"filter" => %{"id" => "rp1,rp2"}}) ==
-               [
-                 %RoutePattern{id: "rp1"},
-                 %RoutePattern{id: "rp2"}
-               ]
+      conn = get(conn, route_pattern_path(conn, :index, %{"filter" => %{"id" => "rp1,rp2"}}))
+
+      assert [%{"id" => "rp1"}, %{"id" => "rp2"}] = json_response(conn, 200)["data"]
     end
 
     test "can filter by route", %{conn: conn} do
@@ -66,13 +65,11 @@ defmodule ApiWeb.RoutePatternControllerTest do
         %RoutePattern{id: "rp4", route_id: "route4"}
       ])
 
-      assert ApiWeb.RoutePatternController.index_data(conn, %{
-               "filter" => %{"route" => "route12,route3"}
-             }) == [
-               %RoutePattern{id: "rp1", route_id: "route12"},
-               %RoutePattern{id: "rp2", route_id: "route12"},
-               %RoutePattern{id: "rp3", route_id: "route3"}
-             ]
+      conn =
+        get(conn, route_pattern_path(conn, :index, %{"filter" => %{"route" => "route12,route3"}}))
+
+      assert [%{"id" => "rp1"}, %{"id" => "rp2"}, %{"id" => "rp3"}] =
+               json_response(conn, 200)["data"]
     end
 
     test "can filter by route and direction", %{conn: conn} do
@@ -83,12 +80,26 @@ defmodule ApiWeb.RoutePatternControllerTest do
         %RoutePattern{id: "rp4", route_id: "route4", direction_id: 1}
       ])
 
-      assert ApiWeb.RoutePatternController.index_data(conn, %{
-               "filter" => %{"route" => "route12,route3", "direction_id" => "0"}
-             }) == [
-               %RoutePattern{id: "rp1", route_id: "route12", direction_id: 0},
-               %RoutePattern{id: "rp3", route_id: "route3", direction_id: 0}
-             ]
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"route" => "route12,route3", "direction_id" => "0"}
+          })
+        )
+
+      assert [
+               %{
+                 "id" => "rp1",
+                 "relationships" => %{"route" => %{"data" => %{"id" => "route12"}}},
+                 "attributes" => %{"direction_id" => 0}
+               },
+               %{
+                 "id" => "rp3",
+                 "relationships" => %{"route" => %{"data" => %{"id" => "route3"}}},
+                 "attributes" => %{"direction_id" => 0}
+               }
+             ] = json_response(conn, 200)["data"]
     end
 
     test "can include route and trip", %{conn: conn} do
@@ -153,6 +164,13 @@ defmodule ApiWeb.RoutePatternControllerTest do
       response = json_response(conn, 200)
       assert [%{"id" => "rp1"}] = response["data"]
     end
+
+    test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
+      conn = assign(conn, :api_version, "2019-07-01")
+      response = get(conn, route_pattern_path(conn, :index))
+      assert json_response(response, 404)
+      assert validate_resp_schema(response, schema, "NotFound")
+    end
   end
 
   describe "show" do
@@ -182,7 +200,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "sort_order" => 101
                },
                "links" => %{
-                 "self" => "/route-patterns/route pattern id"
+                 "self" => "/route_patterns/route pattern id"
                },
                "relationships" => %{
                  "route" => %{
@@ -235,6 +253,15 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       assert json_response(conn, 404)
       assert validate_resp_schema(conn, swagger_shema, "NotFound")
+    end
+
+    test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
+      route_pattern = %RoutePattern{id: "1"}
+      State.RoutePattern.new_state([route_pattern])
+      conn = assign(conn, :api_version, "2019-07-01")
+      response = get(conn, route_pattern_path(conn, :show, "1"))
+      assert json_response(response, 404)
+      assert validate_resp_schema(response, schema, "NotFound")
     end
   end
 

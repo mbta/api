@@ -70,6 +70,13 @@ defmodule ApiWeb.ApiControllerHelpers do
     render(conn, "index.json-api", data: data, opts: opts)
   end
 
+  def render_index(conn, _params, {:error, :not_found, _}) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("404.json-api", [])
+  end
+
   def render_index(conn, _params, {:error, error, details}) do
     conn
     |> put_status(:bad_request)

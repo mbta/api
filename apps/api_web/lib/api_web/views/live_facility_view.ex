@@ -4,7 +4,7 @@ defmodule ApiWeb.LiveFacilityView do
   """
   use ApiWeb.Web, :api_view
 
-  location("/live-facilities/:id")
+  location("/live_facilities/:id")
 
   has_one(
     :facility,
@@ -14,7 +14,7 @@ defmodule ApiWeb.LiveFacilityView do
 
   attributes([:properties, :updated_at])
 
-  def type(_, _), do: "live-facility"
+  def type(_, _), do: "live_facility"
 
   def attributes(%{properties: properties, updated_at: updated_at}, _conn) do
     %{

@@ -53,15 +53,26 @@ defmodule ApiWeb.RoutePatternController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
+  def check_version(conn) do
+    (String.starts_with?(conn.request_path, "/route_patterns") and
+       conn.assigns.api_version >= "2019-07-01") or
+      (String.starts_with?(conn.request_path, "/route-patterns") and
+         conn.assigns.api_version < "2019-07-01")
+  end
+
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      filtered
-      |> format_filters()
-      |> RoutePattern.filter_by()
-      |> State.all(pagination_opts(params))
+    if check_version(conn) do
+      with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+           {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+        filtered
+        |> format_filters()
+        |> RoutePattern.filter_by()
+        |> State.all(pagination_opts(params))
+      else
+        {:error, _, _} = error -> error
+      end
     else
-      {:error, _, _} = error -> error
+      {:error, :not_found, nil}
     end
   end
 
@@ -109,10 +120,14 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      RoutePattern.by_id(id)
+    if check_version(conn) do
+      with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+        RoutePattern.by_id(id)
+      else
+        {:error, _, _} = error -> error
+      end
     else
-      {:error, _, _} = error -> error
+      nil
     end
   end
 
