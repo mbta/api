@@ -45,7 +45,7 @@ defmodule Parse.CommuterRailDepartures.JSON do
         departure_time: time(Map.get(update, "departure")),
         stop_sequence: Map.get(update, "stop_sequence"),
         schedule_relationship: best_schedule_relationship(base.schedule_relationship, update),
-        status: Map.get(update, "boarding_status")
+        status: copy(Map.get(update, "boarding_status"))
     }
   end
 
@@ -57,7 +57,7 @@ defmodule Parse.CommuterRailDepartures.JSON do
     nil
   end
 
-  defp vehicle_id(%{"vehicle" => %{"id" => id}}), do: id
+  defp vehicle_id(%{"vehicle" => %{"id" => id}}), do: copy(id)
   defp vehicle_id(_), do: nil
 
   defp best_schedule_relationship(relationship, update) do
