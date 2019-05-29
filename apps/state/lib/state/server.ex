@@ -288,8 +288,18 @@ defmodule State.Server do
   end
 
   def create!(func, module) do
-    if enum = func.() do
-      with {:atomic, _} <- :mnesia.transaction(&create_children/2, [enum, module]) do
+    enum =
+      debug_time(
+        func,
+        fn milliseconds ->
+          # coveralls-ignore-start
+          "create_enum #{module} #{inspect(self())} took #{milliseconds}ms"
+          # coveralls-ignore-stop
+        end
+      )
+
+    if enum do
+      with {:atomic, :ok} <- :mnesia.transaction(&create_children/2, [enum, module], 0) do
         :ok
       end
     else
@@ -299,13 +309,39 @@ defmodule State.Server do
 
   defp create_children(enum, module) do
     :mnesia.write_lock_table(module)
-    all_keys = :mnesia.all_keys(module)
-    :lists.foreach(&:mnesia.delete(module, &1, :write), all_keys)
-    recordable = module.recordable()
 
-    enum
-    |> Stream.flat_map(&module.pre_insert_hook/1)
-    |> Enum.each(&:mnesia.write(module, recordable.to_record(&1), :write))
+    delete_all = fn ->
+      all_keys = :mnesia.all_keys(module)
+      :lists.foreach(&:mnesia.delete(module, &1, :write), all_keys)
+    end
+
+    write_new = fn ->
+      recordable = module.recordable()
+
+      enum
+      |> Stream.flat_map(&module.pre_insert_hook/1)
+      |> Enum.each(&:mnesia.write(module, recordable.to_record(&1), :write))
+    end
+
+    :ok =
+      debug_time(
+        delete_all,
+        fn milliseconds ->
+          # coveralls-ignore-start
+          "delete_all #{module} #{inspect(self())} took #{milliseconds}ms"
+          # coveralls-ignore-stop
+        end
+      )
+
+    :ok =
+      debug_time(
+        write_new,
+        fn milliseconds ->
+          # coveralls-ignore-start
+          "write_new #{module} #{inspect(self())} took #{milliseconds}ms"
+          # coveralls-ignore-stop
+        end
+      )
   end
 
   def size(module) do
@@ -455,9 +491,10 @@ defmodule State.Server do
     :ok =
       debug_time(
         fn -> create!(func, module) end,
-        # no cover
         fn milliseconds ->
-          "init_table #{__MODULE__} #{inspect(self())} took #{milliseconds}ms"
+          # coveralls-ignore-start
+          "init_table #{module} #{inspect(self())} took #{milliseconds}ms"
+          # coveralls-ignore-stop
         end
       )
 
@@ -465,7 +502,9 @@ defmodule State.Server do
 
     _ =
       Logger.info(fn ->
-        "Update #{inspect(module)} #{inspect(self())}: #{new_size} items"
+        # coveralls-ignore-start
+        "Update #{module} #{inspect(self())}: #{new_size} items"
+        # coveralls-ignore-stop
       end)
 
     module.update_metadata()
