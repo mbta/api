@@ -384,7 +384,7 @@ defmodule StateMediator.Integration.GtfsTest do
     test "have valid route, trip and stop IDs" do
       for %{route_id: route_id} <- all_routes(),
           prediction <-
-            State.Prediction.select_grouped([State.Prediction, State.Prediction.GreenLine], [
+            State.Prediction.select_grouped([State.Prediction], [
               %{route_id: route_id}
             ]) do
         assert State.Route.by_id(prediction.route_id)
