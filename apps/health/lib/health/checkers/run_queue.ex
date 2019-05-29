@@ -23,9 +23,11 @@ defmodule Health.Checkers.RunQueue do
   end
 
   def log_processes(false, level) when level in [:info, :debug] do
-    for line <- log_lines() do
-      _ = Logger.info(line)
-    end
+    spawn(fn ->
+      for line <- log_lines() do
+        _ = Logger.info(line)
+      end
+    end)
 
     :logged
   end
