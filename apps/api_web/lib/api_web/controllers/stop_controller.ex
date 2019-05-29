@@ -236,7 +236,7 @@ defmodule ApiWeb.StopController do
       StopResource:
         resource do
           description(
-            "Physical location where transit can pick-up or drop-off passengers. See https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stopstxt for more details and http://realtime.mbta.com/Portal/Content/Documents/MBTA_GTFS_Documentation.html#stopstxt for specific extensions."
+            "Physical location where transit can pick-up or drop-off passengers. See https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stopstxt for more details and https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#stopstxt for specific extensions."
           )
 
           attributes do
@@ -322,6 +322,7 @@ defmodule ApiWeb.StopController do
             | `0` | Stop | A location where passengers board or disembark from a transit vehicle. |
             | `1` | Station | A physical structure or area that contains one or more stops. |
             | `2` | Station Entrance/Exit | A location where passengers can enter or exit a station from the street. The stop entry must also specify a parent_station value referencing the stop ID of the parent station for the entrance. |
+            | `3` | Generic Node | A location within a station, not matching any other location_type, which can be used to link together pathways define in pathways.txt. |
 
             See also [GTFS `stops.txt` `location_type`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stopstxt).
             """)
