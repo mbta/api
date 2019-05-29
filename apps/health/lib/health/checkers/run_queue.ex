@@ -47,6 +47,10 @@ defmodule Health.Checkers.RunQueue do
         ~w(current_function initial_call status message_queue_len priority total_heap_size heap_size stack_size reductions dictionary)a
       )
 
+    log_info_iodata(info)
+  end
+
+  defp log_info_iodata(info) when is_list(info) do
     info =
       if initial_call = info[:dictionary][:"$initial_call"] do
         Keyword.put(info, :initial_call, initial_call)
@@ -59,6 +63,10 @@ defmodule Health.Checkers.RunQueue do
     for {k, v} <- info do
       [Atom.to_string(k), "=", pid_log(v), " "]
     end
+  end
+
+  defp log_info_iodata(nil) do
+    ["status=dead"]
   end
 
   defp pid_log({m, f, a}) when is_atom(m) and is_atom(f) and a >= 0 do
