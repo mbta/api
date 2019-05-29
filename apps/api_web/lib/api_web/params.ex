@@ -122,7 +122,7 @@ defmodule ApiWeb.Params do
   def fetch_coords(%{"latitude" => lat, "longitude" => long} = params) do
     with {parsed_lat, ""} <- Float.parse(lat),
          {parsed_long, ""} <- Float.parse(long),
-         {radius, ""} <- Float.parse(params["radius"] || "0.01") do
+         {radius, ""} <- Float.parse(Map.get(params, "radius", "0.01")) do
       {:ok, {parsed_lat, parsed_long, radius}}
     else
       _ -> :error
