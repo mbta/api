@@ -271,6 +271,7 @@ defmodule State.Server do
            record_name: Keyword.fetch!(keywords, :record_name),
            attributes: Keyword.fetch!(keywords, :attributes),
            index: Keyword.fetch!(keywords, :index),
+           storage_properties: [ets: [{:read_concurrency, true}]],
            type: :bag,
            local_content: true
          ) do
