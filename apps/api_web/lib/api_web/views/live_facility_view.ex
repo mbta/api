@@ -14,7 +14,7 @@ defmodule ApiWeb.LiveFacilityView do
 
   attributes([:properties, :updated_at])
 
-  def type(_, %{assigns: %{api_version: ver}}) when ver >= '2019-07-01', do: "live_facility"
+  def type(_, %{assigns: %{api_version: ver}}) when ver >= "2019-07-01", do: "live_facility"
   def type(_, _), do: "live-facility"
 
   def attributes(%{properties: properties, updated_at: updated_at}, _conn) do

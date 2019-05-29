@@ -68,7 +68,7 @@ defmodule ApiWeb.LiveFacilityControllerTest do
                      }
                    }
                  },
-                 "type" => "live_facility"
+                 "type" => "live-facility"
                }
              ]
     end
@@ -167,7 +167,7 @@ defmodule ApiWeb.LiveFacilityControllerTest do
                    }
                  }
                },
-               "type" => "live_facility"
+               "type" => "live-facility"
              }
     end
 
