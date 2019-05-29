@@ -163,8 +163,13 @@ defmodule State.Server do
 
       @impl Events.Server
       def handle_event({:fetch, unquote(opts[:fetched_filename])}, body, _, state) do
-        {:reply, _, new_state} = handle_call({:new_state, body}, nil, state)
-        {:noreply, new_state}
+        case handle_call({:new_state, body}, nil, state) do
+          {:reply, _, new_state} ->
+            {:noreply, new_state}
+
+          {:reply, _, new_state, extra} ->
+            {:noreply, new_state, extra}
+        end
       end
 
       # All functions that aren't metadata or have computed names, such as from def_by_indicies, should be marked
@@ -194,7 +199,7 @@ defmodule State.Server do
 
   def handle_call(module, {:new_state, enum}, _from, state) do
     module.handle_new_state(enum)
-    {:reply, :ok, state}
+    {:reply, :ok, state, :hibernate}
   end
 
   def handle_call(_module, :last_updated, _from, state) do
