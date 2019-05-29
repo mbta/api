@@ -113,11 +113,11 @@ defmodule ApiWeb.ApiControllerHelpers do
     ApiControllerHelpers.render_show(conn, params, data)
   end
 
-  def opts_for_params(params) do
-    fields = filter_valid_field_params(params["fields"])
+  def opts_for_params(params) when is_map(params) do
+    fields = filter_valid_field_params(Map.get(params, "fields"))
 
     [
-      include: params["include"],
+      include: Map.get(params, "include"),
       fields: fields
     ]
   end
@@ -173,8 +173,8 @@ defmodule ApiWeb.ApiControllerHelpers do
 
   def split_include(%{params: params} = conn, []) do
     split_include =
-      case params["include"] do
-        include when is_binary(include) ->
+      case params do
+        %{"include" => include} when is_binary(include) ->
           include
           |> String.split([",", "."])
           |> MapSet.new()

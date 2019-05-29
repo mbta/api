@@ -117,12 +117,26 @@ defmodule ApiWeb.Params do
   end
 
   @doc """
-  Fetches and casts latitude, longitude, and optional radius form params.
+  Fetches and casts latitude, longitude, and optional radius from params.
+
+  ## Examples
+
+      iex> ApiWeb.Params.fetch_coords(%{"latitude" => "1.0", "longitude" => "-2.0"})
+      {:ok, {1.0, -2.0, 0.01}}
+
+      iex> ApiWeb.Params.fetch_coords(%{"latitude" => "1.0", "longitude" => "-2.0", "radius" => "5"})
+      {:ok, {1.0, -2.0, 5.0}}
+
+      iex> ApiWeb.Params.fetch_coords(%{"latitude" => "1.0", "longitude" => "nope"})
+      :error
+
+      iex> ApiWeb.Params.fetch_coords(%{})
+      :error
   """
   def fetch_coords(%{"latitude" => lat, "longitude" => long} = params) do
     with {parsed_lat, ""} <- Float.parse(lat),
          {parsed_long, ""} <- Float.parse(long),
-         {radius, ""} <- Float.parse(params["radius"] || "0.01") do
+         {radius, ""} <- Float.parse(Map.get(params, "radius", "0.01")) do
       {:ok, {parsed_lat, parsed_long, radius}}
     else
       _ -> :error
