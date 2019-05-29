@@ -37,8 +37,11 @@ defmodule Health.Checkers.RunQueue do
   end
 
   def log_lines do
+    start_time = System.monotonic_time()
+
     for pid <- Process.list() do
-      "process_info pid=#{inspect(pid)} #{log_info(pid)}"
+      # lt short for log time
+      "process_info pid=#{inspect(pid)} lt=#{start_time} #{log_info(pid)}"
     end
   end
 
