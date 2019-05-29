@@ -18,10 +18,56 @@ defmodule ApiWeb.PredictionViewTest do
     arrival_time: nil,
     departure_time: @datetime,
     schedule_relationship: :added,
-    track: "2",
     status: "All Aboard",
     stop_sequence: 5
   }
+  @route %Model.Route{id: "CR-Lowell"}
+  @stop %Model.Stop{id: "North Station-02", parent_station: "place-north", platform_code: "2"}
+  @stops [
+    @stop,
+    %Model.Stop{id: "North Station", parent_station: "place-north"},
+    %Model.Stop{id: "place-north", location_type: 1}
+  ]
+  @trips [
+    %Model.Trip{
+      id: "trip",
+      route_id: "CR-Lowell",
+      direction_id: 1,
+      service_id: "service"
+    },
+    %Model.Trip{
+      id: "trip-2",
+      route_id: "CR-Lowell",
+      direction_id: 1,
+      service_id: "service"
+    }
+  ]
+  @associated_schedule %Model.Schedule{
+    trip_id: "trip",
+    route_id: "CR-Lowell",
+    stop_id: "North Station",
+    direction_id: 0,
+    arrival_time: nil,
+    departure_time: 20_000,
+    stop_sequence: 5
+  }
+  @other_schedule %Model.Schedule{
+    trip_id: "trip-2",
+    route_id: "CR-Lowell",
+    stop_id: "North Station",
+    direction_id: 1,
+    arrival_time: 20_000,
+    departure_time: nil,
+    stop_sequence: 5
+  }
+
+  setup do
+    State.Route.new_state([@route])
+    State.Stop.new_state(@stops)
+    State.Trip.new_state(@trips)
+    State.Schedule.new_state([@associated_schedule, @other_schedule])
+    :ok
+  end
 
   test "render includes the commuter rail departure", %{conn: conn} do
     rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
@@ -67,52 +113,7 @@ defmodule ApiWeb.PredictionViewTest do
   end
 
   describe "has_one schedule" do
-    @route %Model.Route{id: "CR-Lowell"}
-    @stop %Model.Stop{id: "North Station-02", parent_station: "place-north"}
-    @stops [
-      @stop,
-      %Model.Stop{id: "North Station", parent_station: "place-north"},
-      %Model.Stop{id: "place-north", location_type: 1}
-    ]
-    @trips [
-      %Model.Trip{
-        id: "trip",
-        route_id: "CR-Lowell",
-        direction_id: 1,
-        service_id: "service"
-      },
-      %Model.Trip{
-        id: "trip-2",
-        route_id: "CR-Lowell",
-        direction_id: 1,
-        service_id: "service"
-      }
-    ]
-    @associated_schedule %Model.Schedule{
-      trip_id: "trip",
-      route_id: "CR-Lowell",
-      stop_id: "North Station",
-      direction_id: 0,
-      arrival_time: nil,
-      departure_time: 20_000,
-      stop_sequence: 5
-    }
-    @other_schedule %Model.Schedule{
-      trip_id: "trip-2",
-      route_id: "CR-Lowell",
-      stop_id: "North Station",
-      direction_id: 1,
-      arrival_time: 20_000,
-      departure_time: nil,
-      stop_sequence: 5
-    }
-
     setup %{conn: conn} do
-      State.Route.new_state([@route])
-      State.Stop.new_state(@stops)
-      State.Trip.new_state(@trips)
-      State.Schedule.new_state([@associated_schedule, @other_schedule])
-
       conn =
         conn
         |> assign(:data, [@prediction])

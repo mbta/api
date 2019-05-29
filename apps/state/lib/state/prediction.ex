@@ -50,53 +50,42 @@ defmodule State.Prediction do
 
   @impl State.Server
   def pre_insert_hook(prediction) do
+    trips =
+      case prediction do
+        %{trip_id: trip_id} when is_binary(trip_id) ->
+          State.Trip.by_id(trip_id)
+
+        _ ->
+          []
+      end
+
     prediction
-    |> fill_missing_direction_ids()
-    |> update_track_from_stop()
-    |> update_route_from_alternate_trips()
+    |> fill_missing_direction_ids(trips)
+    |> update_route_from_alternate_trips(trips)
   end
 
-  defp fill_missing_direction_ids(%Model.Prediction{direction_id: direction_id} = prediction)
+  defp fill_missing_direction_ids(%{direction_id: direction_id} = prediction, _trips)
        when is_integer(direction_id) do
     prediction
   end
 
   defp fill_missing_direction_ids(
-         %Model.Prediction{trip_id: trip_id, direction_id: nil} = prediction
+         prediction,
+         trips
        ) do
-    case State.Trip.by_id(trip_id) do
+    case trips do
       [%{direction_id: direction} | _] -> %{prediction | direction_id: direction}
       _ -> prediction
     end
   end
 
-  defp update_track_from_stop(%Model.Prediction{stop_id: stop_id, track: nil} = prediction)
-       when is_binary(stop_id) do
-    case State.Stop.by_id(stop_id) do
-      %{platform_code: nil} -> prediction
-      %{platform_code: code} -> %{prediction | track: code}
-      _ -> prediction
+  defp update_route_from_alternate_trips(prediction, [_, _ | _] = trips) do
+    for trip <- trips do
+      %{prediction | route_id: trip.route_id}
     end
   end
 
-  defp update_track_from_stop(prediction) do
-    prediction
-  end
-
-  defp update_route_from_alternate_trips(%Model.Prediction{trip_id: trip_id} = prediction)
-       when is_binary(trip_id) do
-    case State.Trip.by_id(prediction.trip_id) do
-      [] ->
-        [prediction]
-
-      trips ->
-        for trip <- trips do
-          %{prediction | route_id: trip.route_id}
-        end
-    end
-  end
-
-  defp update_route_from_alternate_trips(prediction) do
+  defp update_route_from_alternate_trips(prediction, _trips) do
     [prediction]
   end
 

@@ -75,31 +75,6 @@ defmodule State.PredictionTest do
   end
 
   describe "pre_insert_hook/1" do
-    test "updates the track field with the platform_code of the stop" do
-      State.Stop.new_state([
-        %Model.Stop{id: "North Station-05", platform_code: "5"}
-      ])
-
-      prediction = %Model.Prediction{
-        stop_id: "North Station-05"
-      }
-
-      assert [%{track: "5"}] = pre_insert_hook(prediction)
-    end
-
-    test "does not overwrite an existing track" do
-      State.Stop.new_state([
-        %Model.Stop{id: "North Station-05", platform_code: "5"}
-      ])
-
-      prediction = %Model.Prediction{
-        stop_id: "North Station-05",
-        track: "not_changed"
-      }
-
-      assert [^prediction] = pre_insert_hook(prediction)
-    end
-
     test "takes direction id from trip if missing" do
       State.Trip.new_state([
         %Model.Trip{id: "trip_with_direction", direction_id: 1}
@@ -198,7 +173,7 @@ defmodule State.PredictionTest do
 
       State.Stop.new_state(stops)
       prediction = List.first(@predictions)
-      prediction = %{prediction | stop_id: "stop-01", track: "1"}
+      prediction = %{prediction | stop_id: "stop-01"}
       State.Prediction.new_state([prediction])
 
       assert prediction_for(@schedule, @today) == prediction

@@ -97,8 +97,7 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
         departure_time: Parse.Timezone.unix_to_local(@update["departure"]["time"]),
         stop_sequence: @update["stop_sequence"],
         schedule_relationship: nil,
-        status: nil,
-        track: nil
+        status: nil
       }
 
       actual = prediction(@update, @base)
@@ -109,14 +108,6 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
       update = put_in(@update["boarding_status"], "Stopped 1_0 miles away")
       actual = prediction(update, @base)
       assert actual.status == "Stopped 1_0 miles away"
-    end
-
-    test "handles both track and platform_id" do
-      prediction = prediction(Map.put(@update, "track", "1"), @base)
-      assert prediction.track == "1"
-
-      prediction = prediction(Map.put(@update, "platform_id", "North Station-02"), @base)
-      assert prediction.track == "2"
     end
 
     test "handles other kinds of relationship" do
