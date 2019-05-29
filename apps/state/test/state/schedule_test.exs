@@ -336,7 +336,7 @@ defmodule State.ScheduleTest do
       ]
 
       State.Stop.new_state(stops)
-      prediction = %{@prediction | stop_id: "stop-01", track: "1"}
+      prediction = %{@prediction | stop_id: "stop-01"}
 
       assert Schedule.schedule_for(prediction) == List.first(@schedules)
     end
