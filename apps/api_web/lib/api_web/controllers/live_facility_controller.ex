@@ -2,6 +2,8 @@ defmodule ApiWeb.LiveFacilityController do
   use ApiWeb.Web, :api_controller
   import ApiWeb.Params
 
+  plug(:ensure_path_matches_version)
+
   @filters ~w(id)
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(facility)
@@ -35,40 +37,44 @@ defmodule ApiWeb.LiveFacilityController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def check_version(conn) do
-    (String.starts_with?(conn.request_path, "/live_facilities") and
-       conn.assigns.api_version >= "2019-07-01") or
-      (String.starts_with?(conn.request_path, "/live-facilities") and
-         conn.assigns.api_version < "2019-07-01")
+  defp ensure_path_matches_version(conn, _) do
+    if (String.starts_with?(conn.request_path, "/live_facilities") and
+          conn.assigns.api_version >= "2019-07-01") or
+         (String.starts_with?(conn.request_path, "/live-facilities") and
+            conn.assigns.api_version < "2019-07-01") do
+      conn
+    else
+      conn
+      |> put_status(:not_found)
+      |> put_view(ApiWeb.ErrorView)
+      |> render("404.json-api", [])
+      |> halt()
+    end
   end
 
   def index_data(conn, params) do
-    if check_version(conn) do
-      with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-           {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-        case filtered do
-          %{"id" => ids} ->
-            ids
-            |> split_on_comma
-            |> State.Facility.Parking.by_facility_ids()
-            |> Enum.group_by(& &1.facility_id)
-            |> Enum.map(fn {facilty_id, properties} ->
-              %{
-                facility_id: facilty_id,
-                properties: properties,
-                updated_at: updated_at(properties)
-              }
-            end)
-            |> State.all(Params.filter_opts(params, @pagination_opts))
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+      case filtered do
+        %{"id" => ids} ->
+          ids
+          |> split_on_comma
+          |> State.Facility.Parking.by_facility_ids()
+          |> Enum.group_by(& &1.facility_id)
+          |> Enum.map(fn {facilty_id, properties} ->
+            %{
+              facility_id: facilty_id,
+              properties: properties,
+              updated_at: updated_at(properties)
+            }
+          end)
+          |> State.all(Params.filter_opts(params, @pagination_opts))
 
-          _ ->
-            {:error, :filter_required}
-        end
-      else
-        {:error, _, _} = error -> error
+        _ ->
+          {:error, :filter_required}
       end
     else
-      {:error, :not_found, nil}
+      {:error, _, _} = error -> error
     end
   end
 
@@ -94,24 +100,20 @@ defmodule ApiWeb.LiveFacilityController do
   end
 
   def show_data(conn, %{"id" => facility_id} = params) do
-    if check_version(conn) do
-      with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-        case State.Facility.Parking.by_facility_id(facility_id) do
-          [] ->
-            nil
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+      case State.Facility.Parking.by_facility_id(facility_id) do
+        [] ->
+          nil
 
-          properties ->
-            %{
-              facility_id: facility_id,
-              properties: properties,
-              updated_at: updated_at(properties)
-            }
-        end
-      else
-        {:error, _, _} = error -> error
+        properties ->
+          %{
+            facility_id: facility_id,
+            properties: properties,
+            updated_at: updated_at(properties)
+          }
       end
     else
-      nil
+      {:error, _, _} = error -> error
     end
   end
 

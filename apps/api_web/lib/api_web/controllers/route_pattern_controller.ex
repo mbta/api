@@ -8,6 +8,8 @@ defmodule ApiWeb.RoutePatternController do
   use ApiWeb.Web, :api_controller
   alias State.RoutePattern
 
+  plug(:ensure_path_matches_version)
+
   @filters ~w(id route direction_id)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
@@ -53,26 +55,30 @@ defmodule ApiWeb.RoutePatternController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def check_version(conn) do
-    (String.starts_with?(conn.request_path, "/route_patterns") and
-       conn.assigns.api_version >= "2019-07-01") or
-      (String.starts_with?(conn.request_path, "/route-patterns") and
-         conn.assigns.api_version < "2019-07-01")
+  defp ensure_path_matches_version(conn, _) do
+    if (String.starts_with?(conn.request_path, "/route_patterns") and
+          conn.assigns.api_version >= "2019-07-01") or
+         (String.starts_with?(conn.request_path, "/route-patterns") and
+            conn.assigns.api_version < "2019-07-01") do
+      conn
+    else
+      conn
+      |> put_status(:not_found)
+      |> put_view(ApiWeb.ErrorView)
+      |> render("404.json-api", [])
+      |> halt()
+    end
   end
 
   def index_data(conn, params) do
-    if check_version(conn) do
-      with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-           {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-        filtered
-        |> format_filters()
-        |> RoutePattern.filter_by()
-        |> State.all(pagination_opts(params))
-      else
-        {:error, _, _} = error -> error
-      end
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+      filtered
+      |> format_filters()
+      |> RoutePattern.filter_by()
+      |> State.all(pagination_opts(params))
     else
-      {:error, :not_found, nil}
+      {:error, _, _} = error -> error
     end
   end
 
@@ -120,14 +126,10 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    if check_version(conn) do
-      with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-        RoutePattern.by_id(id)
-      else
-        {:error, _, _} = error -> error
-      end
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+      RoutePattern.by_id(id)
     else
-      nil
+      {:error, _, _} = error -> error
     end
   end
 
