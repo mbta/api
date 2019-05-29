@@ -41,5 +41,12 @@ defmodule Health.Checkers.RunQueueTest do
       assert binary =~
                ~s(initial_call="Elixir.Health.Checkers.RunQueueTest.-test log_info/1 overrides initial call if present in process dictionary/1-fun-0-/0")
     end
+
+    test "logs a dead process" do
+      {:ok, pid} = Agent.start_link(fn -> :ok end)
+      Agent.stop(pid)
+      binary = IO.iodata_to_binary(log_info(pid))
+      assert binary =~ ~s(status=dead)
+    end
   end
 end
