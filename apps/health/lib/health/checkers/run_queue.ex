@@ -49,7 +49,7 @@ defmodule Health.Checkers.RunQueue do
     info =
       Process.info(
         pid,
-        ~w(current_function initial_call status message_queue_len priority total_heap_size heap_size stack_size reductions dictionary registered_name)a
+        ~w(current_function initial_call status message_queue_len priority total_heap_size heap_size stack_size reductions dictionary registered_name memory)a
       )
 
     log_info_iodata(info)
