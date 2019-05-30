@@ -27,6 +27,7 @@ defmodule ApiWeb.FacilityViewTest do
     assert rendered["attributes"] == %{
              "name" => @facility.name,
              "short_name" => @facility.short_name,
+             "long_name" => nil,
              "type" => @facility.type,
              "properties" => [],
              "latitude" => @facility.latitude,

@@ -43,6 +43,7 @@ defmodule ApiWeb.FacilityController do
       |> format_filters()
       |> Facility.filter_by()
       |> State.all(Params.filter_opts(params, @pagination_opts))
+      |> format_names(conn)
     else
       {:error, _, _} = error -> error
     end
@@ -101,8 +102,20 @@ defmodule ApiWeb.FacilityController do
   def show_data(conn, %{"id" => id} = params) do
     with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       Facility.by_id(id)
+      |> format_names(conn)
+      |> hd()
     else
       {:error, _, _} = error -> error
+    end
+  end
+
+  defp format_names(values, conn) do
+    for f <- List.wrap(values) do
+      if conn.assigns.api_version >= "2019-07-01" do
+        %Model.Facility{f | name: nil}
+      else
+        %Model.Facility{f | long_name: nil}
+      end
     end
   end
 
@@ -143,7 +156,15 @@ defmodule ApiWeb.FacilityController do
 
             name(
               :string,
+              "(Obsolete, renamed to `long_name`) Name of the facility",
+              "x-nullable": true,
+              example: "SHAWMUT - Ashmont Bound Platform to Lobby"
+            )
+
+            long_name(
+              :string,
               "Name of the facility",
+              "x-nullable": true,
               example: "SHAWMUT - Ashmont Bound Platform to Lobby"
             )
 
