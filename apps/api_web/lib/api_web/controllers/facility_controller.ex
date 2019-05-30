@@ -101,7 +101,8 @@ defmodule ApiWeb.FacilityController do
 
   def show_data(conn, %{"id" => id} = params) do
     with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      Facility.by_id(id)
+      id
+      |> Facility.by_id()
       |> format_names(conn)
       |> hd()
     else
