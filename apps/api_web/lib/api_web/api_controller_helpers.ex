@@ -42,22 +42,23 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def call(conn, module, params) do
-    case module.index_data(conn, params) do
-      {:error, error} ->
-        conn
-        |> put_status(:bad_request)
-        |> put_view(ApiWeb.ErrorView)
-        |> render("400.json-api", error: error)
+    data = module.index_data(conn, params)
+    render_json_api(conn, params, data)
+  end
 
-      data ->
-        render_index(conn, params, data)
-    end
+  def show(module, conn, params) do
+    data =
+      with :ok <- ApiWeb.Params.validate_show_params(params, conn) do
+        module.show_data(conn, params)
+      end
+
+    render_json_api(conn, params, data)
   end
 
   def index_for_format("event-stream"), do: ApiWeb.EventStream
   def index_for_format(_), do: __MODULE__
 
-  def render_index(conn, params, {data, %Offsets{} = offsets}) do
+  def render_json_api(conn, params, {data, %Offsets{} = offsets}) do
     pagination_links = pagination_links(conn, offsets)
 
     opts =
@@ -68,14 +69,7 @@ defmodule ApiWeb.ApiControllerHelpers do
     render(conn, "index.json-api", data: data, opts: opts)
   end
 
-  def render_index(conn, _params, {:error, error, details}) do
-    conn
-    |> put_status(:bad_request)
-    |> put_view(ApiWeb.ErrorView)
-    |> render("400.json-api", error: error, details: details)
-  end
-
-  def render_index(conn, params, data) do
+  def render_json_api(conn, params, data) when is_list(data) do
     render(
       conn,
       "index.json-api",
@@ -84,33 +78,29 @@ defmodule ApiWeb.ApiControllerHelpers do
     )
   end
 
-  def render_show(conn, _params, nil) do
+  def render_json_api(conn, params, %{} = data) do
+    render(conn, "show.json-api", data: data, opts: ApiControllerHelpers.opts_for_params(params))
+  end
+
+  def render_json_api(conn, _params, nil) do
     conn
     |> put_status(:not_found)
     |> put_view(ApiWeb.ErrorView)
     |> render("404.json-api", [])
   end
 
-  def render_show(conn, _params, {:error, error, details}) do
+  def render_json_api(conn, _params, {:error, error, details}) do
     conn
     |> put_status(:bad_request)
     |> put_view(ApiWeb.ErrorView)
     |> render("400.json-api", error: error, details: details)
   end
 
-  def render_show(conn, params, data) do
-    render(conn, "show.json-api", data: data, opts: ApiControllerHelpers.opts_for_params(params))
-  end
-
-  def show(module, conn, params) do
-    data =
-      with :ok <- ApiWeb.Params.validate_show_params(params, conn) do
-        module.show_data(conn, params)
-      else
-        {:error, _, _} = error -> error
-      end
-
-    ApiControllerHelpers.render_show(conn, params, data)
+  def render_json_api(conn, _params, {:error, error}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("400.json-api", error: error)
   end
 
   def opts_for_params(params) when is_map(params) do
