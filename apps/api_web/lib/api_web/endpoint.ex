@@ -25,6 +25,7 @@ defmodule ApiWeb.Endpoint do
   plug(Plug.Head)
   # CORS needs to be before the router, and Authenticate needs to be before CORS
   plug(ApiWeb.Plugs.Authenticate)
+  plug(ApiWeb.Plugs.RequestTrack, name: ApiWeb.RequestTrack)
   plug(ApiWeb.Plugs.CORS)
   plug(ApiWeb.Router)
 end
