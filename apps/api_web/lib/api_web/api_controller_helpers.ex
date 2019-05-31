@@ -65,8 +65,6 @@ defmodule ApiWeb.ApiControllerHelpers do
       |> ApiControllerHelpers.opts_for_params()
       |> Keyword.put(:page, pagination_links)
 
-    :ok = Logger.metadata(records: length(data))
-
     render(conn, "index.json-api", data: data, opts: opts)
   end
 
@@ -78,8 +76,6 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def render_index(conn, params, data) do
-    :ok = Logger.metadata(records: length(data))
-
     render(
       conn,
       "index.json-api",
