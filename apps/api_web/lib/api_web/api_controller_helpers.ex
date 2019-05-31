@@ -12,7 +12,11 @@ defmodule ApiWeb.ApiControllerHelpers do
   import Phoenix.Controller, only: [render: 3, put_view: 2, get_format: 1]
 
   alias ApiWeb.ApiControllerHelpers
+  alias ApiWeb.Plugs.Deadline
   alias State.Pagination.Offsets
+
+  # # of milliseconds after which to terminate the request
+  @deadline_ms 20_000
 
   defmacro __using__(_) do
     quote location: :keep do
@@ -42,6 +46,7 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def call(conn, module, params) do
+    conn = Deadline.set(conn, @deadline_ms)
     data = module.index_data(conn, params)
     render_json_api(conn, params, data)
   end
@@ -59,6 +64,7 @@ defmodule ApiWeb.ApiControllerHelpers do
   def index_for_format(_), do: __MODULE__
 
   def render_json_api(conn, params, {data, %Offsets{} = offsets}) do
+    Deadline.check!(conn)
     pagination_links = pagination_links(conn, offsets)
 
     opts =
@@ -70,6 +76,8 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def render_json_api(conn, params, data) when is_list(data) do
+    Deadline.check!(conn)
+
     render(
       conn,
       "index.json-api",
@@ -79,6 +87,8 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def render_json_api(conn, params, %{} = data) do
+    Deadline.check!(conn)
+
     render(conn, "show.json-api",
       data: data,
       opts: ApiControllerHelpers.opts_for_params(conn, params)

@@ -107,6 +107,10 @@ defmodule ApiWeb.ErrorView do
     ErrorSerializer.format(%{code: :internal_error, status: "500"})
   end
 
+  def render("503.json" <> _, _assigns) do
+    ErrorSerializer.format(%{code: :service_unavailable, status: "503"})
+  end
+
   def render("403.html", _assigns) do
     "Forbidden"
   end
