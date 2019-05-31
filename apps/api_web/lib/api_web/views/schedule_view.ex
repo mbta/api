@@ -1,5 +1,6 @@
 defmodule ApiWeb.ScheduleView do
   use ApiWeb.Web, :api_view
+  alias ApiWeb.Plugs.Deadline
   alias JaSerializer.Relationship.HasOne
 
   def relationships(_, _) do
@@ -57,7 +58,8 @@ defmodule ApiWeb.ScheduleView do
     "schedule-" <> trip_id <> "-" <> stop_id <> "-" <> Integer.to_string(stop_sequence)
   end
 
-  def prediction(schedule, %{assigns: %{date: date}}) do
+  def prediction(schedule, %{assigns: %{date: date}} = conn) do
+    Deadline.check!(conn)
     State.Prediction.prediction_for(schedule, date)
   end
 
