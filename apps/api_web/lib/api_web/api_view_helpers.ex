@@ -51,6 +51,19 @@ defmodule ApiWeb.ApiViewHelpers do
     args
     |> JaSerializer.Builder.build()
     |> JaSerializer.Formatter.format()
+    |> log_record_count
+  end
+
+  defp log_record_count(%{"data" => list} = data) when is_list(list) do
+    records = length(list) + length(Map.get(data, "included", []))
+    _ = Logger.metadata(records: records)
+    data
+  end
+
+  defp log_record_count(%{"data" => %{}} = data) do
+    records = 1 + length(Map.get(data, "included", []))
+    _ = Logger.metadata(records: records)
+    data
   end
 
   @doc """
