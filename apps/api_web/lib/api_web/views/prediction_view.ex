@@ -1,5 +1,6 @@
 defmodule ApiWeb.PredictionView do
   use ApiWeb.Web, :api_view
+  alias ApiWeb.Plugs.Deadline
 
   attributes([
     :arrival_time,
@@ -135,6 +136,7 @@ defmodule ApiWeb.PredictionView do
   end
 
   def schedule(prediction, conn) do
+    Deadline.check!(conn)
     optional_relationship("schedule", prediction, &State.Schedule.schedule_for/1, conn)
   end
 

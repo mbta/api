@@ -23,6 +23,7 @@ defmodule ApiWeb.Endpoint do
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)
+  plug(ApiWeb.Plugs.Deadline)
   # CORS needs to be before the router, and Authenticate needs to be before CORS
   plug(ApiWeb.Plugs.Authenticate)
   plug(ApiWeb.Plugs.CORS)

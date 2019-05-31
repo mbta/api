@@ -5,6 +5,7 @@ defmodule ApiWeb.ApiViewHelpers do
   relationship.
 
   """
+  alias ApiWeb.Plugs.Deadline
   alias State.{Route, Stop, Trip, Vehicle}
 
   defmacro __using__(_) do
@@ -34,8 +35,11 @@ defmodule ApiWeb.ApiViewHelpers do
         data
       end
 
-      def preload(data, _conn, include_opts) do
-        Enum.reduce(include_opts, data, &ApiWeb.ApiViewHelpers.preload_for_key/2)
+      def preload(data, conn, include_opts) do
+        Enum.reduce(include_opts, data, fn key, data ->
+          Deadline.check!(conn)
+          ApiWeb.ApiViewHelpers.preload_for_key(key, data)
+        end)
       end
 
       def attribute_set(_conn) do
@@ -52,8 +56,11 @@ defmodule ApiWeb.ApiViewHelpers do
       |> Map.put(:serializer, serializer)
       |> Map.put_new(:opts, [])
 
-    args
-    |> JaSerializer.Builder.build()
+    builder = JaSerializer.Builder.build(args)
+
+    Deadline.check!(assigns.conn)
+
+    builder
     |> JaSerializer.Formatter.format()
     |> log_record_count
   end
