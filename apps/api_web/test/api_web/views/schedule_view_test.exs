@@ -146,5 +146,15 @@ defmodule ApiWeb.ScheduleViewTest do
 
       refute prediction
     end
+
+    test "hides arrival / departure times for new API version", %{conn: conn} do
+      test_schedule = %Schedule{@schedule | pickup_type: 1, drop_off_type: 1}
+      conn = assign(conn, :api_version, "2019-07-01")
+
+      rendered = render(ApiWeb.ScheduleView, "index.json-api", data: test_schedule, conn: conn)
+
+      assert rendered["data"]["attributes"]["arrival_time"] == nil
+      assert rendered["data"]["attributes"]["departure_time"] == nil
+    end
   end
 end

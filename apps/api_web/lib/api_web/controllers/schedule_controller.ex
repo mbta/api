@@ -98,7 +98,6 @@ defmodule ApiWeb.ScheduleController do
         filters when map_size(filters) > 1 ->
           # greater than 1 because `date` is automatically included
           filters
-          |> Map.put(:remove_unsupported_times, conn.assigns.api_version >= "2019-07-01")
           |> Schedule.filter_by()
           |> State.all(Params.filter_opts(params, @pagination_opts))
 
