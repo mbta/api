@@ -12,7 +12,6 @@ defmodule Parse.Facility do
     %Facility{
       id: copy(row["facility_id"]),
       stop_id: copy(row["stop_id"]),
-      name: optional_string(row["facility_long_name"]),
       long_name: optional_string(row["facility_long_name"]),
       short_name: optional_string(row["facility_short_name"]),
       type: type(row["facility_type"]),

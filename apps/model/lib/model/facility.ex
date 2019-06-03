@@ -7,7 +7,6 @@ defmodule Model.Facility do
     :id,
     :stop_id,
     :type,
-    :name,
     :long_name,
     :short_name,
     :latitude,
@@ -20,7 +19,6 @@ defmodule Model.Facility do
 
   @typedoc """
   * `:id` -  Unique ID
-  * `:name` - (obsolete, renamed to `long_name`) Descriptive name of facility which can be used without any additional context.
   * `:long_name` - Descriptive name of facility which can be used without any additional context.
   * `:short_name` - Short name of facility which might not include its station or type.
   * `:stop_id` - The `Model.Stop.id` of the station where facility is.
@@ -30,7 +28,6 @@ defmodule Model.Facility do
   """
   @type t :: %__MODULE__{
           id: id,
-          name: String.t() | nil,
           long_name: String.t() | nil,
           short_name: String.t() | nil,
           stop_id: Model.Stop.id(),

@@ -8,8 +8,7 @@ defmodule ApiWeb.FacilityControllerTest do
     State.Facility.new_state([
       %Facility{
         id: "6",
-        name: "name",
-        long_name: nil,
+        long_name: "name",
         short_name: "short_name",
         type: "ELEVATOR",
         stop_id: "place-qnctr",
@@ -18,8 +17,7 @@ defmodule ApiWeb.FacilityControllerTest do
       },
       %Facility{
         id: "7",
-        name: "name",
-        long_name: nil,
+        long_name: "name",
         short_name: "short_name",
         type: "ESCALATOR",
         stop_id: "place-alfcl",
@@ -28,8 +26,7 @@ defmodule ApiWeb.FacilityControllerTest do
       },
       %Facility{
         id: "8",
-        name: "name",
-        long_name: nil,
+        long_name: "name",
         short_name: "short_name",
         type: "ESCALATOR",
         stop_id: "place-qnctr",
@@ -87,26 +84,6 @@ defmodule ApiWeb.FacilityControllerTest do
       facility_3 = State.Facility.by_id("8")
       results = index_data(conn, %{"filter" => %{"stop" => "place-qnctr", "type" => "ESCALATOR"}})
       assert Enum.sort(results) == [facility_1, facility_2, facility_3]
-    end
-
-    test "populates long_name instead of name for newer API versions", %{conn: conn} do
-      State.Facility.new_state([
-        %Facility{
-          id: "6",
-          name: nil,
-          long_name: "name",
-          short_name: "short_name",
-          type: "ELEVATOR",
-          stop_id: "place-qnctr",
-          latitude: 42.260381,
-          longitude: -71.794593
-        }
-      ])
-
-      facility_1 = State.Facility.by_id("6")
-      conn = assign(conn, :api_version, "2019-07-01")
-      results = index_data(conn, %{"filter" => %{"stop" => "place-qnctr"}})
-      assert results == [facility_1]
     end
   end
 
