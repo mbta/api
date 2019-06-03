@@ -56,10 +56,8 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   defp ensure_path_matches_version(conn, _) do
-    if (String.starts_with?(conn.request_path, "/route_patterns") and
-          conn.assigns.api_version >= "2019-07-01") or
-         (String.starts_with?(conn.request_path, "/route-patterns") and
-            conn.assigns.api_version < "2019-07-01") do
+    if String.starts_with?(conn.request_path, "/route_patterns") or
+         conn.assigns.api_version < "2019-07-01" do
       conn
     else
       conn
