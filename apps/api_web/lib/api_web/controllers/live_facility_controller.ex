@@ -38,10 +38,8 @@ defmodule ApiWeb.LiveFacilityController do
   end
 
   defp ensure_path_matches_version(conn, _) do
-    if (String.starts_with?(conn.request_path, "/live_facilities") and
-          conn.assigns.api_version >= "2019-07-01") or
-         (String.starts_with?(conn.request_path, "/live-facilities") and
-            conn.assigns.api_version < "2019-07-01") do
+    if String.starts_with?(conn.request_path, "/live_facilities") or
+         conn.assigns.api_version < "2019-07-01" do
       conn
     else
       conn

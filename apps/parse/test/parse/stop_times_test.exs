@@ -40,6 +40,27 @@ defmodule Parse.StopTimesTest do
            ]
   end
 
+  test "removes departure/arrival times for pickup/drop-off type 1" do
+    blob = """
+    "trip_id","arrival_time","departure_time","stop_id","stop_sequence","stop_headsign","pickup_type","drop_off_type","timepoint"
+    "29063613","14:36:00","14:36:01","2300","6","","1","1","1"\r
+    """
+
+    assert blob |> parse |> Enum.to_list() == [
+             %Schedule{
+               trip_id: "29063613",
+               stop_id: "2300",
+               arrival_time: nil,
+               departure_time: nil,
+               position: :last,
+               stop_sequence: 6,
+               pickup_type: 1,
+               drop_off_type: 1,
+               timepoint?: true
+             }
+           ]
+  end
+
   test "if given a fn which returns a trip, only returns schedules which match and includes the route_id",
        %{blob: blob} do
     all_schedules = blob |> parse |> Enum.sort()

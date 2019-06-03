@@ -53,6 +53,26 @@ defmodule ApiWeb.ScheduleViewTest do
     assert rendered["data"]["attributes"] == %{}
   end
 
+  test "Populates arrival time from departure time for older API versions", %{conn: conn} do
+    test_schedule = %Schedule{@schedule | arrival_time: nil, drop_off_type: 1}
+    conn = assign(conn, :api_version, "2019-04-05")
+    conn = assign(conn, :date, ~D[2016-06-07])
+
+    rendered = render(ApiWeb.ScheduleView, "index.json-api", data: test_schedule, conn: conn)
+
+    assert rendered["data"]["attributes"]["arrival_time"] == "2016-06-08T01:00:00-04:00"
+  end
+
+  test "Populates departure time from arrival time for older API versions", %{conn: conn} do
+    test_schedule = %Schedule{@schedule | departure_time: nil, pickup_type: 1}
+    conn = assign(conn, :api_version, "2019-04-05")
+    conn = assign(conn, :date, ~D[2016-06-07])
+
+    rendered = render(ApiWeb.ScheduleView, "index.json-api", data: test_schedule, conn: conn)
+
+    assert rendered["data"]["attributes"]["departure_time"] == "2016-06-07T00:01:40-04:00"
+  end
+
   describe "has_one prediction" do
     test "returns a related prediction", %{conn: conn} do
       today = Timex.to_datetime(~D[2016-06-07], "America/New_York")
@@ -145,16 +165,6 @@ defmodule ApiWeb.ScheduleViewTest do
         |> get_in(["data", "relationships", "prediction", "data"])
 
       refute prediction
-    end
-
-    test "hides arrival / departure times for new API version", %{conn: conn} do
-      test_schedule = %Schedule{@schedule | pickup_type: 1, drop_off_type: 1}
-      conn = assign(conn, :api_version, "2019-07-01")
-
-      rendered = render(ApiWeb.ScheduleView, "index.json-api", data: test_schedule, conn: conn)
-
-      assert rendered["data"]["attributes"]["arrival_time"] == nil
-      assert rendered["data"]["attributes"]["departure_time"] == nil
     end
   end
 end
