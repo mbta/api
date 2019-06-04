@@ -62,7 +62,7 @@ defmodule ApiWeb.ScheduleView do
   end
 
   def arrival_time(
-        %{drop_off_type: 1, departure_time: seconds_past_midnight},
+        %{arrival_time: nil, departure_time: seconds_past_midnight},
         %{assigns: %{api_version: ver}} = conn
       )
       when ver < "2019-07-01",
@@ -73,7 +73,7 @@ defmodule ApiWeb.ScheduleView do
   end
 
   def departure_time(
-        %{pickup_type: 1, arrival_time: seconds_past_midnight},
+        %{departure_time: nil, arrival_time: seconds_past_midnight},
         %{assigns: %{api_version: ver}} = conn
       )
       when ver < "2019-07-01",

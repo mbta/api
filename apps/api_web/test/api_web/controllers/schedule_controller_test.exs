@@ -300,31 +300,6 @@ defmodule ApiWeb.SchedulerControllerTest do
       assert index_data(conn, put_in(params["max_time"], "5:30")) == []
     end
 
-    test "doesn't excludes arrival and departure times for older API versions", %{conn: conn} do
-      schedule = %Model.Schedule{
-        route_id: "route",
-        trip_id: "trip",
-        stop_id: "stop",
-        direction_id: 1,
-        # 12:30pm
-        arrival_time: 45_000,
-        departure_time: 45_100,
-        drop_off_type: 1,
-        pickup_type: 1,
-        timepoint?: false,
-        service_id: "service",
-        stop_sequence: 2,
-        position: :first
-      }
-
-      State.Schedule.new_state([schedule])
-
-      params = %{"trip" => "trip"}
-
-      conn = assign(conn, :api_version, "2019-02-12")
-      assert index_data(conn, params) == [schedule]
-    end
-
     test "paginates and sorts", %{conn: conn} do
       arrival_time = fn i ->
         {:ok, arrival_time, _} = DateTime.from_iso8601("2016-11-17 15:0#{i}:00-05:00")
