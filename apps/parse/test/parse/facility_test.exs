@@ -19,7 +19,7 @@ defmodule Parse.FacilityTest do
                  id: "pick-qnctr-busway",
                  stop_id: "place-qnctr",
                  type: "PICK_DROP",
-                 name: "Quincy Center Hancock Street Pick-up/Drop-off",
+                 long_name: "Quincy Center Hancock Street Pick-up/Drop-off",
                  short_name: "Hancock Street",
                  latitude: 42.251716,
                  longitude: -71.004715

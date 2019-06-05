@@ -8,6 +8,8 @@ defmodule ApiWeb.RoutePatternController do
   use ApiWeb.Web, :api_controller
   alias State.RoutePattern
 
+  plug(:ensure_path_matches_version)
+
   @filters ~w(id route direction_id)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
@@ -51,6 +53,19 @@ defmodule ApiWeb.RoutePatternController do
     response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
+  end
+
+  defp ensure_path_matches_version(conn, _) do
+    if String.starts_with?(conn.request_path, "/route_patterns") or
+         conn.assigns.api_version < "2019-07-01" do
+      conn
+    else
+      conn
+      |> put_status(:not_found)
+      |> put_view(ApiWeb.ErrorView)
+      |> render("404.json-api", [])
+      |> halt()
+    end
   end
 
   def index_data(conn, params) do

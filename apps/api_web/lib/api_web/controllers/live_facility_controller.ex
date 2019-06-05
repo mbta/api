@@ -2,6 +2,8 @@ defmodule ApiWeb.LiveFacilityController do
   use ApiWeb.Web, :api_controller
   import ApiWeb.Params
 
+  plug(:ensure_path_matches_version)
+
   @filters ~w(id)
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(facility)
@@ -33,6 +35,19 @@ defmodule ApiWeb.LiveFacilityController do
     response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
+  end
+
+  defp ensure_path_matches_version(conn, _) do
+    if String.starts_with?(conn.request_path, "/live_facilities") or
+         conn.assigns.api_version < "2019-07-01" do
+      conn
+    else
+      conn
+      |> put_status(:not_found)
+      |> put_view(ApiWeb.ErrorView)
+      |> render("404.json-api", [])
+      |> halt()
+    end
   end
 
   def index_data(conn, params) do

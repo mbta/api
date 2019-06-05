@@ -23,8 +23,8 @@ defmodule Parse.StopTimes do
     %Schedule{
       trip_id: copy(row["trip_id"]),
       stop_id: copy(row["stop_id"]),
-      arrival_time: convert_time(row["arrival_time"]),
-      departure_time: convert_time(row["departure_time"]),
+      arrival_time: convert_time(row["arrival_time"], row["drop_off_type"]),
+      departure_time: convert_time(row["departure_time"], row["pickup_type"]),
       stop_sequence: String.to_integer(row["stop_sequence"]),
       pickup_type: String.to_integer(row["pickup_type"]),
       drop_off_type: String.to_integer(row["drop_off_type"]),
@@ -32,7 +32,9 @@ defmodule Parse.StopTimes do
     }
   end
 
-  defp convert_time(str) do
+  defp convert_time(_, "1"), do: nil
+
+  defp convert_time(str, _) do
     str
     |> String.split(":")
     |> Enum.map(&String.to_integer/1)

@@ -25,8 +25,8 @@ defmodule ApiWeb.SchedulerControllerTest do
     # 12:30pm
     arrival_time: 45_000,
     departure_time: 45_100,
-    drop_off_type: 1,
-    pickup_type: 1,
+    drop_off_type: 0,
+    pickup_type: 0,
     timepoint?: false,
     service_id: "service",
     stop_sequence: 2,

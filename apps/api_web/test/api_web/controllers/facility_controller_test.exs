@@ -4,11 +4,11 @@ defmodule ApiWeb.FacilityControllerTest do
   import ApiWeb.FacilityController
   alias Model.Facility
 
-  setup tags do
+  setup %{conn: conn} do
     State.Facility.new_state([
       %Facility{
         id: "6",
-        name: "name",
+        long_name: "name",
         short_name: "short_name",
         type: "ELEVATOR",
         stop_id: "place-qnctr",
@@ -17,7 +17,7 @@ defmodule ApiWeb.FacilityControllerTest do
       },
       %Facility{
         id: "7",
-        name: "name",
+        long_name: "name",
         short_name: "short_name",
         type: "ESCALATOR",
         stop_id: "place-alfcl",
@@ -26,7 +26,7 @@ defmodule ApiWeb.FacilityControllerTest do
       },
       %Facility{
         id: "8",
-        name: "name",
+        long_name: "name",
         short_name: "short_name",
         type: "ESCALATOR",
         stop_id: "place-qnctr",
@@ -35,7 +35,8 @@ defmodule ApiWeb.FacilityControllerTest do
       }
     ])
 
-    {:ok, tags}
+    conn = assign(conn, :api_version, "2019-04-05")
+    {:ok, conn: conn}
   end
 
   describe "index" do

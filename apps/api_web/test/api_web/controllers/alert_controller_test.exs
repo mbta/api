@@ -57,7 +57,7 @@ defmodule ApiWeb.AlertControllerTest do
     Facility.new_state([
       %Model.Facility{
         id: "6",
-        name: "name",
+        long_name: "name",
         type: "ELEVATOR",
         stop_id: "place-qnctr"
       }
