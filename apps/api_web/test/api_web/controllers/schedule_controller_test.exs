@@ -334,6 +334,36 @@ defmodule ApiWeb.SchedulerControllerTest do
     end
   end
 
+  test "can handle nil times for schedules when sorting", %{conn: conn} do
+    time_fn = fn i ->
+      {:ok, t, _} = DateTime.from_iso8601("2016-11-17 15:0#{i}:00-05:00")
+      t
+    end
+
+    schedules =
+      for i <- 1..9 do
+        %Model.Schedule{
+          route_id: "route",
+          trip_id: "trip",
+          stop_id: "stop",
+          direction_id: 1,
+          pickup_type: div(i, 2),
+          drop_off_type: div(i, 2) + 1,
+          arrival_time: time_fn.(i),
+          service_id: "service",
+          stop_sequence: i
+        }
+      end
+
+    State.Schedule.new_state(schedules)
+
+    data = index_data(conn, %{"route" => "route", "sort" => "arrival_time"})
+    assert data == schedules
+
+    data = index_data(conn, %{"route" => "route", "sort" => "-departure_time"})
+    assert data == Enum.reverse(schedules)
+  end
+
   test "state_module/0" do
     assert State.Schedule == ApiWeb.ScheduleController.state_module()
   end
