@@ -44,4 +44,4 @@ config :state_mediator, GtfsTestModules, [
 
 # Record the original working directory so that when it changes during the
 # test run, we can still find the MBTA_GTFS_FILE.
-config :state_mediator, :cwd, System.cwd!()
+config :state_mediator, :cwd, File.cwd!()
