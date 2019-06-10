@@ -332,6 +332,90 @@ defmodule ApiWeb.SchedulerControllerTest do
       {data, _} = index_data(conn, Map.merge(opts, %{"sort" => "-arrival_time"}))
       assert data == [schedule7, schedule6]
     end
+
+    test "can handle nil times for schedules when sorting", %{conn: conn} do
+      time_fn = fn i ->
+        {:ok, t, _} = DateTime.from_iso8601("2016-11-17 15:0#{i}:00-05:00")
+        t
+      end
+
+      schedules =
+        for i <- 1..9 do
+          %Model.Schedule{
+            route_id: "route",
+            trip_id: "trip",
+            stop_id: "stop",
+            direction_id: 1,
+            pickup_type: 1,
+            drop_off_type: 0,
+            arrival_time: time_fn.(i),
+            departure_time: nil,
+            service_id: "service",
+            stop_sequence: i
+          }
+        end
+
+      State.Schedule.new_state(schedules)
+
+      conn = assign(conn, :api_version, "2019-04-05")
+
+      data = index_data(conn, %{"route" => "route", "sort" => "arrival_time"})
+
+      for i <- 0..8 do
+        assert Enum.at(data, i).departure_time == Enum.at(schedules, i).arrival_time
+      end
+
+      data =
+        conn |> index_data(%{"route" => "route", "sort" => "-departure_time"}) |> Enum.reverse()
+
+      for i <- 0..8 do
+        assert Enum.at(data, i).departure_time == Enum.at(schedules, i).arrival_time
+      end
+    end
+  end
+
+  describe "populate_extra_times" do
+    test "populates dates for older API versions", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-04-05")
+
+      schedules = [
+        %Model.Schedule{
+          route_id: "route",
+          trip_id: "trip",
+          stop_id: "stop",
+          direction_id: 1,
+          arrival_time: nil,
+          departure_time: 45_100,
+          drop_off_type: 1,
+          pickup_type: 0,
+          service_id: "service"
+        }
+      ]
+
+      s = populate_extra_times(schedules, conn)
+      assert Enum.at(s, 0).arrival_time == 45_100
+    end
+
+    test "doesn't populate dates for newer API versions", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-07-01")
+
+      schedules = [
+        %Model.Schedule{
+          route_id: "route",
+          trip_id: "trip",
+          stop_id: "stop",
+          direction_id: 1,
+          arrival_time: 45_100,
+          departure_time: nil,
+          drop_off_type: 0,
+          pickup_type: 1,
+          service_id: "service"
+        }
+      ]
+
+      s = populate_extra_times(schedules, conn)
+      assert Enum.at(s, 0).departure_time == nil
+    end
   end
 
   test "state_module/0" do
