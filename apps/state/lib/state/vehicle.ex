@@ -9,7 +9,8 @@ defmodule State.Vehicle do
   use State.Server,
     indicies: [:id, :trip_id, :effective_route_id, :label],
     parser: Parse.VehiclePositions,
-    recordable: Model.Vehicle
+    recordable: Model.Vehicle,
+    hibernate: false
 
   alias Model.Vehicle
   alias State.Trip

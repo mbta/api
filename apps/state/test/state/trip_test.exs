@@ -120,7 +120,7 @@ defmodule State.TripTest do
 
       callback_argument = nil
 
-      assert {:noreply, multi_route_trips_state} =
+      assert {:noreply, multi_route_trips_state, :hibernate} =
                handle_event(
                  {:fetch, "multi_route_trips.txt"},
                  """
@@ -133,7 +133,7 @@ defmodule State.TripTest do
 
       assert all() == []
 
-      assert {:noreply, trips_state} =
+      assert {:noreply, trips_state, :hibernate} =
                handle_event(
                  {:fetch, "trips.txt"},
                  """
@@ -159,7 +159,7 @@ defmodule State.TripTest do
       Service.new_state(service_state)
 
       # Event needs to be sent in case `Service.new_state` `{:new_state, Service}` event is not seen by this time
-      assert {:noreply, _} =
+      assert {:noreply, _, :hibernate} =
                handle_event(
                  {:new_state, Service},
                  service_state,
