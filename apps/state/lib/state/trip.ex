@@ -67,7 +67,7 @@ defmodule State.Trip do
     filters
     |> do_apply_filters()
     |> Stream.map(&replace_alternate_trips(&1))
-    |> Enum.uniq_by(& &1.id)
+    |> Stream.uniq_by(& &1.id)
     |> Enum.sort_by(& &1.id)
   end
 
@@ -80,7 +80,7 @@ defmodule State.Trip do
   @impl Events.Server
   def handle_event(event, value, _, state) do
     state = %{state | data: Gather.update(state.data, event, value)}
-    {:noreply, state}
+    {:noreply, state, :hibernate}
   end
 
   @impl GenServer

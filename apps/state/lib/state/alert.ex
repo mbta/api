@@ -7,7 +7,8 @@ defmodule State.Alert do
   use State.Server,
     indicies: [:id],
     parser: Parse.Alerts,
-    recordable: Model.Alert
+    recordable: Model.Alert,
+    hibernate: false
 
   @subscriptions [
     {:new_state, State.Route},
@@ -66,7 +67,7 @@ defmodule State.Alert do
   @impl Events.Server
   def handle_event(_, _, _, state) do
     handle_new_state(all())
-    {:noreply, state, :hibernate}
+    {:noreply, state}
   end
 
   def handle_new_state(items) do

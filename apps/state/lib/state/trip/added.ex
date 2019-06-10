@@ -7,7 +7,8 @@ defmodule State.Trip.Added do
   """
   use State.Server,
     indicies: [:id, :route_id],
-    recordable: Model.Trip
+    recordable: Model.Trip,
+    hibernate: false
 
   alias Model.{Prediction, Trip}
 

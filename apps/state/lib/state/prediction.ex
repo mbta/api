@@ -3,7 +3,8 @@ defmodule State.Prediction do
   use State.Server,
     indicies: [:stop_id, :trip_id, :route_id],
     parser: Parse.TripUpdates,
-    recordable: Model.Prediction
+    recordable: Model.Prediction,
+    hibernate: false
 
   @doc """
   Selects a distinct group of Prediction state sources, with filtering.

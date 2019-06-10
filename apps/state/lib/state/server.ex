@@ -40,6 +40,7 @@ defmodule State.Server do
 
   defmacro __using__(opts) do
     indicies = Keyword.fetch!(opts, :indicies)
+    hibernate? = Keyword.get(opts, :hibernate, true)
 
     recordable =
       case Keyword.fetch!(opts, :recordable) do
@@ -118,7 +119,7 @@ defmodule State.Server do
       Indicies in the `:mnesia` table where state is stored
       """
       @spec indicies :: [atom]
-      def indicies, do: unquote(opts[:indicies])
+      def indicies, do: unquote(indicies)
 
       @doc """
       The index for the primary key
@@ -165,12 +166,23 @@ defmodule State.Server do
       def handle_event({:fetch, unquote(opts[:fetched_filename])}, body, _, state) do
         case handle_call({:new_state, body}, nil, state) do
           {:reply, _, new_state} ->
-            {:noreply, new_state}
+            maybe_hibernate({:noreply, new_state})
 
           {:reply, _, new_state, extra} ->
-            {:noreply, new_state, extra}
+            maybe_hibernate({:noreply, new_state})
         end
       end
+
+      unquote do
+        if hibernate? do
+          quote do
+            def maybe_hibernate({:noreply, state}), do: {:noreply, state, :hibernate}
+            def maybe_hibernate({:reply, reply, state}), do: {:reply, reply, state, :hibernate}
+          end
+        end
+      end
+
+      def maybe_hibernate(reply), do: reply
 
       # All functions that aren't metadata or have computed names, such as from def_by_indicies, should be marked
       # overridable here
@@ -199,17 +211,17 @@ defmodule State.Server do
 
   def handle_call(module, {:new_state, enum}, _from, state) do
     module.handle_new_state(enum)
-    {:reply, :ok, state, :hibernate}
+    module.maybe_hibernate({:reply, :ok, state})
   end
 
-  def handle_call(_module, :last_updated, _from, state) do
-    {:reply, Map.get(state, :last_updated), state}
+  def handle_call(module, :last_updated, _from, state) do
+    module.maybe_hibernate({:reply, Map.get(state, :last_updated), state})
   end
 
   def handle_cast(module, :update_metadata, state) do
     state = %{state | last_updated: DateTime.utc_now()}
     State.Metadata.state_updated(module, state.last_updated)
-    {:noreply, state}
+    module.maybe_hibernate({:noreply, state})
   end
 
   def handle_new_state(module, func) when is_function(func, 0) do
