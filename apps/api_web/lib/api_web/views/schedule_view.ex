@@ -61,23 +61,9 @@ defmodule ApiWeb.ScheduleView do
     State.Prediction.prediction_for(schedule, date)
   end
 
-  def arrival_time(
-        %{arrival_time: nil, departure_time: seconds_past_midnight},
-        %{assigns: %{api_version: ver}} = conn
-      )
-      when ver < "2019-07-01",
-      do: format_time(seconds_past_midnight, conn)
-
   def arrival_time(%{arrival_time: seconds_past_midnight}, conn) do
     format_time(seconds_past_midnight, conn)
   end
-
-  def departure_time(
-        %{departure_time: nil, arrival_time: seconds_past_midnight},
-        %{assigns: %{api_version: ver}} = conn
-      )
-      when ver < "2019-07-01",
-      do: format_time(seconds_past_midnight, conn)
 
   def departure_time(%{departure_time: seconds_past_midnight}, conn) do
     format_time(seconds_past_midnight, conn)

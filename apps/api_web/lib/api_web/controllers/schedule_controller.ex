@@ -99,6 +99,7 @@ defmodule ApiWeb.ScheduleController do
           # greater than 1 because `date` is automatically included
           filters
           |> Schedule.filter_by()
+          |> populate_extra_dates(conn)
           |> State.all(Params.filter_opts(params, @pagination_opts))
 
         _ ->
@@ -108,6 +109,15 @@ defmodule ApiWeb.ScheduleController do
       {:error, _, _} = error -> error
     end
   end
+
+  def populate_extra_dates(map, %{assigns: %{api_version: ver}}) when ver < "2019-07-01" do
+    for s <- map do
+      s = if s.pickup_type == 1, do: %Model.Schedule{s | departure_time: s.arrival_time}, else: s
+      if s.drop_off_type == 1, do: %Model.Schedule{s | arrival_time: s.departure_time}, else: s
+    end
+  end
+
+  def populate_extra_dates(map, _), do: map
 
   # Formats the filters we care about into map with parsed values
   @spec format_filters(map, Plug.Conn.t()) :: map
