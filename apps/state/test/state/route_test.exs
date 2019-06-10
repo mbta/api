@@ -172,39 +172,16 @@ defmodule State.RouteTest do
     end
 
     test "correctly processed by handle_event" do
-      {:ok, init_state} = State.Route.init([])
+      {:ok, state} = State.Route.init([])
       event = {:fetch, "directions.txt"}
 
       assert {:noreply, state, :hibernate} =
-               State.Route.handle_event(event, @directions_blob, nil, init_state)
-
-      assert %{
-               data: %Events.Gather{
-                 callback: _,
-                 keys: [fetch: "directions.txt", fetch: "routes.txt"],
-                 received: %{
-                   {:fetch, "directions.txt"} => @directions_blob
-                 }
-               },
-               last_updated: nil
-             } = state
+               State.Route.handle_event(event, @directions_blob, nil, state)
 
       event = {:fetch, "routes.txt"}
 
-      assert {:noreply, state, :hibernate} =
+      assert {:noreply, _state, :hibernate} =
                State.Route.handle_event(event, @routes_blob, nil, state)
-
-      assert %{
-               data: %Events.Gather{
-                 callback: _,
-                 keys: [fetch: "directions.txt", fetch: "routes.txt"],
-                 received: %{
-                   {:fetch, "directions.txt"} => @directions_blob,
-                   {:fetch, "routes.txt"} => @routes_blob
-                 }
-               },
-               last_updated: nil
-             } = state
     end
 
     test "gathers fetch events for both files" do
