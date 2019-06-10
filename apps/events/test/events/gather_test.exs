@@ -1,14 +1,7 @@
 defmodule Events.GatherTest do
+  @moduledoc false
   use ExUnit.Case, async: true
   alias Events.Gather
-
-  def received_ok? do
-    receive do
-      :ok -> true
-    after
-      10 -> false
-    end
-  end
 
   test "gather calls callback when all keys are present" do
     keys = [1, 2]
@@ -21,7 +14,7 @@ defmodule Events.GatherTest do
 
     # does not re-call the callback
     Gather.update(state, 1, :one)
-    assert_receive :ok
+    refute_receive :ok
   end
 
   test "only remembers the last value sent" do
