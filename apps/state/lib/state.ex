@@ -182,20 +182,10 @@ defmodule State do
     Enum.sort_by(results, &mapper_fn(&1, key), &>=/2)
   end
 
-  defp mapper_fn(result, key, first_run \\ true) do
+  defp mapper_fn(result, key) do
     case Map.get(result, key) do
-      %DateTime{} = dt ->
-        {:date_time, DateTime.to_unix(dt)}
-
-      nil ->
-        cond do
-          first_run and key == :departure_time -> mapper_fn(result, :arrival_time, false)
-          first_run and key == :arrival_time -> mapper_fn(result, :departure_time, false)
-          true -> nil
-        end
-
-      other ->
-        other
+      %DateTime{} = dt -> {:date_time, DateTime.to_unix(dt)}
+      other -> other
     end
   end
 
