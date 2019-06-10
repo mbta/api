@@ -7,16 +7,24 @@ defmodule ApiWeb.EventStream do
   import Plug.Conn
   alias __MODULE__.Supervisor
 
-  @type state :: {Plug.Conn.t(), pid}
+  @enforce_keys [:conn, :pid, :timeout]
+  defstruct @enforce_keys ++ [:timer]
 
-  @spec call(Plug.Conn.t(), module, map) :: Plug.Conn.t()
+  @typep state :: %__MODULE__{
+           conn: Plug.Conn.t(),
+           pid: pid,
+           timeout: non_neg_integer,
+           timer: reference | nil
+         }
+
+  @spec call(Plug.Conn.t(), module, map) :: no_return
   def call(conn, module, _params) do
     state = initialize(conn, module)
-    event_stream_loop(&event_stream_loop/2, state)
+    hibernate_loop(state)
   end
 
   @spec initialize(Plug.Conn.t(), module) :: state
-  def initialize(conn, module) do
+  def initialize(conn, module, timeout \\ 30_000) do
     {:ok, pid} = Supervisor.server_child(conn, module)
 
     conn =
@@ -26,26 +34,22 @@ defmodule ApiWeb.EventStream do
       |> put_resp_header("x-accel-buffering", "no")
       |> send_chunked(200)
 
-    {conn, pid}
+    ensure_timer(%__MODULE__{conn: conn, pid: pid, timeout: timeout})
   end
 
-  @spec event_stream_loop(loop, state) :: Plug.Conn.t() when loop: (loop, state -> Plug.Conn.t())
-  def event_stream_loop(next_call, {conn, pid} = state) do
-    with {:ok, new_conn} <- receive_result(state) do
-      next_call.(next_call, {new_conn, pid})
+  @spec hibernate_loop(state) :: no_return | {:error, term}
+  def hibernate_loop(state) do
+    with {:ok, state} <- receive_result(state) do
+      :proc_lib.hibernate(__MODULE__, :hibernate_loop, [state])
     else
-      _ ->
-        Supervisor.server_unsubscribe(pid)
-        conn
+      error ->
+        Supervisor.server_unsubscribe(state.pid)
+        error
     end
   end
 
-  @spec receive_result(state) ::
-          chunk_result
-          | {:error, chunk_result}
-        when chunk_result: {:ok, Plug.Conn.t()} | {:error, term}
-
-  def receive_result({conn, _pid} = state, timeout \\ 30_000) do
+  @spec receive_result(state) :: {:ok, state} | {:error, term}
+  def receive_result(state) do
     receive do
       {:events, events} ->
         chunks =
@@ -53,16 +57,36 @@ defmodule ApiWeb.EventStream do
             ["event: ", type, "\ndata: ", item, "\n\n"]
           end
 
-        chunk(conn, chunks)
+        update_state(state, chunk(state.conn, chunks))
 
       {:error, rendered} when is_list(rendered) ->
-        {:error, chunk(conn, ["event: error\ndata: ", rendered, "\n\n"])}
+        {:error, chunk(state.conn, ["event: error\ndata: ", rendered, "\n\n"])}
+
+      :timeout ->
+        update_state(state, chunk(state.conn, ": keep-alive\n"))
 
       _ ->
-        receive_result(state, timeout)
-    after
-      timeout ->
-        chunk(conn, ": keep-alive\n")
+        {:ok, state}
     end
+  end
+
+  defp update_state(state, {:ok, conn}) do
+    state = ensure_timer(%{state | conn: conn})
+
+    {:ok, state}
+  end
+
+  defp update_state(_state, {:error, _} = error) do
+    error
+  end
+
+  defp ensure_timer(%{timer: nil, timeout: timeout} = state) do
+    ref = Process.send_after(self(), :timeout, timeout)
+    %{state | timer: ref}
+  end
+
+  defp ensure_timer(%{timer: timer} = state) do
+    :ok = Process.cancel_timer(timer, async: true)
+    ensure_timer(%{state | timer: nil})
   end
 end
