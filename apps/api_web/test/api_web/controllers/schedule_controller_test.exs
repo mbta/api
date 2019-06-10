@@ -374,7 +374,7 @@ defmodule ApiWeb.SchedulerControllerTest do
     end
   end
 
-  describe "populate_extra_dates" do
+  describe "populate_extra_times" do
     test "populates dates for older API versions", %{conn: conn} do
       conn = assign(conn, :api_version, "2019-04-05")
 
@@ -392,7 +392,7 @@ defmodule ApiWeb.SchedulerControllerTest do
         }
       ]
 
-      s = populate_extra_dates(schedules, conn)
+      s = populate_extra_times(schedules, conn)
       assert Enum.at(s, 0).arrival_time == 45_100
     end
 
@@ -413,7 +413,7 @@ defmodule ApiWeb.SchedulerControllerTest do
         }
       ]
 
-      s = populate_extra_dates(schedules, conn)
+      s = populate_extra_times(schedules, conn)
       assert Enum.at(s, 0).departure_time == nil
     end
   end
