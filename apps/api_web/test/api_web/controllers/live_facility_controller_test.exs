@@ -19,24 +19,65 @@ defmodule ApiWeb.LiveFacilityControllerTest do
     }
   ]
 
-  setup do
+  setup %{conn: conn} do
     State.Facility.Parking.new_state(@properties)
-
-    :ok
+    conn = assign(conn, :api_version, "2019-04-05")
+    {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   describe "index_data/2" do
     test "without a filter, returns an error", %{conn: conn} do
-      assert index_data(conn, %{}) == {:error, :filter_required}
+      response = get(conn, live_facility_path(conn, :index))
+
+      assert response = json_response(response, 400)
+
+      assert response["errors"] == [
+               %{
+                 "code" => "bad_request",
+                 "detail" => "At least one filter[] is required.",
+                 "status" => "400"
+               }
+             ]
     end
 
     test "with an ID filter, returns the properties for that facility", %{conn: conn} do
-      assert [actual] = index_data(conn, %{"filter" => %{"id" => "not_valid,#{@facility_id}"}})
-      assert_valid_live_facility(actual)
+      response =
+        get(
+          conn,
+          live_facility_path(conn, :index, %{"filter" => %{"id" => "not_valid,#{@facility_id}"}})
+        )
+
+      assert json_response(response, 200)["data"] == [
+               %{
+                 "attributes" => %{
+                   "properties" => [
+                     %{"name" => "one", "value" => 1},
+                     %{"name" => "two", "value" => "2"}
+                   ],
+                   "updated_at" => "2001-09-09T01:46:40Z"
+                 },
+                 "id" => "live_facility_controller",
+                 "links" => %{
+                   "self" => "/live_facilities/live_facility_controller"
+                 },
+                 "relationships" => %{
+                   "facility" => %{
+                     "data" => %{
+                       "id" => "live_facility_controller",
+                       "type" => "facility"
+                     }
+                   }
+                 },
+                 "type" => "live-facility"
+               }
+             ]
     end
 
     test "with an ID filter, does not return properties for other facilities", %{conn: conn} do
-      assert index_data(conn, %{"filter" => %{"id" => "not_valid"}}) == []
+      response =
+        get(conn, live_facility_path(conn, :index, %{"filter" => %{"id" => "not_valid"}}))
+
+      assert json_response(response, 200)["data"] == []
     end
 
     test "can sort by updated time", %{conn: conn} do
@@ -55,11 +96,30 @@ defmodule ApiWeb.LiveFacilityControllerTest do
 
       base_filter = %{"filter" => %{"id" => "#{@facility_id},#{other_facility}"}}
 
-      assert [%{facility_id: @facility_id}, %{facility_id: ^other_facility}] =
-               index_data(conn, Map.put(base_filter, "sort", "updated_at"))
+      response =
+        get(
+          conn,
+          live_facility_path(conn, :index, Map.put(base_filter, "sort", "updated_at"))
+        )
 
-      assert [%{facility_id: ^other_facility}, %{facility_id: @facility_id}] =
-               index_data(conn, Map.put(base_filter, "sort", "-updated_at"))
+      assert [%{"id" => @facility_id}, %{"id" => ^other_facility}] =
+               json_response(response, 200)["data"]
+
+      response =
+        get(
+          conn,
+          live_facility_path(conn, :index, Map.put(base_filter, "sort", "-updated_at"))
+        )
+
+      assert [%{"id" => ^other_facility}, %{"id" => @facility_id}] =
+               json_response(response, 200)["data"]
+    end
+
+    test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
+      conn = assign(conn, :api_version, "2019-07-01")
+      response = get(conn, live_facility_path(conn, :index))
+      assert json_response(response, 404)
+      assert validate_resp_schema(response, schema, "NotFound")
     end
   end
 
@@ -85,12 +145,41 @@ defmodule ApiWeb.LiveFacilityControllerTest do
 
   describe "show_data/2" do
     test "returns the properties for a given facility", %{conn: conn} do
-      actual = show_data(conn, %{"id" => @facility_id})
-      assert_valid_live_facility(actual)
+      response = get(conn, live_facility_path(conn, :show, @facility_id))
+
+      assert json_response(response, 200)["data"] == %{
+               "attributes" => %{
+                 "properties" => [
+                   %{"name" => "one", "value" => 1},
+                   %{"name" => "two", "value" => "2"}
+                 ],
+                 "updated_at" => "2001-09-09T01:46:40Z"
+               },
+               "id" => "live_facility_controller",
+               "links" => %{
+                 "self" => "/live_facilities/live_facility_controller"
+               },
+               "relationships" => %{
+                 "facility" => %{
+                   "data" => %{
+                     "id" => "live_facility_controller",
+                     "type" => "facility"
+                   }
+                 }
+               },
+               "type" => "live-facility"
+             }
     end
 
     test "returns nil if the facility doesn't have any properties", %{conn: conn} do
       assert show_data(conn, %{"id" => "live_facility_controller_does_not_exist"}) == nil
+    end
+
+    test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
+      conn = assign(conn, :api_version, "2019-07-01")
+      response = get(conn, live_facility_path(conn, :show, @facility_id))
+      assert json_response(response, 404)
+      assert validate_resp_schema(response, schema, "NotFound")
     end
   end
 
@@ -100,17 +189,6 @@ defmodule ApiWeb.LiveFacilityControllerTest do
         get(conn, live_facility_path(conn, :show, @facility_id, %{"filter[id]" => @facility_id}))
 
       assert json_response(response, 400)
-    end
-  end
-
-  defp assert_valid_live_facility(actual) do
-    assert %{
-             facility_id: @facility_id,
-             properties: [_, _]
-           } = actual
-
-    for property <- @properties do
-      assert property in actual.properties
     end
   end
 end

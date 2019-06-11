@@ -7,7 +7,7 @@ defmodule ApiWeb.FacilityViewTest do
   @facility %Facility{
     id: "id",
     stop_id: "place-sstat",
-    name: "name",
+    long_name: "name",
     short_name: "short_name",
     type: "ESCALATOR",
     latitude: 42.260381,
@@ -25,7 +25,7 @@ defmodule ApiWeb.FacilityViewTest do
     assert rendered["id"] == "id"
 
     assert rendered["attributes"] == %{
-             "name" => @facility.name,
+             "long_name" => @facility.long_name,
              "short_name" => @facility.short_name,
              "type" => @facility.type,
              "properties" => [],
@@ -56,5 +56,22 @@ defmodule ApiWeb.FacilityViewTest do
                %{"name" => "prop", "value" => 5}
              ]
     end
+  end
+
+  test "populates name in addition to long_name for older API versions", %{conn: conn} do
+    conn = assign(conn, :api_version, "2019-04-05")
+    rendered = render("index.json-api", data: @facility, conn: conn)["data"]
+    assert rendered["type"] == "facility"
+    assert rendered["id"] == "id"
+
+    assert rendered["attributes"] == %{
+             "name" => @facility.long_name,
+             "long_name" => @facility.long_name,
+             "short_name" => @facility.short_name,
+             "type" => @facility.type,
+             "properties" => [],
+             "latitude" => @facility.latitude,
+             "longitude" => @facility.longitude
+           }
   end
 end

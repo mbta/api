@@ -70,6 +70,7 @@ defmodule ApiWeb.Router do
     resources("/stops", StopController, only: [:index, :show])
     resources("/routes", RouteController, only: [:index, :show])
     resources("/route-patterns", RoutePatternController, only: [:index, :show])
+    resources("/route_patterns", RoutePatternController, only: [:index, :show])
     resources("/lines", LineController, only: [:index, :show])
     resources("/shapes", ShapeController, only: [:index, :show])
     get("/predictions", PredictionController, :index)
@@ -79,6 +80,7 @@ defmodule ApiWeb.Router do
     resources("/alerts", AlertController, only: [:index, :show])
     resources("/facilities", FacilityController, only: [:index, :show])
     resources("/live-facilities", LiveFacilityController, only: [:index, :show])
+    resources("/live_facilities", LiveFacilityController, only: [:index, :show])
     resources("/services", ServiceController, only: [:index, :show])
   end
 

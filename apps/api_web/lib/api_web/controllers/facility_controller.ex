@@ -141,7 +141,7 @@ defmodule ApiWeb.FacilityController do
               example: "ELEVATOR"
             )
 
-            name(
+            long_name(
               :string,
               "Name of the facility",
               example: "SHAWMUT - Ashmont Bound Platform to Lobby"
