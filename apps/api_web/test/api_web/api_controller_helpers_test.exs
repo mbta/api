@@ -1,5 +1,5 @@
 defmodule ApiWeb.ApiControllerHelpersTest do
-  use ExUnit.Case, async: true
+  use ApiWeb.ConnCase
 
   @base_url ApiWeb.Endpoint.url()
 
@@ -81,7 +81,7 @@ defmodule ApiWeb.ApiControllerHelpersTest do
     test "keeps valid fields" do
       params = %{"shape" => "priority,relationship,name"}
 
-      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) == %{
+      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) == %{
                "shape" => [:priority, :name]
              }
     end
@@ -94,23 +94,32 @@ defmodule ApiWeb.ApiControllerHelpersTest do
         "route" => "description,long_name,type"
       }
 
-      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) ==
+      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) ==
                %{"shape" => [:polyline, :name], "route" => [:description, :long_name, :type]}
     end
 
     test "invalid attributes are dropped" do
       params = %{"shape" => "relationship"}
-      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) == %{"shape" => []}
+
+      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) == %{
+               "shape" => []
+             }
     end
 
     test "empty attributes are mapped to the empty list" do
       params = %{"stop" => ""}
-      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) == %{"stop" => []}
+
+      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) == %{
+               "stop" => []
+             }
     end
 
     test "omitted attributes are mapped to the empty list" do
       params = %{"stop" => nil}
-      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(params) == %{"stop" => []}
+
+      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) == %{
+               "stop" => []
+             }
     end
   end
 
@@ -123,7 +132,7 @@ defmodule ApiWeb.ApiControllerHelpersTest do
         }
       }
 
-      result = ApiWeb.ApiControllerHelpers.opts_for_params(params)
+      result = ApiWeb.ApiControllerHelpers.opts_for_params(%Plug.Conn{}, params)
       assert result[:fields] == %{"shape" => [:priority, :name]}
     end
   end
@@ -135,6 +144,23 @@ defmodule ApiWeb.ApiControllerHelpersTest do
         |> ApiWeb.ApiControllerHelpers.split_include([])
 
       assert conn.assigns[:split_include] == []
+    end
+  end
+
+  describe "older_param/3" do
+    test "returns true for facilities' name for older API version", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-02-12")
+      assert ApiWeb.ApiControllerHelpers.older_param(conn, "facility", "name")
+    end
+
+    test "returns false for facilities' name for newer API version", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-07-01")
+      refute ApiWeb.ApiControllerHelpers.older_param(conn, "facility", "name")
+    end
+
+    test "returns false for everything else", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-02-12")
+      refute ApiWeb.ApiControllerHelpers.older_param(conn, "trip", "name")
     end
   end
 end
