@@ -38,7 +38,11 @@ defmodule ApiWeb.ApiViewHelpers do
         Enum.reduce(include_opts, data, &ApiWeb.ApiViewHelpers.preload_for_key/2)
       end
 
-      defoverridable preload: 3
+      def attribute_set(_conn) do
+        MapSet.new(__MODULE__.__attributes(), &Atom.to_string/1)
+      end
+
+      defoverridable preload: 3, attribute_set: 1
     end
   end
 

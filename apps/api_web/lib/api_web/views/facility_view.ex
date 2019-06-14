@@ -73,4 +73,10 @@ defmodule ApiWeb.FacilityView do
       }
     end
   end
+
+  def attribute_set(%{assigns: %{api_version: ver}} = conn) when ver < "2019-07-01" do
+    conn |> super() |> MapSet.put("name")
+  end
+
+  def attribute_set(conn), do: super(conn)
 end

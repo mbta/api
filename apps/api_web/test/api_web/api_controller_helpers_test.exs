@@ -146,21 +146,4 @@ defmodule ApiWeb.ApiControllerHelpersTest do
       assert conn.assigns[:split_include] == []
     end
   end
-
-  describe "older_param/3" do
-    test "returns true for facilities' name for older API version", %{conn: conn} do
-      conn = assign(conn, :api_version, "2019-02-12")
-      assert ApiWeb.ApiControllerHelpers.older_param(conn, "facility", "name")
-    end
-
-    test "returns false for facilities' name for newer API version", %{conn: conn} do
-      conn = assign(conn, :api_version, "2019-07-01")
-      refute ApiWeb.ApiControllerHelpers.older_param(conn, "facility", "name")
-    end
-
-    test "returns false for everything else", %{conn: conn} do
-      conn = assign(conn, :api_version, "2019-02-12")
-      refute ApiWeb.ApiControllerHelpers.older_param(conn, "trip", "name")
-    end
-  end
 end

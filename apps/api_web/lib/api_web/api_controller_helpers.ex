@@ -158,21 +158,14 @@ defmodule ApiWeb.ApiControllerHelpers do
   defp do_filter_valid_field_attributes(conn, {type, fields}) do
     view_module = view_module_for_type(type)
 
-    case view_module.__attributes() do
-      [_ | _] = attributes ->
-        attribute_set = MapSet.new(attributes, &Atom.to_string/1)
-
+    case view_module.attribute_set(conn) do
+      attribute_set when map_size(attribute_set) > 0 ->
         fields
         |> String.split(",")
-        |> Enum.filter(&(MapSet.member?(attribute_set, &1) || older_param(conn, type, &1)))
+        |> Enum.filter(&MapSet.member?(attribute_set, &1))
         |> Enum.map(&String.to_existing_atom/1)
     end
   end
-
-  def older_param(%{assigns: %{api_version: ver}}, "facility", "name") when ver < "2019-07-01",
-    do: true
-
-  def older_param(_, _, _), do: false
 
   defp view_module_for_type(type) do
     view_name = String.capitalize(type) <> "View"
