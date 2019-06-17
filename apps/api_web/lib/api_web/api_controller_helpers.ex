@@ -158,13 +158,12 @@ defmodule ApiWeb.ApiControllerHelpers do
   defp do_filter_valid_field_attributes(conn, {type, fields}) do
     view_module = view_module_for_type(type)
 
-    case view_module.attribute_set(conn) do
-      attribute_set when map_size(attribute_set) > 0 ->
-        fields
-        |> String.split(",")
-        |> Enum.filter(&MapSet.member?(attribute_set, &1))
-        |> Enum.map(&String.to_existing_atom/1)
-    end
+    attr_filter = fn attr -> conn |> view_module.attribute_set |> MapSet.member?(attr) end
+
+    fields
+    |> String.split(",")
+    |> Enum.filter(attr_filter)
+    |> Enum.map(&String.to_existing_atom/1)
   end
 
   defp view_module_for_type(type) do
