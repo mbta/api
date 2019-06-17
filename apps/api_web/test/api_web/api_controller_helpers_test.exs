@@ -123,7 +123,7 @@ defmodule ApiWeb.ApiControllerHelpersTest do
     end
   end
 
-  describe "opts_for_params/1" do
+  describe "opts_for_params/2" do
     test "includes valid types/attributes for field key" do
       params = %{
         "fields" => %{
