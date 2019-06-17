@@ -52,7 +52,7 @@ defmodule ApiWeb.EventStream.DiffServer do
     state = %State{
       conn: conn,
       view_module: Phoenix.Controller.view_module(conn),
-      opts: ApiWeb.ApiControllerHelpers.opts_for_params(conn.params),
+      opts: ApiWeb.ApiControllerHelpers.opts_for_params(conn, conn.params),
       module: module
     }
 

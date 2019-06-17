@@ -74,4 +74,18 @@ defmodule ApiWeb.FacilityViewTest do
              "longitude" => @facility.longitude
            }
   end
+
+  describe "attribute_set/1" do
+    test "Adds 'name' to the list of fields for older API version", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-02-12")
+      result = attribute_set(conn)
+      assert MapSet.member?(result, "name")
+    end
+
+    test "Doesn't add 'name' to the list of fields for newer API version", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-07-01")
+      result = attribute_set(conn)
+      refute MapSet.member?(result, "name")
+    end
+  end
 end

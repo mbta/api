@@ -61,8 +61,8 @@ defmodule ApiWeb.ApiControllerHelpers do
     pagination_links = pagination_links(conn, offsets)
 
     opts =
-      params
-      |> ApiControllerHelpers.opts_for_params()
+      conn
+      |> ApiControllerHelpers.opts_for_params(params)
       |> Keyword.put(:page, pagination_links)
 
     render(conn, "index.json-api", data: data, opts: opts)
@@ -80,7 +80,7 @@ defmodule ApiWeb.ApiControllerHelpers do
       conn,
       "index.json-api",
       data: data,
-      opts: ApiControllerHelpers.opts_for_params(params)
+      opts: ApiControllerHelpers.opts_for_params(conn, params)
     )
   end
 
@@ -99,7 +99,10 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def render_show(conn, params, data) do
-    render(conn, "show.json-api", data: data, opts: ApiControllerHelpers.opts_for_params(params))
+    render(conn, "show.json-api",
+      data: data,
+      opts: ApiControllerHelpers.opts_for_params(conn, params)
+    )
   end
 
   def show(module, conn, params) do
@@ -113,8 +116,8 @@ defmodule ApiWeb.ApiControllerHelpers do
     ApiControllerHelpers.render_show(conn, params, data)
   end
 
-  def opts_for_params(params) when is_map(params) do
-    fields = filter_valid_field_params(Map.get(params, "fields"))
+  def opts_for_params(conn, params) when is_map(params) do
+    fields = filter_valid_field_params(conn, Map.get(params, "fields"))
 
     [
       include: Map.get(params, "include"),
@@ -128,12 +131,12 @@ defmodule ApiWeb.ApiControllerHelpers do
   Invalid attributes, invalid types, and types without any valid attributes are
   removed.
   """
-  @spec filter_valid_field_params(map | nil) :: map
-  def filter_valid_field_params(nil), do: nil
+  @spec filter_valid_field_params(Plug.Conn.t(), map | nil) :: map
+  def filter_valid_field_params(_conn, nil), do: nil
 
-  def filter_valid_field_params(fields) do
+  def filter_valid_field_params(conn, fields) do
     for {type, _} = field <- fields, valid_type?(type), into: %{} do
-      attributes = do_filter_valid_field_attributes(field)
+      attributes = do_filter_valid_field_attributes(conn, field)
       {type, attributes}
     end
   end
@@ -147,23 +150,20 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   # Filter requested fields for valid field attributes supported in the view
-  defp do_filter_valid_field_attributes({type, nil}),
-    do: do_filter_valid_field_attributes({type, ""})
+  defp do_filter_valid_field_attributes(conn, {type, nil}),
+    do: do_filter_valid_field_attributes(conn, {type, ""})
 
-  defp do_filter_valid_field_attributes({_type, ""}), do: []
+  defp do_filter_valid_field_attributes(_conn, {_type, ""}), do: []
 
-  defp do_filter_valid_field_attributes({type, fields}) do
+  defp do_filter_valid_field_attributes(conn, {type, fields}) do
     view_module = view_module_for_type(type)
 
-    case view_module.__attributes() do
-      [_ | _] = attributes ->
-        attribute_set = MapSet.new(attributes, &Atom.to_string/1)
+    attr_filter = fn attr -> conn |> view_module.attribute_set |> MapSet.member?(attr) end
 
-        fields
-        |> String.split(",")
-        |> Enum.filter(&MapSet.member?(attribute_set, &1))
-        |> Enum.map(&String.to_existing_atom/1)
-    end
+    fields
+    |> String.split(",")
+    |> Enum.filter(attr_filter)
+    |> Enum.map(&String.to_existing_atom/1)
   end
 
   defp view_module_for_type(type) do
