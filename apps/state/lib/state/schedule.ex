@@ -2,7 +2,7 @@ defmodule State.Schedule do
   @moduledoc "State for Schedules"
 
   use State.Server,
-    indicies: [:trip_id, :stop_id],
+    indicies: [:trip_id, :stop_id, :stop_n_trip],
     recordable: Model.Schedule
 
   require Logger
@@ -176,11 +176,10 @@ defmodule State.Schedule do
           trip_id <- trips,
           stop_sequence_matcher <- stop_sequence_matchers do
         stop_sequence_matcher
-        |> Map.put(:trip_id, trip_id)
-        |> Map.put(:stop_id, stop_id)
+        |> Map.put(:stop_n_trip, {stop_id, trip_id})
       end
 
-    %{index: :trip_id, matchers: matchers}
+    %{index: :stop_n_trip, matchers: matchers}
   end
 
   defp build_filter_matchers(%{stops: stops} = filters) do

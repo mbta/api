@@ -28,7 +28,8 @@ defmodule Parse.StopTimes do
       stop_sequence: String.to_integer(row["stop_sequence"]),
       pickup_type: String.to_integer(row["pickup_type"]),
       drop_off_type: String.to_integer(row["drop_off_type"]),
-      timepoint?: row["timepoint"] != "0"
+      timepoint?: row["timepoint"] != "0",
+      stop_n_trip: {copy(row["stop_id"]), copy(row["trip_id"])}
     }
   end
 
