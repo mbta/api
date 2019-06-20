@@ -22,8 +22,7 @@ defmodule Model.Schedule do
     :route_id,
     :direction_id,
     :service_id,
-    :timepoint?,
-    :stop_n_trip
+    :timepoint?
   ]
 
   @typedoc """
@@ -91,8 +90,7 @@ defmodule Model.Schedule do
           stop_id: Model.Stop.id(),
           stop_sequence: non_neg_integer,
           timepoint?: timepoint,
-          trip_id: Model.Trip.id(),
-          stop_n_trip: {Model.Stop.id(), Model.Trip.id()}
+          trip_id: Model.Trip.id()
         }
 
   @doc """
