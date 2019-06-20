@@ -3,6 +3,7 @@ defmodule ApiWeb.RateLimiter.Memcache do
   RateLimiter backend which uses Memcache as a backend.
   """
   @behaviour ApiWeb.RateLimiter.Limiter
+  alias ApiWeb.RateLimiter.Memcache.Supervisor
 
   @impl ApiWeb.RateLimiter.Limiter
   def start_link(opts) do
@@ -12,12 +13,12 @@ defmodule ApiWeb.RateLimiter.Memcache do
     connection_opts =
       [ttl: clear_interval * 2] ++ ApiWeb.config(RateLimiter.Memcache, :connection_opts)
 
-    Memcache.start_link(connection_opts, name: __MODULE__)
+    Supervisor.start_link(connection_opts)
   end
 
   @impl ApiWeb.RateLimiter.Limiter
   def rate_limited?(key, max_requests) do
-    case Memcache.decr(__MODULE__, key, default: max_requests) do
+    case Supervisor.decr(key, default: max_requests) do
       {:ok, 0} ->
         :rate_limited
 
