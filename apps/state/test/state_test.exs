@@ -31,11 +31,6 @@ defmodule StateTest do
       assert State.order_by(shuffled_items, order_by: {:id, :asc}) == @items
     end
 
-    test "doesn't change the order when the :distance option is set" do
-      shuffled_items = Enum.shuffle(@items)
-      assert State.order_by(shuffled_items, order_by: {:distance, :asc}) == shuffled_items
-    end
-
     test "sorts by an descending key" do
       shuffled_items = Enum.shuffle(@items)
       assert State.order_by(shuffled_items, order_by: {:id, :desc}) == Enum.reverse(@items)
