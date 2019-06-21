@@ -160,7 +160,7 @@ defmodule State do
   end
 
   defp valid_order_by_key?(:distance, _) do
-    true
+    false
   end
 
   defp valid_order_by_key?(key, result) do

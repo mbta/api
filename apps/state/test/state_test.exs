@@ -31,11 +31,6 @@ defmodule StateTest do
       assert State.order_by(shuffled_items, order_by: {:id, :asc}) == @items
     end
 
-    test "doesn't change the order when the :distance option is set" do
-      shuffled_items = Enum.shuffle(@items)
-      assert State.order_by(shuffled_items, order_by: {:distance, :asc}) == shuffled_items
-    end
-
     test "sorts by an descending key" do
       shuffled_items = Enum.shuffle(@items)
       assert State.order_by(shuffled_items, order_by: {:id, :desc}) == Enum.reverse(@items)
@@ -68,6 +63,30 @@ defmodule StateTest do
                longitude: "0.0",
                order_by: [distance: :desc]
              ) == [three, one, two]
+    end
+
+    test "sorting by distance returns error when missing lat/lng" do
+      items = [
+        %{latitude: 1.0, longitude: 2.0},
+        %{latitude: 1.0, longitude: 1.0}
+      ]
+
+      assert State.order_by(
+               items,
+               latitude: "0.0",
+               order_by: [distance: :asc]
+             ) == {:error, :invalid_order_by}
+
+      assert State.order_by(
+               items,
+               longitude: "0.0",
+               order_by: [distance: :asc]
+             ) == {:error, :invalid_order_by}
+
+      assert State.order_by(
+               items,
+               order_by: [distance: :asc]
+             ) == {:error, :invalid_order_by}
     end
 
     test "can sort by multiple keys" do
