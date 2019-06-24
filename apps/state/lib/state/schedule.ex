@@ -141,29 +141,8 @@ defmodule State.Schedule do
     {:ok, overridden_state, timeout_or_hibernate}
   end
 
-  @spec convert_filters(filter_opts) :: convert_filters
-  defp convert_filters(%{routes: _, stops: _} = filters) do
-    route_ids =
-      filters
-      |> Map.take([:routes])
-      |> Map.fetch!(:routes)
-      |> Stream.uniq()
-      |> MapSet.new()
-
-    stop_ids =
-      filters
-      |> Map.take([:stops])
-      |> Map.fetch!(:stops)
-      |> Stream.uniq()
-      |> Enum.filter(&stop_on_routes?(&1, route_ids))
-
-    filters
-    |> Map.delete(:routes)
-    |> Map.put(:stops, stop_ids)
-    |> convert_filters()
-  end
-
   # Converts routes and stops into workable ids
+  @spec convert_filters(filter_opts) :: convert_filters
   defp convert_filters(%{routes: _} = filters) do
     # Routes have priority for filtering on trip ids
     # Modify :trips in the filters with the trip ids based on the route ids
@@ -186,15 +165,6 @@ defmodule State.Schedule do
   end
 
   defp convert_filters(filters), do: filters
-
-  @spec stop_on_routes?(Model.Stop.id(), MapSet.t()) :: boolean
-  defp stop_on_routes?(stop_id, route_ids) do
-    stop_id
-    |> State.RoutesAtStop.by_stop()
-    |> MapSet.new()
-    |> MapSet.intersection(route_ids)
-    |> Enum.any?()
-  end
 
   # Build search criteria
   @spec build_filter_matchers(convert_filters) :: search | %{}
