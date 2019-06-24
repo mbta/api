@@ -142,14 +142,18 @@ defmodule State.Schedule do
   end
 
   @spec convert_filters(filter_opts) :: convert_filters
-  defp convert_filters(%{routes: routes, stops: stops} = filters) do
+  defp convert_filters(%{routes: _, stops: _} = filters) do
     route_ids =
-      routes
+      filters
+      |> Map.take([:routes])
+      |> Map.fetch!(:routes)
       |> Stream.uniq()
       |> MapSet.new()
 
     stop_ids =
-      stops
+      filters
+      |> Map.take([:stops])
+      |> Map.fetch!(:stops)
       |> Stream.uniq()
       |> Enum.filter(&stop_on_routes?(&1, route_ids))
 
