@@ -212,14 +212,12 @@ defmodule State do
     time
   end
 
-  defp time(_), do: nil
-
   def sort_by_time(results, :asc) do
-    Enum.sort_by(results, &time(&1), &<=/2)
+    Enum.sort_by(results, &time/1, &<=/2)
   end
 
   def sort_by_time(results, :desc) do
-    Enum.sort_by(results, &time(&1), &>=/2)
+    Enum.sort_by(results, &time/1, &>=/2)
   end
 
   defp fetch_float(opts, key) do
