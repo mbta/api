@@ -20,9 +20,8 @@ defmodule ApiWeb.PredictionView do
         schedules = State.Schedule.schedule_for_many(predictions)
 
         for p <- predictions,
-            s = Map.get(schedules, {p.stop_id, p.trip_id, p.stop_sequence}),
-            s != nil do
-          Map.put(p, :schedule, s)
+            s = Map.get(schedules, {p.stop_id, p.trip_id, p.stop_sequence}) do
+          if s == nil, do: p, else: Map.put(p, :schedule, s)
         end
       else
         predictions
