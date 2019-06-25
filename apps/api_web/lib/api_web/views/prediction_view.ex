@@ -15,6 +15,19 @@ defmodule ApiWeb.PredictionView do
   def preload(predictions, conn, include_opts) do
     predictions = super(predictions, conn, include_opts)
 
+    predictions =
+      if include_opts != nil and Keyword.has_key?(include_opts, :schedule) do
+        schedules = State.Schedule.schedule_for_many(predictions)
+
+        for p <- predictions,
+            s = Map.get(schedules, {p.stop_id, p.trip_id, p.stop_sequence}),
+            s != nil do
+          Map.put(p, :schedule, s)
+        end
+      else
+        predictions
+      end
+
     if include_opts != nil and Keyword.has_key?(include_opts, :alerts) do
       for prediction <- predictions do
         Map.put(prediction, :alerts, alerts(prediction, conn))
@@ -134,6 +147,8 @@ defmodule ApiWeb.PredictionView do
   def id(%{trip_id: trip_id, stop_id: stop_id, stop_sequence: seq}, _conn) do
     "prediction-#{trip_id}-#{stop_id}-#{seq}"
   end
+
+  def schedule(%{schedule: schedule}, _conn), do: schedule
 
   def schedule(prediction, conn) do
     Deadline.check!(conn)
