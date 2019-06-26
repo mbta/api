@@ -226,4 +226,69 @@ defmodule State.PredictionTest do
       assert %Model.Prediction{} = prediction_for(schedule, @today)
     end
   end
+
+  describe "prediction_for_many/2" do
+    @today ~D[2016-06-07]
+    @datetime Timex.to_datetime(@today, "America/New_York")
+    @schedules [
+      %Model.Schedule{
+        route_id: "route",
+        trip_id: "trip1",
+        stop_id: "stop",
+        direction_id: 1,
+        # 12:30pm
+        arrival_time: 45_000,
+        departure_time: 45_100,
+        drop_off_type: 1,
+        pickup_type: 1,
+        timepoint?: false,
+        service_id: "service",
+        stop_sequence: 1,
+        position: :first
+      },
+      %Model.Schedule{
+        route_id: "route",
+        trip_id: "trip2",
+        stop_id: "stop",
+        direction_id: 1,
+        # 12:30pm
+        arrival_time: 45_000,
+        departure_time: 45_100,
+        drop_off_type: 1,
+        pickup_type: 1,
+        timepoint?: false,
+        service_id: "service",
+        stop_sequence: 2,
+        position: :first
+      }
+    ]
+
+    @prediction1 %Model.Prediction{
+      route_id: "route",
+      trip_id: "trip1",
+      stop_id: "stop",
+      stop_sequence: 1,
+      direction_id: 1,
+      arrival_time: Timex.set(@datetime, hour: 12, minute: 30),
+      departure_time: Timex.set(@datetime, hour: 12, minute: 30)
+    }
+    @prediction2 %Model.Prediction{
+      route_id: "route",
+      trip_id: "trip2",
+      stop_id: "stop",
+      stop_sequence: 2,
+      direction_id: 1,
+      arrival_time: Timex.set(@datetime, hour: 12, minute: 30),
+      departure_time: Timex.set(@datetime, hour: 12, minute: 30)
+    }
+
+    test "returns predictions for multiple schedules" do
+      State.Prediction.new_state([@prediction1, @prediction2])
+
+      assert prediction_for_many(@schedules, @today) == %{
+               {"trip1", 1} => @prediction1,
+               {"trip2", 2} => @prediction2
+             }
+    end
+  end
 end
