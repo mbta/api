@@ -35,7 +35,6 @@ defmodule ApiWeb.FacilityControllerTest do
       }
     ])
 
-    conn = assign(conn, :api_version, "2019-04-05")
     {:ok, conn: conn}
   end
 
