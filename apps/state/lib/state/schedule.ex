@@ -109,7 +109,7 @@ defmodule State.Schedule do
 
   @spec schedule_for_many([Model.Prediction.t()]) :: map
   def schedule_for_many(predictions) do
-    Map.new(predictions, &{{&1.stop_id, &1.trip_id, &1.stop_sequence}, schedule_for(&1)})
+    Map.new(predictions, &{{&1.trip_id, &1.stop_sequence}, schedule_for(&1)})
   end
 
   @spec build_stop_sequence_matchers(stop_sequence | nil) :: [stop_sequence_matcher]

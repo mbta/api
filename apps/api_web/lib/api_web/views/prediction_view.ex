@@ -19,8 +19,8 @@ defmodule ApiWeb.PredictionView do
       if include_opts != nil and Keyword.has_key?(include_opts, :schedule) do
         schedules = State.Schedule.schedule_for_many(predictions)
 
-        for p <- predictions,
-            s = Map.get(schedules, {p.stop_id, p.trip_id, p.stop_sequence}) do
+        for p <- predictions do
+          s = Map.get(schedules, {p.trip_id, p.stop_sequence})
           Map.put(p, :schedule, s)
         end
       else

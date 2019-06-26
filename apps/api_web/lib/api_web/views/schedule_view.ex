@@ -58,6 +58,26 @@ defmodule ApiWeb.ScheduleView do
     "schedule-" <> trip_id <> "-" <> stop_id <> "-" <> Integer.to_string(stop_sequence)
   end
 
+  def preload(schedules, %{assigns: %{date: date}} = conn, include_opts)
+      when is_list(schedules) do
+    schedules = super(schedules, conn, include_opts)
+
+    if include_opts != nil and Keyword.has_key?(include_opts, :prediction) do
+      predictions = State.Prediction.prediction_for_many(schedules, date)
+
+      for s <- schedules do
+        p = Map.get(predictions, {s.trip_id, s.stop_sequence})
+        Map.put(s, :prediction, p)
+      end
+    else
+      schedules
+    end
+  end
+
+  def preload(schedules, conn, include_opts), do: super(schedules, conn, include_opts)
+
+  def prediction(%{prediction: prediction}, _conn), do: prediction
+
   def prediction(schedule, %{assigns: %{date: date}} = conn) do
     Deadline.check!(conn)
     State.Prediction.prediction_for(schedule, date)

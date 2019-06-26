@@ -399,8 +399,8 @@ defmodule State.ScheduleTest do
       State.Schedule.new_state([@schedule1, @schedule2])
 
       assert Schedule.schedule_for_many(@predictions) == %{
-               {"stop", "trip1", 1} => @schedule1,
-               {"stop", "trip2", 2} => @schedule2
+               {"trip1", 1} => @schedule1,
+               {"trip2", 2} => @schedule2
              }
     end
   end

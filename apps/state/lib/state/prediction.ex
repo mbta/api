@@ -116,6 +116,11 @@ defmodule State.Prediction do
     |> Enum.find(&on_day?(&1, date))
   end
 
+  @spec prediction_for_many([Model.Schedule.t()], Date.t()) :: map
+  def prediction_for_many(schedules, %Date{} = date) do
+    Map.new(schedules, &{{&1.trip_id, &1.stop_sequence}, prediction_for(&1, date)})
+  end
+
   @spec on_day?(Model.Prediction.t(), Date.t()) :: boolean()
   defp on_day?(prediction, date) do
     [:arrival_time, :departure_time]
