@@ -21,7 +21,7 @@ defmodule ApiWeb.PredictionView do
 
         for p <- predictions,
             s = Map.get(schedules, {p.stop_id, p.trip_id, p.stop_sequence}) do
-          if s == nil, do: p, else: Map.put(p, :schedule, s)
+          Map.put(p, :schedule, s)
         end
       else
         predictions
