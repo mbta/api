@@ -21,7 +21,6 @@ defmodule ApiWeb.LiveFacilityControllerTest do
 
   setup %{conn: conn} do
     State.Facility.Parking.new_state(@properties)
-    conn = assign(conn, :api_version, "2019-04-05")
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -68,7 +67,7 @@ defmodule ApiWeb.LiveFacilityControllerTest do
                      }
                    }
                  },
-                 "type" => "live-facility"
+                 "type" => "live_facility"
                }
              ]
     end
@@ -117,21 +116,21 @@ defmodule ApiWeb.LiveFacilityControllerTest do
 
     test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
       conn = assign(conn, :api_version, "2019-07-01")
-      response = get(conn, live_facility_path(conn, :index))
+      response = get(conn, "/live-facilities")
       assert json_response(response, 404)
       assert validate_resp_schema(response, schema, "NotFound")
     end
   end
 
   describe "swagger_path" do
-    test "swagger_path_index generates docs for GET /live-facilities" do
-      assert %{"/live-facilities" => %{"get" => %{"responses" => %{"200" => %{}}}}} =
+    test "swagger_path_index generates docs for GET /live_facilities" do
+      assert %{"/live_facilities" => %{"get" => %{"responses" => %{"200" => %{}}}}} =
                swagger_path_index(%{})
     end
 
-    test "swagger_path_show generates docs for GET /live-facilities/{id}" do
+    test "swagger_path_show generates docs for GET /live_facilities/{id}" do
       assert %{
-               "/live-facilities/{id}" => %{
+               "/live_facilities/{id}" => %{
                  "get" => %{
                    "responses" => %{
                      "200" => %{},
@@ -167,7 +166,7 @@ defmodule ApiWeb.LiveFacilityControllerTest do
                    }
                  }
                },
-               "type" => "live-facility"
+               "type" => "live_facility"
              }
     end
 
@@ -177,9 +176,16 @@ defmodule ApiWeb.LiveFacilityControllerTest do
 
     test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
       conn = assign(conn, :api_version, "2019-07-01")
-      response = get(conn, live_facility_path(conn, :show, @facility_id))
+      response = get(conn, "/live-facilities/#{@facility_id}")
       assert json_response(response, 404)
       assert validate_resp_schema(response, schema, "NotFound")
+    end
+
+    test "returns the old type for older API versions", %{conn: conn} do
+      conn = assign(conn, :api_version, "2019-04-05")
+      conn = get(conn, live_facility_path(conn, :show, @facility_id))
+      json = json_response(conn, 200)
+      assert json["data"]["type"] == "live-facility"
     end
   end
 

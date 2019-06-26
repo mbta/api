@@ -7,7 +7,6 @@ defmodule ApiWeb.RoutePatternControllerTest do
   alias Model.Trip
 
   setup %{conn: conn} do
-    conn = assign(conn, :api_version, "2019-04-05")
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -167,7 +166,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
     test "returns 404 for newer API keys and old URL", %{swagger_schema: schema, conn: conn} do
       conn = assign(conn, :api_version, "2019-07-01")
-      response = get(conn, route_pattern_path(conn, :index))
+      response = get(conn, "/route-patterns/")
       assert json_response(response, 404)
       assert validate_resp_schema(response, schema, "NotFound")
     end
@@ -259,21 +258,21 @@ defmodule ApiWeb.RoutePatternControllerTest do
       route_pattern = %RoutePattern{id: "1"}
       State.RoutePattern.new_state([route_pattern])
       conn = assign(conn, :api_version, "2019-07-01")
-      response = get(conn, route_pattern_path(conn, :show, "1"))
+      response = get(conn, "/route-patterns/1")
       assert json_response(response, 404)
       assert validate_resp_schema(response, schema, "NotFound")
     end
   end
 
   describe "swagger_path" do
-    test "swagger_path_index generates docs for GET /route-patterns" do
-      assert %{"/route-patterns" => %{"get" => %{"responses" => %{"200" => %{}}}}} =
+    test "swagger_path_index generates docs for GET /route_patterns" do
+      assert %{"/route_patterns" => %{"get" => %{"responses" => %{"200" => %{}}}}} =
                ApiWeb.RoutePatternController.swagger_path_index(%{})
     end
 
-    test "swagger_path_show generates docs for GET /route-patterns/{id}" do
+    test "swagger_path_show generates docs for GET /route_patterns/{id}" do
       assert %{
-               "/route-patterns/{id}" => %{
+               "/route_patterns/{id}" => %{
                  "get" => %{
                    "responses" => %{
                      "200" => %{},
