@@ -187,7 +187,7 @@ defmodule State.Schedule do
 
     filtered_trips =
       all_trips
-      |> Stream.filter(&Enum.member?(filtered_routes, &1.route_id))
+      |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
       |> Enum.map(& &1.id)
 
     matchers =
