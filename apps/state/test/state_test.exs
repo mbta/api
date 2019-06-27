@@ -89,6 +89,28 @@ defmodule StateTest do
              ) == {:error, :invalid_order_by}
     end
 
+    test "sorts by time" do
+      items = [
+        %{arrival_time: nil, departure_time: nil},
+        %{arrival_time: DateTime.from_unix(1_000), departure_time: nil},
+        %{arrival_time: nil, departure_time: DateTime.from_unix(2_000)},
+        %{arrival_time: DateTime.from_unix(3_000), departure_time: DateTime.from_unix(4_000)}
+      ]
+
+      shuffled_items = Enum.shuffle(items)
+      assert State.order_by(shuffled_items, order_by: [time: :asc]) == items
+      assert State.order_by(shuffled_items, order_by: [time: :desc]) == Enum.reverse(items)
+    end
+
+    test "sorting by time returns error when no arrival_time or departure_time" do
+      items = [
+        %{stop_id: "1", parent_station: "place-sstat"},
+        %{stop_id: "2", parent_station: nil}
+      ]
+
+      assert State.order_by(items, order_by: [time: :asc]) == {:error, :invalid_order_by}
+    end
+
     test "can sort by multiple keys" do
       items = [
         one = %{a: 1, b: 1},

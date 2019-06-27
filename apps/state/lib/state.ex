@@ -145,6 +145,13 @@ defmodule State do
         |> sort_by_distance(lat, lng, dir)
         |> order_by_keys(keys, opts)
 
+      key == :time and
+          (valid_order_by_key?(:arrival_time, result) or
+             valid_order_by_key?(:departure_time, result)) ->
+        results
+        |> sort_by_time(dir)
+        |> order_by_keys(keys, opts)
+
       valid_order_by_key?(key, result) ->
         results
         |> do_order_by(key, dir)
@@ -195,6 +202,22 @@ defmodule State do
 
   def sort_by_distance(results, lat, lng, :desc) do
     Enum.sort_by(results, &distance({&1.latitude, &1.longitude}, {lat, lng}), &>=/2)
+  end
+
+  defp time(%{arrival_time: nil, departure_time: time}) do
+    time
+  end
+
+  defp time(%{arrival_time: time}) do
+    time
+  end
+
+  def sort_by_time(results, :asc) do
+    Enum.sort_by(results, &time/1, &<=/2)
+  end
+
+  def sort_by_time(results, :desc) do
+    Enum.sort_by(results, &time/1, &>=/2)
   end
 
   defp fetch_float(opts, key) do
