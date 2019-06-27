@@ -176,9 +176,23 @@ defmodule State.Schedule do
   defp build_filter_matchers(%{stops: stops, trips: trips} = filters) do
     stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
 
+    all_trips = State.Trip.by_ids(trips)
+    routes_from_trips = MapSet.new(all_trips, & &1.route_id)
+
+    filtered_routes =
+      stops
+      |> State.RoutesAtStop.by_stops_and_direction()
+      |> MapSet.new()
+      |> MapSet.intersection(routes_from_trips)
+
+    filtered_trips =
+      all_trips
+      |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
+      |> Enum.map(& &1.id)
+
     matchers =
       for stop_id <- stops,
-          trip_id <- trips,
+          trip_id <- filtered_trips,
           stop_sequence_matcher <- stop_sequence_matchers do
         stop_sequence_matcher
         |> Map.put(:trip_id, trip_id)

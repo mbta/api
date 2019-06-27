@@ -396,6 +396,14 @@ defmodule State.ScheduleTest do
     }
 
     test "returns schedules for multiple predictions" do
+      State.Route.new_state([%Model.Route{id: "route"}])
+      State.Stop.new_state([%Model.Stop{id: "stop"}])
+
+      State.Trip.new_state([
+        %Model.Trip{id: "trip1", route_id: "route", direction_id: 1, service_id: "service"},
+        %Model.Trip{id: "trip2", route_id: "route", direction_id: 1, service_id: "service"}
+      ])
+
       State.Schedule.new_state([@schedule1, @schedule2])
 
       assert Schedule.schedule_for_many(@predictions) == %{

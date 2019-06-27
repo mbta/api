@@ -315,6 +315,7 @@ defmodule ApiWeb.PredictionControllerTest do
     prediction = %{@cr_prediction | stop_sequence: 1}
     State.Schedule.new_state([associated_schedule])
     State.Prediction.new_state([prediction])
+    State.Trip.new_state([%Trip{id: "trip", route_id: "route"}])
 
     conn =
       get(
