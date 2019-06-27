@@ -10,7 +10,7 @@ defmodule ApiWeb.SwaggerHelpers do
 
   def comma_separated_list, do: ~S|**MUST** be a comma-separated (U+002C COMMA, ",") list|
 
-  def common_index_parameters(path_object, module, name \\ nil, include_distance \\ nil)
+  def common_index_parameters(path_object, module, name \\ nil, include \\ nil)
       when is_atom(module) do
     sort_pairs = sort_pairs(module)
 
@@ -29,7 +29,7 @@ defmodule ApiWeb.SwaggerHelpers do
       "Max number of elements to return",
       minimum: 1
     )
-    |> sort_parameter(sort_pairs, include_distance)
+    |> sort_parameter(sort_pairs, include)
     |> fields_param(name)
   end
 
@@ -290,6 +290,20 @@ defmodule ApiWeb.SwaggerHelpers do
         for(sort_type <- @sort_types, do: {"distance", sort_type})
       )
 
+  defp sort_parameter(path_object, sort_pairs, :include_time),
+    do:
+      format_sort_parameter(
+        path_object,
+        sort_pairs,
+        """
+        Results can be [sorted](http://jsonapi.org/format/#fetching-sorting) by the id or any `/data/{index}/attributes` \
+        key.
+
+        #{sort_table(sort_pairs)} #{time_sort_options()}
+        """,
+        for(sort_type <- @sort_types, do: {"time", sort_type})
+      )
+
   defp sort_parameter(path_object, sort_pairs, _),
     do:
       format_sort_parameter(
@@ -320,6 +334,15 @@ defmodule ApiWeb.SwaggerHelpers do
       | Distance to \
       (`#{attribute_to_json_pointer("latitude")}`, `#{attribute_to_json_pointer("longitude")}`) \
       | #{sort_type} | `#{sort_pair_to_sort({"distance", sort_type})}` |
+      """
+    end
+  end
+
+  defp time_sort_options do
+    for sort_type <- @sort_types do
+      """
+      | `/data/{index}/attributes/arrival_time` if present, otherwise `/data/{index}/attributes/departure_time` \
+      | #{sort_type} | `#{sort_pair_to_sort({"time", sort_type})}` |
       """
     end
   end
