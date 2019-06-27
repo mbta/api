@@ -107,6 +107,11 @@ defmodule State.Schedule do
     |> List.first()
   end
 
+  @spec schedule_for_many([Model.Prediction.t()]) :: map
+  def schedule_for_many(predictions) do
+    Map.new(predictions, &{{&1.trip_id, &1.stop_sequence}, schedule_for(&1)})
+  end
+
   @spec build_stop_sequence_matchers(stop_sequence | nil) :: [stop_sequence_matcher]
   def build_stop_sequence_matchers(nil), do: [%{}]
   def build_stop_sequence_matchers([]), do: [%{}]
@@ -171,9 +176,23 @@ defmodule State.Schedule do
   defp build_filter_matchers(%{stops: stops, trips: trips} = filters) do
     stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
 
+    all_trips = State.Trip.by_ids(trips)
+    routes_from_trips = MapSet.new(all_trips, & &1.route_id)
+
+    filtered_routes =
+      stops
+      |> State.RoutesAtStop.by_stops_and_direction()
+      |> MapSet.new()
+      |> MapSet.intersection(routes_from_trips)
+
+    filtered_trips =
+      all_trips
+      |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
+      |> Enum.map(& &1.id)
+
     matchers =
       for stop_id <- stops,
-          trip_id <- trips,
+          trip_id <- filtered_trips,
           stop_sequence_matcher <- stop_sequence_matchers do
         stop_sequence_matcher
         |> Map.put(:trip_id, trip_id)

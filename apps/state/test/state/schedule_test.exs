@@ -341,4 +341,75 @@ defmodule State.ScheduleTest do
       assert Schedule.schedule_for(prediction) == List.first(@schedules)
     end
   end
+
+  describe "schedule_for_many" do
+    @today Timex.to_datetime(~D[2016-06-07], "America/New_York")
+    @predictions [
+      %Model.Prediction{
+        route_id: "route",
+        trip_id: "trip1",
+        stop_id: "stop",
+        stop_sequence: 1,
+        direction_id: 1,
+        arrival_time: Timex.set(@today, hour: 12, minute: 30),
+        departure_time: Timex.set(@today, hour: 12, minute: 30)
+      },
+      %Model.Prediction{
+        route_id: "route",
+        trip_id: "trip2",
+        stop_id: "stop",
+        stop_sequence: 2,
+        direction_id: 1,
+        arrival_time: Timex.set(@today, hour: 12, minute: 30),
+        departure_time: Timex.set(@today, hour: 12, minute: 30)
+      }
+    ]
+    @schedule1 %Model.Schedule{
+      route_id: "route",
+      trip_id: "trip1",
+      stop_id: "stop",
+      direction_id: 1,
+      # 12:30pm
+      arrival_time: 45_000,
+      departure_time: 45_100,
+      drop_off_type: 1,
+      pickup_type: 1,
+      timepoint?: false,
+      service_id: "service",
+      stop_sequence: 1,
+      position: :first
+    }
+    @schedule2 %Model.Schedule{
+      route_id: "route",
+      trip_id: "trip2",
+      stop_id: "stop",
+      direction_id: 1,
+      # 12:30pm
+      arrival_time: 45_000,
+      departure_time: 45_100,
+      drop_off_type: 1,
+      pickup_type: 1,
+      timepoint?: false,
+      service_id: "service",
+      stop_sequence: 2,
+      position: :first
+    }
+
+    test "returns schedules for multiple predictions" do
+      State.Route.new_state([%Model.Route{id: "route"}])
+      State.Stop.new_state([%Model.Stop{id: "stop"}])
+
+      State.Trip.new_state([
+        %Model.Trip{id: "trip1", route_id: "route", direction_id: 1, service_id: "service"},
+        %Model.Trip{id: "trip2", route_id: "route", direction_id: 1, service_id: "service"}
+      ])
+
+      State.Schedule.new_state([@schedule1, @schedule2])
+
+      assert Schedule.schedule_for_many(@predictions) == %{
+               {"trip1", 1} => @schedule1,
+               {"trip2", 2} => @schedule2
+             }
+    end
+  end
 end
