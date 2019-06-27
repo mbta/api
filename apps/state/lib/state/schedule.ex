@@ -98,9 +98,6 @@ defmodule State.Schedule do
         [] -> [prediction.stop_id]
       end
 
-    require Logger
-    Logger.error(">>> [#{NaiveDateTime.utc_now()}] #{inspect(stop_ids, pretty: true)} <<<")
-
     %{
       trips: [prediction.trip_id],
       stops: stop_ids,
@@ -112,8 +109,6 @@ defmodule State.Schedule do
 
   @spec schedule_for_many([Model.Prediction.t()]) :: map
   def schedule_for_many(predictions) do
-    require Logger
-    Logger.error(">>> [#{NaiveDateTime.utc_now()}] #{inspect(predictions, pretty: true)} <<<")
     Map.new(predictions, &{{&1.trip_id, &1.stop_sequence}, schedule_for(&1)})
   end
 
