@@ -91,7 +91,7 @@ defmodule ApiWeb.Params do
 
     [{:order_by, order_by} | acc]
   rescue
-    ArgumentError -> acc
+    ArgumentError -> [{:order_by, [{:invalid, :asc}]} | acc]
   end
 
   defp filter_opt(:order_by, _params, acc), do: acc
