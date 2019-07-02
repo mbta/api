@@ -3,24 +3,42 @@ defmodule ApiWeb.ParamsTest do
   doctest ApiWeb.Params
   alias ApiWeb.Params
 
-  test "page filter with offset and limit" do
-    assert Params.filter_opts(%{"page" => %{"offset" => 3}}, [:offset]) == [offset: 3]
+  test "page filter with offset and limit", %{conn: conn} do
+    conn = assign(conn, :api_version, "2019-02-12")
+    assert Params.filter_opts(%{"page" => %{"offset" => 3}}, [:offset], conn) == [offset: 3]
 
-    assert Params.filter_opts(%{"page" => %{"limit" => 10}}, [:limit]) == [limit: 10]
+    assert Params.filter_opts(%{"page" => %{"limit" => 10}}, [:limit], conn) == [limit: 10]
 
-    assert Params.filter_opts(%{"page" => %{"offset" => 1, "limit" => 10}}, [:offset, :limit]) ==
+    assert Params.filter_opts(
+             %{"page" => %{"offset" => 1, "limit" => 10}},
+             [:offset, :limit],
+             conn
+           ) ==
              [limit: 10, offset: 1]
 
-    assert Params.filter_opts(%{}, [:limit, :offset]) == []
+    assert Params.filter_opts(%{}, [:limit, :offset], conn) == []
   end
 
-  test "multiple options are combined" do
+  test "multiple options are combined", %{conn: conn} do
+    conn = assign(conn, :api_version, "2019-02-12")
     params = %{"sort" => "-name", "page" => %{"limit" => 3, "size" => 10}}
 
-    assert Params.filter_opts(params, [:limit, :order_by]) == [
+    assert Params.filter_opts(params, [:limit, :order_by], conn) == [
              order_by: [{:name, :desc}],
              limit: 3
            ]
+  end
+
+  test "filter_opts returns invalid sort on versions after 2019-07-01", %{conn: conn} do
+    conn = assign(conn, :api_version, "2019-02-12")
+    params = %{"sort" => "notavalidsort"}
+
+    assert Params.filter_opts(params, [:order_by], conn) == []
+
+    conn = assign(conn, :api_version, "2019-07-01")
+    params = %{"sort" => "notavalidsort"}
+
+    assert Params.filter_opts(params, [:order_by], conn) == [{:order_by, [{:invalid, :asc}]}]
   end
 
   test "integer values" do

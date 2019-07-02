@@ -122,7 +122,7 @@ defmodule ApiWeb.AlertController do
       |> apply_filters()
       |> case do
         list when is_list(list) ->
-          State.all(list, Params.filter_opts(params, @pagination_opts))
+          State.all(list, Params.filter_opts(params, @pagination_opts, conn))
 
         {:error, _} = error ->
           error

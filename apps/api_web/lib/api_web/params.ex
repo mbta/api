@@ -24,34 +24,34 @@ defmodule ApiWeb.Params do
 
   ## Examples
 
-      iex> ApiWeb.Params.filter_opts(%{"page" => %{"offset" => 0}}, [:offset])
+      iex> ApiWeb.Params.filter_opts(%{"page" => %{"offset" => 0}}, [:offset], build_conn())
       [offset: 0]
 
-      iex> ApiWeb.Params.filter_opts(%{"page" => %{"limit" => 10}}, [:limit])
+      iex> ApiWeb.Params.filter_opts(%{"page" => %{"limit" => 10}}, [:limit], build_conn())
       [limit: 10]
 
-      iex> ApiWeb.Params.filter_opts(%{"sort" => "name"}, [:order_by])
+      iex> ApiWeb.Params.filter_opts(%{"sort" => "name"}, [:order_by], build_conn())
       [order_by: [{:name, :asc}]]
 
-      iex> ApiWeb.Params.filter_opts(%{"sort" => "-name,value"}, [:order_by])
+      iex> ApiWeb.Params.filter_opts(%{"sort" => "-name,value"}, [:order_by], build_conn())
       [order_by: [{:name, :desc}, {:value, :asc}]]
   """
-  def filter_opts(params, options, acc \\ []) do
+  def filter_opts(params, options, conn, acc \\ []) do
     Enum.reduce(options, acc, fn opt, acc ->
-      filter_opt(opt, params, acc)
+      filter_opt(opt, params, conn, acc)
     end)
   end
 
-  defp filter_opt(:offset, %{"page" => %{"offset" => offset}}, acc) do
+  defp filter_opt(:offset, %{"page" => %{"offset" => offset}}, _conn, acc) do
     case parse_int(offset) do
       {:ok, offset} when offset >= 0 -> [{:offset, offset} | acc]
       _ -> acc
     end
   end
 
-  defp filter_opt(:offset, _params, acc), do: acc
+  defp filter_opt(:offset, _params, _conn, acc), do: acc
 
-  defp filter_opt(:limit, %{"page" => %{"limit" => limit}}, acc) do
+  defp filter_opt(:limit, %{"page" => %{"limit" => limit}}, _conn, acc) do
     case parse_int(limit) do
       {:ok, limit} when limit > 0 and limit <= @max_limit ->
         [{:limit, limit} | acc]
@@ -61,23 +61,23 @@ defmodule ApiWeb.Params do
     end
   end
 
-  defp filter_opt(:limit, _params, acc), do: acc
+  defp filter_opt(:limit, _params, _conn, acc), do: acc
 
-  defp filter_opt(:distance, %{"filter" => %{"latitude" => lat, "longitude" => lng}}, acc),
+  defp filter_opt(:distance, %{"filter" => %{"latitude" => lat, "longitude" => lng}}, _conn, acc),
     do: [{:latitude, lat}, {:longitude, lng} | acc]
 
-  defp filter_opt(:distance, %{"filter" => %{"latitude" => lat}, "longitude" => lng}, acc),
+  defp filter_opt(:distance, %{"filter" => %{"latitude" => lat}, "longitude" => lng}, _conn, acc),
     do: [{:latitude, lat}, {:longitude, lng} | acc]
 
-  defp filter_opt(:distance, %{"filter" => %{"longitude" => lng}, "latitude" => lat}, acc),
+  defp filter_opt(:distance, %{"filter" => %{"longitude" => lng}, "latitude" => lat}, _conn, acc),
     do: [{:latitude, lat}, {:longitude, lng} | acc]
 
-  defp filter_opt(:distance, %{"longitude" => lng, "latitude" => lat}, acc),
+  defp filter_opt(:distance, %{"longitude" => lng, "latitude" => lat}, _conn, acc),
     do: [{:latitude, lat}, {:longitude, lng} | acc]
 
-  defp filter_opt(:distance, _params, acc), do: acc
+  defp filter_opt(:distance, _params, _conn, acc), do: acc
 
-  defp filter_opt(:order_by, %{"sort" => fields}, acc) do
+  defp filter_opt(:order_by, %{"sort" => fields}, conn, acc) do
     order_by =
       for field <- split_on_comma(fields) do
         case field do
@@ -91,10 +91,17 @@ defmodule ApiWeb.Params do
 
     [{:order_by, order_by} | acc]
   rescue
-    ArgumentError -> [{:order_by, [{:invalid, :asc}]} | acc]
+    ArgumentError ->
+      case conn.assigns.api_version do
+        version when version >= "2019-07-01" ->
+          [{:order_by, [{:invalid, :asc}]} | acc]
+
+        _ ->
+          acc
+      end
   end
 
-  defp filter_opt(:order_by, _params, acc), do: acc
+  defp filter_opt(:order_by, _params, _conn, acc), do: acc
 
   @doc """
   Converts comma delimited strings into integer values

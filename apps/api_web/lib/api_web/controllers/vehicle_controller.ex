@@ -103,7 +103,7 @@ defmodule ApiWeb.VehicleController do
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> apply_filters()
-      |> State.all(Params.filter_opts(params, @pagination_opts))
+      |> State.all(Params.filter_opts(params, @pagination_opts, conn))
     else
       {:error, _, _} = error -> error
     end

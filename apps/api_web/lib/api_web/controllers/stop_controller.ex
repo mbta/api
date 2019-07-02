@@ -78,7 +78,7 @@ defmodule ApiWeb.StopController do
   end
 
   def index_data(conn, params) do
-    filter_opts = Params.filter_opts(params, @pagination_opts)
+    filter_opts = Params.filter_opts(params, @pagination_opts, conn)
 
     with true <- check_distance_filter?(filter_opts),
          {:ok, filtered} <- Params.filter_params(params, @filters, conn),

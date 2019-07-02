@@ -74,7 +74,7 @@ defmodule ApiWeb.RoutePatternController do
       filtered
       |> format_filters()
       |> RoutePattern.filter_by()
-      |> State.all(pagination_opts(params))
+      |> State.all(pagination_opts(params, conn))
     else
       {:error, _, _} = error -> error
     end
@@ -96,9 +96,9 @@ defmodule ApiWeb.RoutePatternController do
     end)
   end
 
-  defp pagination_opts(params) do
+  defp pagination_opts(params, conn) do
     params
-    |> Params.filter_opts(@pagination_opts)
+    |> Params.filter_opts(@pagination_opts, conn)
     |> Keyword.put_new(:order_by, {:sort_order, :asc})
   end
 

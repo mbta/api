@@ -73,7 +73,7 @@ defmodule ApiWeb.PredictionController do
     with {:ok, filtered_params} <- Params.filter_params(params, @filters, conn),
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       pagination_opts =
-        Params.filter_opts(params, @pagination_opts, order_by: {:arrival_time, :asc})
+        Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
 
       stop_ids = stop_ids(filtered_params, conn)
       route_ids = Params.split_on_comma(filtered_params, "route")
