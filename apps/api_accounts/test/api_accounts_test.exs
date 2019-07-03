@@ -398,7 +398,7 @@ defmodule ApiAccountsTest do
 
       assert {:ok, user} = ApiAccounts.update_password(user, params)
       refute user.password == params.password
-      assert Comeonin.Bcrypt.checkpw(params.password, user.password)
+      assert Bcrypt.verify_pass(params.password, user.password)
     end
 
     test "enforces a minimum password length", %{user: user} do

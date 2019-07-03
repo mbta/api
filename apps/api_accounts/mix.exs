@@ -53,8 +53,8 @@ defmodule ApiAccounts.Mixfile do
      {:ex_aws, "~> 2.0"},
      {:ex_aws_dynamo, "~> 2.0"},
      {:jason, "~> 1.0"},
-     {:comeonin, "~> 4.1"},
-     {:bcrypt_elixir, "~> 1.0"},
+     {:comeonin, "~> 5.1"},
+     {:bcrypt_elixir, "~> 2.0"},
      {:uuid, "~> 1.1"},
      {:bamboo, github: "mbta/bamboo", ref: "6ae35de"}]
   end
