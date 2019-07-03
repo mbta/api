@@ -85,13 +85,23 @@ defmodule State.ServiceByDate do
   end
 
   defp dates_for_service(%Model.Service{id: id} = service) do
-    [
-      from: Model.Service.start_date(service),
-      until: Model.Service.end_date(service),
-      right_open: false
-    ]
-    |> Interval.new()
-    |> Enum.map(&NaiveDateTime.to_date/1)
+    from = Model.Service.start_date(service)
+    until = Model.Service.end_date(service)
+
+    dates =
+      if from == until do
+        [from]
+      else
+        [
+          from: from,
+          until: until,
+          right_open: false
+        ]
+        |> Interval.new()
+        |> Enum.map(&NaiveDateTime.to_date/1)
+      end
+
+    dates
     |> Enum.filter(&Model.Service.valid_for_date?(service, &1))
     |> Enum.map(&{Date.to_erl(&1), id})
   end
