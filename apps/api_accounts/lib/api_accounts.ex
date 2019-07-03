@@ -502,7 +502,7 @@ defmodule ApiAccounts do
     with %Changeset{valid?: true} = changeset <- User.authenticate(%User{}, credentials),
          %{email: email, password: password} = changeset.changes,
          {:ok, user} <- get_user_by_email(email),
-         true <- Comeonin.Bcrypt.checkpw(password, user.password) do
+         true <- Bcrypt.verify_pass(password, user.password) do
       {:ok, user}
     else
       %Changeset{valid?: false} = changeset ->
@@ -510,7 +510,7 @@ defmodule ApiAccounts do
 
       {:error, :not_found} ->
         # Do a dummy check to prevent timing-based attacks
-        Comeonin.Bcrypt.dummy_checkpw()
+        Bcrypt.no_user_verify()
         {:error, :invalid_credentials}
 
       _ ->

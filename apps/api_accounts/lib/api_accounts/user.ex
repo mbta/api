@@ -130,7 +130,7 @@ defmodule ApiAccounts.User do
     password = changes[:password]
 
     if password != nil do
-      hashed_password = Comeonin.Bcrypt.hashpwsalt(password)
+      hashed_password = Bcrypt.hash_pwd_salt(password)
       put_change(changeset, :password, hashed_password)
     else
       changeset

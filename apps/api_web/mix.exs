@@ -58,7 +58,7 @@ defmodule ApiWeb.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:phoenix, "~> 1.4"},
+      {:phoenix, "< 1.4.7"},
       {:phoenix_html, "~> 2.11"},
       {:ja_serializer, github: "mbta/ja_serializer", branch: "master"},
       {:timex, "~> 3.2"},
@@ -71,9 +71,9 @@ defmodule ApiWeb.Mixfile do
       {:ehmon, github: "mbta/ehmon", branch: "master", only: :prod},
       {:benchwarmer, "~> 0.0", only: [:dev, :test]},
       {:dialyxir, ">= 0.0.0", only: [:dev, :test]},
-      {:logster, "~> 0.6"},
+      {:logster, "~> 1.0"},
       {:phoenix_swagger, "~> 0.8.1"},
-      {:ex_json_schema, "~> 0.5"},
+      {:ex_json_schema, "< 0.6.0"},
       {:diskusage_logger, "~> 0.2.0", only: :prod},
       {:jason, "~> 1.0"},
       {:stream_data, "~> 0.4", only: :test},
