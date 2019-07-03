@@ -92,12 +92,10 @@ defmodule ApiWeb.Params do
     [{:order_by, order_by} | acc]
   rescue
     ArgumentError ->
-      case conn.assigns.api_version do
-        version when version >= "2019-07-01" ->
-          [{:order_by, [{:invalid, :asc}]} | acc]
-
-        _ ->
-          acc
+      if conn.assigns.api_version >= "2019-07-01" do
+        [{:order_by, [{:invalid, :asc}]} | acc]
+      else
+        acc
       end
   end
 

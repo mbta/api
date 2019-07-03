@@ -30,15 +30,12 @@ defmodule ApiWeb.ParamsTest do
   end
 
   test "filter_opts returns invalid sort on versions after 2019-07-01", %{conn: conn} do
+    params = %{"sort" => "notavalidsort"}
+    assert Params.filter_opts(params, [:order_by], conn) == [{:order_by, [{:invalid, :asc}]}]
+
     conn = assign(conn, :api_version, "2019-02-12")
     params = %{"sort" => "notavalidsort"}
-
     assert Params.filter_opts(params, [:order_by], conn) == []
-
-    conn = assign(conn, :api_version, "2019-07-01")
-    params = %{"sort" => "notavalidsort"}
-
-    assert Params.filter_opts(params, [:order_by], conn) == [{:order_by, [{:invalid, :asc}]}]
   end
 
   test "integer values" do
