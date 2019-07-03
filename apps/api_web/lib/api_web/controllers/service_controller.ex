@@ -52,7 +52,7 @@ defmodule ApiWeb.ServiceController do
       {:ok, filters} when map_size(filters) > 0 ->
         filters
         |> apply_filters()
-        |> State.all(Params.filter_opts(params, @pagination_opts))
+        |> State.all(Params.filter_opts(params, @pagination_opts, conn))
 
       {:error, _, _} = error ->
         error

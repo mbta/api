@@ -40,22 +40,22 @@ defmodule ApiWeb.ShapeController do
   def index_data(conn, params) do
     with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      do_filter(filtered, params)
+      do_filter(filtered, params, conn)
     else
       {:error, _, _} = error -> error
     end
   end
 
-  defp do_filter(%{"route" => route_ids} = filtered_params, params) do
+  defp do_filter(%{"route" => route_ids} = filtered_params, params, conn) do
     route_ids = Params.split_on_comma(route_ids)
     direction_id = Params.direction_id(filtered_params)
 
     route_ids
     |> Shape.select_routes(direction_id)
-    |> State.all(Params.filter_opts(params, @pagination_opts))
+    |> State.all(Params.filter_opts(params, @pagination_opts, conn))
   end
 
-  defp do_filter(_, _), do: {:error, :filter_required}
+  defp do_filter(_, _, _), do: {:error, :filter_required}
 
   swagger_path :show do
     get(path(__MODULE__, :show))

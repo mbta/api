@@ -42,7 +42,7 @@ defmodule ApiWeb.FacilityController do
       filtered
       |> format_filters()
       |> Facility.filter_by()
-      |> State.all(Params.filter_opts(params, @pagination_opts))
+      |> State.all(Params.filter_opts(params, @pagination_opts, conn))
     else
       {:error, _, _} = error -> error
     end

@@ -66,7 +66,7 @@ defmodule ApiWeb.LiveFacilityController do
               updated_at: updated_at(properties)
             }
           end)
-          |> State.all(Params.filter_opts(params, @pagination_opts))
+          |> State.all(Params.filter_opts(params, @pagination_opts, conn))
 
         _ ->
           {:error, :filter_required}

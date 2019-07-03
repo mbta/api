@@ -100,7 +100,7 @@ defmodule ApiWeb.ScheduleController do
           filters
           |> Schedule.filter_by()
           |> populate_extra_times(conn)
-          |> State.all(Params.filter_opts(params, @pagination_opts))
+          |> State.all(Params.filter_opts(params, @pagination_opts, conn))
 
         _ ->
           {:error, :filter_required}
