@@ -50,7 +50,7 @@ defmodule Parse.Mixfile do
       {:jason, "~> 1.0"},
       {:model, in_umbrella: true},
       {:polyline, "~> 1.0"},
-      {:fast_local_datetime, "~> 0.1"}
+      {:fast_local_datetime, "~> 1.0"}
     ]
   end
 end
