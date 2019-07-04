@@ -29,9 +29,10 @@ defmodule Parse.Facility.Parking do
 
   @impl Parse
   def parse(binary) do
-    with {:ok, %{"counts" => [_ | _] = counts}} <- Jason.decode(binary) do
-      Enum.flat_map(counts, &parse_count/1)
-    else
+    case Jason.decode(binary) do
+      {:ok, %{"counts" => [_ | _] = counts}} ->
+        Enum.flat_map(counts, &parse_count/1)
+
       _ ->
         []
     end

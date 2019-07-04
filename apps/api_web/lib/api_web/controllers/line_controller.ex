@@ -91,10 +91,12 @@ defmodule ApiWeb.LineController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      Line.by_id(id)
-    else
-      {:error, _, _} = error -> error
+    case Params.validate_includes(params, @includes, conn) do
+      {:ok, _includes} ->
+        Line.by_id(id)
+
+      {:error, _, _} = error ->
+        error
     end
   end
 

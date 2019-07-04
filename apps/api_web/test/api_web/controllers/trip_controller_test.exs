@@ -231,6 +231,13 @@ defmodule ApiWeb.TripControllerTest do
       assert json_response(conn, 200)["data"]["id"] == trip.id
     end
 
+    test "returns an error with invalid includes", %{conn: conn} do
+      conn = get(conn, trip_path(conn, :show, "id"), include: "invalid")
+
+      assert get_in(json_response(conn, 400), ["errors", Access.at(0), "source", "parameter"]) ==
+               "include"
+    end
+
     test "including predictions", %{conn: conn} do
       trip = %Model.Trip{id: "trip"}
 

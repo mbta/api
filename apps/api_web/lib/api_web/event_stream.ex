@@ -39,9 +39,10 @@ defmodule ApiWeb.EventStream do
 
   @spec hibernate_loop(state) :: no_return | {:error, term}
   def hibernate_loop(state) do
-    with {:ok, state} <- receive_result(state) do
-      :proc_lib.hibernate(__MODULE__, :hibernate_loop, [state])
-    else
+    case receive_result(state) do
+      {:ok, state} ->
+        :proc_lib.hibernate(__MODULE__, :hibernate_loop, [state])
+
       error ->
         Supervisor.server_unsubscribe(state.pid)
         error
