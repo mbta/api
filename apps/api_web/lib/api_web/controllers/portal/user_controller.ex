@@ -21,12 +21,13 @@ defmodule ApiWeb.ClientPortal.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, user} <- ApiAccounts.register_user(user_params) do
-      conn
-      |> put_session(:user_id, user.id)
-      |> configure_session(renew: true)
-      |> redirect(to: portal_path(conn, :index))
-    else
+    case ApiAccounts.register_user(user_params) do
+      {:ok, user} ->
+        conn
+        |> put_session(:user_id, user.id)
+        |> configure_session(renew: true)
+        |> redirect(to: portal_path(conn, :index))
+
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         conn
         |> assign(:pre_container_template, "_new.html")
@@ -81,15 +82,16 @@ defmodule ApiWeb.ClientPortal.UserController do
   end
 
   def forgot_password_submit(conn, %{"user" => user}) do
-    with {:ok, user} <- ApiAccounts.get_user_by_email(user) do
-      token = Phoenix.Token.sign(ApiWeb.Endpoint, "account recovery", user.id)
-      password_reset_url = user_url(conn, :reset_password, token: token)
-      _ = ApiAccounts.Notifications.send_password_reset(user, password_reset_url)
+    case ApiAccounts.get_user_by_email(user) do
+      {:ok, user} ->
+        token = Phoenix.Token.sign(ApiWeb.Endpoint, "account recovery", user.id)
+        password_reset_url = user_url(conn, :reset_password, token: token)
+        _ = ApiAccounts.Notifications.send_password_reset(user, password_reset_url)
 
-      conn
-      |> put_flash(:info, "Check your email for further instructions.")
-      |> redirect(to: portal_path(conn, :landing))
-    else
+        conn
+        |> put_flash(:info, "Check your email for further instructions.")
+        |> redirect(to: portal_path(conn, :landing))
+
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         conn
         |> assign(:pre_container_template, "_forgot_password.html")
@@ -103,12 +105,14 @@ defmodule ApiWeb.ClientPortal.UserController do
   end
 
   def reset_password(conn, params) do
-    with {:ok, _} <- user_for_token(params) do
-      changeset = ApiAccounts.change_user(%ApiAccounts.User{})
-      token = params["token"]
-      render(conn, "reset_password.html", changeset: changeset, token: token)
-    else
-      _ -> render(conn, "invalid_reset_password.html")
+    case user_for_token(params) do
+      {:ok, _user} ->
+        changeset = ApiAccounts.change_user(%ApiAccounts.User{})
+        token = params["token"]
+        render(conn, "reset_password.html", changeset: changeset, token: token)
+
+      _ ->
+        render(conn, "invalid_reset_password.html")
     end
   end
 
@@ -130,11 +134,12 @@ defmodule ApiWeb.ClientPortal.UserController do
   end
 
   defp user_for_token(%{"token" => token}) do
-    with {:ok, user_id} <-
-           Phoenix.Token.verify(ApiWeb.Endpoint, "account recovery", token, max_age: 86_400) do
-      {:ok, user_id}
-    else
-      _ -> :error
+    case Phoenix.Token.verify(ApiWeb.Endpoint, "account recovery", token, max_age: 86_400) do
+      {:ok, _user_id} = good ->
+        good
+
+      _ ->
+        :error
     end
   end
 

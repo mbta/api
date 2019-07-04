@@ -151,14 +151,15 @@ defmodule State.Alert.Filter do
   end
 
   defp matchers_for_route_id(route_id) do
-    with %Model.Route{} = route <- State.Route.by_id(route_id) do
-      [
-        %{
-          route_type: route.type,
-          route: route_id
-        }
-      ]
-    else
+    case State.Route.by_id(route_id) do
+      %Model.Route{} = route ->
+        [
+          %{
+            route_type: route.type,
+            route: route_id
+          }
+        ]
+
       _ ->
         [%{route: route_id}]
     end
