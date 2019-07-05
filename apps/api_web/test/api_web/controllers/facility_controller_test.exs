@@ -78,11 +78,9 @@ defmodule ApiWeb.FacilityControllerTest do
     end
 
     test "can filter by stop_id and type", %{conn: conn} do
-      facility_1 = State.Facility.by_id("6")
-      facility_2 = State.Facility.by_id("7")
-      facility_3 = State.Facility.by_id("8")
+      facility = State.Facility.by_id("8")
       results = index_data(conn, %{"filter" => %{"stop" => "place-qnctr", "type" => "ESCALATOR"}})
-      assert Enum.sort(results) == [facility_1, facility_2, facility_3]
+      assert Enum.sort(results) == [facility]
     end
   end
 

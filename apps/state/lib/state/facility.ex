@@ -89,11 +89,25 @@ defmodule State.Facility do
   defp do_searches([]), do: all()
 
   defp do_searches(search_operations) do
-    facilities =
-      Enum.flat_map(search_operations, fn search_operation ->
-        search_operation.()
+    search_results =
+      Stream.map(search_operations, fn search_operation ->
+        case search_operation.() do
+          results when is_list(results) ->
+            results
+
+          _ ->
+            []
+        end
       end)
 
-    Enum.uniq_by(facilities, & &1.id)
+    [first_result] = Enum.take(search_results, 1)
+
+    search_results
+    |> Stream.drop(1)
+    |> Enum.reduce(first_result, fn results, acc ->
+      acc_set = MapSet.new(acc)
+      Enum.filter(results, fn facility -> facility in acc_set end)
+    end)
+    |> Enum.uniq_by(& &1.id)
   end
 end

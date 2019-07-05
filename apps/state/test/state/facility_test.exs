@@ -94,7 +94,7 @@ defmodule State.FacilityTest do
         |> State.Facility.filter_by()
         |> Enum.sort_by(& &1.id)
 
-      assert sorted_results == [by_id("3"), by_id("6"), by_id("701")]
+      assert sorted_results == [by_id("3")]
     end
   end
 end
