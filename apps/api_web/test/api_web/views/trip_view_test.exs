@@ -42,7 +42,8 @@ defmodule ApiWeb.TripViewTest do
                "shape" => %{"data" => %{"type" => "shape", "id" => "shape"}},
                "route_pattern" => %{
                  "data" => %{"type" => "route_pattern", "id" => "CR-Lowell-1-0"}
-               }
+               },
+               "stops" => %{}
              }
   end
 
@@ -54,5 +55,15 @@ defmodule ApiWeb.TripViewTest do
 
     rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
     refute rendered["data"]["relationships"]["vehicle"] == nil
+  end
+
+  test "redner includes stop list if explicitly included", %{conn: conn} do
+    conn =
+      conn
+      |> Map.put(:params, %{"include" => "stops"})
+      |> ApiWeb.ApiControllerHelpers.split_include([])
+
+    rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
+    refute rendered["data"]["relationships"]["stops"] == nil
   end
 end

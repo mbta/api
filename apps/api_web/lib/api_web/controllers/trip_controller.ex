@@ -12,7 +12,7 @@ defmodule ApiWeb.TripController do
 
   @filters ~w(id date direction_id route route_pattern name)s
   @pagination_opts ~w(offset limit order_by)a
-  @includes ~w(route vehicle service shape predictions route_pattern)
+  @includes ~w(route vehicle service shape predictions route_pattern stops)
 
   def state_module, do: State.Trip.Added
 

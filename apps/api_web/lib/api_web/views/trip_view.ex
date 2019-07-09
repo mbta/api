@@ -1,8 +1,17 @@
 defmodule ApiWeb.TripView do
   use ApiWeb.Web, :api_view
 
-  alias ApiWeb.{PredictionView, RoutePatternView, RouteView, ServiceView, ShapeView, VehicleView}
-  alias State.{Prediction, RoutePattern, Service, Shape, Vehicle}
+  alias ApiWeb.{
+    PredictionView,
+    RoutePatternView,
+    RouteView,
+    ServiceView,
+    ShapeView,
+    StopView,
+    VehicleView
+  }
+
+  alias State.{Prediction, RoutePattern, Schedule, Service, Shape, Stop, Vehicle}
 
   location("/trips/:id")
 
@@ -44,6 +53,12 @@ defmodule ApiWeb.TripView do
     serializer: PredictionView
   )
 
+  has_many(
+    :stops,
+    type: :stop,
+    serializer: StopView
+  )
+
   def shape(%{shape_id: shape_id}, conn) do
     optional_relationship("shape", shape_id, &Shape.by_primary_id/1, conn)
   end
@@ -81,6 +96,17 @@ defmodule ApiWeb.TripView do
       end,
       conn
     )
+  end
+
+  def stops(%{id: trip_id, service_id: service_id}, conn) do
+    %{start_date: start_date} = Service.by_id(service_id)
+
+    stop_ids =
+      %{date: start_date, trips: [trip_id]}
+      |> Schedule.filter_by()
+      |> Enum.map(& &1.stop_id)
+
+    optional_relationship("stops", stop_ids, &Stop.by_ids/1, conn)
   end
 
   def relationships(trip, conn) do
