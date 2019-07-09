@@ -100,14 +100,11 @@ defmodule State.Facility do
         end
       end)
 
-    [first_result] = Enum.take(search_results, 1)
-
-    search_results
-    |> Stream.drop(1)
-    |> Enum.reduce(first_result, fn results, acc ->
-      acc_set = MapSet.new(acc)
-      Enum.filter(results, fn facility -> facility in acc_set end)
-    end)
-    |> Enum.uniq_by(& &1.id)
+    Enum.to_list(
+      Enum.reduce(search_results, :no_results, fn
+        results, %MapSet{} = acc -> MapSet.intersection(acc, MapSet.new(results))
+        results, :no_results -> MapSet.new(results)
+      end)
+    )
   end
 end
