@@ -13,12 +13,13 @@ defmodule ApiWeb.ClientPortal.SessionController do
   end
 
   def create(conn, %{"user" => credentials}) do
-    with {:ok, user} <- ApiAccounts.authenticate(credentials) do
-      conn
-      |> put_session(:user_id, user.id)
-      |> configure_session(renew: true)
-      |> redirect(to: portal_path(conn, :index))
-    else
+    case ApiAccounts.authenticate(credentials) do
+      {:ok, user} ->
+        conn
+        |> put_session(:user_id, user.id)
+        |> configure_session(renew: true)
+        |> redirect(to: portal_path(conn, :index))
+
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         conn
         |> assign(:pre_container_template, "_new.html")

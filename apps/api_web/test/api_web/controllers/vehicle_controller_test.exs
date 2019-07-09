@@ -266,6 +266,13 @@ defmodule ApiWeb.VehicleControllerTest do
       assert json_response(conn, 400)
     end
 
+    test "returns an error with invalid includes", %{conn: conn} do
+      conn = get(conn, vehicle_path(conn, :show, "id"), include: "invalid")
+
+      assert get_in(json_response(conn, 400), ["errors", Access.at(0), "source", "parameter"]) ==
+               "include"
+    end
+
     test "version 2018-05-07 does not include last_updated", %{conn: conn} do
       vehicle = %Vehicle{id: "1", trip_id: "2"}
       State.Vehicle.new_state([vehicle])
