@@ -56,7 +56,8 @@ defmodule ApiWeb.TripView do
   has_many(
     :stops,
     type: :stop,
-    serializer: StopView
+    serializer: StopView,
+    include: false
   )
 
   def shape(%{shape_id: shape_id}, conn) do
@@ -98,12 +99,11 @@ defmodule ApiWeb.TripView do
     )
   end
 
-  def stops(%{id: trip_id, service_id: service_id}, conn) do
-    %{start_date: start_date} = Service.by_id(service_id)
-
+  def stops(%{id: trip_id}, conn) do
     stop_ids =
-      %{date: start_date, trips: [trip_id]}
-      |> Schedule.filter_by()
+      trip_id
+      |> Schedule.by_trip_id()
+      |> Enum.sort_by(& &1.stop_sequence)
       |> Enum.map(& &1.stop_id)
 
     optional_relationship("stops", stop_ids, &Stop.by_ids/1, conn)
@@ -112,7 +112,7 @@ defmodule ApiWeb.TripView do
   def relationships(trip, conn) do
     relationships = super(trip, conn)
 
-    ~W(predictions vehicle)a
+    ~W(predictions vehicle stops)a
     |> Enum.reduce(relationships, fn type_atom, map ->
       if split_included?(Atom.to_string(type_atom), conn) do
         map
