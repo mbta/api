@@ -24,4 +24,4 @@ RUN mix local.hex --force && \
 ENV MIX_ENV=prod
 
 ADD . .
-RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest, release --verbose
+RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest, distillery.release --verbose
