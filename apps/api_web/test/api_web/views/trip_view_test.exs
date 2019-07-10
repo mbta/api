@@ -5,7 +5,7 @@ defmodule ApiWeb.TripViewTest do
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  alias Model.Trip
+  alias Model.{Schedule, Stop, Trip}
 
   @trip %Trip{
     id: "trip",
@@ -20,6 +20,27 @@ defmodule ApiWeb.TripViewTest do
     bikes_allowed: 0,
     route_pattern_id: "CR-Lowell-1-0"
   }
+
+  @schedule %Schedule{
+    trip_id: "trip",
+    route_id: "route",
+    stop_id: "stop1",
+    direction_id: 1,
+    arrival_time: 100,
+    departure_time: 90_000,
+    stop_sequence: 1,
+    pickup_type: 2,
+    drop_off_type: 3,
+    timepoint?: true
+  }
+  @stop %Stop{id: "stop1"}
+
+  setup do
+    State.Trip.new_state([@trip])
+    State.Schedule.new_state([@schedule])
+    State.Stop.new_state([@stop])
+    :ok
+  end
 
   test "render returns JSONAPI", %{conn: conn} do
     rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
@@ -54,5 +75,20 @@ defmodule ApiWeb.TripViewTest do
 
     rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
     refute rendered["data"]["relationships"]["vehicle"] == nil
+  end
+
+  test "doesn't include stops if not explicitly included", %{conn: conn} do
+    rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
+    assert rendered["data"]["relationships"]["stops"] == nil
+  end
+
+  test "render includes stop list if explicitly included", %{conn: conn} do
+    conn =
+      conn
+      |> Map.put(:params, %{"include" => "stops"})
+      |> ApiWeb.ApiControllerHelpers.split_include([])
+
+    rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
+    assert %{"data" => [_ | _]} = rendered["data"]["relationships"]["stops"]
   end
 end

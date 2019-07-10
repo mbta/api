@@ -1,8 +1,17 @@
 defmodule ApiWeb.TripView do
   use ApiWeb.Web, :api_view
 
-  alias ApiWeb.{PredictionView, RoutePatternView, RouteView, ServiceView, ShapeView, VehicleView}
-  alias State.{Prediction, RoutePattern, Service, Shape, Vehicle}
+  alias ApiWeb.{
+    PredictionView,
+    RoutePatternView,
+    RouteView,
+    ServiceView,
+    ShapeView,
+    StopView,
+    VehicleView
+  }
+
+  alias State.{Prediction, RoutePattern, Schedule, Service, Shape, Stop, Vehicle}
 
   location("/trips/:id")
 
@@ -44,6 +53,14 @@ defmodule ApiWeb.TripView do
     serializer: PredictionView
   )
 
+  has_many(
+    :stops,
+    type: :stop,
+    serializer: StopView,
+    include: true,
+    identifiers: :always
+  )
+
   def shape(%{shape_id: shape_id}, conn) do
     optional_relationship("shape", shape_id, &Shape.by_primary_id/1, conn)
   end
@@ -83,10 +100,20 @@ defmodule ApiWeb.TripView do
     )
   end
 
+  def stops(%{id: trip_id}, conn) do
+    stop_ids =
+      trip_id
+      |> Schedule.by_trip_id()
+      |> Enum.sort_by(& &1.stop_sequence)
+      |> Enum.map(& &1.stop_id)
+
+    optional_relationship("stops", stop_ids, &Stop.by_ids/1, conn)
+  end
+
   def relationships(trip, conn) do
     relationships = super(trip, conn)
 
-    ~W(predictions vehicle)a
+    ~W(predictions vehicle stops)a
     |> Enum.reduce(relationships, fn type_atom, map ->
       if split_included?(Atom.to_string(type_atom), conn) do
         map
