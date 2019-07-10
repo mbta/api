@@ -56,7 +56,9 @@ defmodule ApiWeb.TripView do
   has_many(
     :stops,
     type: :stop,
-    serializer: StopView
+    serializer: StopView,
+    include: true,
+    identifiers: :always
   )
 
   def shape(%{shape_id: shape_id}, conn) do

@@ -89,6 +89,6 @@ defmodule ApiWeb.TripViewTest do
       |> ApiWeb.ApiControllerHelpers.split_include([])
 
     rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
-    refute rendered["data"]["relationships"]["stops"] == nil
+    assert %{"data" => [_ | _]} = rendered["data"]["relationships"]["stops"]
   end
 end
