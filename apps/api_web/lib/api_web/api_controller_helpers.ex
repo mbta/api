@@ -53,8 +53,12 @@ defmodule ApiWeb.ApiControllerHelpers do
 
   def show(module, conn, params) do
     data =
-      with :ok <- ApiWeb.Params.validate_show_params(params, conn) do
-        module.show_data(conn, params)
+      case ApiWeb.Params.validate_show_params(params, conn) do
+        :ok ->
+          module.show_data(conn, params)
+
+        error ->
+          error
       end
 
     render_json_api(conn, params, data)

@@ -78,11 +78,9 @@ defmodule ApiWeb.FacilityControllerTest do
     end
 
     test "can filter by stop_id and type", %{conn: conn} do
-      facility_1 = State.Facility.by_id("6")
-      facility_2 = State.Facility.by_id("7")
-      facility_3 = State.Facility.by_id("8")
+      facility = State.Facility.by_id("8")
       results = index_data(conn, %{"filter" => %{"stop" => "place-qnctr", "type" => "ESCALATOR"}})
-      assert Enum.sort(results) == [facility_1, facility_2, facility_3]
+      assert Enum.sort(results) == [facility]
     end
   end
 
@@ -99,6 +97,13 @@ defmodule ApiWeb.FacilityControllerTest do
 
       response = get(conn, facility_path(conn, :show, facility.id, %{"filter[stop]" => "1"}))
       assert json_response(response, 400)
+    end
+
+    test "returns an error with invalid includes", %{conn: conn} do
+      conn = get(conn, facility_path(conn, :show, "id"), include: "invalid")
+
+      assert get_in(json_response(conn, 400), ["errors", Access.at(0), "source", "parameter"]) ==
+               "include"
     end
 
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{

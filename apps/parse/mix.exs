@@ -46,11 +46,12 @@ defmodule Parse.Mixfile do
     [
       {:ex_csv, "~> 0.1.4"},
       {:exprotobuf, "~> 1.2"},
+      {:gpb, "< 4.7.0"},
       {:timex, "~> 3.2"},
       {:jason, "~> 1.0"},
       {:model, in_umbrella: true},
       {:polyline, "~> 1.0"},
-      {:fast_local_datetime, "~> 0.1"}
+      {:fast_local_datetime, "~> 1.0"}
     ]
   end
 end

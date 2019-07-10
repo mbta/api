@@ -98,9 +98,10 @@ defmodule ApiAccounts.Changeset do
   end
 
   defp do_cast_field(key, value, :integer) when is_binary(value) do
-    with {integer, ""} <- Integer.parse(value) do
-      {key, integer}
-    else
+    case Integer.parse(value) do
+      {integer, ""} ->
+        {key, integer}
+
       _ ->
         raise ArgumentError, "not an integer"
     end

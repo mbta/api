@@ -89,11 +89,22 @@ defmodule State.Facility do
   defp do_searches([]), do: all()
 
   defp do_searches(search_operations) do
-    facilities =
-      Enum.flat_map(search_operations, fn search_operation ->
-        search_operation.()
+    search_results =
+      Stream.map(search_operations, fn search_operation ->
+        case search_operation.() do
+          results when is_list(results) ->
+            results
+
+          _ ->
+            []
+        end
       end)
 
-    Enum.uniq_by(facilities, & &1.id)
+    Enum.to_list(
+      Enum.reduce(search_results, :no_results, fn
+        results, %MapSet{} = acc -> MapSet.intersection(acc, MapSet.new(results))
+        results, :no_results -> MapSet.new(results)
+      end)
+    )
   end
 end

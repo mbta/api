@@ -98,20 +98,16 @@ defmodule ApiWeb.LiveFacilityController do
   end
 
   def show_data(conn, %{"id" => facility_id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      case State.Facility.Parking.by_facility_id(facility_id) do
-        [] ->
-          nil
-
-        properties ->
-          %{
-            facility_id: facility_id,
-            properties: properties,
-            updated_at: updated_at(properties)
-          }
-      end
+    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn),
+         [_ | _] = properties <- State.Facility.Parking.by_facility_id(facility_id) do
+      %{
+        facility_id: facility_id,
+        properties: properties,
+        updated_at: updated_at(properties)
+      }
     else
       {:error, _, _} = error -> error
+      [] -> nil
     end
   end
 

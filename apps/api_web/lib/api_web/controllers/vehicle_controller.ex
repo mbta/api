@@ -38,10 +38,12 @@ defmodule ApiWeb.VehicleController do
 
   @spec show_data(Plug.Conn.t(), %{String.t() => String.t()}) :: Model.Vehicle.t() | nil
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      State.Vehicle.by_id(id)
-    else
-      {:error, _, _} = error -> error
+    case Params.validate_includes(params, @includes, conn) do
+      {:ok, _includes} ->
+        State.Vehicle.by_id(id)
+
+      {:error, _, _} = error ->
+        error
     end
   end
 

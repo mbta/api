@@ -119,16 +119,17 @@ defmodule State do
   def order_by([], _), do: []
 
   def order_by(results, opts) do
-    with {:ok, keys} <- Keyword.fetch(opts, :order_by) do
-      keys =
-        keys
-        |> List.wrap()
-        |> Enum.reverse()
+    case Keyword.fetch(opts, :order_by) do
+      {:ok, keys} ->
+        keys =
+          keys
+          |> List.wrap()
+          |> Enum.reverse()
 
-      order_by_keys(results, keys, opts)
-    else
-      # order_by not present
+        order_by_keys(results, keys, opts)
+
       _ ->
+        # order_by not present
         results
     end
   end

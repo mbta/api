@@ -47,21 +47,19 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandler do
     _ = ensure_caller_defined(opts)
     _ = ensure_state_module_implemented(opts)
 
-    with mod when mod != nil <- state_module(opts) do
-      last_modified_header = State.Metadata.last_modified_header(mod)
-      conn = Plug.Conn.put_resp_header(conn, "last-modified", last_modified_header)
-
-      with [if_modified_since_header] <- get_req_header(conn, "if-modified-since"),
-           false <- is_modified?(last_modified_header, if_modified_since_header) do
-        conn
-        |> send_resp(:not_modified, "")
-        |> halt()
-      else
-        _ ->
-          conn
-      end
+    with mod when mod != nil <- state_module(opts),
+         last_modified_header = State.Metadata.last_modified_header(mod),
+         conn = Plug.Conn.put_resp_header(conn, "last-modified", last_modified_header),
+         {conn, [if_modified_since_header]} <- {conn, get_req_header(conn, "if-modified-since")},
+         {conn, false} <- {conn, is_modified?(last_modified_header, if_modified_since_header)} do
+      conn
+      |> send_resp(:not_modified, "")
+      |> halt()
     else
-      _ ->
+      {%Plug.Conn{} = conn, _error} ->
+        conn
+
+      _error ->
         conn
     end
   end

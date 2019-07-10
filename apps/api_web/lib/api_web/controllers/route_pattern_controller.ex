@@ -124,10 +124,12 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    with {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
-      RoutePattern.by_id(id)
-    else
-      {:error, _, _} = error -> error
+    case Params.validate_includes(params, @includes, conn) do
+      {:ok, _includes} ->
+        RoutePattern.by_id(id)
+
+      {:error, _, _} = error ->
+        error
     end
   end
 
