@@ -15,6 +15,10 @@ defmodule Model.Stop do
     :longitude,
     :parent_station,
     :zone_id,
+    :municipality,
+    :on_street,
+    :at_street,
+    :vehicle_type,
     wheelchair_boarding: 0,
     location_type: 0
   ]
@@ -82,7 +86,11 @@ defmodule Model.Stop do
           parent_station: id | nil,
           wheelchair_boarding: wheelchair_boarding,
           location_type: location_type,
-          zone_id: String.t() | nil
+          zone_id: String.t() | nil,
+          municipality: String.t() | nil,
+          on_street: String.t() | nil,
+          at_street: String.t() | nil,
+          vehicle_type: Model.Route.route_type() | nil
         }
 
   @doc """

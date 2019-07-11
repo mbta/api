@@ -328,6 +328,34 @@ defmodule ApiWeb.StopController do
 
             See also [GTFS `stops.txt` `location_type`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stopstxt).
             """)
+
+            municipality(
+              [:string, :null],
+              "The municipality in which the stop is located.",
+              example: "Cambridge"
+            )
+
+            on_street(
+              [:string, :null],
+              "The street on which the stop is located.",
+              example: "Massachusetts Avenue"
+            )
+
+            at_street(
+              [:string, :null],
+              "The cross street at which the stop is located.",
+              example: "Essex Street"
+            )
+
+            vehicle_type(
+              [:integer, :null],
+              """
+              The type of transportation used at the stop. `vehicle_type` will be a valid routes.txt `route_type` value:
+
+              #{route_type_description()}
+              """,
+              example: 3
+            )
           end
 
           relationship(:parent_station)
