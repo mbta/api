@@ -13,7 +13,11 @@ defmodule ApiWeb.StopView do
     :latitude,
     :longitude,
     :wheelchair_boarding,
-    :location_type
+    :location_type,
+    :municipality,
+    :on_street,
+    :at_street,
+    :vehicle_type
   ])
 
   has_one(

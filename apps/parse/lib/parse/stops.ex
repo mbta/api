@@ -27,7 +27,11 @@ defmodule Parse.Stops do
       parent_station: copy_if_not_blank(row["parent_station"]),
       wheelchair_boarding: String.to_integer(row["wheelchair_boarding"]),
       location_type: String.to_integer(row["location_type"]),
-      zone_id: copy_if_not_blank(row["zone_id"])
+      zone_id: copy_if_not_blank(row["zone_id"]),
+      municipality: copy_if_not_blank(row["municipality"]),
+      on_street: copy_if_not_blank(row["on_street"]),
+      at_street: copy_if_not_blank(row["at_street"]),
+      vehicle_type: to_integer_if_not_blank(Map.get(row, "vehicle_type"))
     }
   end
 
@@ -39,4 +43,12 @@ defmodule Parse.Stops do
 
   defp optional_float(""), do: nil
   defp optional_float(binary) when is_binary(binary), do: String.to_float(binary)
+
+  defp to_integer_if_not_blank(binary) when byte_size(binary) > 0 do
+    String.to_integer(binary)
+  end
+
+  defp to_integer_if_not_blank(_) do
+    nil
+  end
 end
