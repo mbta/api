@@ -1,13 +1,14 @@
-defmodule State.RoutesAtStop do
+defmodule State.RoutePatternsAtStop do
   @moduledoc """
-  Allows finding all routes that pass through a stop.
+  Allows finding all route patterns that pass through a stop.
   """
   # credo:disable-for-this-file
   # Temporarily disabling warnings about duplicated code between this
-  # file and route_patterns_at_stop.ex.
+  # file and routes_at_stop.ex.
 
-  # Once ADDED trips are assigned route_pattern_ids, this code will be removed
-  # and will instead allow the same queries using the RoutePatternsAtStop cache.
+  # Once ADDED trips are assigned route_pattern_ids, the RoutesAtStop cache will
+  # be removed and will instead allow the same queries using the
+  # RoutePatternsAtStop cache.
 
   use Events.Server
   require Logger
@@ -15,11 +16,11 @@ defmodule State.RoutesAtStop do
   import State.Logger
   import State.Helpers
 
-  alias State.{Route, Schedule, Shape, Trip}
+  alias State.{RoutePattern, Schedule, Shape, Trip}
 
   @table __MODULE__
   @subscriptions [
-    {:new_state, Route},
+    {:new_state, RoutePattern},
     {:new_state, Trip},
     {:new_state, Shape},
     {:new_state, Schedule}
@@ -100,7 +101,7 @@ defmodule State.RoutesAtStop do
       fn ->
         items =
           Trip.all()
-          |> Enum.group_by(& &1.route_id)
+          |> Enum.group_by(& &1.route_pattern_id)
           |> Enum.flat_map(&do_gather_route/1)
 
         _ =

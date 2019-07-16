@@ -32,6 +32,7 @@ defmodule State do
       worker(State.Prediction, []),
       worker(State.StopsOnRoute, []),
       worker(State.RoutesAtStop, []),
+      worker(State.RoutePatternsAtStop, []),
       worker(State.ServiceByDate, []),
       worker(State.Shape, []),
       worker(State.Feed, []),

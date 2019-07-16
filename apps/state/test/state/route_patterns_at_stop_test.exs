@@ -1,13 +1,13 @@
-defmodule State.RoutesAtStopTest do
+defmodule State.RoutePatternsAtStopTest do
   use ExUnit.Case
   use Timex
-  import State.RoutesAtStop
+  import State.RoutePatternsAtStop
 
   # credo:disable-for-this-file
   # Temporarily disabling warnings about duplicated code between this file
-  # and route_patterns_at_stop_test.
+  # and routes_at_stop_test.
 
-  @route %Model.Route{id: "route"}
+  @route_pattern %Model.RoutePattern{id: "route_pattern"}
   @service %Model.Service{
     id: "service",
     start_date: Timex.today(),
@@ -18,6 +18,7 @@ defmodule State.RoutesAtStopTest do
     id: "trip",
     shape_id: "pattern",
     route_id: "route",
+    route_pattern_id: "route_pattern",
     direction_id: 1,
     service_id: "service"
   }
@@ -25,6 +26,7 @@ defmodule State.RoutesAtStopTest do
     id: "other_trip",
     shape_id: "other_pattern",
     route_id: "route",
+    route_pattern_id: "route_pattern",
     direction_id: 0,
     service_id: "other_service"
   }
@@ -33,7 +35,7 @@ defmodule State.RoutesAtStopTest do
 
   setup do
     State.Stop.new_state([])
-    State.Route.new_state([@route])
+    State.RoutePattern.new_state([@route_pattern])
     State.Trip.new_state([@trip, @other_trip])
     State.Service.new_state([@service])
     State.Schedule.new_state([@schedule, @other_schedule])
@@ -42,18 +44,18 @@ defmodule State.RoutesAtStopTest do
   end
 
   describe "by_stop_and_direction/2" do
-    test "returns the route IDs at a given stop" do
+    test "returns the route pattern IDs at a given stop" do
       assert by_stop_and_direction("stop", direction_id: 0) == []
-      assert by_stop_and_direction("stop", direction_id: 1) == ["route"]
-      assert by_stop_and_direction("other_stop", direction_id: 0) == ["route"]
+      assert by_stop_and_direction("stop", direction_id: 1) == ["route_pattern"]
+      assert by_stop_and_direction("other_stop", direction_id: 0) == ["route_pattern"]
       assert by_stop_and_direction("other_stop", direction_id: 1) == []
-      assert by_stop_and_direction("stop") == ["route"]
+      assert by_stop_and_direction("stop") == ["route_pattern"]
       assert by_stop_and_direction("unknown") == []
-      assert by_stop_and_direction("stop", service_ids: ["service"]) == ["route"]
+      assert by_stop_and_direction("stop", service_ids: ["service"]) == ["route_pattern"]
       assert by_stop_and_direction("stop", service_ids: ["other_service"]) == []
     end
 
-    test "ignores routes which are only on ignored shapes" do
+    test "ignores route patterns which are only on ignored shapes" do
       shape = %Model.Shape{
         id: @trip.shape_id,
         priority: -1
@@ -68,7 +70,7 @@ defmodule State.RoutesAtStopTest do
   end
 
   describe "by_family_stops/2" do
-    test "returns routes that stop at any member of the route's family" do
+    test "returns route patterns that stop at any member of the stop's family" do
       State.Stop.new_state([
         %Model.Stop{id: "stop", parent_station: "parent"},
         %Model.Stop{id: "sibling", parent_station: "parent"},
@@ -90,20 +92,20 @@ defmodule State.RoutesAtStopTest do
     State.Schedule.new_state([])
     update!()
 
-    assert by_stop_and_direction("stop", direction_id: 1) == ["route"]
+    assert by_stop_and_direction("stop", direction_id: 1) == ["route_pattern"]
   end
 
   describe "crash" do
     @tag timeout: 1_000
     test "rebuilds properly if it's restarted" do
       State.Stop.new_state([])
-      State.Route.new_state([@route])
+      State.RoutePattern.new_state([@route_pattern])
       State.Trip.new_state([@trip, @other_trip])
       State.Service.new_state([@service])
       State.Schedule.new_state([@schedule, @other_schedule])
 
-      GenServer.stop(State.RoutesAtStop)
-      await_size(State.RoutesAtStop)
+      GenServer.stop(State.RoutePatternsAtStop)
+      await_size(State.RoutePatternsAtStop)
     end
 
     defp await_size(module) do
