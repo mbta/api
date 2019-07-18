@@ -272,6 +272,65 @@ defmodule ApiWeb.PredictionControllerTest do
     end
   end
 
+  test "can filter by route pattern and stop", %{conn: conn} do
+    trip1a = %Trip{
+      id: "trip1a",
+      route_id: "route",
+      route_pattern_id: "1"
+    }
+
+    trip1b = %Trip{
+      id: "trip1b",
+      route_id: "route",
+      route_pattern_id: "1"
+    }
+
+    trip2 = %Trip{
+      id: "trip2",
+      route_id: "route",
+      route_pattern_id: "2"
+    }
+
+    p1 = %Prediction{
+      stop_id: "1",
+      route_id: "1",
+      trip_id: "trip1a",
+      direction_id: 1
+    }
+
+    p2 = %Prediction{
+      stop_id: "2",
+      route_id: "2",
+      trip_id: "trip1b",
+      direction_id: 1
+    }
+
+    p3 = %Prediction{
+      stop_id: "1",
+      route_id: "3",
+      trip_id: "trip2",
+      direction_id: 0
+    }
+
+    State.Trip.new_state([trip1a, trip1b, trip2])
+    State.Prediction.new_state([p1, p2, p3])
+
+    result = index_data(conn, %{"route_pattern" => "1"})
+    assert Enum.sort_by(result, & &1.stop_id) == [p1, p2]
+
+    result = index_data(conn, %{"route_pattern" => "2"})
+    assert result == [p3]
+
+    result = index_data(conn, %{"route_pattern" => "1", "stop" => "1"})
+    assert result == [p1]
+
+    result = index_data(conn, %{"route_pattern" => "2", "stop" => "1"})
+    assert result == [p3]
+
+    result = index_data(conn, %{"route_pattern" => "2", "stop" => "2"})
+    assert result == []
+  end
+
   test "can include a trip if it references an added trip", %{conn: conn} do
     State.Prediction.new_state([%Prediction{trip_id: "green"}])
     State.Trip.Added.new_state([%Trip{id: "green"}])

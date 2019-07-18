@@ -16,7 +16,8 @@ defmodule State.Trip do
   @type filter_opts :: %{
           optional(:routes) => [String.t()],
           optional(:direction_id) => direction_id,
-          optional(:date) => Date.t()
+          optional(:date) => Date.t(),
+          optional(:route_patterns) => [String.t()]
         }
 
   @fetch_trips {:fetch, "trips.txt"}
