@@ -6,7 +6,12 @@ ERLANG_VERSION=22
 export MIX_HOME=$SEMAPHORE_CACHE_DIR/mix
 mkdir -p $MIX_HOME
 
+if [ ! -d /home/runner/.kerl/installs/$ERLANG_VERSION ]
+    kerl install $ERLANG_VERSION /home/runner/.kerl/installs/$ERLANG_VERSION
+fi
+
 . /home/runner/.kerl/installs/$ERLANG_VERSION/activate
+
 if ! kiex use $ELIXIR_VERSION; then
     kiex install $ELIXIR_VERSION
     kiex use $ELIXIR_VERSION
