@@ -3,8 +3,6 @@ defmodule SimpleCSV do
   A simpler, but higher-performance, CSV parser.  Expects that that lines being
   parsed don't contain any commas or quotes inside quoted fields.
   """
-  @compile :native
-  @compile {:hipe, [:o3]}
 
   @doc """
   Decodes the array of lines into an array of maps. The first row is

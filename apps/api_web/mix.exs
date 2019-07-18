@@ -11,7 +11,7 @@ defmodule ApiWeb.Mixfile do
      config_path: "../../config/config.exs",
      deps: deps(),
      deps_path: "../../deps",
-     elixir: "~> 1.8",
+     elixir: "~> 1.9",
      elixirc_paths: elixirc_paths(Mix.env),
      lockfile: "../../mix.lock",
      start_permanent: Mix.env == :prod,
