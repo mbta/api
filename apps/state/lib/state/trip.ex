@@ -104,8 +104,6 @@ defmodule State.Trip do
 
   @impl State.Server
   def handle_new_state(%{multi_route_trips: multi_route_trips, trips: primary_trips}) do
-    valid_services = MapSet.new(State.Service.valid_in_future(), & &1.id)
-    in_service_primary_trips = filter(primary_trips, valid_services)
     # Gather added routes first as trips with without `Model.Trip.t`
     # `:alternate_route` is ternary and so none vs 1 is significant:
     #
@@ -115,7 +113,7 @@ defmodule State.Trip do
     added_route_ids_by_trip_id =
       multi_route_trips_to_added_route_ids_by_trip_id(multi_route_trips)
 
-    in_service_primary_trips
+    primary_trips
     |> flat_map_multi_route_trips(added_route_ids_by_trip_id: added_route_ids_by_trip_id)
     |> super()
   end
@@ -146,10 +144,6 @@ defmodule State.Trip do
           [primary_trip]
       end
     end)
-  end
-
-  defp filter(stream, valid_services) do
-    Enum.filter(stream, &valid_service?(&1, valid_services))
   end
 
   defp create_alternates(trip, alternate_routes) do
@@ -214,8 +208,4 @@ defmodule State.Trip do
   end
 
   defp replace_alternate_trips(trip), do: trip
-
-  defp valid_service?(trip, valid_services) do
-    MapSet.member?(valid_services, trip.service_id)
-  end
 end
