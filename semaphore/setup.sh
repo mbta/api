@@ -2,13 +2,12 @@
 set -e
 ELIXIR_VERSION=1.9.1
 ERLANG_VERSION=22.0.7
-KERL_BUILD_BACKEND=git
 
 export MIX_HOME=$SEMAPHORE_CACHE_DIR/mix
 mkdir -p $MIX_HOME
 
 if [ ! -d "/home/runner/.kerl/installs/${ERLANG_VERSION}" ]; then
-    kerl build $ERLANG_VERSION $ERLANG_VERSION
+    KERL_BUILD_BACKEND=git kerl build $ERLANG_VERSION $ERLANG_VERSION
     kerl install $ERLANG_VERSION /home/runner/.kerl/installs/$ERLANG_VERSION
 fi
 
