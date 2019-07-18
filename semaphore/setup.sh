@@ -6,7 +6,7 @@ ERLANG_VERSION=22
 export MIX_HOME=$SEMAPHORE_CACHE_DIR/mix
 mkdir -p $MIX_HOME
 
-if [ ! -d /home/runner/.kerl/installs/$ERLANG_VERSION ]
+if [ ! -d "/home/runner/.kerl/installs/${ERLANG_VERSION}" ]; then
     kerl install $ERLANG_VERSION /home/runner/.kerl/installs/$ERLANG_VERSION
 fi
 
