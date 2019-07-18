@@ -62,7 +62,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:id, name: :trip)
 
     parameter("filter[route_pattern]", :query, :string, """
-    Filter by `route_pattern_id`: returns predictions associated with a trip with the given `route_pattern_id`. Multiple `route_pattern_id` #{
+    Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{
       comma_separated_list()
     }.
     """)
@@ -293,10 +293,9 @@ defmodule ApiWeb.PredictionController do
 
   defp all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers) do
     trip_ids =
-      %{}
-      |> Map.put(:route_patterns, route_pattern_ids)
+      %{route_patterns: route_pattern_ids}
       |> State.Trip.filter_by()
-      |> Enum.map(& &1.id)
+      |> Stream.map(& &1.id)
 
     all_stops_and_trips(stop_ids, trip_ids, matchers)
   end
