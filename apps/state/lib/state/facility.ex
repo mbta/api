@@ -90,7 +90,7 @@ defmodule State.Facility do
 
   defp do_searches(search_operations) do
     search_results =
-      Stream.map(search_operations, fn search_operation ->
+      Enum.map(search_operations, fn search_operation ->
         case search_operation.() do
           results when is_list(results) ->
             results
@@ -100,11 +100,6 @@ defmodule State.Facility do
         end
       end)
 
-    Enum.to_list(
-      Enum.reduce(search_results, :no_results, fn
-        results, %MapSet{} = acc -> MapSet.intersection(acc, MapSet.new(results))
-        results, :no_results -> MapSet.new(results)
-      end)
-    )
+    search_results |> List.flatten() |> Enum.uniq()
   end
 end
