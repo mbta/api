@@ -6,14 +6,21 @@ ERLANG_VERSION=22.0.7
 export MIX_HOME=$SEMAPHORE_CACHE_DIR/mix
 mkdir -p $MIX_HOME
 
-export ERL_HOME="/home/runner/.kerl/installs/${ERLANG_VERSION}"
+export LOCK_FILE="${SEMAPHORE_CACHE_DIR}/kerl.lock"
+export LOCK_HANDLE=200
+export ERL_HOME="${SEMAPHORE_CACHE_DIR}/.kerl/installs/${ERLANG_VERSION}"
 
-if [ ! -d "${ERL_HOME}" ]; then
-    KERL_BUILD_BACKEND=git kerl build $ERLANG_VERSION $ERLANG_VERSION
-    kerl install $ERLANG_VERSION $ERL_HOME
-fi
+# make sure we don't build erlang in parallel 
+{
+    flock -x $LOCK_HANDLE
+    if [ ! -d "${ERL_HOME}" ]; then
+        KERL_BUILD_BACKEND=git kerl build $ERLANG_VERSION $ERLANG_VERSION
+        kerl install $ERLANG_VERSION $ERL_HOME
+    fi
 
-. $ERL_HOME/activate
+    . $ERL_HOME/activate
+
+} $LOCK_HANDLE>$LOCK_FILE
 
 if ! kiex use $ELIXIR_VERSION; then
     kiex install $ELIXIR_VERSION
