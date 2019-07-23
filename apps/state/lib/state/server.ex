@@ -8,7 +8,7 @@ defmodule State.Server do
     use Recordable, [:id, :data, :other_key]
 
     use State.Server,
-        indicies: [:id, :other_key],
+        indices: [:id, :other_key],
         recordable: State.ExampleServer
   end
 
@@ -39,7 +39,7 @@ defmodule State.Server do
   import State.Logger
 
   defmacro __using__(opts) do
-    indicies = Keyword.fetch!(opts, :indicies)
+    indices = Keyword.fetch!(opts, :indices)
     hibernate? = Keyword.get(opts, :hibernate, true)
 
     recordable =
@@ -104,7 +104,7 @@ defmodule State.Server do
         do: Server.select_limit(__MODULE__, matchers, num_objects)
 
       # define a `by_<index>` and `by_<index>s` method for each indexed field
-      unquote(State.Server.def_by_indicies(indicies, key_index: key_index))
+      unquote(State.Server.def_by_indices(indices, key_index: key_index))
 
       # Metadata functions
 
@@ -116,10 +116,10 @@ defmodule State.Server do
       def fetched_filename, do: unquote(opts[:fetched_filename])
 
       @doc """
-      Indicies in the `:mnesia` table where state is stored
+      indices in the `:mnesia` table where state is stored
       """
-      @spec indicies :: [atom]
-      def indicies, do: unquote(indicies)
+      @spec indices :: [atom]
+      def indices, do: unquote(indices)
 
       @doc """
       The index for the primary key
@@ -184,7 +184,7 @@ defmodule State.Server do
 
       def maybe_hibernate(reply), do: reply
 
-      # All functions that aren't metadata or have computed names, such as from def_by_indicies, should be marked
+      # All functions that aren't metadata or have computed names, such as from def_by_indices, should be marked
       # overridable here
       defoverridable all: 0,
                      all: 1,
@@ -275,10 +275,10 @@ defmodule State.Server do
 
   def recreate_table(module) do
     recordable = module.recordable()
-    indicies = module.indicies()
+    indices = module.indices()
     attributes = recordable.fields()
     id_field = List.first(attributes)
-    index = Enum.reject(indicies, &Kernel.==(&1, id_field))
+    index = Enum.reject(indices, &Kernel.==(&1, id_field))
     recreate_table(module, attributes: attributes, index: index, record_name: recordable)
   end
 
@@ -382,14 +382,14 @@ defmodule State.Server do
     end)
   end
 
-  def by_index(values, module, indicies, opts) do
-    indicies
+  def by_index(values, module, indices, opts) do
+    indices
     |> build_read_fun(module)
     |> :lists.flatmap(values)
     |> to_structs(module, opts)
   catch
     :exit, {:aborted, {_, [^module | _]}} ->
-      by_index(values, module, indicies, opts)
+      by_index(values, module, indices, opts)
   end
 
   defp build_read_fun({key_index, key_index}, module) do
@@ -497,10 +497,10 @@ defmodule State.Server do
     end
   end
 
-  def def_by_indicies(indicies, keywords) do
+  def def_by_indices(indices, keywords) do
     key_index = Keyword.fetch!(keywords, :key_index)
 
-    for index <- indicies do
+    for index <- indices do
       def_by_index(index, key_index: key_index)
     end
   end

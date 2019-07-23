@@ -4,7 +4,7 @@ defmodule State.Route do
   """
 
   use State.Server,
-    indicies: [:id, :type, :line_id],
+    indices: [:id, :type, :line_id],
     parser: Parse.Routes,
     recordable: Model.Route
 

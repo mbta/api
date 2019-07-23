@@ -7,7 +7,7 @@ defmodule State.Line do
   use State.Server,
     fetched_filename: "lines.txt",
     recordable: Model.Line,
-    indicies: [:id],
+    indices: [:id],
     parser: Parse.Line
 
   def by_id(id) do

@@ -6,7 +6,7 @@ defmodule State.Trip.Added do
 
   """
   use State.Server,
-    indicies: [:id, :route_id],
+    indices: [:id, :route_id],
     recordable: Model.Trip,
     hibernate: false
 

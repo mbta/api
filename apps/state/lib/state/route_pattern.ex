@@ -5,7 +5,7 @@ defmodule State.RoutePattern do
   use State.Server,
     fetched_filename: "route_patterns.txt",
     recordable: Model.RoutePattern,
-    indicies: [:id, :route_id],
+    indices: [:id, :route_id],
     parser: Parse.RoutePatterns
 
   alias Model.Route
