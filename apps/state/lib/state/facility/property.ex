@@ -5,6 +5,6 @@ defmodule State.Facility.Property do
   use State.Server,
     fetched_filename: "facilities_properties.txt",
     recordable: Model.Facility.Property,
-    indicies: [:facility_id, :name],
+    indices: [:facility_id, :name],
     parser: Parse.Facility.Property
 end

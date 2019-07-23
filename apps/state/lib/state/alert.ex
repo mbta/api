@@ -5,7 +5,7 @@ defmodule State.Alert do
   alias State.Alert.{ActivePeriod, InformedEntity, InformedEntityActivity}
 
   use State.Server,
-    indicies: [:id],
+    indices: [:id],
     parser: Parse.Alerts,
     recordable: Model.Alert,
     hibernate: false

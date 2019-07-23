@@ -8,7 +8,7 @@ defmodule State.Transfer do
   use State.Server,
     fetched_filename: "transfers.txt",
     recordable: Model.Transfer,
-    indicies: [:from_stop_id],
+    indices: [:from_stop_id],
     parser: Parse.Transfers
 
   def recommended_transfers_from(stop_id) do
