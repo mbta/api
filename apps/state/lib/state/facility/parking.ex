@@ -4,6 +4,6 @@ defmodule State.Facility.Parking do
   """
   use State.Server,
     recordable: Model.Facility.Property,
-    indicies: [:facility_id, :name],
+    indices: [:facility_id, :name],
     parser: Parse.Facility.Parking
 end

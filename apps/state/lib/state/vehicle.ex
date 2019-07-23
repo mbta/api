@@ -7,7 +7,7 @@ defmodule State.Vehicle do
   * label
   """
   use State.Server,
-    indicies: [:id, :trip_id, :effective_route_id, :label],
+    indices: [:id, :trip_id, :effective_route_id, :label],
     parser: Parse.VehiclePositions,
     recordable: Model.Vehicle,
     hibernate: false

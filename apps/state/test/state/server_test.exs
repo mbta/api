@@ -14,7 +14,7 @@ defmodule State.ServerTest do
 
   defmodule Server do
     use State.Server,
-      indicies: [:id, :other_key],
+      indices: [:id, :other_key],
       parser: State.ServerTest.Parser,
       recordable: State.ServerTest.Example
   end

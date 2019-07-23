@@ -8,7 +8,7 @@ defmodule State.Facility do
   use State.Server,
     fetched_filename: "facilities.txt",
     recordable: Model.Facility,
-    indicies: [:id, :stop_id, :type],
+    indices: [:id, :stop_id, :type],
     parser: Parse.Facility
 
   @type filter_opts :: %{

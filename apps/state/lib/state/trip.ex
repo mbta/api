@@ -4,7 +4,7 @@ defmodule State.Trip do
   """
 
   use State.Server,
-    indicies: [:id, :route_id],
+    indices: [:id, :route_id],
     recordable: Model.Trip
 
   alias Events.Gather
