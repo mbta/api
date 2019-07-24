@@ -276,11 +276,12 @@ defmodule State.AlertTest do
 
       schedule = %Model.Schedule{
         trip_id: trip.id,
-        stop_id: stop.id
+        stop_id: stop.id,
+        route_id: route.id
       }
 
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       entity = %{activities: ["BOARD"], route: route.id}
       alert = %{@alert | informed_entity: [entity]}
       insert_alerts!([alert])
@@ -316,7 +317,7 @@ defmodule State.AlertTest do
       }
 
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       entity = %{activities: ["BOARD"], route: route.id, stop: "other stop"}
       alert = %{@alert | informed_entity: [entity]}
       insert_alerts!([alert])

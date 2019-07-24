@@ -122,11 +122,11 @@ defmodule ApiWeb.RouteControllerTest do
       State.Trip.new_state([%Model.Trip{id: "trip", route_id: "1"}])
 
       State.Schedule.new_state([
-        %Model.Schedule{trip_id: "trip", stop_id: "1"},
-        %Model.Schedule{trip_id: "other", stop_id: "2"}
+        %Model.Schedule{trip_id: "trip", stop_id: "1", route_id: "1"},
+        %Model.Schedule{trip_id: "other", stop_id: "2", route_id: "2"}
       ])
 
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
 
       assert ApiWeb.RouteController.index_data(conn, %{"stop" => "1"}) == [@route]
       assert ApiWeb.RouteController.index_data(conn, %{"stop" => "2"}) == []
@@ -156,10 +156,10 @@ defmodule ApiWeb.RouteControllerTest do
       stop1 = %Model.Stop{id: "1"}
       stop2 = %Model.Stop{id: "2"}
       State.Stop.new_state([stop1, stop2])
-      schedule1 = %Model.Schedule{trip_id: "trip1", stop_id: "1"}
-      schedule2 = %Model.Schedule{trip_id: "trip2", stop_id: "2"}
+      schedule1 = %Model.Schedule{trip_id: "trip1", stop_id: "1", route_id: "1"}
+      schedule2 = %Model.Schedule{trip_id: "trip2", stop_id: "2", route_id: "2"}
       State.Schedule.new_state([schedule1, schedule2])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
 
       params = %{"filter" => %{"stop" => "1,2", "direction_id" => "0"}}
       assert ApiWeb.RouteController.index_data(conn, params) == [@route]
@@ -174,10 +174,10 @@ defmodule ApiWeb.RouteControllerTest do
       stop1 = %Model.Stop{id: "1"}
       stop2 = %Model.Stop{id: "2"}
       State.Stop.new_state([stop1, stop2])
-      schedule1 = %Model.Schedule{trip_id: "trip1", stop_id: "1"}
-      schedule2 = %Model.Schedule{trip_id: "trip2", stop_id: "2"}
+      schedule1 = %Model.Schedule{trip_id: "trip1", stop_id: "1", route_id: "1"}
+      schedule2 = %Model.Schedule{trip_id: "trip2", stop_id: "2", route_id: "3"}
       State.Schedule.new_state([schedule1, schedule2])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
 
       params = %{"filter" => %{"stop" => "1,2", "type" => "1"}}
       assert ApiWeb.RouteController.index_data(conn, params) == [@route]
@@ -201,14 +201,14 @@ defmodule ApiWeb.RouteControllerTest do
 
       route = %Model.Route{id: "route"}
       trip = %Model.Trip{id: "trip", route_id: route.id, service_id: service.id}
-      schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id}
+      schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
       State.Service.new_state([service])
       State.Trip.reset_gather()
       State.Stop.new_state([stop])
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
 
       today_iso = Date.to_iso8601(today)
       bad_date_iso = Date.to_iso8601(bad_date)

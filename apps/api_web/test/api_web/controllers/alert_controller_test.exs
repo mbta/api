@@ -52,7 +52,7 @@ defmodule ApiWeb.AlertControllerTest do
     State.Trip.new_state([])
     State.Route.new_state([])
     State.Schedule.new_state([])
-    State.RoutesAtStop.update!()
+    State.RoutesPatternsAtStop.update!()
 
     Facility.new_state([
       %Model.Facility{

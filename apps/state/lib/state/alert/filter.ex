@@ -46,7 +46,7 @@ defmodule State.Alert.Filter do
 
   defp do_build_matcher({:stops, values}, acc) when is_list(values) do
     route_matchers =
-      for route_id <- State.RoutesAtStop.by_family_stops(values),
+      for route_id <- State.RoutesPatternsAtStop.routes_by_family_stops(values),
           stop_id <- [nil | values] do
         %{route: route_id, stop: stop_id}
       end

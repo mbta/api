@@ -9,7 +9,7 @@ defmodule ApiWeb.RouteController do
   * type
   """
   use ApiWeb.Web, :api_controller
-  alias State.{Route, RoutesAtStop, ServiceByDate}
+  alias State.{Route, RoutesPatternsAtStop, ServiceByDate}
 
   @filters ~w(id stop type direction_id date)
   @pagination_opts [:offset, :limit, :order_by]
@@ -163,7 +163,7 @@ defmodule ApiWeb.RouteController do
       |> Map.take([:direction_id, :service_ids])
       |> Enum.into([])
 
-    RoutesAtStop.by_family_stops(stops, opts)
+    RoutesPatternsAtStop.routes_by_family_stops(stops, opts)
   end
 
   swagger_path :show do

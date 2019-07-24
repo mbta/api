@@ -257,7 +257,7 @@ defmodule ApiWeb.StopControllerTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
       State.Feed.new_state(feed)
 
@@ -523,11 +523,11 @@ defmodule ApiWeb.StopControllerTest do
     ])
 
     State.Schedule.new_state([
-      %Model.Schedule{trip_id: "trip", stop_id: "1"},
-      %Model.Schedule{trip_id: "other", stop_id: "2"}
+      %Model.Schedule{trip_id: "trip", stop_id: "1", route_id: "route"},
+      %Model.Schedule{trip_id: "other", stop_id: "2", route_id: "other"}
     ])
 
-    State.RoutesAtStop.update!()
+    State.RoutesPatternsAtStop.update!()
     State.StopsOnRoute.update!()
   end
 end

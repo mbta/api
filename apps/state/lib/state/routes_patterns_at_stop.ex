@@ -1,14 +1,7 @@
-defmodule State.RoutePatternsAtStop do
+defmodule State.RoutesPatternsAtStop do
   @moduledoc """
-  Allows finding all route patterns that pass through a stop.
+  Allows finding all routes or route patterns that pass through a stop.
   """
-  # credo:disable-for-this-file
-  # Temporarily disabling warnings about duplicated code between this
-  # file and routes_at_stop.ex.
-
-  # Once ADDED trips are assigned route_pattern_ids, the RoutesAtStop cache will
-  # be removed and will instead allow the same queries using the
-  # RoutePatternsAtStop cache.
 
   use Events.Server
   require Logger
@@ -16,10 +9,11 @@ defmodule State.RoutePatternsAtStop do
   import State.Logger
   import State.Helpers
 
-  alias State.{RoutePattern, Schedule, Shape, Trip}
+  alias State.{Route, RoutePattern, Schedule, Shape, Trip}
 
   @table __MODULE__
   @subscriptions [
+    {:new_state, Route},
     {:new_state, RoutePattern},
     {:new_state, Trip},
     {:new_state, Shape},
@@ -30,24 +24,35 @@ defmodule State.RoutePatternsAtStop do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def by_family_stops(stop_ids, opts \\ []) when is_list(stop_ids) do
+  def routes_by_family_stops(stop_ids, opts \\ []) when is_list(stop_ids) do
     stop_ids
     |> State.Stop.by_family_ids()
     |> Enum.map(& &1.id)
-    |> by_stops_and_direction(opts)
+    |> routes_by_stops_and_direction(opts)
   end
 
-  def by_stop_and_direction(stop_id, opts \\ []) do
-    by_stops_and_direction([stop_id], opts)
+  def route_patterns_by_family_stops(stop_ids, opts \\ []) when is_list(stop_ids) do
+    stop_ids
+    |> State.Stop.by_family_ids()
+    |> Enum.map(& &1.id)
+    |> route_patterns_by_stops_and_direction(opts)
   end
 
-  def by_stops_and_direction(stop_ids, opts \\ []) when is_list(stop_ids) do
+  def routes_by_stop_and_direction(stop_id, opts \\ []) do
+    routes_by_stops_and_direction([stop_id], opts)
+  end
+
+  def route_patterns_by_stop_and_direction(stop_id, opts \\ []) do
+    route_patterns_by_stops_and_direction([stop_id], opts)
+  end
+
+  def routes_by_stops_and_direction(stop_ids, opts \\ []) when is_list(stop_ids) do
     direction_id = Keyword.get(opts, :direction_id, :_)
 
     selectors =
       for stop_id <- Enum.uniq(stop_ids),
           service_id <- Keyword.get(opts, :service_ids, [:_]) do
-        {{stop_id, direction_id, service_id, :"$1"}, [], [:"$1"]}
+        {{stop_id, direction_id, service_id, :_, :"$1"}, [], [:"$1"]}
       end
 
     @table
@@ -55,7 +60,23 @@ defmodule State.RoutePatternsAtStop do
     |> Enum.uniq()
   end
 
-  def by_stop(stop_id), do: by_stop_and_direction(stop_id, [])
+  def route_patterns_by_stops_and_direction(stop_ids, opts \\ []) when is_list(stop_ids) do
+    direction_id = Keyword.get(opts, :direction_id, :_)
+
+    selectors =
+      for stop_id <- Enum.uniq(stop_ids),
+          service_id <- Keyword.get(opts, :service_ids, [:_]) do
+        {{stop_id, direction_id, service_id, :"$1", :_}, [], [:"$1"]}
+      end
+
+    @table
+    |> :ets.select(selectors)
+    |> Enum.uniq()
+  end
+
+  def routes_by_stop(stop_id), do: routes_by_stop_and_direction(stop_id, [])
+
+  def route_patterns_by_stop(stop_id), do: route_patterns_by_stop_and_direction(stop_id, [])
 
   def size do
     safe_ets_size(@table)
@@ -102,7 +123,7 @@ defmodule State.RoutePatternsAtStop do
         items =
           Trip.all()
           |> Enum.group_by(& &1.route_pattern_id)
-          |> Enum.flat_map(&do_gather_route/1)
+          |> Enum.flat_map(&do_gather_route_pattern/1)
 
         _ =
           if items != [] do
@@ -120,14 +141,14 @@ defmodule State.RoutePatternsAtStop do
     state
   end
 
-  defp do_gather_route({route_id, trips}) do
+  defp do_gather_route_pattern({route_pattern_id, trips}) do
     trips
     |> Stream.reject(&ignore_trip_for_route?/1)
     |> Enum.group_by(&{&1.direction_id, &1.service_id})
     |> Stream.flat_map(&do_gather_stops_on_trips/1)
     |> Stream.uniq()
-    |> Stream.map(fn {stop_id, direction_id, service_id} ->
-      {stop_id, direction_id, service_id, route_id}
+    |> Stream.map(fn {stop_id, direction_id, service_id, route_id} ->
+      {stop_id, direction_id, service_id, route_pattern_id, route_id}
     end)
   end
 
@@ -136,7 +157,7 @@ defmodule State.RoutePatternsAtStop do
     |> Enum.map(& &1.id)
     |> Schedule.by_trip_ids()
     |> Stream.map(fn schedule ->
-      {schedule.stop_id, direction_id, service_id}
+      {schedule.stop_id, direction_id, service_id, schedule.route_id}
     end)
   end
 end

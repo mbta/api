@@ -19,7 +19,7 @@ defmodule StateMediator.Integration.GtfsTest do
     Logger.configure(level: :info)
     maybe_start_bypass!(System.get_env("MBTA_GTFS_FILE"))
     :ok = Events.subscribe({:new_state, State.Shape})
-    :ok = Events.subscribe({:new_state, State.RoutesAtStop})
+    :ok = Events.subscribe({:new_state, State.RoutesPatternsAtStop})
     :ok = Events.subscribe({:new_state, State.StopsOnRoute})
     old_start = Application.get_env(:state_mediator, :start)
     Application.put_env(:state_mediator, :start, true)
@@ -31,7 +31,7 @@ defmodule StateMediator.Integration.GtfsTest do
       Application.stop(:state_mediator)
     end)
 
-    receive_items(State.RoutesAtStop)
+    receive_items(State.RoutesPatternsAtStop)
     receive_items(State.Shape)
     receive_items(State.StopsOnRoute)
     Logger.configure(level: :warn)
