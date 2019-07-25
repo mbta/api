@@ -101,6 +101,82 @@ defmodule ApiWeb.RoutePatternControllerTest do
              ] = json_response(conn, 200)["data"]
     end
 
+    test "can filter by stop", %{conn: conn} do
+      route = %Model.Route{id: "route"}
+      route_pattern = %RoutePattern{id: "pattern", route_id: route.id}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: route.id,
+        route_pattern_id: route_pattern.id,
+        direction_id: 0
+      }
+
+      stop = %Model.Stop{id: "stop"}
+      schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
+
+      State.Stop.new_state([stop])
+      State.Route.new_state([route])
+      State.RoutePattern.new_state([route_pattern])
+      State.Trip.new_state([trip])
+      State.Schedule.new_state([schedule])
+      State.RoutesPatternsAtStop.update!()
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"stop" => "stop"}
+          })
+        )
+
+      [data] = json_response(conn, 200)["data"]
+      assert "pattern" == data["id"]
+    end
+
+    test "can filter by stop and direction", %{conn: conn} do
+      route = %Model.Route{id: "route"}
+      route_pattern = %RoutePattern{id: "pattern", route_id: route.id}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: route.id,
+        route_pattern_id: route_pattern.id,
+        direction_id: 0
+      }
+
+      stop = %Model.Stop{id: "stop"}
+      schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
+
+      State.Stop.new_state([stop])
+      State.Route.new_state([route])
+      State.RoutePattern.new_state([route_pattern])
+      State.Trip.new_state([trip])
+      State.Schedule.new_state([schedule])
+      State.RoutesPatternsAtStop.update!()
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"stop" => "stop", "direction_id" => "0"}
+          })
+        )
+
+      [data] = json_response(conn, 200)["data"]
+      assert "pattern" == data["id"]
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"stop" => "stop", "direction_id" => "1"}
+          })
+        )
+
+      assert [] == json_response(conn, 200)["data"]
+    end
+
     test "can include route and trip", %{conn: conn} do
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp", route_id: "routeid", representative_trip_id: "tripid"}

@@ -10,10 +10,13 @@ defmodule State.RoutePattern do
 
   alias Model.Route
   alias Model.RoutePattern
+  alias Model.Stop
+  alias State.RoutesPatternsAtStop
 
   @type filters :: %{
           optional(:ids) => [RoutePattern.id()],
-          optional(:route_ids) => [Route.id()]
+          optional(:route_ids) => [Route.id()],
+          optional(:stop_ids) => [Stop.id()]
         }
 
   @spec by_id(String.t()) :: RoutePattern.t() | nil
@@ -36,6 +39,18 @@ defmodule State.RoutePattern do
 
   def filter_by(%{route_ids: route_ids}) do
     by_route_ids(route_ids)
+  end
+
+  def filter_by(%{stop_ids: stop_ids, direction_id: direction_id}) do
+    stop_ids
+    |> RoutesPatternsAtStop.route_patterns_by_stops_and_direction([{:direction_id, direction_id}])
+    |> by_ids()
+  end
+
+  def filter_by(%{stop_ids: stop_ids}) do
+    stop_ids
+    |> RoutesPatternsAtStop.route_patterns_by_stops_and_direction()
+    |> by_ids()
   end
 
   def filter_by(%{} = map) when map_size(map) == 0 do

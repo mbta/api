@@ -10,7 +10,7 @@ defmodule ApiWeb.RoutePatternController do
 
   plug(:ensure_path_matches_version)
 
-  @filters ~w(id route direction_id)
+  @filters ~w(id route direction_id stop)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
@@ -46,6 +46,7 @@ defmodule ApiWeb.RoutePatternController do
 
     filter_param(:id, name: :route)
     filter_param(:direction_id)
+    filter_param(:id, name: :stop)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -92,6 +93,9 @@ defmodule ApiWeb.RoutePatternController do
 
         {"direction_id", direction_id} ->
           {:direction_id, Params.direction_id(%{"direction_id" => direction_id})}
+
+        {"stop", stop_ids} ->
+          {:stop_ids, Params.split_on_comma(stop_ids)}
       end
     end)
   end
