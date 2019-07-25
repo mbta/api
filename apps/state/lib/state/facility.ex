@@ -102,8 +102,8 @@ defmodule State.Facility do
 
     Enum.to_list(
       Enum.reduce(search_results, :no_results, fn
-        results, %MapSet{} = acc -> MapSet.intersection(acc, MapSet.new(results))
         results, :no_results -> MapSet.new(results)
+        results, acc -> results |> MapSet.new() |> MapSet.intersection(acc)
       end)
     )
   end
