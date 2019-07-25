@@ -13,7 +13,7 @@ defmodule ApiWeb.Plugs.VersionTest do
       |> bypass_through(ApiWeb.Router, :api)
       |> Map.put(:assigns, %{})
 
-    Logger.metadata(version: :unset)
+    Logger.metadata(api_version: :unset)
 
     {:ok, %{conn: conn}}
   end
