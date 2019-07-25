@@ -32,6 +32,23 @@ defmodule State.RoutePattern do
     by_ids(ids)
   end
 
+  def filter_by(%{route_ids: route_ids, stop_ids: stop_ids} = filters) do
+    opts =
+      case filters do
+        %{direction_id: direction_id} -> [direction_id: direction_id]
+        _ -> []
+      end
+
+    ids = RoutesPatternsAtStop.route_patterns_by_stops_and_direction(stop_ids, opts)
+
+    matchers =
+      for id <- ids, route_id <- route_ids do
+        %{route_id: route_id, id: id}
+      end
+
+    select(matchers, :id)
+  end
+
   def filter_by(%{route_ids: route_ids, direction_id: direction_id}) do
     matchers = for route_id <- route_ids, do: %{route_id: route_id, direction_id: direction_id}
     select(matchers, :route_id)
@@ -41,16 +58,16 @@ defmodule State.RoutePattern do
     by_route_ids(route_ids)
   end
 
-  def filter_by(%{stop_ids: stop_ids, direction_id: direction_id}) do
-    stop_ids
-    |> RoutesPatternsAtStop.route_patterns_by_stops_and_direction([{:direction_id, direction_id}])
-    |> by_ids()
-  end
+  def filter_by(%{stop_ids: stop_ids} = filters) do
+    opts =
+      case filters do
+        %{direction_id: direction_id} -> [direction_id: direction_id]
+        _ -> []
+      end
 
-  def filter_by(%{stop_ids: stop_ids}) do
     stop_ids
-    |> RoutesPatternsAtStop.route_patterns_by_stops_and_direction()
-    |> by_ids()
+    |> RoutesPatternsAtStop.route_patterns_by_stops_and_direction(opts)
+    |> by_ids
   end
 
   def filter_by(%{} = map) when map_size(map) == 0 do

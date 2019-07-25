@@ -134,7 +134,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
       assert "pattern" == data["id"]
     end
 
-    test "can filter by stop and direction", %{conn: conn} do
+    test "can filter by route, stop and direction", %{conn: conn} do
       route = %Model.Route{id: "route"}
       route_pattern = %RoutePattern{id: "pattern", route_id: route.id}
 
@@ -170,7 +170,28 @@ defmodule ApiWeb.RoutePatternControllerTest do
         get(
           conn,
           route_pattern_path(conn, :index, %{
+            "filter" => %{"stop" => "stop", "direction_id" => "0", "route" => "route"}
+          })
+        )
+
+      [data] = json_response(conn, 200)["data"]
+      assert "pattern" == data["id"]
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
             "filter" => %{"stop" => "stop", "direction_id" => "1"}
+          })
+        )
+
+      assert [] == json_response(conn, 200)["data"]
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"stop" => "stop", "direction_id" => "0", "route" => "not_route"}
           })
         )
 

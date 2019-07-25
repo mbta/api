@@ -5,7 +5,7 @@ defmodule State.RoutePatternTest do
   import State.RoutePattern
 
   describe "filter_by/1" do
-    test "filters by stop id and direction" do
+    test "filters by route, stop and direction" do
       route = %Model.Route{id: "route"}
       route_pattern = %RoutePattern{id: "pattern", route_id: route.id}
 
@@ -27,9 +27,11 @@ defmodule State.RoutePatternTest do
       State.RoutesPatternsAtStop.update!()
 
       assert filter_by(%{stop_ids: ["stop"]}) == [route_pattern]
-      assert filter_by(%{stop_ids: ["not_at_stop"]}) == []
+      assert filter_by(%{stop_ids: ["not_stop"]}) == []
       assert filter_by(%{stop_ids: ["stop"], direction_id: 0}) == [route_pattern]
       assert filter_by(%{stop_ids: ["stop"], direction_id: 1}) == []
+      assert filter_by(%{route_ids: ["route"], stop_ids: ["stop"]}) == [route_pattern]
+      assert filter_by(%{route_ids: ["not_route"], stop_ids: ["stop"]}) == []
     end
   end
 end
