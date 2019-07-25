@@ -14,10 +14,11 @@ config :api_web, ApiWeb.Endpoint,
   http: [compress: true, protocol_options: [idle_timeout: 86_400_000]]
 
 config :api_web, :rate_limiter,
-  limiter: ApiWeb.RateLimiter.ETS,
   clear_interval: 60_000,
+  limiter: ApiWeb.RateLimiter.ETS,
   max_anon_per_interval: 5_000,
-  max_registered_per_interval: 100_000
+  max_registered_per_interval: 100_000,
+  wait_time_ms: 0
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: false
 

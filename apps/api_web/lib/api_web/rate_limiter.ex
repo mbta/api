@@ -8,6 +8,7 @@ defmodule ApiWeb.RateLimiter do
   """
   @limiter ApiWeb.config(:rate_limiter, :limiter)
   @clear_interval ApiWeb.config(:rate_limiter, :clear_interval)
+  @wait_time_ms ApiWeb.config(:rate_limiter, :wait_time_ms)
   @intervals_per_day div(86_400_000, @clear_interval)
   @max_anon_per_interval ApiWeb.config(:rate_limiter, :max_anon_per_interval)
   @max_registered_per_interval ApiWeb.config(:rate_limiter, :max_registered_per_interval)
@@ -47,6 +48,8 @@ defmodule ApiWeb.RateLimiter do
 
     case @limiter.rate_limited?(key, max) do
       :rate_limited ->
+        # wait some time to avoid rate-limited clients hammering the server
+        Process.sleep(@wait_time_ms)
         {:rate_limited, {max, 0, reset_ms}}
 
       {:remaining, remaining} ->
