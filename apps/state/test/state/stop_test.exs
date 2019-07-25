@@ -110,7 +110,7 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{routes: ["route"]}) == [stop]
@@ -126,7 +126,7 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{routes: ["route"], direction_id: 0}) == []
@@ -142,7 +142,7 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{direction_id: 0}) == [stop]
@@ -172,7 +172,7 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{routes: ["route"], date: today}) == [stop]
@@ -201,7 +201,7 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{routes: ["route"], date: today}) == [stop]
@@ -219,8 +219,8 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
 
       assert State.Stop.filter_by(%{latitude: 3, longitude: 3}) == []
       assert State.Stop.filter_by(%{latitude: 2, longitude: 2}) == []
@@ -236,7 +236,7 @@ defmodule State.StopTest do
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{latitude: 3, longitude: 3, radius: 1}) == []
@@ -247,12 +247,12 @@ defmodule State.StopTest do
       stop = %Stop{id: "1"}
       route = %Model.Route{id: "route", type: 2}
       trip = %Model.Trip{id: "trip", route_id: "route"}
-      schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
+      schedule = %Model.Schedule{trip_id: "trip", stop_id: "1", route_id: "route"}
       State.Stop.new_state([stop])
       State.Route.new_state([route])
       State.Trip.new_state([trip])
       State.Schedule.new_state([schedule])
-      State.RoutesAtStop.update!()
+      State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
       assert State.Stop.filter_by(%{route_types: [0]}) == []

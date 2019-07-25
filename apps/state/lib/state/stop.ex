@@ -5,7 +5,7 @@ defmodule State.Stop do
   """
   use Supervisor
   alias Model.{Stop, WGS84}
-  alias State.{Route, RoutesAtStop, ServiceByDate, StopsOnRoute}
+  alias State.{Route, RoutesPatternsAtStop, ServiceByDate, StopsOnRoute}
 
   @worker_count 5
 
@@ -246,7 +246,7 @@ defmodule State.Stop do
     stops
     |> Enum.filter(fn stop ->
       stop.id
-      |> RoutesAtStop.by_stop()
+      |> RoutesPatternsAtStop.routes_by_stop()
       |> Route.by_ids()
       |> Enum.any?(&(&1.type in route_types))
     end)

@@ -9,7 +9,7 @@ defmodule Health.Checkers.State do
     State.Alert,
     State.ServiceByDate,
     State.StopsOnRoute,
-    State.RoutesAtStop,
+    State.RoutesPatternsAtStop,
     State.Shape
   ]
 
