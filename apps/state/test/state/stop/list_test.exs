@@ -15,15 +15,17 @@ defmodule State.Stop.ListTest do
   end
 
   property "does not crash when provided stops" do
-    check all stops <- list_of(stop()) do
+    check all(stops <- list_of(stop())) do
       StopList.new(stops)
     end
   end
 
   defp stop do
     # generate stops, some of which don't have a location
-    gen all id <- string(:ascii),
-            {latitude, longitude} <- one_of([tuple({float(), float()}), constant({nil, nil})]) do
+    gen all(
+          id <- string(:ascii),
+          {latitude, longitude} <- one_of([tuple({float(), float()}), constant({nil, nil})])
+        ) do
       %Stop{id: id, latitude: latitude, longitude: longitude}
     end
   end

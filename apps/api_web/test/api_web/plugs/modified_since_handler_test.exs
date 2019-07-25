@@ -80,9 +80,11 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandlerTest do
 
   describe "is_modified?/2" do
     property "is true when first header is greater than second header" do
-      check all {first, first_header} <- rfc1123(),
-                {second, second_header} <- rfc1123(),
-                max_runs: 1000 do
+      check all(
+              {first, first_header} <- rfc1123(),
+              {second, second_header} <- rfc1123(),
+              max_runs: 1000
+            ) do
         expected = first > second
         actual = ModifiedSinceHandler.is_modified?(first_header, second_header)
         assert expected == actual
@@ -90,7 +92,7 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandlerTest do
     end
 
     defp rfc1123 do
-      gen all base_timestamp <- integer() do
+      gen all(base_timestamp <- integer()) do
         timestamp = base_timestamp * 10_000
         {:ok, datetime} = DateTime.from_unix(timestamp)
         {:ok, <<rendered::binary-26, "Z">>} = Timex.format(datetime, "{RFC1123z}")

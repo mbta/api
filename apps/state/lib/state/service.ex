@@ -6,7 +6,7 @@ defmodule State.Service do
 
   """
   use State.Server,
-    indicies: [:id],
+    indices: [:id],
     recordable: Model.Service
 
   alias Events.Gather

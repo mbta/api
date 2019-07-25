@@ -12,7 +12,7 @@ defmodule ApiWeb.PredictionController do
   require Logger
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type date)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type date route_pattern)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -61,6 +61,12 @@ defmodule ApiWeb.PredictionController do
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
 
+    parameter("filter[route_pattern]", :query, :string, """
+    Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{
+      comma_separated_list()
+    }.
+    """)
+
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
     response(200, "OK", Schema.ref(:Predictions))
@@ -77,6 +83,7 @@ defmodule ApiWeb.PredictionController do
 
       stop_ids = stop_ids(filtered_params, conn)
       route_ids = Params.split_on_comma(filtered_params, "route")
+      route_pattern_ids = Params.split_on_comma(filtered_params, "route_pattern")
       route_types = Params.route_types(filtered_params)
 
       direction_id_matcher =
@@ -94,8 +101,17 @@ defmodule ApiWeb.PredictionController do
           filtered_params
           |> Params.split_on_comma("trip")
           |> case do
-            [] -> all_stops_and_routes(stop_ids, route_ids, matchers)
-            trip_ids -> all_stops_and_trips(stop_ids, trip_ids, matchers)
+            [] ->
+              case route_pattern_ids do
+                [] ->
+                  all_stops_and_routes(stop_ids, route_ids, matchers)
+
+                route_pattern_ids ->
+                  all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
+              end
+
+            trip_ids ->
+              all_stops_and_trips(stop_ids, trip_ids, matchers)
           end
           |> Prediction.filter_by_route_type(route_types)
           |> State.all(pagination_opts)
@@ -273,6 +289,15 @@ defmodule ApiWeb.PredictionController do
       Map.merge(matcher, %{stop_id: stop_id, trip_id: trip_id})
     end
     |> select(:stop_id)
+  end
+
+  defp all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers) do
+    trip_ids =
+      %{route_patterns: route_pattern_ids}
+      |> State.Trip.filter_by()
+      |> Stream.map(& &1.id)
+
+    all_stops_and_trips(stop_ids, trip_ids, matchers)
   end
 
   def select(matchers, index) do

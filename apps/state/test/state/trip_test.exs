@@ -185,12 +185,6 @@ defmodule State.TripTest do
   end
 
   describe "handle_new_state" do
-    test "rejects trips with services that aren't valid" do
-      new_state(%{multi_route_trips: [], trips: [%Model.Trip{service_id: "no_service"}]})
-
-      assert all() == []
-    end
-
     test "includes trips with valid services" do
       new_state(%{multi_route_trips: [], trips: [@trip]})
 
