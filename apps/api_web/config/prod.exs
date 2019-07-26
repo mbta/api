@@ -30,7 +30,9 @@ config :api_web, :api_pipeline,
   authenticated_accepts: ["event-stream"],
   accepts: ["json", "json-api"]
 
-config :api_web, :rate_limiter, limiter: ApiWeb.RateLimiter.Memcache
+config :api_web, :rate_limiter,
+  limiter: ApiWeb.RateLimiter.Memcache,
+  wait_time_ms: 100
 
 config :api_web, RateLimiter.Memcache,
   connection_opts: [
