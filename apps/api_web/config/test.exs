@@ -4,7 +4,10 @@ use Mix.Config
 # you can enable the server option below.
 config :api_web, ApiWeb.Endpoint,
   http: [port: 4001],
-  server: false
+  server: false,
+  secret_key_base: "v1EHfW07QPr8ai7bi0hooadtBorROPNjhSWx7CGv7AiCOhEyGoeT1jagMTNCE3PU"
+
+config :api_web, :signing_salt, "NdisAeo6Jf02spiKqa"
 
 config :api_web, :rate_limiter,
   max_anon_per_interval: 5,
