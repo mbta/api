@@ -27,6 +27,29 @@ defmodule State.Server.Query do
     do_query(module, q)
   end
 
+  defp do_query(module, q) when map_size(q) > 1 do
+    index = first_index(module.indices(), q)
+    index_values = Map.get(q, index)
+    rest = Map.delete(q, index)
+
+    {struct, guards} =
+      rest
+      |> Enum.with_index(1)
+      |> Enum.reduce({module.recordable().filled(:_), []}, &build_struct_and_guards/2)
+
+    match_specs =
+      for value <- index_values do
+        record =
+          struct
+          |> Map.put(index, value)
+          |> module.recordable().to_record()
+
+        {record, guards, [:"$_"]}
+      end
+
+    Server.select_with_selectors(module, match_specs)
+  end
+
   defp do_query(module, q) when map_size(q) == 1 do
     [{index, values}] = Map.to_list(q)
     Server.by_index(values, module, {index, module.key_index}, [])
@@ -50,7 +73,44 @@ defmodule State.Server.Query do
       :b
   """
   @spec first_index([index, ...], q) :: index
-  def first_index(indicies, q) do
-    Enum.find(indicies, &Map.has_key?(q, &1))
+  def first_index(indices, q) do
+    Enum.find(indices, &Map.has_key?(q, &1))
+  end
+
+  @doc """
+  Generate a guard for a match specification where the variable is one of the provided values.
+
+  ## Examples
+
+      iex> build_guard(:x, [1])
+      {:==, :x, 1}
+
+      iex> build_guard(:y, [1, 2])
+      {:orelse, {:==, :y, 1}, {:==, :y, 2}}
+
+      iex> build_guard(:z, [])
+      false
+  """
+  @spec build_guard(variable, values) :: tuple when variable: atom, values: [any]
+  def build_guard(variable, values)
+
+  def build_guard(variable, [_, _ | _] = values) do
+    guards = for value <- values, do: build_guard(variable, [value])
+    List.to_tuple([:orelse | guards])
+  end
+
+  def build_guard(variable, [value]) do
+    {:==, variable, value}
+  end
+
+  def build_guard(_variable, []) do
+    false
+  end
+
+  defp build_struct_and_guards({{key, values}, i}, {struct, guards}) do
+    query_variable = String.to_atom("$#{i}")
+    struct = Map.put(struct, key, query_variable)
+    guard = build_guard(query_variable, values)
+    {struct, [guard | guards]}
   end
 end

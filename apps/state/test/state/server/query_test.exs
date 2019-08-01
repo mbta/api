@@ -36,6 +36,25 @@ defmodule State.Server.QueryTest do
       assert [%Example{id: 1}] = query(Server, %{id: [0, 1]})
       assert [] = query(Server, %{id: [0]})
     end
+
+    test "given multiple queries, combines them" do
+      items = gen_items(2)
+      Server.new_state(items)
+
+      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [:value]})
+      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [:value, :other]})
+      assert [%Example{id: 1}] = query(Server, %{id: [0, 1], data: [:value, :other]})
+      assert [] = query(Server, %{id: [0], data: [:value]})
+      assert [] = query(Server, %{id: [1], data: [:other]})
+    end
+
+    test "can query against non-key indices" do
+      items = gen_items(2)
+      Server.new_state(items)
+
+      assert [%Example{id: 1}] = query(Server, %{other_key: [10]})
+      assert [%Example{id: 1}] = query(Server, %{other_key: [10], data: [:value]})
+    end
   end
 
   defp start_server(_) do
@@ -55,7 +74,7 @@ defmodule State.Server.QueryTest do
 
   defp gen_items(count) do
     for i <- 1..count do
-      %Example{id: i, data: i}
+      %Example{id: i, data: :value, other_key: 10 * i}
     end
   end
 end
