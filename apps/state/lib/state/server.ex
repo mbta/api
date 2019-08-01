@@ -103,6 +103,9 @@ defmodule State.Server do
       def select_limit(matchers, num_objects),
         do: Server.select_limit(__MODULE__, matchers, num_objects)
 
+      @spec query(map) :: [RECORDABLE.t()]
+      def query(q), do: Server.Query.query(__MODULE__, q)
+
       # define a `by_<index>` and `by_<index>s` method for each indexed field
       unquote(State.Server.def_by_indices(indices, key_index: key_index))
 
@@ -125,7 +128,7 @@ defmodule State.Server do
       The index for the primary key
       """
       @spec key_index :: atom
-      def key_index, do: List.first(recordable().fields())
+      def key_index, do: unquote(key_index)
 
       @doc """
       Module that defines struct used in state list and implements `Recordable` behaviour.
