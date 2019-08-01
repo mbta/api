@@ -35,4 +35,22 @@ defmodule State.Server.Query do
   defp do_query(module, _q) do
     module.all()
   end
+
+  @doc """
+  Returns the first index which has a value in the query.
+
+  ## Examples
+
+      iex> first_index([:a, :b], %{a: 1})
+      :a
+      iex> first_index([:a, :b], %{a: 1, b: 2})
+      :a
+
+      iex> first_index([:a, :b], %{b: 2})
+      :b
+  """
+  @spec first_index([index, ...], q) :: index
+  def first_index(indicies, q) do
+    Enum.find(indicies, &Map.has_key?(q, &1))
+  end
 end
