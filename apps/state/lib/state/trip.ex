@@ -4,7 +4,7 @@ defmodule State.Trip do
   """
 
   use State.Server,
-    indices: [:id, :route_id],
+    indices: [:id, :route_id, :route_pattern_id],
     recordable: Model.Trip
 
   alias Events.Gather
@@ -66,7 +66,8 @@ defmodule State.Trip do
 
   def filter_by(filters) do
     filters
-    |> do_apply_filters()
+    |> build_query()
+    |> query_both()
     |> Stream.map(&replace_alternate_trips(&1))
     |> Stream.uniq_by(& &1.id)
     |> Enum.sort_by(& &1.id)
@@ -157,38 +158,52 @@ defmodule State.Trip do
     [new_trip | new_alternates]
   end
 
-  defp do_apply_filters(%{} = f) when map_size(f) == 0, do: []
-  defp do_apply_filters(%{direction_id: _id} = f) when map_size(f) == 1, do: []
-  defp do_apply_filters(%{date: _date} = f) when map_size(f) == 1, do: []
-  defp do_apply_filters(%{date: _date, direction_id: _id} = f) when map_size(f) == 2, do: []
+  defp build_query(filters, query \\ %{})
 
-  defp do_apply_filters(filters) do
-    matchers =
-      [%{}]
-      |> build_filters(:name, filters[:names])
-      |> build_filters(:route_id, filters[:routes])
-      |> build_filters(:direction_id, filters[:direction_id])
-      |> build_filters(:route_pattern_id, filters[:route_patterns])
-      |> build_filters(:id, filters[:ids])
-
-    idx = get_index(filters)
-    trips = State.Trip.select(matchers, idx) ++ State.Trip.Added.select(matchers, idx)
-
-    case Map.fetch(filters, :date) do
-      :error -> trips
-      {:ok, date} -> Enum.filter(trips, &ServiceByDate.valid?(&1.service_id, date))
-    end
+  defp build_query(%{direction_id: direction_id} = filters, query) do
+    filters = Map.delete(filters, :direction_id)
+    query = Map.put(query, :direction_id, [direction_id])
+    build_query(filters, query)
   end
 
-  defp build_filters(matchers, _key, nil), do: matchers
-
-  defp build_filters(matchers, key, values) do
-    for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
+  defp build_query(%{date: date} = filters, query) do
+    filters = Map.delete(filters, :date)
+    service_ids = ServiceByDate.by_date(date)
+    query = Map.put(query, :service_id, service_ids)
+    build_query(filters, query)
   end
 
-  defp get_index(%{ids: ids}) when ids != [], do: :id
-  defp get_index(%{routes: ids}) when ids != [], do: :route_id
-  defp get_index(_), do: nil
+  defp build_query(%{routes: routes} = filters, query) do
+    filters = Map.delete(filters, :routes)
+    query = Map.put(query, :route_id, routes)
+    build_query(filters, query)
+  end
+
+  defp build_query(%{route_patterns: routes} = filters, query) do
+    filters = Map.delete(filters, :route_patterns)
+    query = Map.put(query, :route_pattern_id, routes)
+    build_query(filters, query)
+  end
+
+  defp build_query(%{names: names} = filters, query) do
+    filters = Map.delete(filters, :names)
+    query = Map.put(query, :name, names)
+    build_query(filters, query)
+  end
+
+  defp build_query(%{ids: ids} = filters, query) do
+    filters = Map.delete(filters, :ids)
+    query = Map.put(query, :id, ids)
+    build_query(filters, query)
+  end
+
+  defp build_query(_, query) do
+    query
+  end
+
+  defp query_both(query) do
+    State.Trip.Added.query(query) ++ State.Trip.query(query)
+  end
 
   @spec multi_route_trips_to_added_route_ids_by_trip_id([MultiRouteTrip.t()]) :: %{
           Trip.id() => [Route.id(), ...]

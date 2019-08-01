@@ -50,8 +50,8 @@ defmodule State.Server.Query do
     Server.select_with_selectors(module, match_specs)
   end
 
-  defp do_query(module, _q) do
-    module.all()
+  defp do_query(_module, _q) do
+    []
   end
 
   @doc """

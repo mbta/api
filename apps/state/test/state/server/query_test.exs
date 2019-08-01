@@ -23,9 +23,9 @@ defmodule State.Server.QueryTest do
   describe "query/2" do
     setup :start_server
 
-    test "returns all items without a query" do
+    test "returns no items without a query" do
       Server.new_state([%Example{}])
-      assert query(Server, %{}) == [%Example{}]
+      assert query(Server, %{}) == []
     end
 
     test "given a query on the index, returns that item" do
