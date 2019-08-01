@@ -27,7 +27,7 @@ defmodule State.Server.Query do
     do_query(module, q)
   end
 
-  defp do_query(module, q) when map_size(q) > 1 do
+  defp do_query(module, q) when map_size(q) > 0 do
     index = first_index(module.indices(), q)
     index_values = Map.get(q, index)
     rest = Map.delete(q, index)
@@ -50,17 +50,14 @@ defmodule State.Server.Query do
     Server.select_with_selectors(module, match_specs)
   end
 
-  defp do_query(module, q) when map_size(q) == 1 do
-    [{index, values}] = Map.to_list(q)
-    Server.by_index(values, module, {index, module.key_index}, [])
-  end
-
   defp do_query(module, _q) do
     module.all()
   end
 
   @doc """
   Returns the first index which has a value in the query.
+
+  If no index has a value in the query, return any key that's there.
 
   ## Examples
 
@@ -71,10 +68,19 @@ defmodule State.Server.Query do
 
       iex> first_index([:a, :b], %{b: 2})
       :b
+
+      iex> first_index([:a, :b], %{c: 3})
+      :c
   """
   @spec first_index([index, ...], q) :: index
   def first_index(indices, q) do
-    Enum.find(indices, &Map.has_key?(q, &1))
+    index = Enum.find(indices, &Map.has_key?(q, &1))
+
+    if index do
+      index
+    else
+      List.first(Map.keys(q))
+    end
   end
 
   @doc """

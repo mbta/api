@@ -41,10 +41,10 @@ defmodule State.Server.QueryTest do
       items = gen_items(2)
       Server.new_state(items)
 
-      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [:value]})
-      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [:value, :other]})
-      assert [%Example{id: 1}] = query(Server, %{id: [0, 1], data: [:value, :other]})
-      assert [] = query(Server, %{id: [0], data: [:value]})
+      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [1]})
+      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [1, :other]})
+      assert [%Example{id: 1}] = query(Server, %{id: [0, 1], data: [1, :other]})
+      assert [] = query(Server, %{id: [0], data: [1]})
       assert [] = query(Server, %{id: [1], data: [:other]})
     end
 
@@ -53,7 +53,16 @@ defmodule State.Server.QueryTest do
       Server.new_state(items)
 
       assert [%Example{id: 1}] = query(Server, %{other_key: [10]})
-      assert [%Example{id: 1}] = query(Server, %{other_key: [10], data: [:value]})
+      assert [%Example{id: 1}] = query(Server, %{other_key: [10], data: [1]})
+    end
+
+    test "can query against non-index values" do
+      items = gen_items(2)
+      Server.new_state(items)
+
+      assert [%Example{id: 1}] = query(Server, %{data: [1]})
+      assert [%Example{id: 1}] = query(Server, %{data: [0, 1]})
+      assert [] = query(Server, %{data: [0]})
     end
   end
 
@@ -74,7 +83,7 @@ defmodule State.Server.QueryTest do
 
   defp gen_items(count) do
     for i <- 1..count do
-      %Example{id: i, data: :value, other_key: 10 * i}
+      %Example{id: i, data: i, other_key: 10 * i}
     end
   end
 end
