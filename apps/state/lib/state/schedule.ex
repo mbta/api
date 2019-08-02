@@ -2,7 +2,7 @@ defmodule State.Schedule do
   @moduledoc "State for Schedules"
 
   use State.Server,
-    indices: [:trip_id, :stop_id],
+    indices: [:trip_id, :route_id, :stop_id],
     recordable: Model.Schedule
 
   require Logger
