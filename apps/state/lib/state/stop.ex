@@ -90,6 +90,30 @@ defmodule State.Stop do
     end
   end
 
+  @doc """
+  Return the location_type 0 stop IDs given their ID or a parent's ID.
+  Useful for querying schedules or predictions, where the stop ID can only be location_type 0.
+  """
+  def location_type_0_ids_by_parent_ids(ids) do
+    ids
+    |> by_ids()
+    |> Enum.flat_map(fn
+      %{id: id, location_type: 0} ->
+        [id]
+
+      %{id: parent_id, location_type: 1} ->
+        parent_id
+        |> by_parent_station()
+        |> Enum.flat_map(fn
+          %{id: id, location_type: 0} -> [id]
+          _ -> []
+        end)
+
+      _ ->
+        []
+    end)
+  end
+
   @spec around(WGS84.latitude(), WGS84.longitude()) :: [Model.Stop.t()]
   @spec around(WGS84.latitude(), WGS84.longitude(), State.Stop.List.radius()) :: [Model.Stop.t()]
   def around(latitude, longitude, radius \\ 0.01) do
