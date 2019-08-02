@@ -29,28 +29,30 @@ defmodule State.Server.Query do
 
   defp do_query(module, q) when map_size(q) > 0 do
     index = first_index(module.indices(), q)
-    index_values = Map.get(q, index)
     rest = Map.delete(q, index)
+    recordable = module.recordable()
 
-    {struct, guards} =
-      rest
-      |> Enum.with_index(1)
-      |> Enum.reduce({module.recordable().filled(:_), []}, &build_struct_and_guards/2)
+    case Enum.reduce_while(rest, {recordable.filled(:_), [], 1}, &build_struct_and_guards/2) do
+      {struct, guards, _} ->
+        # put shorter guards at the front
+        guards = Enum.sort(guards)
 
-    if false in guards do
-      []
-    else
-      match_specs =
-        for value <- index_values do
-          record =
-            struct
-            |> Map.put(index, value)
-            |> module.recordable().to_record()
+        index_values = Map.get(q, index)
 
-          {record, guards, [:"$_"]}
-        end
+        match_specs =
+          for value <- index_values do
+            record =
+              struct
+              |> Map.put(index, value)
+              |> recordable.to_record()
 
-      Server.select_with_selectors(module, match_specs)
+            {record, guards, [:"$_"]}
+          end
+
+        Server.select_with_selectors(module, match_specs)
+
+      :empty ->
+        []
     end
   end
 
@@ -100,20 +102,24 @@ defmodule State.Server.Query do
     List.to_tuple([:orelse | guards])
   end
 
-  defp build_struct_and_guards({{key, [value]}, _i}, {struct, guards}) do
+  defp build_struct_and_guards({key, [value]}, {struct, guards, i}) do
     struct = Map.put(struct, key, value)
-    {struct, guards}
+    {:cont, {struct, guards, i}}
   end
 
-  defp build_struct_and_guards({{key, [_, _ | _] = values}, i}, {struct, guards}) do
-    query_variable = String.to_atom("$#{i}")
+  defp build_struct_and_guards({key, [_, _ | _] = values}, {struct, guards, i}) do
+    query_variable = query_variable(i)
     struct = Map.put(struct, key, query_variable)
     guard = build_guard(query_variable, values)
-    {struct, [guard | guards]}
+    {:cont, {struct, [guard | guards], i + 1}}
   end
 
-  defp build_struct_and_guards({{_key, []}, _i}, {struct, _guards}) do
-    guard = false
-    {struct, [guard]}
+  defp build_struct_and_guards({_key, []}, _) do
+    {:halt, :empty}
+  end
+
+  # build query variables at compile time
+  for i <- 1..20 do
+    defp query_variable(unquote(i)), do: unquote(String.to_atom("$#{i}"))
   end
 end
