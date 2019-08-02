@@ -28,6 +28,11 @@ defmodule State.Server.QueryTest do
       assert query(Server, %{}) == []
     end
 
+    test "returns no items with an empty query" do
+      Server.new_state([%Example{}])
+      assert query(Server, %{id: []}) == []
+    end
+
     test "given a query on the index, returns that item" do
       items = gen_items(2)
       Server.new_state(items)

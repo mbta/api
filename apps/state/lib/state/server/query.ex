@@ -37,17 +37,21 @@ defmodule State.Server.Query do
       |> Enum.with_index(1)
       |> Enum.reduce({module.recordable().filled(:_), []}, &build_struct_and_guards/2)
 
-    match_specs =
-      for value <- index_values do
-        record =
-          struct
-          |> Map.put(index, value)
-          |> module.recordable().to_record()
+    if false in guards do
+      []
+    else
+      match_specs =
+        for value <- index_values do
+          record =
+            struct
+            |> Map.put(index, value)
+            |> module.recordable().to_record()
 
-        {record, guards, [:"$_"]}
-      end
+          {record, guards, [:"$_"]}
+        end
 
-    Server.select_with_selectors(module, match_specs)
+      Server.select_with_selectors(module, match_specs)
+    end
   end
 
   defp do_query(_module, _q) do
@@ -87,36 +91,29 @@ defmodule State.Server.Query do
   Generate a guard for a match specification where the variable is one of the provided values.
 
   ## Examples
-
-      iex> build_guard(:x, [1])
-      {:==, :x, 1}
-
       iex> build_guard(:y, [1, 2])
-      {:orelse, {:==, :y, 1}, {:==, :y, 2}}
-
-      iex> build_guard(:z, [])
-      false
+      {:orelse, {:"=:=", :y, 1}, {:"=:=", :y, 2}}
   """
-  @spec build_guard(variable, values) :: tuple when variable: atom, values: [any]
-  def build_guard(variable, values)
-
+  @spec build_guard(variable, values) :: tuple when variable: atom, values: [any, ...]
   def build_guard(variable, [_, _ | _] = values) do
-    guards = for value <- values, do: build_guard(variable, [value])
+    guards = for value <- values, do: {:"=:=", variable, value}
     List.to_tuple([:orelse | guards])
   end
 
-  def build_guard(variable, [value]) do
-    {:==, variable, value}
+  defp build_struct_and_guards({{key, [value]}, _i}, {struct, guards}) do
+    struct = Map.put(struct, key, value)
+    {struct, guards}
   end
 
-  def build_guard(_variable, []) do
-    false
-  end
-
-  defp build_struct_and_guards({{key, values}, i}, {struct, guards}) do
+  defp build_struct_and_guards({{key, [_, _ | _] = values}, i}, {struct, guards}) do
     query_variable = String.to_atom("$#{i}")
     struct = Map.put(struct, key, query_variable)
     guard = build_guard(query_variable, values)
     {struct, [guard | guards]}
+  end
+
+  defp build_struct_and_guards({{_key, []}, _i}, {struct, _guards}) do
+    guard = false
+    {struct, [guard]}
   end
 end
