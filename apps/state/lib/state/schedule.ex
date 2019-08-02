@@ -165,7 +165,7 @@ defmodule State.Schedule do
   end
 
   defp convert_filters(%{stops: stop_ids} = filters) do
-    stops = stops_by_family_ids(stop_ids)
+    stops = State.Stop.location_type_0_ids_by_parent_ids(stop_ids)
     Map.put(filters, :stops, stops)
   end
 
@@ -290,12 +290,5 @@ defmodule State.Schedule do
   defp in_time_range?(schedule, min_time, max_time) do
     time = Schedule.time(schedule)
     min_time <= time and time <= max_time
-  end
-
-  @spec stops_by_family_ids([String.t()]) :: [Model.Stop.id()]
-  defp stops_by_family_ids(stop_ids) do
-    stop_ids
-    |> State.Stop.by_family_ids()
-    |> Enum.map(& &1.id)
   end
 end
