@@ -68,6 +68,28 @@ defmodule State.StopTest do
     end
   end
 
+  describe "location_type_0_ids_by_parent_ids/1" do
+    setup do
+      parent = %Stop{id: "5", location_type: 1}
+      child = %Stop{id: "6", parent_station: "5"}
+      entrance = %Stop{id: "ent", parent_station: "5", location_type: 2}
+      node = %Stop{id: "node", parent_station: "5", location_type: 3}
+      other = %Stop{id: "7"}
+      new_state([parent, child, entrance, node, other])
+      {:ok, %{parent: parent, child: child, other: other}}
+    end
+
+    test "returns the IDs of stops with location_type 0", stops do
+      assert location_type_0_ids_by_parent_ids([stops.child.id]) == [stops.child.id]
+      assert location_type_0_ids_by_parent_ids([stops.parent.id]) == [stops.child.id]
+
+      assert location_type_0_ids_by_parent_ids([stops.other.id, stops.parent.id]) == [
+               stops.other.id,
+               stops.child.id
+             ]
+    end
+  end
+
   describe "filter_by/1" do
     test "lists all stops when no filters are given" do
       stops =
