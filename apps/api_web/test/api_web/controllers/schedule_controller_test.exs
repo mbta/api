@@ -223,6 +223,7 @@ defmodule ApiWeb.SchedulerControllerTest do
       other_schedule =
         @schedule
         |> Map.put(:trip_id, other_trip.id)
+        |> Map.put(:service_id, other_trip.service_id)
         |> Map.put(:stop_id, other_stop.id)
 
       State.Service.new_state([@service, other_service])

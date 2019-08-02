@@ -25,21 +25,8 @@ defmodule State.Schedule do
           optional(:max_time) => non_neg_integer
         }
 
-  @typep convert_filters :: %{
-           optional(:routes) => [Model.Route.id()],
-           optional(:trips) => [Model.Trip.id()],
-           optional(:direction_id) => Model.Direction.id(),
-           optional(:stops) => [Model.Stop.id()],
-           optional(:date) => Date.t()
-         }
-
   @typep min_time :: non_neg_integer
   @typep max_time :: non_neg_integer | :infinity
-
-  @typep search :: %{
-           index: :stop_id | :trip_id,
-           matchers: [%{}]
-         }
 
   @typep stop_sequence_item :: non_neg_integer | :first | :last
   @typep stop_sequence :: [stop_sequence_item]
@@ -78,9 +65,8 @@ defmodule State.Schedule do
   @spec filter_by(filter_opts) :: [Schedule.t()]
   def filter_by(filters) do
     filters
-    |> convert_filters()
-    |> build_filter_matchers()
-    |> do_filtered_search(filters)
+    |> build_query()
+    |> query()
     |> do_post_search_filter(filters)
   end
 
@@ -102,11 +88,11 @@ defmodule State.Schedule do
       end
 
     %{
-      trips: [prediction.trip_id],
-      stops: stop_ids,
+      trip_id: [prediction.trip_id],
+      stop_id: stop_ids,
       stop_sequence: [prediction.stop_sequence]
     }
-    |> filter_by
+    |> query()
     |> List.first()
   end
 
@@ -158,90 +144,66 @@ defmodule State.Schedule do
     {:ok, overridden_state, timeout_or_hibernate}
   end
 
-  # Converts routes and stops into workable ids
-  @spec convert_filters(filter_opts) :: convert_filters
-  defp convert_filters(%{routes: _} = filters) do
-    # Routes have priority for filtering on trip ids
-    # Modify :trips in the filters with the trip ids based on the route ids
+  def build_query(_filters, query \\ %{})
 
-    trips_ids =
-      filters
-      |> Map.take([:routes, :direction_id, :date])
-      |> State.Trip.filter_by()
-      |> Enum.map(& &1.id)
-
-    filters
-    |> Map.delete(:routes)
-    |> Map.put(:trips, trips_ids)
-    |> convert_filters()
+  def build_query(%{routes: route_ids} = filters, query) do
+    filters = Map.delete(filters, :routes)
+    query = Map.put(query, :route_id, route_ids)
+    build_query(filters, query)
   end
 
-  defp convert_filters(%{stops: stop_ids} = filters) do
-    stops = State.Stop.location_type_0_ids_by_parent_ids(stop_ids)
-    Map.put(filters, :stops, stops)
+  def build_query(%{stops: stop_ids} = filters, query) do
+    filters = Map.delete(filters, :stops)
+    query = Map.put(query, :stop_id, State.Stop.location_type_0_ids_by_parent_ids(stop_ids))
+    build_query(filters, query)
   end
 
-  defp convert_filters(filters), do: filters
+  def build_query(%{trips: trip_ids} = filters, query) do
+    filters = Map.delete(filters, :trips)
+    query = Map.put(query, :trip_id, trip_ids)
+    build_query(filters, query)
+  end
 
-  # Build search criteria
-  @spec build_filter_matchers(convert_filters) :: search | %{}
-  defp build_filter_matchers(%{stops: stops, trips: trips} = filters) do
-    stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
+  def build_query(%{direction_id: direction_id} = filters, query) do
+    filters = Map.delete(filters, :direction_id)
+    query = Map.put(query, :direction_id, List.wrap(direction_id))
+    build_query(filters, query)
+  end
 
-    all_trips = State.Trip.by_ids(trips)
-    routes_from_trips = MapSet.new(all_trips, & &1.route_id)
+  def build_query(%{date: date} = filters, query) do
+    filters = Map.delete(filters, :date)
+    service_ids = State.ServiceByDate.by_date(date)
+    query = Map.put(query, :service_id, service_ids)
+    build_query(filters, query)
+  end
 
-    filtered_routes =
-      stops
-      |> State.RoutesPatternsAtStop.routes_by_stops_and_direction()
-      |> MapSet.new()
-      |> MapSet.intersection(routes_from_trips)
+  def build_query(%{stop_sequence: stop_sequences} = filters, query) do
+    filters = Map.delete(filters, :stop_sequence)
 
-    filtered_trips =
-      all_trips
-      |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
-      |> Enum.map(& &1.id)
+    values = Enum.group_by(stop_sequences, &is_atom/1)
+    positions = Map.get(values, true)
+    stop_sequences = Map.get(values, false)
 
-    matchers =
-      for stop_id <- stops,
-          trip_id <- filtered_trips,
-          stop_sequence_matcher <- stop_sequence_matchers do
-        stop_sequence_matcher
-        |> Map.put(:trip_id, trip_id)
-        |> Map.put(:stop_id, stop_id)
+    query =
+      if positions do
+        Map.put(query, :position, positions)
+      else
+        query
       end
 
-    %{index: :trip_id, matchers: matchers}
-  end
-
-  defp build_filter_matchers(%{stops: stops} = filters) do
-    direction_matcher = State.Matchers.direction_id(filters[:direction_id])
-    stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
-
-    matchers =
-      for stop_id <- stops,
-          stop_sequence_matcher <- stop_sequence_matchers do
-        stop_sequence_matcher
-        |> Map.put(:stop_id, stop_id)
-        |> Map.merge(direction_matcher)
+    query =
+      if stop_sequences do
+        Map.put(query, :stop_sequence, stop_sequences)
+      else
+        query
       end
 
-    %{index: :stop_id, matchers: matchers}
+    build_query(filters, query)
   end
 
-  defp build_filter_matchers(%{trips: trips} = filters) do
-    stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
-
-    matchers =
-      for trip_id <- trips,
-          stop_sequence_matcher <- stop_sequence_matchers do
-        Map.put(stop_sequence_matcher, :trip_id, trip_id)
-      end
-
-    %{index: :trip_id, matchers: matchers}
+  def build_query(_filters, query) do
+    query
   end
-
-  defp build_filter_matchers(_), do: %{}
 
   defp do_gather(%{@fetch_stop_times => blob}) do
     # we parse the blob in the same process as the schedule to prevent copying
@@ -253,27 +215,6 @@ defmodule State.Schedule do
     |> StopTimes.parse(&Trip.by_primary_id/1)
     |> handle_new_state()
   end
-
-  # Performs the search on the given index and matchers
-  @spec do_filtered_search(search, filter_opts) :: [Schedule.t()]
-  defp do_filtered_search(
-         %{index: index, matchers: [_ | _] = matchers},
-         filters
-       ) do
-    schedules = select(matchers, index)
-
-    do_service_date_filter(schedules, filters)
-  end
-
-  defp do_filtered_search(_, _), do: []
-
-  # Filters schedules for a given service date
-  @spec do_service_date_filter([Schedule.t()], filter_opts) :: [Schedule.t()]
-  defp do_service_date_filter(schedules, %{date: %Date{} = date}) do
-    Enum.filter(schedules, &State.ServiceByDate.valid?(&1.service_id, date))
-  end
-
-  defp do_service_date_filter(schedules, _), do: schedules
 
   # Apply any filters after a completed search. Currently, only a time window
   # filter is supported
