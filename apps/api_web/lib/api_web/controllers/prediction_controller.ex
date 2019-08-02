@@ -130,8 +130,7 @@ defmodule ApiWeb.PredictionController do
         params
         |> Params.split_on_comma("stop")
         |> include_legacy_stop_ids(conn.assigns.api_version)
-        |> State.Stop.by_family_ids()
-        |> Enum.map(& &1.id)
+        |> State.Stop.location_type_0_ids_by_parent_ids()
 
       {:ok, {latitude, longitude, radius}} ->
         stops = State.Stop.around(latitude, longitude, radius)
