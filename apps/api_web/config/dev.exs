@@ -11,7 +11,6 @@ config :api_web, ApiWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  secret_key_base: "v1EHfW07QPr8ai7bi0hooadtBorROPNjhSWx7CGv7AiCOhEyGoeT1jagMTNCE3PU",
   live_reload: [
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
@@ -19,8 +18,6 @@ config :api_web, ApiWeb.Endpoint,
       ~r{lib/api_web/templates/.*(eex)$}
     ]
   ]
-
-config :api_web, :signing_salt, "NdisAeo6Jf02spiKqa"
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
 

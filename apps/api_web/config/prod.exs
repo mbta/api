@@ -14,8 +14,11 @@ use Mix.Config
 config :api_web, ApiWeb.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [scheme: "https", host: {:system, "HOST"}, port: 443],
+  secret_key_base: "${SECRET_KEY_BASE}",
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
+
+config :api_web, :signing_salt, "${SIGNING_SALT}"
 
 # configured separately so that we can have the health check not require
 # SSL
