@@ -6,27 +6,8 @@ defmodule State.Prediction do
     recordable: Model.Prediction,
     hibernate: false
 
-  @doc """
-  Selects a distinct group of Prediction state sources, with filtering.
-
-  ## Examples
-
-    iex> [
-      State.Prediction
-    ]
-    |> State.Prediction.select_grouped(matchers, index, opts)
-    [...]
-  """
-
   import Parse.Time, only: [service_date: 1]
   import State.Route, only: [by_types: 1]
-
-  def select_grouped(sources, matchers, index, opts \\ []) do
-    sources
-    |> Stream.flat_map(&apply(&1, :select, [matchers, index]))
-    |> Enum.uniq_by(&prediction_key/1)
-    |> State.all(opts)
-  end
 
   def filter_by_route_type(predictions, nil), do: predictions
   def filter_by_route_type(predictions, []), do: predictions
@@ -38,10 +19,6 @@ defmodule State.Prediction do
       |> MapSet.new(& &1.id)
 
     Enum.filter(predictions, &(&1.route_id in route_ids))
-  end
-
-  defp prediction_key(%Model.Prediction{stop_sequence: stop_seq} = mod) do
-    {stop_seq, mod.stop_id, mod.route_id, mod.trip_id, mod.direction_id}
   end
 
   @spec by_stop_route(Model.Stop.id(), Model.Route.id()) :: [Model.Prediction.t()]

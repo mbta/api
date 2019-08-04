@@ -250,7 +250,7 @@ defmodule ApiWeb.PredictionController do
         matcher <- matchers do
       Map.put(matcher, :stop_id, stop_id)
     end
-    |> select(:stop_id)
+    |> Prediction.select(:stop_id)
   end
 
   defp all_stops_and_routes([], route_ids, matchers) do
@@ -258,7 +258,7 @@ defmodule ApiWeb.PredictionController do
         matcher <- matchers do
       Map.put(matcher, :route_id, route_id)
     end
-    |> select(:route_id)
+    |> Prediction.select(:route_id)
   end
 
   defp all_stops_and_routes(stop_ids, route_ids, matchers) do
@@ -270,7 +270,7 @@ defmodule ApiWeb.PredictionController do
         route_id: route_id
       })
     end
-    |> select(:stop_id)
+    |> Prediction.select(:stop_id)
   end
 
   defp all_stops_and_trips([], trip_ids, matchers) do
@@ -278,7 +278,7 @@ defmodule ApiWeb.PredictionController do
         matcher <- matchers do
       Map.put(matcher, :trip_id, trip_id)
     end
-    |> select(:trip_id)
+    |> Prediction.select(:trip_id)
   end
 
   defp all_stops_and_trips(stop_ids, trip_ids, matchers) do
@@ -287,7 +287,7 @@ defmodule ApiWeb.PredictionController do
         matcher <- matchers do
       Map.merge(matcher, %{stop_id: stop_id, trip_id: trip_id})
     end
-    |> select(:stop_id)
+    |> Prediction.select(:stop_id)
   end
 
   defp all_stops_and_route_patterns([], route_pattern_ids, matchers) do
@@ -295,7 +295,7 @@ defmodule ApiWeb.PredictionController do
         matcher <- matchers do
       Map.put(matcher, :route_pattern_id, route_pattern_id)
     end
-    |> select(:route_pattern_id)
+    |> Prediction.select(:route_pattern_id)
   end
 
   defp all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers) do
@@ -304,11 +304,7 @@ defmodule ApiWeb.PredictionController do
         matcher <- matchers do
       Map.merge(matcher, %{route_pattern_id: route_pattern_id, stop_id: stop_id})
     end
-    |> select(:stop_id)
-  end
-
-  def select(matchers, index) do
-    Prediction.select(matchers, index)
+    |> Prediction.select(:stop_id)
   end
 
   defp direction_id_matcher(nil), do: %{}
