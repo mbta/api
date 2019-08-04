@@ -94,26 +94,25 @@ defmodule State.Prediction do
   def prediction_for(%Model.Schedule{} = schedule, %Date{} = date) do
     stop_ids =
       case State.Stop.siblings(schedule.stop_id) do
-        [_ | _] = stops -> Enum.map(stops, & &1.id)
-        [] -> [schedule.stop_id]
+        [_ | _] = stops ->
+          Enum.flat_map(
+            stops,
+            fn
+              %{location_type: 0, id: id} -> [id]
+              _ -> []
+            end
+          )
+
+        [] ->
+          [schedule.stop_id]
       end
 
-    queries =
-      for stop_id <- stop_ids do
-        %{
-          trip_id: schedule.trip_id,
-          stop_id: stop_id,
-          stop_sequence: schedule.stop_sequence
-        }
-      end
-
-    [
-      State.Prediction
-    ]
-    |> State.Prediction.select_grouped(
-      queries,
-      :stop_id
-    )
+    %{
+      trip_id: [schedule.trip_id],
+      stop_id: stop_ids,
+      stop_sequence: [schedule.stop_sequence]
+    }
+    |> query()
     |> Enum.find(&on_day?(&1, date))
   end
 
