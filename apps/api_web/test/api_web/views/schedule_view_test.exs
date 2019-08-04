@@ -5,8 +5,15 @@ defmodule ApiWeb.ScheduleViewTest do
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  alias Model.Schedule
+  alias Model.{Schedule, Service}
 
+  @today Date.utc_today()
+  @service %Service{
+    id: "service",
+    start_date: @today,
+    end_date: @today,
+    added_dates: [@today]
+  }
   @schedule %Schedule{
     trip_id: "trip",
     route_id: "route",
@@ -17,8 +24,15 @@ defmodule ApiWeb.ScheduleViewTest do
     stop_sequence: 1,
     pickup_type: 2,
     drop_off_type: 3,
-    timepoint?: true
+    timepoint?: true,
+    service_id: "service"
   }
+
+  setup do
+    State.Service.new_state([@service])
+    State.ServiceByDate.update!()
+    :ok
+  end
 
   test "renders the dates properly", %{conn: conn} do
     conn = assign(conn, :date, ~D[2016-06-07])
@@ -55,7 +69,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
   describe "has_one prediction" do
     test "returns a related prediction", %{conn: conn} do
-      today = Timex.to_datetime(~D[2016-06-07], "America/New_York")
+      today = Timex.to_datetime(@today, "America/New_York")
 
       associated_prediction = %Model.Prediction{
         route_id: "route",
@@ -78,7 +92,7 @@ defmodule ApiWeb.ScheduleViewTest do
       }
 
       State.Prediction.new_state([associated_prediction, other_prediction])
-      conn = assign(conn, :date, ~D[2016-06-07])
+      conn = assign(conn, :date, @today)
 
       prediction_id =
         ApiWeb.ScheduleView

@@ -89,7 +89,7 @@ defmodule State.PredictionTest do
   end
 
   describe "prediction_for/2" do
-    @today ~D[2016-06-07]
+    @today Date.utc_today()
     @datetime Timex.to_datetime(@today, "America/New_York")
     @schedule %Model.Schedule{
       route_id: "route",
@@ -105,6 +105,12 @@ defmodule State.PredictionTest do
       service_id: "service",
       stop_sequence: 2,
       position: :first
+    }
+    @service %Model.Service{
+      id: "service",
+      start_date: @today,
+      end_date: @today,
+      added_dates: [@today]
     }
     @predictions [
       %Model.Prediction{
@@ -147,6 +153,8 @@ defmodule State.PredictionTest do
 
     setup do
       State.Stop.new_state([])
+      State.Service.new_state([@service])
+      State.ServiceByDate.update!()
       State.Schedule.new_state([@schedule])
       State.Prediction.new_state(@predictions)
     end
@@ -228,8 +236,14 @@ defmodule State.PredictionTest do
   end
 
   describe "prediction_for_many/2" do
-    @today ~D[2016-06-07]
+    @today Date.utc_today()
     @datetime Timex.to_datetime(@today, "America/New_York")
+    @service %Model.Service{
+      id: "service",
+      start_date: @today,
+      end_date: @today,
+      added_dates: [@today]
+    }
     @schedules [
       %Model.Schedule{
         route_id: "route",
@@ -281,6 +295,11 @@ defmodule State.PredictionTest do
       arrival_time: Timex.set(@datetime, hour: 12, minute: 30),
       departure_time: Timex.set(@datetime, hour: 12, minute: 30)
     }
+
+    setup do
+      State.Service.new_state([@service])
+      State.ServiceByDate.update!()
+    end
 
     test "returns predictions for multiple schedules" do
       State.Prediction.new_state([@prediction1, @prediction2])

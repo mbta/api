@@ -6,7 +6,6 @@ defmodule State.Prediction do
     recordable: Model.Prediction,
     hibernate: false
 
-  import Parse.Time, only: [service_date: 1]
   import State.Route, only: [by_types: 1]
 
   def filter_by_route_type(predictions, nil), do: predictions
@@ -69,48 +68,23 @@ defmodule State.Prediction do
 
   @spec prediction_for(Model.Schedule.t(), Date.t()) :: Model.Prediction.t()
   def prediction_for(%Model.Schedule{} = schedule, %Date{} = date) do
-    stop_ids =
-      case State.Stop.siblings(schedule.stop_id) do
-        [_ | _] = stops ->
-          Enum.flat_map(
-            stops,
-            fn
-              %{location_type: 0, id: id} -> [id]
-              _ -> []
-            end
-          )
-
-        [] ->
-          [schedule.stop_id]
-      end
-
     %{
       trip_id: [schedule.trip_id],
-      stop_id: stop_ids,
-      stop_sequence: [schedule.stop_sequence]
+      stop_sequence: [schedule.stop_sequence],
+      service_id: State.ServiceByDate.by_date(date)
     }
     |> query()
-    |> Enum.find(&on_day?(&1, date))
+    |> List.first()
   end
 
   @spec prediction_for_many([Model.Schedule.t()], Date.t()) :: map
   def prediction_for_many(schedules, %Date{} = date) do
-    Map.new(schedules, &{{&1.trip_id, &1.stop_sequence}, prediction_for(&1, date)})
-  end
-
-  @spec on_day?(Model.Prediction.t(), Date.t()) :: boolean()
-  defp on_day?(prediction, date) do
-    [:arrival_time, :departure_time]
-    |> Enum.any?(fn time_key ->
-      case Map.get(prediction, time_key) do
-        %DateTime{} = dt ->
-          dt
-          |> service_date
-          |> Kernel.==(date)
-
-        nil ->
-          false
-      end
-    end)
+    %{
+      trip_id: Enum.map(schedules, & &1.trip_id),
+      stop_sequence: Enum.map(schedules, & &1.stop_sequence),
+      service_id: State.ServiceByDate.by_date(date)
+    }
+    |> query()
+    |> Map.new(&{{&1.trip_id, &1.stop_sequence}, &1})
   end
 end
