@@ -22,12 +22,26 @@ defmodule State.Server.Query do
 
   alias State.Server
 
-  @spec query(module, q) :: [recordable] when q: map, recordable: struct
+  @spec query(module, q | [q, ...]) :: [recordable] when q: map, recordable: struct
   def query(module, %{} = q) when is_atom(module) do
-    do_query(module, q)
+    do_query(module, [q])
   end
 
-  defp do_query(module, q) when map_size(q) > 0 do
+  def query(module, [%{} | _] = qs) do
+    do_query(module, qs)
+  end
+
+  defp do_query(module, qs) do
+    selectors = Enum.flat_map(qs, &do_build_selectors(module, &1))
+
+    if selectors == [] do
+      []
+    else
+      Server.select_with_selectors(module, selectors)
+    end
+  end
+
+  defp do_build_selectors(module, q) when map_size(q) > 0 do
     index = first_index(module.indices(), q)
     rest = Map.delete(q, index)
     recordable = module.recordable()
@@ -49,14 +63,14 @@ defmodule State.Server.Query do
             {record, guards, [:"$_"]}
           end
 
-        Server.select_with_selectors(module, match_specs)
+        match_specs
 
       :empty ->
         []
     end
   end
 
-  defp do_query(_module, _q) do
+  defp do_build_selectors(_module, _q) do
     []
   end
 

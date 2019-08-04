@@ -69,6 +69,13 @@ defmodule State.Server.QueryTest do
       assert [%Example{id: 1}] = query(Server, %{data: [0, 1]})
       assert [] = query(Server, %{data: [0]})
     end
+
+    test "can accept multiple queries" do
+      items = gen_items(3)
+      Server.new_state(items)
+      result = query(Server, [%{id: [1]}, %{id: [2]}])
+      assert result |> Enum.map(& &1.id) |> Enum.sort() == [1, 2]
+    end
   end
 
   defp start_server(_) do

@@ -79,11 +79,18 @@ defmodule State.Prediction do
 
   @spec prediction_for_many([Model.Schedule.t()], Date.t()) :: map
   def prediction_for_many(schedules, %Date{} = date) do
-    %{
-      trip_id: Enum.map(schedules, & &1.trip_id),
-      stop_sequence: Enum.map(schedules, & &1.stop_sequence),
-      service_id: State.ServiceByDate.by_date(date)
-    }
+    service_ids = State.ServiceByDate.by_date(date)
+
+    queries =
+      for schedule <- schedules do
+        %{
+          trip_id: [schedule.trip_id],
+          stop_sequence: [schedule.stop_sequence],
+          service_id: service_ids
+        }
+      end
+
+    queries
     |> query()
     |> Map.new(&{{&1.trip_id, &1.stop_sequence}, &1})
   end
