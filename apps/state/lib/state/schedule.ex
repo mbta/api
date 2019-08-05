@@ -81,15 +81,8 @@ defmodule State.Schedule do
   @spec schedule_for(Model.Prediction.t()) :: Model.Schedule.t() | nil
   def schedule_for(%Model.Prediction{schedule_relationship: relationship} = prediction)
       when relationship in @schedule_relationships_with_schedules do
-    stop_ids =
-      case State.Stop.siblings(prediction.stop_id) do
-        [_ | _] = stops -> Enum.map(stops, & &1.id)
-        [] -> [prediction.stop_id]
-      end
-
     %{
       trip_id: [prediction.trip_id],
-      stop_id: stop_ids,
       stop_sequence: [prediction.stop_sequence]
     }
     |> query()
@@ -102,11 +95,21 @@ defmodule State.Schedule do
 
   @spec schedule_for_many([Model.Prediction.t()]) :: map
   def schedule_for_many(predictions) do
-    for prediction <- predictions,
-        schedule = schedule_for(prediction),
-        schedule != nil,
-        into: %{} do
-      {{prediction.trip_id, prediction.stop_sequence}, schedule}
+    queries =
+      for prediction <- predictions,
+          prediction.schedule_relationship in @schedule_relationships_with_schedules do
+        %{
+          trip_id: [prediction.trip_id],
+          stop_sequence: [prediction.stop_sequence]
+        }
+      end
+
+    if queries == [] do
+      %{}
+    else
+      queries
+      |> query()
+      |> Map.new(&{{&1.trip_id, &1.stop_sequence}, &1})
     end
   end
 
@@ -146,9 +149,29 @@ defmodule State.Schedule do
 
   def build_query(_filters, query \\ %{})
 
-  def build_query(%{routes: route_ids} = filters, query) do
-    filters = Map.delete(filters, :routes)
-    query = Map.put(query, :route_id, route_ids)
+  def build_query(%{routes: _route_ids} = filters, query) do
+    keys = [:routes, :direction_id, :date]
+
+    trip_ids =
+      filters
+      |> Map.take(keys)
+      |> State.Trip.filter_by()
+      |> Enum.map(& &1.id)
+
+    filters = Map.drop(filters, keys)
+
+    {filters, trip_ids} =
+      case filters do
+        %{trips: other_trip_ids} ->
+          # intersection of trip IDs
+          trip_ids = trip_ids -- trip_ids -- other_trip_ids
+          {Map.delete(filters, :trips), trip_ids}
+
+        %{} ->
+          {filters, trip_ids}
+      end
+
+    query = Map.put(query, :trip_id, trip_ids)
     build_query(filters, query)
   end
 
