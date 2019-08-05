@@ -62,10 +62,10 @@ defmodule State.Stop do
   end
 
   def by_family_ids(ids) do
-    ids
-    |> by_ids
-    |> Enum.flat_map(&family/1)
-    |> Enum.uniq()
+    State.Stop.Cache.query([
+      %{id: ids},
+      %{parent_station: ids}
+    ])
   end
 
   def by_parent_station(id) when is_binary(id) do
@@ -95,26 +95,20 @@ defmodule State.Stop do
   Useful for querying schedules or predictions, where the stop ID can only be location_type 0.
   """
   def location_type_0_ids_by_parent_ids(ids) do
-    ids
-    |> by_ids()
-    |> Enum.flat_map(fn
-      %{id: id, location_type: 0} ->
-        [id]
-
-      %{id: parent_id, location_type: 1} ->
-        parent_id
-        |> by_parent_station()
-        |> Enum.flat_map(fn
-          %{id: id, location_type: 0} -> [id]
-          _ -> []
-        end)
-
-      _ ->
-        []
-    end)
+    [
+      %{
+        id: ids,
+        location_type: [0]
+      },
+      %{
+        parent_station: ids,
+        location_type: [0]
+      }
+    ]
+    |> State.Stop.Cache.query()
+    |> Enum.map(& &1.id)
   end
 
-  @spec around(WGS84.latitude(), WGS84.longitude()) :: [Model.Stop.t()]
   @spec around(WGS84.latitude(), WGS84.longitude(), State.Stop.List.radius()) :: [Model.Stop.t()]
   def around(latitude, longitude, radius \\ 0.01) do
     random_worker()

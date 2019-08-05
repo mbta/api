@@ -42,9 +42,14 @@ defmodule State.StopTest do
     other = %Stop{id: "7"}
     State.Stop.new_state([parent, child, other_child, other])
 
-    assert State.Stop.by_family_ids([parent.id]) == [parent, child, other_child]
+    assert Enum.sort(State.Stop.by_family_ids([parent.id])) ==
+             Enum.sort([parent, child, other_child])
+
     assert State.Stop.by_family_ids([child.id]) == [child]
-    assert State.Stop.by_family_ids([parent.id, child.id]) == [parent, child, other_child]
+
+    assert Enum.sort(State.Stop.by_family_ids([parent.id, child.id])) ==
+             Enum.sort([parent, child, other_child])
+
     assert State.Stop.by_family_ids([other.id]) == [other]
     assert State.Stop.by_parent_station(parent.id) == [child, other_child]
     assert State.Stop.siblings(child.id) == [child, other_child]
@@ -83,9 +88,9 @@ defmodule State.StopTest do
       assert location_type_0_ids_by_parent_ids([stops.child.id]) == [stops.child.id]
       assert location_type_0_ids_by_parent_ids([stops.parent.id]) == [stops.child.id]
 
-      assert location_type_0_ids_by_parent_ids([stops.other.id, stops.parent.id]) == [
-               stops.other.id,
-               stops.child.id
+      assert Enum.sort(location_type_0_ids_by_parent_ids([stops.other.id, stops.parent.id])) == [
+               stops.child.id,
+               stops.other.id
              ]
     end
   end
