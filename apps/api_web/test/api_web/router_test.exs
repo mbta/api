@@ -51,11 +51,12 @@ defmodule ApiWeb.RouterTest do
       conn =
         conn
         |> put_req_header("x-api-key", conn.assigns.api_key)
-        |> put_req_header("access-control-request-headers", "x-api-key")
+        |> put_req_header("access-control-request-headers", "x-api-key,accept")
         |> put_req_header("access-control-request-method", "GET")
         |> put_req_header("origin", "http://localhost/")
 
       response = options(conn, "/_health")
+      assert response.halted
       assert response.status == 200
       assert ["*"] = get_resp_header(response, "access-control-allow-origin")
       assert ["GET"] = get_resp_header(response, "access-control-allow-methods")
