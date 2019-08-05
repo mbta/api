@@ -54,7 +54,7 @@ defmodule ApiWeb.ConnCase do
       Plug.Session.init(
         store: :cookie,
         key: "_api_key",
-        signing_salt: "NdisAeo6Jf02spiKqa"
+        signing_salt: Application.get_env(:api_web, :signing_salt)
       )
 
     conn
