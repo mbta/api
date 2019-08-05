@@ -103,7 +103,7 @@ defmodule State.Server do
       def select_limit(matchers, num_objects),
         do: Server.select_limit(__MODULE__, matchers, num_objects)
 
-      @spec query(map | [map, ...]) :: [RECORDABLE.t()]
+      @spec query(map | [map]) :: [RECORDABLE.t()]
       def query(q), do: Server.Query.query(__MODULE__, q)
 
       # define a `by_<index>` and `by_<index>s` method for each indexed field

@@ -22,13 +22,17 @@ defmodule State.Server.Query do
 
   alias State.Server
 
-  @spec query(module, q | [q, ...]) :: [recordable] when q: map, recordable: struct
+  @spec query(module, q | [q]) :: [recordable] when q: map, recordable: struct
   def query(module, %{} = q) when is_atom(module) do
     do_query(module, [q])
   end
 
   def query(module, [%{} | _] = qs) do
     do_query(module, qs)
+  end
+
+  def query(_module, []) do
+    []
   end
 
   defp do_query(module, qs) do
