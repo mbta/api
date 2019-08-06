@@ -100,7 +100,7 @@ config :state, :shape,
 
     # Bus overrides
     # Route 9 inbound to Copley
-    "090111" => 3,
+    "090145" => 3,
     # Route 39
     "390068" => 3,
     # Route 66
