@@ -70,6 +70,7 @@ config :state, :shape,
 
     # Providence
     "9890008" => {nil, "Wickford Junction"},
+    "9890009" => {nil, "Providence"},
     "9890003" => {nil, "Stoughton"},
 
     # Kingston

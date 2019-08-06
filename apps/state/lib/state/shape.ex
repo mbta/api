@@ -10,10 +10,11 @@ defmodule State.Shape do
 
   alias Events.Gather
   alias Model.{Direction, Route, Shape}
-  alias Parse.{Polyline, Variant}
+  alias Parse.Polyline
 
   @subscriptions [
     {:fetch, "shapes.txt"},
+    {:new_state, State.RoutePattern},
     {:new_state, State.Schedule},
     {:new_state, State.Stop},
     {:new_state, State.Trip}
@@ -62,6 +63,15 @@ defmodule State.Shape do
   end
 
   @impl State.Server
+  def handle_new_state([%Polyline{} | _] = polylines) do
+    super(fn ->
+      polylines
+      |> Enum.flat_map(&shape_from_polyline/1)
+      |> Enum.group_by(&{&1.route_id, &1.direction_id})
+      |> Enum.flat_map(fn {_key, shapes} -> arrange_by_priority(shapes) end)
+    end)
+  end
+
   def handle_new_state({polylines, variants}) do
     variant_map = Map.new(variants, &{&1.id, &1})
 
@@ -81,18 +91,67 @@ defmodule State.Shape do
   defp do_gather(%{{:fetch, "shapes.txt"} => shapes_blob}) do
     polylines = Polyline.parse(shapes_blob)
 
-    replacements =
-      :state
-      |> Application.app_dir("priv/trip_route_direction.csv")
-      |> File.read!()
+    handle_new_state(polylines)
+  end
 
-    variants =
-      :state
-      |> Application.app_dir("priv/shaperoutevariants.csv")
-      |> File.read!()
-      |> Variant.parse(replacements)
+  def shape_from_polyline(%Polyline{} = polyline) do
+    trips = State.Trip.select([%{shape_id: polyline.id}])
+    trip = Enum.find(trips, &(Model.Trip.primary?(&1) && &1.route_pattern_id))
 
-    handle_new_state({polylines, variants})
+    shape_from_trips_for_polyline(polyline, trip, trips)
+  end
+
+  defp shape_from_trips_for_polyline(polyline, trip, trips)
+
+  defp shape_from_trips_for_polyline(_polyline, nil, []) do
+    []
+  end
+
+  defp shape_from_trips_for_polyline(polyline, nil, trips) do
+    [trip] =
+      trips
+      |> sort_by_number_of_trips_with_headsign()
+      |> Enum.take(1)
+
+    [
+      %Shape{
+        id: polyline.id,
+        route_id: trip.route_id,
+        direction_id: trip.direction_id,
+        name: trip.headsign,
+        polyline: polyline.polyline,
+        priority: 1
+      }
+    ]
+  end
+
+  defp shape_from_trips_for_polyline(polyline, trip, _trips) do
+    route_pattern = State.RoutePattern.by_id(trip.route_pattern_id)
+
+    name =
+      case String.split(route_pattern.name, " - ", parts: 2) do
+        [_, name] -> name
+        [name] -> name
+      end
+
+    priority =
+      case route_pattern.typicality do
+        1 -> 2
+        2 -> 1
+        3 -> 0
+        4 -> -1
+      end
+
+    [
+      %Shape{
+        id: polyline.id,
+        route_id: trip.route_id,
+        direction_id: trip.direction_id,
+        name: name,
+        polyline: polyline.polyline,
+        priority: priority
+      }
+    ]
   end
 
   defp do_select(matchers) do
