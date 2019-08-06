@@ -57,11 +57,24 @@ defmodule ApiWeb.RoutePatternControllerTest do
     end
 
     test "can filter by route", %{conn: conn} do
+      State.Route.new_state([
+        %Route{id: "route12"},
+        %Route{id: "route3"},
+        %Route{id: "route4"}
+      ])
+
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp1", route_id: "route12"},
         %RoutePattern{id: "rp2", route_id: "route12"},
         %RoutePattern{id: "rp3", route_id: "route3"},
         %RoutePattern{id: "rp4", route_id: "route4"}
+      ])
+
+      State.Trip.new_state([
+        %Trip{id: "t1", route_pattern_id: "rp1", route_id: "route12"},
+        %Trip{id: "t2", route_pattern_id: "rp2", route_id: "route12"},
+        %Trip{id: "t3", route_pattern_id: "rp3", route_id: "route3"},
+        %Trip{id: "t4", route_pattern_id: "rp4", route_id: "route4"}
       ])
 
       conn =
@@ -72,11 +85,24 @@ defmodule ApiWeb.RoutePatternControllerTest do
     end
 
     test "can filter by route and direction", %{conn: conn} do
+      State.Route.new_state([
+        %Route{id: "route12"},
+        %Route{id: "route3"},
+        %Route{id: "route4"}
+      ])
+
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp1", route_id: "route12", direction_id: 0},
         %RoutePattern{id: "rp2", route_id: "route12", direction_id: 1},
         %RoutePattern{id: "rp3", route_id: "route3", direction_id: 0},
         %RoutePattern{id: "rp4", route_id: "route4", direction_id: 1}
+      ])
+
+      State.Trip.new_state([
+        %Trip{id: "t1", route_pattern_id: "rp1", route_id: "route12", direction_id: 0},
+        %Trip{id: "t2", route_pattern_id: "rp2", route_id: "route12", direction_id: 1},
+        %Trip{id: "t3", route_pattern_id: "rp3", route_id: "route3", direction_id: 0},
+        %Trip{id: "t4", route_pattern_id: "rp4", route_id: "route4", direction_id: 1}
       ])
 
       conn =
