@@ -262,7 +262,8 @@ defmodule StateMediator.Integration.GtfsTest do
     test "route 9 inbound primary shape is Copley Square" do
       # not the school trip to Boston Latin
       primary_shape = ["9"] |> State.Shape.select_routes(1) |> List.first()
-      assert %{name: "Copley Square"} = primary_shape
+      %{name: name} = primary_shape
+      assert name =~ "Copley"
     end
 
     test "CR-Lowell inbound has one rail shape" do
