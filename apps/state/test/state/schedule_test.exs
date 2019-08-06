@@ -35,6 +35,7 @@ defmodule State.ScheduleTest do
     State.Trip.new_state([@trip])
     State.Service.new_state([@service])
     Schedule.new_state([@schedule])
+    State.RoutesPatternsAtStop.update!()
   end
 
   test "init" do
