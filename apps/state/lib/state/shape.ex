@@ -72,17 +72,6 @@ defmodule State.Shape do
     end)
   end
 
-  def handle_new_state({polylines, variants}) do
-    variant_map = Map.new(variants, &{&1.id, &1})
-
-    super(fn ->
-      polylines
-      |> merge_with(variant_map)
-      |> Enum.group_by(&{&1.route_id, &1.direction_id})
-      |> Enum.flat_map(fn {_key, shapes} -> arrange_by_priority(shapes) end)
-    end)
-  end
-
   @impl State.Server
   def handle_new_state(other) do
     super(other)
@@ -158,33 +147,6 @@ defmodule State.Shape do
     matchers
     |> select(:route_id)
     |> Enum.sort_by(&{-&1.priority, &1.name})
-  end
-
-  defp merge_with(polylines, variant_map) do
-    for polyline <- polylines,
-        variant <- [Map.get(variant_map, polyline.id)],
-        trip <- find_trips_for(polyline) do
-      name = variant_name(variant, trip)
-      priority = variant_priority(variant, trip)
-
-      %Model.Shape{
-        id: polyline.id,
-        route_id: trip.route_id,
-        direction_id: trip.direction_id,
-        name: name,
-        polyline: polyline.polyline,
-        priority: priority
-      }
-    end
-  end
-
-  defp find_trips_for(%{id: id}) do
-    for alternate_route <- [nil, false] do
-      %{shape_id: id, alternate_route: alternate_route}
-    end
-    |> State.Trip.select()
-    |> sort_by_number_of_trips_with_headsign
-    |> Stream.uniq_by(&{&1.route_id, &1.direction_id})
   end
 
   defp sort_by_number_of_trips_with_headsign(trips) do
@@ -303,31 +265,5 @@ defmodule State.Shape do
         %{parent_station: id} -> id
       end
     end
-  end
-
-  defp variant_name(variant, trip)
-  defp variant_name(%{name: name}, _trip), do: name
-  defp variant_name(nil, %{headsign: headsign}), do: headsign
-
-  defp variant_priority(variant, trip)
-
-  defp variant_priority(nil, trip) do
-    if Model.Trip.primary?(trip) do
-      1
-    else
-      0
-    end
-  end
-
-  defp variant_priority(%{primary?: true, replaced?: false}, _) do
-    2
-  end
-
-  defp variant_priority(%{primary?: false}, _) do
-    0
-  end
-
-  defp variant_priority(_, trip) do
-    variant_priority(nil, trip)
   end
 end
