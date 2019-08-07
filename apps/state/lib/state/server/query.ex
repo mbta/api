@@ -35,47 +35,86 @@ defmodule State.Server.Query do
     []
   end
 
-  defp do_query(module, qs) do
-    selectors = Enum.flat_map(qs, &do_build_selectors(module, &1))
-
-    if selectors == [] do
-      []
-    else
-      Server.select_with_selectors(module, selectors)
-    end
+  defmodule Result do
+    @moduledoc false
+    @enforce_keys [:module]
+    defstruct [:module, matches: [], selectors: []]
   end
 
-  defp do_build_selectors(module, q) when map_size(q) > 0 do
-    index = first_index(module.indices(), q)
+  alias __MODULE__.Result
+
+  defp do_query(module, qs) do
+    qs
+    |> Enum.reduce(%Result{module: module}, &accumulate/2)
+    |> finalize()
+  end
+
+  def accumulate(q, %Result{module: module} = result) when map_size(q) > 0 do
+    {is_db_index?, index} = first_index(module.indices(), q)
     rest = Map.delete(q, index)
     recordable = module.recordable()
 
-    case Enum.reduce_while(rest, {recordable.filled(:_), [], 1}, &build_struct_and_guards/2) do
-      {struct, guards, _} ->
+    case {is_db_index?,
+          Enum.reduce_while(rest, {recordable.filled(:_), [], 1}, &build_struct_and_guards/2)} do
+      {true, {struct, [], _}} ->
+        index_values = Map.get(q, index)
+
+        matches =
+          for record <- records_from_struct_and_values(struct, index, index_values) do
+            Server.by_index_match(record, module, index, [])
+          end
+
+        %{result | matches: matches ++ result.matches}
+
+      {_, {struct, guards, _}} ->
         # put shorter guards at the front
         guards = Enum.sort(guards)
 
         index_values = Map.get(q, index)
 
-        match_specs =
-          for value <- index_values do
-            record =
-              struct
-              |> Map.put(index, value)
-              |> recordable.to_record()
-
-            {record, guards, [:"$_"]}
+        selectors =
+          for record <- records_from_struct_and_values(struct, index, index_values) do
+            {
+              record,
+              guards,
+              [:"$_"]
+            }
           end
 
-        match_specs
+        %{result | selectors: [selectors | result.selectors]}
 
-      :empty ->
-        []
+      {_, :empty} ->
+        result
     end
   end
 
-  defp do_build_selectors(_module, _q) do
-    []
+  def accumulate(_q, result) do
+    result
+  end
+
+  def finalize(%Result{selectors: [], matches: matches}) do
+    flat_results(matches)
+  end
+
+  def finalize(%Result{module: module, selectors: selectors, matches: matches}) do
+    selected = Server.select_with_selectors(module, List.flatten(selectors))
+    flat_results([selected | matches])
+  end
+
+  defp records_from_struct_and_values(%{__struct__: recordable} = struct, index, index_values) do
+    for value <- index_values do
+      struct
+      |> Map.put(index, value)
+      |> recordable.to_record()
+    end
+  end
+
+  defp flat_results(results) do
+    for list <- results,
+        r <- list,
+        uniq: true do
+      r
+    end
   end
 
   @doc """
@@ -86,24 +125,24 @@ defmodule State.Server.Query do
   ## Examples
 
       iex> first_index([:a, :b], %{a: 1})
-      :a
+      {true, :a}
       iex> first_index([:a, :b], %{a: 1, b: 2})
-      :a
+      {true, :a}
 
       iex> first_index([:a, :b], %{b: 2})
-      :b
+      {true, :b}
 
       iex> first_index([:a, :b], %{c: 3})
-      :c
+      {false, :c}
   """
-  @spec first_index([index, ...], q) :: index
+  @spec first_index([index, ...], q) :: {boolean, index}
   def first_index(indices, q) do
     index = Enum.find(indices, &Map.has_key?(q, &1))
 
     if index do
-      index
+      {true, index}
     else
-      List.first(Map.keys(q))
+      {false, List.first(Map.keys(q))}
     end
   end
 
