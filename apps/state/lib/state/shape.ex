@@ -10,10 +10,11 @@ defmodule State.Shape do
 
   alias Events.Gather
   alias Model.{Direction, Route, Shape}
-  alias Parse.{Polyline, Variant}
+  alias Parse.Polyline
 
   @subscriptions [
     {:fetch, "shapes.txt"},
+    {:new_state, State.RoutePattern},
     {:new_state, State.Schedule},
     {:new_state, State.Stop},
     {:new_state, State.Trip}
@@ -62,12 +63,10 @@ defmodule State.Shape do
   end
 
   @impl State.Server
-  def handle_new_state({polylines, variants}) do
-    variant_map = Map.new(variants, &{&1.id, &1})
-
+  def handle_new_state([%Polyline{} | _] = polylines) do
     super(fn ->
       polylines
-      |> merge_with(variant_map)
+      |> Enum.flat_map(&shape_from_polyline/1)
       |> Enum.group_by(&{&1.route_id, &1.direction_id})
       |> Enum.flat_map(fn {_key, shapes} -> arrange_by_priority(shapes) end)
     end)
@@ -81,34 +80,59 @@ defmodule State.Shape do
   defp do_gather(%{{:fetch, "shapes.txt"} => shapes_blob}) do
     polylines = Polyline.parse(shapes_blob)
 
-    replacements =
-      :state
-      |> Application.app_dir("priv/trip_route_direction.csv")
-      |> File.read!()
-
-    variants =
-      :state
-      |> Application.app_dir("priv/shaperoutevariants.csv")
-      |> File.read!()
-      |> Variant.parse(replacements)
-
-    handle_new_state({polylines, variants})
+    handle_new_state(polylines)
   end
 
-  defp do_select(matchers) do
-    matchers
-    |> select(:route_id)
-    |> Enum.sort_by(&{-&1.priority, &1.name})
+  def shape_from_polyline(%Polyline{} = polyline) do
+    trips = State.Trip.select([%{shape_id: polyline.id}])
+    trip = Enum.find(trips, &(Model.Trip.primary?(&1) && &1.route_pattern_id))
+
+    shape_from_trips_for_polyline(polyline, trip, trips)
   end
 
-  defp merge_with(polylines, variant_map) do
-    for polyline <- polylines,
-        variant <- [Map.get(variant_map, polyline.id)],
-        trip <- find_trips_for(polyline) do
-      name = variant_name(variant, trip)
-      priority = variant_priority(variant, trip)
+  defp shape_from_trips_for_polyline(polyline, trip, trips)
 
-      %Model.Shape{
+  defp shape_from_trips_for_polyline(_polyline, nil, []) do
+    []
+  end
+
+  defp shape_from_trips_for_polyline(polyline, nil, trips) do
+    [trip] =
+      trips
+      |> sort_by_number_of_trips_with_headsign()
+      |> Enum.take(1)
+
+    [
+      %Shape{
+        id: polyline.id,
+        route_id: trip.route_id,
+        direction_id: trip.direction_id,
+        name: trip.headsign,
+        polyline: polyline.polyline,
+        priority: 1
+      }
+    ]
+  end
+
+  defp shape_from_trips_for_polyline(polyline, trip, _trips) do
+    route_pattern = State.RoutePattern.by_id(trip.route_pattern_id)
+
+    name =
+      case String.split(route_pattern.name, " - ", parts: 2) do
+        [_, name] -> name
+        [name] -> name
+      end
+
+    priority =
+      case route_pattern.typicality do
+        1 -> 2
+        2 -> 1
+        3 -> 0
+        4 -> -1
+      end
+
+    [
+      %Shape{
         id: polyline.id,
         route_id: trip.route_id,
         direction_id: trip.direction_id,
@@ -116,16 +140,13 @@ defmodule State.Shape do
         polyline: polyline.polyline,
         priority: priority
       }
-    end
+    ]
   end
 
-  defp find_trips_for(%{id: id}) do
-    for alternate_route <- [nil, false] do
-      %{shape_id: id, alternate_route: alternate_route}
-    end
-    |> State.Trip.select()
-    |> sort_by_number_of_trips_with_headsign
-    |> Stream.uniq_by(&{&1.route_id, &1.direction_id})
+  defp do_select(matchers) do
+    matchers
+    |> select(:route_id)
+    |> Enum.sort_by(&{-&1.priority, &1.name})
   end
 
   defp sort_by_number_of_trips_with_headsign(trips) do
@@ -244,31 +265,5 @@ defmodule State.Shape do
         %{parent_station: id} -> id
       end
     end
-  end
-
-  defp variant_name(variant, trip)
-  defp variant_name(%{name: name}, _trip), do: name
-  defp variant_name(nil, %{headsign: headsign}), do: headsign
-
-  defp variant_priority(variant, trip)
-
-  defp variant_priority(nil, trip) do
-    if Model.Trip.primary?(trip) do
-      1
-    else
-      0
-    end
-  end
-
-  defp variant_priority(%{primary?: true, replaced?: false}, _) do
-    2
-  end
-
-  defp variant_priority(%{primary?: false}, _) do
-    0
-  end
-
-  defp variant_priority(_, trip) do
-    variant_priority(nil, trip)
   end
 end

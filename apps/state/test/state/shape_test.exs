@@ -1,7 +1,7 @@
 defmodule State.ShapeTest do
   use ExUnit.Case
-  alias Model.{Route, Schedule, Shape, Stop, Trip}
-  alias Parse.{Polyline, Variant}
+  alias Model.{Route, RoutePattern, Schedule, Shape, Stop, Trip}
+  alias Parse.Polyline
   import State.Shape
 
   test "init" do
@@ -9,22 +9,23 @@ defmodule State.ShapeTest do
   end
 
   describe "new_state/1" do
-    setup _ do
+    setup do
       State.StopsOnRoute.empty!()
+      State.RoutePattern.new_state([])
     end
 
-    test "assigns patterns based on shape/variant data" do
+    test "assigns values based on route patterns" do
       polylines = [
         %Polyline{id: "shape"},
         %Polyline{id: "not_a_variant"},
         %Polyline{id: "no_matching_trip"}
       ]
 
-      variants = [
-        %Variant{
-          id: "shape",
-          name: "variant",
-          primary?: true
+      patterns = [
+        %RoutePattern{
+          id: "pattern",
+          name: "origin - variant",
+          typicality: 1
         }
       ]
 
@@ -33,18 +34,21 @@ defmodule State.ShapeTest do
           id: "1",
           route_id: "1",
           headsign: "headsign",
-          shape_id: "shape"
+          shape_id: "shape",
+          route_pattern_id: "pattern"
         },
         %Trip{
           id: "2",
           route_id: "2",
           headsign: "headsign 2",
-          shape_id: "not_a_variant"
+          shape_id: "not_a_variant",
+          route_pattern_id: nil
         }
       ]
 
       State.Trip.new_state(trips)
-      State.Shape.new_state({polylines, variants})
+      State.RoutePattern.new_state(patterns)
+      State.Shape.new_state(polylines)
 
       assert by_id("shape") == [
                %Model.Shape{
@@ -67,44 +71,91 @@ defmodule State.ShapeTest do
       assert Enum.empty?(by_id("no_matching_trip"))
     end
 
-    test "prefers a non-replaced route ID when making shapes primary" do
+    test "uses full pattern name if a hyphen isn't present" do
       polylines = [
-        %Polyline{id: "1920018"},
-        %Polyline{id: "390068"}
+        %Polyline{id: "shape"}
       ]
 
-      variants = [
-        %Variant{
-          id: "1920018",
-          name: "Haymarket",
-          primary?: true,
-          replaced?: true
-        },
-        %Variant{
-          id: "390068",
-          name: "Back Bay",
-          primary?: true,
-          replaced?: false
+      patterns = [
+        %RoutePattern{
+          id: "pattern",
+          name: "variant",
+          typicality: 1
         }
       ]
 
       trips = [
         %Trip{
           id: "1",
-          shape_id: "1920018"
-        },
-        %Trip{
-          id: "2",
-          shape_id: "390068"
+          route_id: "1",
+          headsign: "headsign",
+          shape_id: "shape",
+          route_pattern_id: "pattern"
         }
       ]
 
       State.Trip.new_state(trips)
-      State.Shape.new_state({polylines, variants})
-      assert [_, _] = State.Shape.all()
-      poly1 = "390068" |> by_id() |> List.first()
-      poly2 = "1920018" |> by_id() |> List.first()
-      assert poly1.priority > poly2.priority
+      State.RoutePattern.new_state(patterns)
+      State.Shape.new_state(polylines)
+
+      assert by_id("shape") == [
+               %Model.Shape{
+                 id: "shape",
+                 route_id: "1",
+                 name: "variant",
+                 priority: 3
+               }
+             ]
+    end
+
+    test "shapes on atypical patterns have negative priority" do
+      polylines = [
+        %Polyline{id: "shape"},
+        %Polyline{id: "shuttle_shape"}
+      ]
+
+      patterns = [
+        %RoutePattern{
+          id: "pattern",
+          name: "",
+          typicality: 1
+        },
+        %RoutePattern{
+          id: "shuttle_pattern",
+          name: "shuttle_name",
+          typicality: 4
+        }
+      ]
+
+      trips = [
+        %Trip{
+          id: "1",
+          route_id: "1",
+          headsign: "headsign",
+          shape_id: "shape",
+          route_pattern_id: "pattern"
+        },
+        %Trip{
+          id: "2",
+          route_id: "1",
+          headsign: "shuttle headsign",
+          shape_id: "shuttle_shape",
+          route_pattern_id: "shuttle_pattern"
+        }
+      ]
+
+      State.Trip.new_state(trips)
+      State.RoutePattern.new_state(patterns)
+      State.Shape.new_state(polylines)
+
+      assert by_id("shuttle_shape") == [
+               %Model.Shape{
+                 id: "shuttle_shape",
+                 route_id: "1",
+                 name: "shuttle_name",
+                 priority: -1
+               }
+             ]
     end
 
     test "only keeps one shape if they have the same stops (including parent stations)" do
@@ -113,8 +164,6 @@ defmodule State.ShapeTest do
         %Polyline{id: "one_with_same_parent"},
         %Polyline{id: "two"}
       ]
-
-      variants = []
 
       trips = [
         %Trip{
@@ -158,7 +207,7 @@ defmodule State.ShapeTest do
       State.Route.new_state([%Route{}])
       State.StopsOnRoute.update!()
 
-      State.Shape.new_state({polylines, variants})
+      State.Shape.new_state(polylines)
       shapes = State.Shape.select_routes([nil], nil)
 
       assert Enum.map(shapes, &{&1.id, &1.priority}) == [
@@ -173,8 +222,6 @@ defmodule State.ShapeTest do
         %Polyline{id: "one"},
         %Polyline{id: "two"}
       ]
-
-      variants = []
 
       trips = [
         %Trip{
@@ -216,7 +263,7 @@ defmodule State.ShapeTest do
       State.Route.new_state([%Route{}])
       State.StopsOnRoute.update!()
 
-      State.Shape.new_state({polylines, variants})
+      State.Shape.new_state(polylines)
       shapes = State.Shape.select_routes([nil], nil)
       assert Enum.map(shapes, &{&1.id, &1.priority}) == [{"two", 2}, {"one", 1}]
     end
@@ -226,8 +273,6 @@ defmodule State.ShapeTest do
         %Polyline{id: "one", polyline: "123456"},
         %Polyline{id: "two", polyline: "1234567"}
       ]
-
-      variants = []
 
       trips = [
         %Trip{
@@ -248,7 +293,7 @@ defmodule State.ShapeTest do
       State.Route.new_state([%Route{}])
       State.StopsOnRoute.update!()
 
-      State.Shape.new_state({polylines, variants})
+      State.Shape.new_state(polylines)
       shapes = State.Shape.select_routes([nil], nil)
       assert Enum.map(shapes, &{&1.id, &1.priority}) == [{"two", 2}, {"one", 1}]
     end
@@ -258,8 +303,6 @@ defmodule State.ShapeTest do
         %Polyline{id: "one"},
         %Polyline{id: "two"}
       ]
-
-      variants = []
 
       trips = [
         %Trip{
@@ -303,14 +346,13 @@ defmodule State.ShapeTest do
       State.Route.new_state([%Route{}])
       State.StopsOnRoute.update!()
 
-      State.Shape.new_state({polylines, variants})
+      State.Shape.new_state(polylines)
       shapes = State.Shape.select_routes([nil], nil)
       assert Enum.map(shapes, &{&1.id, &1.priority}) == [{"one", 2}, {"two", 1}]
     end
 
     test "only keeps shape for primary routes" do
-      polylines = [%Polyline{id: "one"}]
-      variants = []
+      polylines = [%Polyline{id: "one"}, %Polyline{id: "two"}, %Polyline{id: "three"}]
 
       trips = [
         %Trip{
@@ -321,7 +363,7 @@ defmodule State.ShapeTest do
         },
         %Trip{
           id: "2",
-          shape_id: "one",
+          shape_id: "two",
           route_id: "route 2",
           alternate_route: nil
         },
@@ -335,20 +377,19 @@ defmodule State.ShapeTest do
 
       State.Trip.new_state(trips)
       State.StopsOnRoute.update!()
-      State.Shape.new_state({polylines, variants})
+      State.Shape.new_state(polylines)
 
       assert [
                %{id: "one", route_id: "route 1"},
-               %{id: "one", route_id: "route 2"}
+               %{id: "two", route_id: "route 2"}
              ] = State.Shape.select_routes(["route 1", "route 2", "route 3"], nil)
 
       assert [%{id: "one"}] = State.Shape.select_routes(["route 1"], nil)
-      assert [%{id: "one"}] = State.Shape.select_routes(["route 2"], nil)
+      assert [%{id: "two"}] = State.Shape.select_routes(["route 2"], nil)
     end
 
     test "keeps the trip with the more common headsign" do
       polylines = [%Polyline{id: "one"}]
-      variants = []
 
       trips = [
         %Trip{
@@ -373,7 +414,7 @@ defmodule State.ShapeTest do
 
       State.Trip.new_state(trips)
       State.StopsOnRoute.update!()
-      State.Shape.new_state({polylines, variants})
+      State.Shape.new_state(polylines)
 
       shape = State.Shape.by_primary_id("one")
       assert shape.name == "popular"
