@@ -12,6 +12,7 @@ defmodule State.RoutePattern do
   alias Model.RoutePattern
   alias Model.Stop
   alias State.RoutesPatternsAtStop
+  alias State.Trip
 
   @type filters :: %{
           optional(:ids) => [RoutePattern.id()],
@@ -32,45 +33,49 @@ defmodule State.RoutePattern do
     by_ids(ids)
   end
 
-  def filter_by(%{route_ids: route_ids, stop_ids: stop_ids} = filters) do
-    opts =
-      case filters do
-        %{direction_id: direction_id} -> [direction_id: direction_id]
-        _ -> []
-      end
-
-    ids = RoutesPatternsAtStop.route_patterns_by_stops_and_direction(stop_ids, opts)
-
-    matchers =
-      for id <- ids, route_id <- route_ids do
-        %{route_id: route_id, id: id}
-      end
-
-    select(matchers, :id)
+  def filter_by(%{route_ids: _route_ids, stop_ids: _stop_ids} = filters) do
+    ids_from_stops = ids_from_stops(filters)
+    ids_from_routes = ids_from_routes(filters)
+    ids = ids_from_routes -- ids_from_routes -- ids_from_stops
+    by_ids(ids)
   end
 
-  def filter_by(%{route_ids: route_ids, direction_id: direction_id}) do
-    matchers = for route_id <- route_ids, do: %{route_id: route_id, direction_id: direction_id}
-    select(matchers, :route_id)
+  def filter_by(%{route_ids: _route_ids} = filters) do
+    filters
+    |> ids_from_routes()
+    |> by_ids()
   end
 
-  def filter_by(%{route_ids: route_ids}) do
-    by_route_ids(route_ids)
-  end
-
-  def filter_by(%{stop_ids: stop_ids} = filters) do
-    opts =
-      case filters do
-        %{direction_id: direction_id} -> [direction_id: direction_id]
-        _ -> []
-      end
-
-    stop_ids
-    |> RoutesPatternsAtStop.route_patterns_by_stops_and_direction(opts)
-    |> by_ids
+  def filter_by(%{stop_ids: _stop_ids} = filters) do
+    filters
+    |> ids_from_stops
+    |> by_ids()
   end
 
   def filter_by(%{} = map) when map_size(map) == 0 do
     all()
+  end
+
+  defp ids_from_stops(%{stop_ids: stop_ids} = filters) do
+    opts =
+      case filters do
+        %{direction_id: direction_id} -> [direction_id: direction_id]
+        _ -> []
+      end
+
+    RoutesPatternsAtStop.route_patterns_by_stops_and_direction(stop_ids, opts)
+  end
+
+  defp ids_from_routes(%{route_ids: route_ids} = filters) do
+    opts =
+      case filters do
+        %{direction_id: direction_id} -> %{routes: route_ids, direction_id: direction_id}
+        _ -> %{routes: route_ids}
+      end
+
+    opts
+    |> Trip.filter_by()
+    |> Enum.map(& &1.route_pattern_id)
+    |> Enum.uniq()
   end
 end
