@@ -127,9 +127,12 @@ defmodule ApiWeb.PredictionViewTest do
         %{conn | params: %{"include" => "schedule"}}
         |> ApiWeb.ApiControllerHelpers.split_include([])
 
+      # added trips don't have schedules by definition
+      prediction = %{@prediction | schedule_relationship: nil}
+
       schedule_id =
         ApiWeb.PredictionView
-        |> render("index.json-api", data: @prediction, conn: conn)
+        |> render("index.json-api", data: prediction, conn: conn)
         |> get_in(["data", "relationships", "schedule", "data", "id"])
 
       assert schedule_id == "schedule-trip-North Station-5"

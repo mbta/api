@@ -341,6 +341,11 @@ defmodule State.ScheduleTest do
 
       assert Schedule.schedule_for(prediction) == List.first(@schedules)
     end
+
+    test "does not return a schedule for added predictions" do
+      prediction = %{@prediction | schedule_relationship: :added}
+      assert Schedule.schedule_for(prediction) == nil
+    end
   end
 
   describe "schedule_for_many" do
@@ -396,7 +401,7 @@ defmodule State.ScheduleTest do
       position: :first
     }
 
-    test "returns schedules for multiple predictions" do
+    setup do
       State.Route.new_state([%Model.Route{id: "route"}])
       State.Stop.new_state([%Model.Stop{id: "stop"}])
 
@@ -406,11 +411,18 @@ defmodule State.ScheduleTest do
       ])
 
       State.Schedule.new_state([@schedule1, @schedule2])
+    end
 
+    test "returns schedules for multiple predictions" do
       assert Schedule.schedule_for_many(@predictions) == %{
                {"trip1", 1} => @schedule1,
                {"trip2", 2} => @schedule2
              }
+    end
+
+    test "does not return a schedule for added predictions" do
+      prediction = %{List.first(@predictions) | schedule_relationship: :added}
+      assert Schedule.schedule_for_many([prediction]) == %{}
     end
   end
 end
