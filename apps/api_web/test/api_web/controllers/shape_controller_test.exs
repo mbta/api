@@ -10,6 +10,13 @@ defmodule ApiWeb.ShapeControllerTest do
     priority: 1
   }
 
+  @trip %Model.Trip{
+    id: "trip",
+    route_id: @pattern.route_id,
+    direction_id: 1,
+    shape_id: @pattern.id
+  }
+
   def new_patterns(base_pattern) do
     name_first = %{base_pattern | name: "A"}
     name_second = %{base_pattern | name: "B"}
@@ -18,6 +25,7 @@ defmodule ApiWeb.ShapeControllerTest do
 
   setup _ do
     State.Shape.new_state([@pattern])
+    State.Trip.new_state([@trip])
   end
 
   describe "show" do
