@@ -270,6 +270,7 @@ defmodule StateMediator.Integration.GtfsTest do
       assert [_] =
                ["CR-Lowell"]
                |> State.Shape.select_routes(1)
+               |> Enum.filter(&(&1.route_id == "CR-Lowell"))
                |> Enum.reject(&(&1.priority < 0))
     end
 
@@ -303,7 +304,12 @@ defmodule StateMediator.Integration.GtfsTest do
     test "each route has only one highest priority shape" do
       for %{id: route_id} <- all_routes(),
           direction_id <- [0, 1] do
-        case State.Shape.select_routes([route_id], direction_id) do
+        shapes =
+          [route_id]
+          |> State.Shape.select_routes(direction_id)
+          |> Enum.filter(&(&1.route_id == route_id))
+
+        case shapes do
           [] ->
             :ok
 
@@ -461,6 +467,7 @@ defmodule StateMediator.Integration.GtfsTest do
     for direction_id <- 0..1 do
       [route]
       |> State.Shape.select_routes(direction_id)
+      |> Enum.filter(&(&1.route_id == route))
       |> Enum.reject(&(&1.priority < 0))
     end
   end

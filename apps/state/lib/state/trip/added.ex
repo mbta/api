@@ -59,11 +59,12 @@ defmodule State.Trip.Added do
         _other -> nil
       end
 
-    last_stop_id =
-      Enum.find_value(
-        State.Shape.select_routes([prediction.route_id], prediction.direction_id),
-        &last_stop_on_shape(&1, prediction, stop)
-      )
+    shapes =
+      [prediction.route_id]
+      |> State.Shape.select_routes(prediction.direction_id)
+      |> Enum.filter(&(&1.route_id == prediction.route_id))
+
+    last_stop_id = Enum.find_value(shapes, &last_stop_on_shape(&1, prediction, stop))
 
     stop =
       if is_nil(last_stop_id) or last_stop_id == stop.id do

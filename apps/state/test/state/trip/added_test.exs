@@ -120,14 +120,12 @@ defmodule State.Trip.AddedTest do
       ])
 
       State.StopsOnRoute.update!()
-      State.RoutesPatternsAtStop.update!()
 
       on_exit(fn ->
         State.Shape.new_state([])
         State.Trip.new_state([])
         State.Schedule.new_state([])
         State.StopsOnRoute.update!()
-        State.RoutesPatternsAtStop.update!()
       end)
 
       prediction = %{@prediction | stop_id: "child"}
@@ -145,6 +143,7 @@ defmodule State.Trip.AddedTest do
       prediction: prediction
     } do
       State.Shape.new_state([%{shape | route_id: "other route"}])
+      State.Trip.new_state([])
       insert_predictions([prediction])
       assert [%{headsign: "Parent"}] = by_id(@trip_id)
 
