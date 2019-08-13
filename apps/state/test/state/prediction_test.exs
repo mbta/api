@@ -112,6 +112,12 @@ defmodule State.PredictionTest do
       end_date: @today,
       added_dates: [@today]
     }
+    @other_service %Model.Service{
+      id: "other_service",
+      start_date: @today,
+      end_date: @today,
+      added_dates: [@today]
+    }
     @predictions [
       %Model.Prediction{
         route_id: "route",
@@ -153,7 +159,7 @@ defmodule State.PredictionTest do
 
     setup do
       State.Stop.new_state([])
-      State.Service.new_state([@service])
+      State.Service.new_state([@service, @other_service])
       State.ServiceByDate.update!()
       State.Schedule.new_state([@schedule])
       State.Prediction.new_state(@predictions)
@@ -244,6 +250,12 @@ defmodule State.PredictionTest do
       end_date: @today,
       added_dates: [@today]
     }
+    @other_service %Model.Service{
+      id: "other_service",
+      start_date: @today,
+      end_date: @today,
+      added_dates: [@today]
+    }
     @schedules [
       %Model.Schedule{
         route_id: "route",
@@ -297,7 +309,7 @@ defmodule State.PredictionTest do
     }
 
     setup do
-      State.Service.new_state([@service])
+      State.Service.new_state([@service, @other_service])
       State.ServiceByDate.update!()
     end
 
