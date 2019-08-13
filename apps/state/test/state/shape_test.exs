@@ -438,13 +438,20 @@ defmodule State.ShapeTest do
 
   describe "select_routes/1" do
     @shapes [
-      %Shape{route_id: "1", direction_id: 0, priority: 0},
-      %Shape{route_id: "2", direction_id: 0, priority: 0},
-      %Shape{route_id: "3", direction_id: 1, priority: 0}
+      %Shape{id: "1", route_id: "1", direction_id: 0, priority: 0},
+      %Shape{id: "2", route_id: "2", direction_id: 0, priority: 0},
+      %Shape{id: "3", route_id: "3", direction_id: 1, priority: 0}
+    ]
+
+    @trips [
+      %Trip{id: "1", route_id: "1", direction_id: 0, shape_id: "1"},
+      %Trip{id: "2", route_id: "2", direction_id: 0, shape_id: "2"},
+      %Trip{id: "3", route_id: "3", direction_id: 1, shape_id: "3"}
     ]
 
     setup _ do
       State.Shape.new_state(@shapes)
+      State.Trip.new_state(@trips)
       :ok
     end
 
@@ -474,7 +481,23 @@ defmodule State.ShapeTest do
         }
       ]
 
+      trips = [
+        %Trip{
+          id: "t1",
+          route_id: "1",
+          direction_id: 1,
+          shape_id: "s1"
+        },
+        %Trip{
+          id: "t2",
+          route_id: "2",
+          direction_id: 1,
+          shape_id: "s2"
+        }
+      ]
+
       State.Shape.new_state(shapes)
+      State.Trip.new_state(trips)
       assert select_routes(["1", "2"], 1) == shapes
     end
   end

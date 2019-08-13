@@ -5,7 +5,7 @@ defmodule State.Shape do
 
   """
   use State.Server,
-    indices: [:route_id, :id],
+    indices: [:id],
     recordable: Model.Shape
 
   alias Events.Gather
@@ -24,18 +24,19 @@ defmodule State.Shape do
   Select shapes provided a list of route ids and direction id.
   """
   @spec select_routes([Route.id()], Direction.id() | nil) :: [Shape.t()]
-  def select_routes(route_ids, nil) do
-    matchers = for route_id <- route_ids, do: %{route_id: route_id}
-    do_select(matchers)
-  end
-
-  def select_routes(route_ids, direction_id) when direction_id in [0, 1] do
-    matchers =
-      for id <- route_ids do
-        %{direction_id: direction_id, route_id: id}
+  def select_routes(route_ids, direction_id) do
+    opts =
+      case direction_id do
+        id when id in [0, 1] -> %{routes: route_ids, direction_id: id}
+        _ -> %{routes: route_ids}
       end
 
-    do_select(matchers)
+    opts
+    |> State.Trip.filter_by()
+    |> Enum.map(& &1.shape_id)
+    |> Enum.uniq()
+    |> by_ids()
+    |> Enum.sort_by(&{-&1.priority, &1.name})
   end
 
   @doc """
@@ -141,12 +142,6 @@ defmodule State.Shape do
         priority: priority
       }
     ]
-  end
-
-  defp do_select(matchers) do
-    matchers
-    |> select(:route_id)
-    |> Enum.sort_by(&{-&1.priority, &1.name})
   end
 
   defp sort_by_number_of_trips_with_headsign(trips) do
