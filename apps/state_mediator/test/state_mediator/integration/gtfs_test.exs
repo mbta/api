@@ -266,7 +266,14 @@ defmodule StateMediator.Integration.GtfsTest do
       assert name =~ "Copley"
     end
 
-    test "CR-Lowell inbound has one rail shape" do
+    test "CR-Lowell inbound has two rail shapes total" do
+      assert [_, _] =
+               ["CR-Lowell"]
+               |> State.Shape.select_routes(1)
+               |> Enum.reject(&(&1.priority < 0))
+    end
+
+    test "CR-Lowell inbound has one rail shape with route_id CR-Lowell" do
       assert [_] =
                ["CR-Lowell"]
                |> State.Shape.select_routes(1)

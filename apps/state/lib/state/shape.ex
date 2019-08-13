@@ -5,7 +5,7 @@ defmodule State.Shape do
 
   """
   use State.Server,
-    indices: [:route_id, :id],
+    indices: [:id],
     recordable: Model.Shape
 
   alias Events.Gather
