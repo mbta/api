@@ -118,7 +118,25 @@ config :state, :stops_on_route,
     {"CR-Franklin", 0} => [
       ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"],
       ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"]
-    ]
+    ],
+    {"Green-B", 0} => [
+      ["place-north", "place-haecl", "place-gover"],
+    ],
+    {"Green-B", 1} => [
+      ["place-gover", "place-haecl", "place-north"],
+    ],
+    {"Green-C", 0} => [
+      ["place-north", "place-haecl", "place-gover"],
+    ],
+    {"Green-C", 1} => [
+      ["place-gover", "place-haecl", "place-north"],
+    ],
+    {"Green-E", 0} => [
+      ["place-north", "place-haecl", "place-gover"],
+    ],
+    {"Green-E", 1} => [
+      ["place-gover", "place-haecl", "place-north"],
+    ],
   }
 
 import_config "#{Mix.env()}.exs"
