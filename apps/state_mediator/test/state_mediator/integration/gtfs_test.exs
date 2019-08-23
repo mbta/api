@@ -124,7 +124,6 @@ defmodule StateMediator.Integration.GtfsTest do
 
       for route_id <- ~w(Green-B Green-C Green-D Green-E),
           route_order = order_prefixes[route_id] ++ order ++ order_suffixes[route_id],
-          route_order_length = length(route_order),
           date <- dates_of_rating(),
           direction_id <- [0, 1] do
         route_order =
@@ -134,17 +133,18 @@ defmodule StateMediator.Integration.GtfsTest do
             route_order
           end
 
-        stop_ids =
+        core_stop_ids =
           for stop <-
                 State.Stop.filter_by(%{routes: [route_id], direction_id: direction_id, date: date}),
+              stop.id in route_order,
               do: stop.id
 
-        core_stops =
-          stop_ids
-          |> Enum.drop_while(&(&1 != List.first(route_order)))
-          |> Enum.take(route_order_length)
+        # only check the order of stop IDs that are on the route. this works
+        # around the Haymarket closure
+        route_order = Enum.filter(route_order, &(&1 in core_stop_ids))
 
-        assert {route_id, direction_id, route_order} == {route_id, direction_id, core_stops}
+        assert {route_id, direction_id, date, route_order} ==
+                 {route_id, direction_id, date, core_stop_ids}
       end
     end
 
