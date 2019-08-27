@@ -117,6 +117,7 @@ defmodule State.Shape do
 
   defp shape_from_trips_for_polyline(polyline, trip, _trips) do
     route_pattern = State.RoutePattern.by_id(trip.route_pattern_id)
+
     priority =
       case route_pattern.typicality do
         1 -> 2
