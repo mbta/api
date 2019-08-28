@@ -69,9 +69,9 @@ config :state, :shape,
     "7420016" => -1,
 
     # Providence
-    "9890008" => {nil, "Wickford Junction - South Station"},
-    "9890009" => {nil, "South Station - Wickford Junction"},
-    "9890003" => {nil, "Stoughton - South Station"},
+    "9890008" => {nil, "Wickford Junction"},
+    "9890009" => {nil, "Providence"},
+    "9890003" => {nil, "Stoughton"},
 
     # Kingston
     # Kingston (from Kingston) inbound
@@ -92,8 +92,8 @@ config :state, :shape,
     "9790008" => -1,
 
     # Newburyport
-    "9810006" => {nil, "Rockport - North Station"},
-    "9810001" => {nil, "Newburyport - North Station"},
+    "9810006" => {nil, "Rockport"},
+    "9810001" => {nil, "Newburyport"},
 
     # Alternate Routes
     # Haverhill / Lowell wildcat trip
