@@ -200,9 +200,7 @@ defmodule ApiWeb.RouteController do
   end
 
   defp pagination_opts(params, conn) do
-    params
-    |> Params.filter_opts(@pagination_opts, conn)
-    |> Keyword.put_new(:order_by, {:sort_order, :asc})
+    Params.filter_opts(params, @pagination_opts, conn, order_by: {:sort_order, :asc})
   end
 
   defp filter_hidden({route_list, offsets}) do
