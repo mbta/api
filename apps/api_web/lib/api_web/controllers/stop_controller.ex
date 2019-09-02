@@ -93,9 +93,6 @@ defmodule ApiWeb.StopController do
     end
   end
 
-  defp check_distance_filter?(opts) when is_list(opts),
-    do: opts |> Enum.into(%{}) |> (&check_distance_filter?(&1)).()
-
   defp check_distance_filter?(%{order_by: order_by} = filter_opts),
     do: check_distance_params(%{filter_opts | order_by: Enum.into(order_by, %{})})
 
