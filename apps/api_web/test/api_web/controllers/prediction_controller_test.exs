@@ -314,6 +314,8 @@ defmodule ApiWeb.PredictionControllerTest do
 
     State.Trip.new_state([trip1a, trip1b, trip2])
     State.Prediction.new_state([p1, p2, p3])
+    # re-fetch to get the predictions w/ the route_pattern_id
+    [p1, p2, p3] = Enum.sort_by(State.Prediction.all(), & &1.trip_id)
 
     result = index_data(conn, %{"route_pattern" => "1"})
     assert Enum.sort_by(result, & &1.stop_id) == [p1, p2]
