@@ -18,8 +18,7 @@ defmodule Recordable do
     pairs = Enum.zip(keys, vals)
 
     # create a pairs object with each value being the filler variable
-    fill_vals = Stream.cycle([{:filler, [], __MODULE__}])
-    fill_pairs = Enum.zip(keys, fill_vals)
+    fill_pairs = Enum.zip(keys, Stream.cycle([:_]))
 
     quote do
       require Record
@@ -37,7 +36,7 @@ defmodule Recordable do
 
       def fields, do: unquote(keys)
 
-      def filled(filler) do
+      def filled(_) do
         %__MODULE__{unquote_splicing(fill_pairs)}
       end
     end
