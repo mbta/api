@@ -1,7 +1,7 @@
 defmodule State.Prediction do
   @moduledoc "State for Predictions"
   use State.Server,
-    indices: [:stop_id, :trip_id, :route_id],
+    indices: [:stop_id, :trip_id, :route_id, :route_pattern_id],
     parser: Parse.TripUpdates,
     recordable: Model.Prediction,
     hibernate: false
@@ -80,9 +80,9 @@ defmodule State.Prediction do
     end
   end
 
-  defp update_route_from_alternate_trips(prediction, [_, _ | _] = trips) do
+  defp update_route_from_alternate_trips(prediction, [_ | _] = trips) do
     for trip <- trips do
-      %{prediction | route_id: trip.route_id}
+      %{prediction | route_id: trip.route_id, route_pattern_id: trip.route_pattern_id}
     end
   end
 

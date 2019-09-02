@@ -290,20 +290,25 @@ defmodule ApiWeb.PredictionController do
     |> select(:stop_id)
   end
 
-  defp all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers) do
-    trip_ids =
-      %{route_patterns: route_pattern_ids}
-      |> State.Trip.filter_by()
-      |> Stream.map(& &1.id)
+  defp all_stops_and_route_patterns([], route_pattern_ids, matchers) do
+    for route_pattern_id <- route_pattern_ids,
+        matcher <- matchers do
+      Map.put(matcher, :route_pattern_id, route_pattern_id)
+    end
+    |> select(:route_pattern_id)
+  end
 
-    all_stops_and_trips(stop_ids, trip_ids, matchers)
+  defp all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers) do
+    for route_pattern_id <- route_pattern_ids,
+        stop_id <- stop_ids,
+        matcher <- matchers do
+      Map.merge(matcher, %{route_pattern_id: route_pattern_id, stop_id: stop_id})
+    end
+    |> select(:stop_id)
   end
 
   def select(matchers, index) do
-    [
-      Prediction
-    ]
-    |> Prediction.select_grouped(matchers, index)
+    Prediction.select(matchers, index)
   end
 
   defp direction_id_matcher(nil), do: %{}
