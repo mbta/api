@@ -15,7 +15,7 @@ defmodule State.Pagination do
   Paginates a result-set according to a list of options.
 
     * `results` - the list of results
-    * `opts` - the Keyword list of options:
+    * `opts` - the Enum of options:
       * `:limit` - the number of results to be returned
       * `:offset` - the offset of results to beging selection from
 
@@ -33,11 +33,14 @@ defmodule State.Pagination do
         last: 4
       }}
   """
-  @spec paginate([map], [pagination_option]) :: [map] | {[map], Offsets.t()}
-  def paginate(results, opts \\ []) when is_list(results) do
-    case opts[:limit] do
-      limit when is_integer(limit) and limit > 0 ->
-        offset = opts[:offset] || 0
+  @spec paginate([map]) :: [map] | {[map], Offsets.t()}
+  @spec paginate([map], [pagination_option] | map) :: [map] | {[map], Offsets.t()}
+  def paginate(results, opts \\ %{}) when is_list(results) do
+    opts = Map.new(opts)
+
+    case opts do
+      %{limit: limit} when is_integer(limit) and limit > 0 ->
+        offset = Map.get(opts, :offset, 0)
 
         page_count = page_count(results, limit)
         item_count = Enum.count(results)
