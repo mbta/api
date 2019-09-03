@@ -68,8 +68,7 @@ defmodule State.Trip do
     filters
     |> build_query()
     |> query_both()
-    |> Stream.map(&replace_alternate_trips(&1))
-    |> Stream.uniq_by(& &1.id)
+    |> Enum.map(&replace_alternate_trips(&1))
     |> Enum.sort_by(& &1.id)
   end
 
@@ -158,51 +157,54 @@ defmodule State.Trip do
     [new_trip | new_alternates]
   end
 
-  defp build_query(filters, query \\ %{})
+  def build_query(filters, query \\ %{})
 
-  defp build_query(%{direction_id: direction_id} = filters, query) do
+  def build_query(%{direction_id: direction_id} = filters, query) do
     filters = Map.delete(filters, :direction_id)
     query = Map.put(query, :direction_id, [direction_id])
     build_query(filters, query)
   end
 
-  defp build_query(%{date: date} = filters, query) do
+  def build_query(%{date: date} = filters, query) do
     filters = Map.delete(filters, :date)
     service_ids = ServiceByDate.by_date(date)
     query = Map.put(query, :service_id, service_ids)
     build_query(filters, query)
   end
 
-  defp build_query(%{routes: routes} = filters, query) do
+  def build_query(%{routes: routes} = filters, query) do
     filters = Map.delete(filters, :routes)
     query = Map.put(query, :route_id, routes)
     build_query(filters, query)
   end
 
-  defp build_query(%{route_patterns: routes} = filters, query) do
+  def build_query(%{route_patterns: routes} = filters, query) do
     filters = Map.delete(filters, :route_patterns)
     query = Map.put(query, :route_pattern_id, routes)
     build_query(filters, query)
   end
 
-  defp build_query(%{names: names} = filters, query) do
+  def build_query(%{names: names} = filters, query) do
     filters = Map.delete(filters, :names)
     query = Map.put(query, :name, names)
     build_query(filters, query)
   end
 
-  defp build_query(%{ids: ids} = filters, query) do
+  def build_query(%{ids: ids} = filters, query) do
     filters = Map.delete(filters, :ids)
     query = Map.put(query, :id, ids)
     build_query(filters, query)
   end
 
-  defp build_query(_, query) do
+  def build_query(_, query) do
     query
   end
 
-  defp query_both(query) do
-    State.Trip.Added.query(query) ++ State.Trip.query(query)
+  def query_both(query) do
+    :lists.flatmap(
+      &apply(&1, :query, [query]),
+      [State.Trip.Added, State.Trip]
+    )
   end
 
   @spec multi_route_trips_to_added_route_ids_by_trip_id([MultiRouteTrip.t()]) :: %{

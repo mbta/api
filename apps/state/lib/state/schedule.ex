@@ -155,7 +155,8 @@ defmodule State.Schedule do
     trip_ids =
       filters
       |> Map.take(keys)
-      |> State.Trip.filter_by()
+      |> State.Trip.build_query()
+      |> State.Trip.query()
       |> Enum.map(& &1.id)
 
     filters = Map.drop(filters, keys)
