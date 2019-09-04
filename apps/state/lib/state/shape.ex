@@ -24,29 +24,53 @@ defmodule State.Shape do
   Select shapes provided a list of route ids and direction id.
   """
   @spec select_routes([Route.id()], Direction.id() | nil) :: [Shape.t()]
-  def select_routes(route_ids, direction_id) do
+  def select_routes(route_ids, direction_id, api_version \\ "2019-07-01") do
     opts =
       case direction_id do
         id when id in [0, 1] -> %{routes: route_ids, direction_id: id}
         _ -> %{routes: route_ids}
       end
 
-    opts
-    |> State.Trip.filter_by()
-    |> Enum.map(& &1.shape_id)
-    |> Enum.uniq()
-    |> by_ids()
-    |> Enum.sort_by(&{-&1.priority, &1.name})
+    shapes =
+      opts
+      |> State.Trip.filter_by()
+      |> Enum.map(& &1.shape_id)
+      |> Enum.uniq()
+      |> by_ids()
+      |> Enum.sort_by(&{-&1.priority, &1.name})
+
+    if api_version < "2019-07-01" do
+      Enum.map(shapes, &remove_origin_from_shape_name/1)
+    else
+      shapes
+    end
   end
 
   @doc """
   Returns the primary shape for the given id.
   """
   @spec by_primary_id(Shape.id()) :: Shape.t() | nil
-  def by_primary_id(id) do
-    id
-    |> by_id()
-    |> Enum.max_by(& &1.priority, fn -> nil end)
+  def by_primary_id(id, api_version \\ "2019-07-01") do
+    shape =
+      id
+      |> by_id()
+      |> Enum.max_by(& &1.priority, fn -> nil end)
+
+    if api_version < "2019-07-01" do
+      remove_origin_from_shape_name(shape)
+    else
+      shape
+    end
+  end
+
+  defp remove_origin_from_shape_name(shape) do
+    name =
+      case String.split(shape.name, " - ", parts: 2) do
+        [_, name] -> name
+        [name] -> name
+      end
+
+    %{shape | name: name}
   end
 
   @impl Events.Server
@@ -118,14 +142,6 @@ defmodule State.Shape do
   defp shape_from_trips_for_polyline(polyline, trip, _trips) do
     route_pattern = State.RoutePattern.by_id(trip.route_pattern_id)
 
-    # If the route pattern name is of the form `origin - destination`, only
-    # include the destination in the shape name.
-    name =
-      case String.split(route_pattern.name, " - ", parts: 2) do
-        [_, name] -> name
-        [name] -> name
-      end
-
     priority =
       case route_pattern.typicality do
         1 -> 2
@@ -139,7 +155,7 @@ defmodule State.Shape do
         id: polyline.id,
         route_id: trip.route_id,
         direction_id: trip.direction_id,
-        name: name,
+        name: route_pattern.name,
         polyline: polyline.polyline,
         priority: priority
       }
