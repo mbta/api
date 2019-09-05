@@ -64,10 +64,18 @@ defmodule State.Schedule do
   """
   @spec filter_by(filter_opts) :: [Schedule.t()]
   def filter_by(filters) do
-    filters
-    |> build_query()
-    |> query()
-    |> do_post_search_filter(filters)
+    case build_query(filters) do
+      %{service_id: _} = q when map_size(q) == 1 ->
+        []
+
+      q when map_size(q) > 0 ->
+        q
+        |> query()
+        |> do_post_search_filter(filters)
+
+      _ ->
+        []
+    end
   end
 
   # Only for tests

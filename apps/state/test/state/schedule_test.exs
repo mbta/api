@@ -45,6 +45,7 @@ defmodule State.ScheduleTest do
   describe "filter_by/1" do
     test "returns [] when neither :routes, :trips, or :stops is applied" do
       assert Schedule.filter_by(%{}) == []
+      assert Schedule.filter_by(%{date: @today}) == []
       refute Schedule.filter_by(%{routes: [@route.id]}) == []
       refute Schedule.filter_by(%{trips: [@trip.id]}) == []
       refute Schedule.filter_by(%{stops: [@stop.id]}) == []
