@@ -19,7 +19,7 @@ config :state_mediator, State.Vehicle,
   source: {
     :system,
     "MBTA_VEHICLE_SOURCE",
-    "https://cdn.mbta.com/realtime/VehiclePositions.pb"
+    "https://cdn.mbta.com/realtime/VehiclePositions_enhanced.json"
   }
 
 config :state_mediator, State.Facility.Parking, source: {:system, "IBM_PARKING_SOURCE", ""}
