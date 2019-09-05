@@ -51,7 +51,7 @@ defmodule ApiWeb.ShapeController do
     direction_id = Params.direction_id(filtered_params)
 
     route_ids
-    |> Shape.select_routes(direction_id, conn.assigns.api_version)
+    |> Shape.select_routes(direction_id)
     |> State.all(Params.filter_opts(params, @pagination_opts, conn))
   end
 
@@ -83,7 +83,7 @@ defmodule ApiWeb.ShapeController do
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, @includes, conn) do
       {:ok, _includes} ->
-        Shape.by_primary_id(id, conn.assigns.api_version)
+        Shape.by_primary_id(id)
 
       {:error, _, _} = error ->
         error

@@ -500,33 +500,6 @@ defmodule State.ShapeTest do
       State.Trip.new_state(trips)
       assert select_routes(["1", "2"], 1) == shapes
     end
-
-    test "replaces names on versions before 2019-07-01" do
-      shapes = [
-        %Shape{
-          id: "shape",
-          route_id: "1",
-          direction_id: 1,
-          priority: 1,
-          name: "origin - variant"
-        }
-      ]
-
-      trips = [
-        %Trip{
-          id: "trip",
-          route_id: "1",
-          shape_id: "shape",
-          direction_id: 1
-        }
-      ]
-
-      State.Shape.new_state(shapes)
-      State.Trip.new_state(trips)
-
-      assert [%Shape{name: "origin - variant"}] = select_routes(["1"], 1)
-      assert [%Shape{name: "variant"}] = select_routes(["1"], 1, "2019-02-12")
-    end
   end
 
   describe "by_primary_id/1" do
@@ -544,21 +517,6 @@ defmodule State.ShapeTest do
       State.Shape.new_state(shapes)
 
       assert State.Shape.by_primary_id("s1").priority == 4
-    end
-
-    test "replaces name on versions before 2019-07-01" do
-      shape = %Shape{
-        id: "shape",
-        route_id: "route",
-        direction_id: 1,
-        priority: 1,
-        name: "origin - variant"
-      }
-
-      State.Shape.new_state([shape])
-
-      assert State.Shape.by_primary_id("shape").name == "origin - variant"
-      assert State.Shape.by_primary_id("shape", "2019-02-12").name == "variant"
     end
   end
 end
