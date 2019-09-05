@@ -24,54 +24,43 @@ defmodule State.Server.Query do
 
   @spec query(module, q | [q]) :: [recordable] when q: map, recordable: struct
   def query(module, %{} = q) when is_atom(module) do
-    do_query(module, [q])
+    do_query(module, q)
+  end
+
+  def query(module, [%{} = q]) when is_atom(module) do
+    do_query(module, q)
   end
 
   def query(module, [%{} | _] = qs) do
-    do_query(module, qs)
+    qs
+    |> Enum.flat_map(&do_query(module, &1))
+    |> Enum.uniq()
   end
 
   def query(_module, []) do
     []
   end
 
-  defmodule Result do
-    @moduledoc false
-    @enforce_keys [:module]
-    defstruct [:module, matches: [], selectors: []]
-  end
-
-  alias __MODULE__.Result
-
-  defp do_query(module, qs) do
-    qs
-    |> Enum.reduce(%Result{module: module}, &accumulate/2)
-    |> finalize()
-  end
-
-  def accumulate(q, %Result{module: module} = result) when map_size(q) > 0 do
-    {is_db_index?, index} = first_index(module.indices(), q)
-    rest = Map.delete(q, index)
+  defp do_query(module, q) when map_size(q) > 0 do
     recordable = module.recordable()
 
-    case {is_db_index?,
-          Enum.reduce_while(rest, {recordable.filled(:_), [], 1}, &build_struct_and_guards/2)} do
-      {true, {struct, [], _}} ->
-        index_values = Map.get(q, index)
+    {is_db_index?, index} = first_index(module.indices(), q)
+    {index_values, rest} = Map.pop(q, index)
 
-        matches =
-          for record <- records_from_struct_and_values(struct, index, index_values) do
-            Server.by_index_match(record, module, index, [])
-          end
+    struct = recordable.filled(:_)
+    acc = {struct, [], [], 1}
 
-        %{result | matches: matches ++ result.matches}
+    case {is_db_index?, Enum.reduce_while(rest, acc, &build_struct_and_guards/2)} do
+      {true, {^struct, [], filter_fns, _}} ->
+        results = Server.by_index(index_values, module, {index, module.key_index()}, [])
+        filter_results(results, filter_fns)
 
-      {_, {struct, guards, _}} ->
-        # put shorter guards at the front
-        guards = Enum.sort(guards)
+      {true, {struct, [], filter_fns, _}} ->
+        records = records_from_struct_and_values(struct, index, index_values)
+        results = :lists.flatmap(&Server.by_index_match(&1, module, index, []), records)
+        filter_results(results, filter_fns)
 
-        index_values = Map.get(q, index)
-
+      {_, {struct, guards, filter_fns, _}} ->
         selectors =
           for record <- records_from_struct_and_values(struct, index, index_values) do
             {
@@ -81,24 +70,30 @@ defmodule State.Server.Query do
             }
           end
 
-        %{result | selectors: [selectors | result.selectors]}
+        results = Server.select_with_selectors(module, selectors)
+        filter_results(results, filter_fns)
 
       {_, :empty} ->
-        result
+        []
     end
   end
 
-  def accumulate(_q, result) do
-    result
+  defp do_query(_, _) do
+    []
   end
 
-  def finalize(%Result{selectors: [], matches: matches}) do
-    flat_results(matches)
+  defp filter_results(results, [head | tail]) do
+    case :lists.filter(head, results) do
+      [_ | _] = results ->
+        filter_results(results, tail)
+
+      [] ->
+        []
+    end
   end
 
-  def finalize(%Result{module: module, selectors: selectors, matches: matches}) do
-    selected = Server.select_with_selectors(module, List.flatten(selectors))
-    flat_results([selected | matches])
+  defp filter_results(results, []) do
+    results
   end
 
   defp records_from_struct_and_values(%{__struct__: recordable} = struct, index, index_values) do
@@ -106,14 +101,6 @@ defmodule State.Server.Query do
       struct
       |> Map.put(index, value)
       |> recordable.to_record()
-    end
-  end
-
-  defp flat_results(results) do
-    for list <- results,
-        r <- list,
-        uniq: true do
-      r
     end
   end
 
@@ -159,16 +146,30 @@ defmodule State.Server.Query do
     List.to_tuple([:orelse | guards])
   end
 
-  defp build_struct_and_guards({key, [value]}, {struct, guards, i}) do
+  defp build_struct_and_guards({key, [value]}, {struct, guards, filter_fns, i}) do
     struct = Map.put(struct, key, value)
-    {:cont, {struct, guards, i}}
+    {:cont, {struct, guards, filter_fns, i}}
   end
 
-  defp build_struct_and_guards({key, [_, _ | _] = values}, {struct, guards, i}) do
+  defp build_struct_and_guards(
+         {key, [_, _] = values},
+         {struct, guards, filter_fns, i}
+       ) do
     query_variable = query_variable(i)
     struct = Map.put(struct, key, query_variable)
     guard = build_guard(query_variable, values)
-    {:cont, {struct, [guard | guards], i + 1}}
+    {:cont, {struct, [guard | guards], filter_fns, i + 1}}
+  end
+
+  defp build_struct_and_guards(
+         {key, [_ | _] = values},
+         {struct, guards, filter_fns, i}
+       ) do
+    set = MapSet.new(values)
+    set_filter_fn = fn %{^key => value} -> MapSet.member?(set, value) end
+    filter_fns = [set_filter_fn | filter_fns]
+
+    {:cont, {struct, guards, filter_fns, i}}
   end
 
   defp build_struct_and_guards({_key, []}, _) do

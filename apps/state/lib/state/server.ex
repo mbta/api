@@ -432,10 +432,8 @@ defmodule State.Server do
   end
 
   def select_with_selectors(module, selectors) when is_atom(module) and is_list(selectors) do
-    fn ->
-      :mnesia.select(module, selectors)
-    end
-    |> :mnesia.async_dirty()
+    module
+    |> :mnesia.dirty_select(selectors)
     |> to_structs(module, [])
   end
 

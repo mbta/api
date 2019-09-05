@@ -53,6 +53,13 @@ defmodule State.Server.QueryTest do
       assert [] = query(Server, %{id: [1], data: [:other]})
     end
 
+    test "can query against large numbers of other values" do
+      items = gen_items(2)
+      Server.new_state(items)
+      assert [%Example{id: 1}] = query(Server, %{id: [1], data: [1, 2, 3, 4, 5]})
+      assert [] = query(Server, %{id: [1], data: [2, 3, 4, 5]})
+    end
+
     test "can query against non-key indices" do
       items = gen_items(2)
       Server.new_state(items)
