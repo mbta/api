@@ -104,6 +104,10 @@ defmodule State do
   def all(results, opts \\ [])
   def all([], _), do: []
 
+  def all(results, []) do
+    results
+  end
+
   def all(results, opts) when is_list(results) do
     opts = Map.new(opts)
 

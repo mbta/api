@@ -261,7 +261,7 @@ defmodule State.Server do
   def match(module, matcher, index, opts) when is_map(matcher) and is_atom(index) do
     match = merge_with_filled(module, matcher)
 
-    by_index_match(match, module, {index, module.key_index()}, opts)
+    by_index_match(match, module, index, opts)
   end
 
   def merge_with_filled(module, matcher) do
@@ -400,13 +400,7 @@ defmodule State.Server do
     &:mnesia.dirty_index_read(module, &1, index)
   end
 
-  def by_index_match(match, module, {key_index, key_index}, opts) do
-    module
-    |> :mnesia.dirty_match_object(match)
-    |> to_structs(module, opts)
-  end
-
-  def by_index_match(match, module, {index, _key_index}, opts) do
+  def by_index_match(match, module, index, opts) do
     module
     |> :mnesia.dirty_index_match_object(match, index)
     |> to_structs(module, opts)
