@@ -27,14 +27,14 @@ defmodule ApiWeb.ShapeView do
     |> Stop.by_ids()
   end
 
-  def name(shape, conn) do
-    if conn.assigns.api_version < "2019-07-01" do
-      case String.split(shape.name, " - ", parts: 2) do
-        [_, name] -> name
-        [name] -> name
-      end
-    else
-      shape.name
+  def name(%{name: name}, %{assigns: %{api_version: version}}) when version >= "2019-07-01" do
+    name
+  end
+
+  def name(%{name: name}, _conn) do
+    case String.split(name, " - ", parts: 2) do
+      [_, name] -> name
+      [name] -> name
     end
   end
 end
