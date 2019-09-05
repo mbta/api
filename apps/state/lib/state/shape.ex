@@ -118,14 +118,6 @@ defmodule State.Shape do
   defp shape_from_trips_for_polyline(polyline, trip, _trips) do
     route_pattern = State.RoutePattern.by_id(trip.route_pattern_id)
 
-    # If the route pattern name is of the form `origin - destination`, only
-    # include the destination in the shape name.
-    name =
-      case String.split(route_pattern.name, " - ", parts: 2) do
-        [_, name] -> name
-        [name] -> name
-      end
-
     priority =
       case route_pattern.typicality do
         1 -> 2
@@ -139,7 +131,7 @@ defmodule State.Shape do
         id: polyline.id,
         route_id: trip.route_id,
         direction_id: trip.direction_id,
-        name: name,
+        name: route_pattern.name,
         polyline: polyline.polyline,
         priority: priority
       }
