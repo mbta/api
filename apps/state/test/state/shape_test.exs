@@ -431,7 +431,7 @@ defmodule State.ShapeTest do
 
       [red_ashmont, providence, shuttle] = State.Shape.arrange_by_priority(shapes)
       assert %{name: "Ashmont", priority: 2} = red_ashmont
-      assert %{name: "Wickford Junction - South Station", priority: 0} = providence
+      assert %{name: "South Station - Wickford Junction", priority: 0} = providence
       assert %{name: nil, priority: -1} = shuttle
     end
   end
