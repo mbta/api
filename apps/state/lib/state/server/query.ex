@@ -32,9 +32,7 @@ defmodule State.Server.Query do
   end
 
   def query(module, [%{} | _] = qs) do
-    qs
-    |> Enum.flat_map(&do_query(module, &1))
-    |> Enum.uniq()
+    Enum.flat_map(qs, &do_query(module, &1))
   end
 
   def query(_module, []) do
