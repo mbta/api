@@ -18,8 +18,7 @@ defmodule Parse.VehiclePositionsJson do
           "vehicle" => %{
             "position" => position,
             "trip" => trip,
-            "vehicle" => vehicle,
-            "timestamp" => timestamp
+            "vehicle" => vehicle
           }
         } = entity
       ) do
@@ -39,7 +38,7 @@ defmodule Parse.VehiclePositionsJson do
         speed: Map.get(position, "speed"),
         current_status: parse_status(Map.get(data, "current_status")),
         current_stop_sequence: Map.get(data, "current_stop_sequence"),
-        updated_at: unix_to_local(timestamp)
+        updated_at: unix_to_local(Map.get(data, "timestamp"))
       }
     ]
   end

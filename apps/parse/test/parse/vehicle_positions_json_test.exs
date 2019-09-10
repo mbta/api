@@ -30,7 +30,6 @@ defmodule Parse.VehiclePositionsJsonTest do
     "id" => "y0487",
     "vehicle" => %{
       "position" => %{},
-      "timestamp" => 1_567_709_072,
       "trip" => %{},
       "vehicle" => %{"id" => "y0487"}
     }
