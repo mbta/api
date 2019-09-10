@@ -133,32 +133,9 @@ defmodule State.Server.Query do
     end
   end
 
-  @doc """
-  Generate a guard for a match specification where the variable is one of the provided values.
-
-  ## Examples
-      iex> build_guard(:y, [1, 2])
-      {:orelse, {:"=:=", :y, 1}, {:"=:=", :y, 2}}
-  """
-  @spec build_guard(variable, values) :: tuple when variable: atom, values: [any, ...]
-  def build_guard(variable, [_, _ | _] = values) do
-    guards = for value <- values, do: {:"=:=", variable, value}
-    List.to_tuple([:orelse | guards])
-  end
-
   defp build_struct_and_guards({key, [value]}, {struct, guards, filter_fns, i}) do
     struct = Map.put(struct, key, value)
     {:cont, {struct, guards, filter_fns, i}}
-  end
-
-  defp build_struct_and_guards(
-         {key, [_, _] = values},
-         {struct, guards, filter_fns, i}
-       ) do
-    query_variable = query_variable(i)
-    struct = Map.put(struct, key, query_variable)
-    guard = build_guard(query_variable, values)
-    {:cont, {struct, [guard | guards], filter_fns, i + 1}}
   end
 
   defp build_struct_and_guards(
@@ -174,10 +151,5 @@ defmodule State.Server.Query do
 
   defp build_struct_and_guards({_key, []}, _) do
     {:halt, :empty}
-  end
-
-  # build query variables at compile time
-  for i <- 1..20 do
-    defp query_variable(unquote(i)), do: unquote(String.to_atom("$#{i}"))
   end
 end
