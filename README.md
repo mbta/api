@@ -30,7 +30,7 @@ In addition to the Elixir config files, the V3 API allows runtime configuration 
 | `MBTA_GTFS_URL` | `https://cdn.mbta.com/MBTA_GTFS.zip` | URL for the GTFS .zip file. |
 | `ALERTS_URL` | `https://cdn.mbta.com/realtime/Alerts_enhanced.json` | URL for the Alerts. Can be either a JSON or Protobuf file.
 | `MBTA_TRIP_SOURCE` | `https://cdn.mbta.com/realtime/TripUpdates_enhanced.json` | URL for the TripUpdates. Can be either a JSON or Protobuf file. |
-| `MBTA_VEHICLE_SOURCE ` | `https://cdn.mbta.com/realtime/VehiclePositions.pb` | URL for the VehiclePositions. Must be a Protobuf file. |
+| `MBTA_VEHICLE_SOURCE ` | `https://cdn.mbta.com/realtime/VehiclePositions_enhanced.json` | URL for the VehiclePositions. Can be either a JSON or Protobuf file. |
 | `IBM_PARKING_SOURCE` | undefined | URL for parking information. |
 | `FETCH_FILETAP_S3_BUCKET` | undefined | S3 bucket to which we write files we fetched. |
 
