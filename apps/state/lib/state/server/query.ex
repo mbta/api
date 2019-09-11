@@ -32,7 +32,7 @@ defmodule State.Server.Query do
   end
 
   def query(module, [%{} | _] = qs) do
-    Enum.flat_map(qs, &do_query(module, &1))
+    :lists.flatmap(&do_query(module, &1), qs)
   end
 
   def query(_module, []) do
@@ -46,24 +46,24 @@ defmodule State.Server.Query do
     {index_values, rest} = Map.pop(q, index)
 
     struct = recordable.filled(:_)
-    acc = {struct, [], [], 1}
+    acc = {struct, []}
 
-    case {is_db_index?, Enum.reduce_while(rest, acc, &build_struct_and_guards/2)} do
-      {true, {^struct, [], filter_fns, _}} ->
+    case {is_db_index?, Enum.reduce_while(rest, acc, &build_struct_and_filters/2)} do
+      {true, {^struct, filter_fns}} ->
         results = Server.by_index(index_values, module, {index, module.key_index()}, [])
         filter_results(results, filter_fns)
 
-      {true, {struct, [], filter_fns, _}} ->
-        records = records_from_struct_and_values(struct, index, index_values)
+      {true, {struct, filter_fns}} ->
+        records = records_from_struct_and_values(recordable, struct, index, index_values)
         results = :lists.flatmap(&Server.by_index_match(&1, module, index, []), records)
         filter_results(results, filter_fns)
 
-      {_, {struct, guards, filter_fns, _}} ->
+      {false, {struct, filter_fns}} ->
         selectors =
-          for record <- records_from_struct_and_values(struct, index, index_values) do
+          for record <- records_from_struct_and_values(recordable, struct, index, index_values) do
             {
               record,
-              guards,
+              [],
               [:"$_"]
             }
           end
@@ -94,11 +94,17 @@ defmodule State.Server.Query do
     results
   end
 
-  defp records_from_struct_and_values(%{__struct__: recordable} = struct, index, index_values) do
+  defp records_from_struct_and_values(recordable, struct, index, [value]) do
+    [
+      recordable.to_record(%{struct | index => value})
+    ]
+  end
+
+  defp records_from_struct_and_values(recordable, struct, index, index_values) do
+    to_record = &recordable.to_record/1
+
     for value <- index_values do
-      struct
-      |> Map.put(index, value)
-      |> recordable.to_record()
+      to_record.(%{struct | index => value})
     end
   end
 
@@ -131,23 +137,23 @@ defmodule State.Server.Query do
     end
   end
 
-  defp build_struct_and_guards({key, [value]}, {struct, guards, filter_fns, i}) do
+  defp build_struct_and_filters({key, [value]}, {struct, filter_fns}) do
     struct = Map.put(struct, key, value)
-    {:cont, {struct, guards, filter_fns, i}}
+    {:cont, {struct, filter_fns}}
   end
 
-  defp build_struct_and_guards(
+  defp build_struct_and_filters(
          {key, [_ | _] = values},
-         {struct, guards, filter_fns, i}
+         {struct, filter_fns}
        ) do
     set = MapSet.new(values)
     set_filter_fn = fn %{^key => value} -> MapSet.member?(set, value) end
     filter_fns = [set_filter_fn | filter_fns]
 
-    {:cont, {struct, guards, filter_fns, i}}
+    {:cont, {struct, filter_fns}}
   end
 
-  defp build_struct_and_guards({_key, []}, _) do
+  defp build_struct_and_filters({_key, []}, _) do
     {:halt, :empty}
   end
 end
