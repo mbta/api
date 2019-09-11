@@ -24,6 +24,12 @@
   </div>
 
   <div class="form-group">
+    <%= label f, "Allowed domains (comma separated list of domains or *)", class: "control-label" %>
+    <%= text_input f, :allowed_domains, class: "form-control" %>
+    <%= error_tag f, :allowed_domains %>
+  </div>
+
+  <div class="form-group">
     <%= label f, :approved, class: "control-label" %>
     <%= checkbox f, :approved, class: "checkbox" %>
     <%= error_tag f, :approved %>
