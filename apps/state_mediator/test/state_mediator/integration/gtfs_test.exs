@@ -99,7 +99,11 @@ defmodule StateMediator.Integration.GtfsTest do
 
         core_stop_ids =
           for stop <-
-                State.Stop.filter_by(%{routes: [route_id], direction_id: direction_id, date: date}),
+                State.Stop.filter_by(%{
+                  route_id: [route_id],
+                  direction_id: direction_id,
+                  date: date
+                }),
               stop.id in route_order,
               do: stop.id
 
@@ -129,7 +133,7 @@ defmodule StateMediator.Integration.GtfsTest do
             route_id != "Mattapan",
             direction_id <- [0, 1],
             stops =
-              State.Stop.filter_by(%{routes: [route_id], direction_id: direction_id, date: date}),
+              State.Stop.filter_by(%{route_id: [route_id], direction_id: direction_id, date: date}),
             invalid_stop_ids = invalid_stops_for_subway.(stops),
             invalid_stop_ids != [] do
           {route_id, date, direction_id, invalid_stop_ids}
@@ -151,7 +155,7 @@ defmodule StateMediator.Integration.GtfsTest do
             direction_id <- [0, 1],
             data =
               State.Stop.filter_by(%{
-                routes: ["CR-Kingston"],
+                route_id: ["CR-Kingston"],
                 direction_id: direction_id,
                 date: date
               }),
@@ -167,7 +171,7 @@ defmodule StateMediator.Integration.GtfsTest do
         for direction_id <- [0, 1] do
           stops =
             State.Stop.filter_by(%{
-              routes: ["CR-Franklin"],
+              route_id: ["CR-Franklin"],
               direction_id: direction_id
             })
 
@@ -195,13 +199,13 @@ defmodule StateMediator.Integration.GtfsTest do
         "2725" not in ids
       end
 
-      refute invalid?.(State.Stop.filter_by(%{routes: ["101"], direction_id: 0}))
+      refute invalid?.(State.Stop.filter_by(%{route_id: ["101"], direction_id: 0}))
 
       invalid_dates =
         for date <- dates_of_rating(),
             data =
               State.Stop.filter_by(%{
-                routes: ["101"],
+                route_id: ["101"],
                 direction_id: 0,
                 date: date
               }),
@@ -477,7 +481,7 @@ defmodule StateMediator.Integration.GtfsTest do
   end
 
   defp stops(route_id, direction_id) do
-    State.Stop.filter_by(%{routes: [route_id], direction_id: direction_id})
+    State.Stop.filter_by(%{route_id: [route_id], direction_id: direction_id})
   end
 
   defp dates_of_rating do

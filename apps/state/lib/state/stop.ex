@@ -16,13 +16,13 @@ defmodule State.Stop do
           optional(:longitude) => WGS84.longitude(),
           optional(:latitude) => WGS84.latitude(),
           optional(:radius) => State.Stop.List.radius(),
-          optional(:route_types) => [Model.Route.route_type()],
+          optional(:route_type) => [Model.Route.route_type()],
           optional(:location_type) => [Stop.location_type()],
-          optional(:services) => [Model.Service.id()]
+          optional(:service_id) => [Model.Service.id()]
         }
 
   @type post_search_filter_opts :: %{
-          optional(:route_types) => [Model.Route.route_type()]
+          optional(:route_type) => [Model.Route.route_type()]
         }
 
   @type stop_search :: (() -> [Stop.t()])
@@ -147,20 +147,21 @@ defmodule State.Stop do
   Applies a filtered search on Stops based on a map of filter values.
 
   The allowed filterable keys are:
-    :ids
-    :routes
+    :id
+    :route_id
     :direction_id
     :date
-    :route_types
+    :service_id
+    :route_type
     :longitude
     :latitude
     :radius
     :location_type
 
-  If filtering for :direction_id, :routes must also be applied for the
+  If filtering for :direction_id, :route_id must also be applied for the
   direction filter to apply.
 
-  If filtering for :date, :routes must also be applied for the date filter to
+  If filtering for :date, :route_id must also be applied for the date filter to
   apply.
 
   If filtering for a location, both :latitude and :longitude must be provided
@@ -178,7 +179,7 @@ defmodule State.Stop do
   @spec build_filtered_searches(filter_opts, [stop_search]) :: [stop_search]
   defp build_filtered_searches(filters, searches \\ [])
 
-  defp build_filtered_searches(%{routes: route_ids} = filters, searches) do
+  defp build_filtered_searches(%{route_id: route_ids} = filters, searches) do
     direction_opts =
       case Map.get(filters, :direction_id) do
         direction_id when direction_id != nil ->
@@ -189,7 +190,7 @@ defmodule State.Stop do
       end
 
     service_opts =
-      case {Map.get(filters, :services), Map.get(filters, :date)} do
+      case {Map.get(filters, :service_id), Map.get(filters, :date)} do
         {[_] = service_ids, _} ->
           [service_ids: service_ids]
 
@@ -209,7 +210,7 @@ defmodule State.Stop do
     end
 
     filters
-    |> Map.drop([:routes, :direction_id, :date, :services])
+    |> Map.drop([:route_id, :direction_id, :date, :service_id])
     |> build_filtered_searches([search_operation | searches])
   end
 
@@ -223,21 +224,21 @@ defmodule State.Stop do
     |> build_filtered_searches([search_operation | searches])
   end
 
-  defp build_filtered_searches(%{location_types: location_types} = filters, searches) do
+  defp build_filtered_searches(%{location_type: location_types} = filters, searches) do
     search_operation = fn -> by_location_type(location_types) end
     searches = [search_operation | searches]
 
     filters
-    |> Map.drop([:location_types])
+    |> Map.drop([:location_type])
     |> build_filtered_searches(searches)
   end
 
-  defp build_filtered_searches(%{ids: ids} = filters, searches) do
+  defp build_filtered_searches(%{id: ids} = filters, searches) do
     search_operation = fn -> by_ids(ids) end
     searches = [search_operation | searches]
 
     filters
-    |> Map.drop([:ids])
+    |> Map.drop([:id])
     |> build_filtered_searches(searches)
   end
 
@@ -270,7 +271,7 @@ defmodule State.Stop do
   end
 
   @spec do_post_search_filters([Stop.t()], post_search_filter_opts) :: [Stop.t()]
-  defp do_post_search_filters(stops, %{route_types: route_types} = filters) do
+  defp do_post_search_filters(stops, %{route_type: route_types} = filters) do
     stops
     |> Enum.filter(fn stop ->
       stop.id
@@ -278,7 +279,7 @@ defmodule State.Stop do
       |> Route.by_ids()
       |> Enum.any?(&(&1.type in route_types))
     end)
-    |> do_post_search_filters(Map.delete(filters, :route_types))
+    |> do_post_search_filters(Map.delete(filters, :route_type))
   end
 
   defp do_post_search_filters(stops, _), do: stops
