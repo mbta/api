@@ -12,8 +12,8 @@ defmodule State.Facility do
     parser: Parse.Facility
 
   @type filter_opts :: %{
-          optional(:stops) => [Stop.id()],
-          optional(:types) => [String.t()]
+          optional(:stop_id) => [Stop.id()],
+          optional(:type) => [String.t()]
         }
 
   @type facility_search :: (() -> [Facility.t()])
@@ -53,8 +53,8 @@ defmodule State.Facility do
   Applies a filtered search on Facilities based on a map of filter values.
 
   The allowed filterable keys are:
-    :stops
-    :types
+    :stop_id
+    :type
   """
   @spec filter_by(filter_opts) :: [Facility.t()]
   def filter_by(filters) when is_map(filters) do
@@ -67,19 +67,19 @@ defmodule State.Facility do
   @spec build_filtered_searches(filter_opts, [facility_search]) :: [facility_search]
   defp build_filtered_searches(filters, searches \\ [])
 
-  defp build_filtered_searches(%{types: types} = filters, searches) do
+  defp build_filtered_searches(%{type: types} = filters, searches) do
     search_operation = fn -> by_types(types) end
 
     filters
-    |> Map.drop([:types])
+    |> Map.drop([:type])
     |> build_filtered_searches([search_operation | searches])
   end
 
-  defp build_filtered_searches(%{stops: stop_ids} = filters, searches) do
+  defp build_filtered_searches(%{stop_id: stop_ids} = filters, searches) do
     search_operation = fn -> by_stop_ids(stop_ids) end
 
     filters
-    |> Map.drop([:stops])
+    |> Map.drop([:stop_id])
     |> build_filtered_searches([search_operation | searches])
   end
 

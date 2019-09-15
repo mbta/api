@@ -60,7 +60,7 @@ defmodule ApiWeb.FacilityController do
         []
 
       stop_ids ->
-        %{stops: stop_ids}
+        %{stop_id: stop_ids}
     end
   end
 
@@ -70,7 +70,7 @@ defmodule ApiWeb.FacilityController do
         []
 
       types ->
-        %{types: types}
+        %{type: types}
     end
   end
 
