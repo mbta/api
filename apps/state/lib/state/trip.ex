@@ -14,10 +14,11 @@ defmodule State.Trip do
 
   @type direction_id :: Direction.id() | nil
   @type filter_opts :: %{
-          optional(:routes) => [String.t()],
+          optional(:id) => [Model.Trip.id()],
+          optional(:route_id) => [Model.Route.id()],
           optional(:direction_id) => direction_id,
           optional(:date) => Date.t(),
-          optional(:route_patterns) => [String.t()]
+          optional(:route_pattern_id) => [Model.RoutePattern.id()]
         }
 
   @fetch_trips {:fetch, "trips.txt"}
@@ -51,10 +52,10 @@ defmodule State.Trip do
   Applies a filtered search on trips based on a map of filter values.
 
   The allowed filterable keys are:
-    :ids
-    :routes
+    :id
+    :route_id
     :direction_id
-    :route_patterns
+    :route_pattern_id
     :date
 
   If filtering for :date or :direction_id then some other filter must also
@@ -165,11 +166,11 @@ defmodule State.Trip do
   defp do_apply_filters(filters) do
     matchers =
       [%{}]
-      |> build_filters(:name, filters[:names])
-      |> build_filters(:route_id, filters[:routes])
+      |> build_filters(:name, filters[:name])
+      |> build_filters(:route_id, filters[:route_id])
       |> build_filters(:direction_id, filters[:direction_id])
-      |> build_filters(:route_pattern_id, filters[:route_patterns])
-      |> build_filters(:id, filters[:ids])
+      |> build_filters(:route_pattern_id, filters[:route_pattern_id])
+      |> build_filters(:id, filters[:id])
 
     idx = get_index(filters)
     trips = State.Trip.select(matchers, idx) ++ State.Trip.Added.select(matchers, idx)
@@ -186,8 +187,8 @@ defmodule State.Trip do
     for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
   end
 
-  defp get_index(%{ids: ids}) when ids != [], do: :id
-  defp get_index(%{routes: ids}) when ids != [], do: :route_id
+  defp get_index(%{id: ids}) when ids != [], do: :id
+  defp get_index(%{route_id: ids}) when ids != [], do: :route_id
   defp get_index(_), do: nil
 
   @spec multi_route_trips_to_added_route_ids_by_trip_id([MultiRouteTrip.t()]) :: %{

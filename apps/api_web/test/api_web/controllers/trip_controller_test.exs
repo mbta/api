@@ -47,8 +47,8 @@ defmodule ApiWeb.TripControllerTest do
       State.Trip.new_state([trip])
 
       # Sanity checks
-      [] = State.Trip.filter_by(%{routes: ["1"]})
-      [^trip] = State.Trip.filter_by(%{routes: ["2"]})
+      [] = State.Trip.filter_by(%{route_id: ["1"]})
+      [^trip] = State.Trip.filter_by(%{route_id: ["2"]})
 
       conn = get(base_conn, trip_path(base_conn, :index, route: "1"))
       assert json_response(conn, 200)["data"] == []

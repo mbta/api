@@ -27,8 +27,8 @@ defmodule State.Shape do
   def select_routes(route_ids, direction_id) do
     opts =
       case direction_id do
-        id when id in [0, 1] -> %{routes: route_ids, direction_id: id}
-        _ -> %{routes: route_ids}
+        id when id in [0, 1] -> %{route_id: route_ids, direction_id: id}
+        _ -> %{route_id: route_ids}
       end
 
     opts

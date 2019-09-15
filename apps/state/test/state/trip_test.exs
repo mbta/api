@@ -253,8 +253,8 @@ defmodule State.TripTest do
       ]
 
       new_state(%{multi_route_trips: [], trips: trips})
-      assert filter_by(%{ids: ["1", "3"]}) == [trip1, trip3]
-      assert filter_by(%{ids: ["2", "badid"]}) == [trip2]
+      assert filter_by(%{id: ["1", "3"]}) == [trip1, trip3]
+      assert filter_by(%{id: ["2", "badid"]}) == [trip2]
     end
 
     test "filters by multiple ids and route id" do
@@ -265,9 +265,9 @@ defmodule State.TripTest do
       ]
 
       new_state(%{multi_route_trips: [], trips: trips})
-      assert filter_by(%{ids: ["1", "2"], routes: ["2", "3"]}) == [trip2]
-      assert filter_by(%{ids: ["1", "2", "3"], routes: ["2"]}) == [trip2]
-      assert filter_by(%{ids: ["1", "2", "3"], routes: ["4"]}) == []
+      assert filter_by(%{id: ["1", "2"], route_id: ["2", "3"]}) == [trip2]
+      assert filter_by(%{id: ["1", "2", "3"], route_id: ["2"]}) == [trip2]
+      assert filter_by(%{id: ["1", "2", "3"], route_id: ["4"]}) == []
     end
 
     test "filters by route pattern w/ and w/o other fields" do
@@ -296,10 +296,10 @@ defmodule State.TripTest do
       ]
 
       new_state(%{multi_route_trips: [], trips: trips})
-      assert filter_by(%{ids: ["1", "2"], route_patterns: ["1-1-1", "2-1-1"]}) == [trip1, trip2]
-      assert filter_by(%{route_patterns: ["1-1-1", "3-0-1"], routes: ["3"]}) == [trip3]
-      assert filter_by(%{route_patterns: ["2-1-1", "3-0-1"]}) == [trip2, trip3]
-      assert filter_by(%{route_patterns: ["2-1-1", "3-0-1"], direction_id: 0}) == [trip3]
+      assert filter_by(%{id: ["1", "2"], route_pattern_id: ["1-1-1", "2-1-1"]}) == [trip1, trip2]
+      assert filter_by(%{route_pattern_id: ["1-1-1", "3-0-1"], route_id: ["3"]}) == [trip3]
+      assert filter_by(%{route_pattern_id: ["2-1-1", "3-0-1"]}) == [trip2, trip3]
+      assert filter_by(%{route_pattern_id: ["2-1-1", "3-0-1"], direction_id: 0}) == [trip3]
     end
 
     test "returns primary routes for alternate trips" do
@@ -315,29 +315,29 @@ defmodule State.TripTest do
 
       new_state(%{multi_route_trips: [], trips: trips})
 
-      assert filter_by(%{routes: ["3"]}) == [trip]
+      assert filter_by(%{route_id: ["3"]}) == [trip]
     end
 
     test "filters by routes" do
-      assert filter_by(%{routes: ["9"]}) == [@trip]
-      assert filter_by(%{routes: ["badid"]}) == []
+      assert filter_by(%{route_id: ["9"]}) == [@trip]
+      assert filter_by(%{route_id: ["badid"]}) == []
     end
 
     test "filters by routes and direction id" do
-      assert filter_by(%{routes: ["9"], direction_id: 1}) == [@trip]
-      assert filter_by(%{routes: ["9"], direction_id: 0}) == []
+      assert filter_by(%{route_id: ["9"], direction_id: 1}) == [@trip]
+      assert filter_by(%{route_id: ["9"], direction_id: 0}) == []
     end
 
     test "filters by service date" do
       bad_date = %{@today | year: @today.year - 1}
 
-      assert filter_by(%{date: @today, routes: ["9"]}) == [@trip]
-      assert filter_by(%{date: bad_date, routes: ["9"]}) == []
+      assert filter_by(%{date: @today, route_id: ["9"]}) == [@trip]
+      assert filter_by(%{date: bad_date, route_id: ["9"]}) == []
     end
 
     test "filters by name" do
-      assert filter_by(%{names: ["name"]}) == [@trip]
-      assert filter_by(%{names: ["not_a_name"]}) == []
+      assert filter_by(%{name: ["name"]}) == [@trip]
+      assert filter_by(%{name: ["not_a_name"]}) == []
     end
   end
 end
