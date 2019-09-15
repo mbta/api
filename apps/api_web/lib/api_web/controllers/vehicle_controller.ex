@@ -147,13 +147,23 @@ defmodule ApiWeb.VehicleController do
     Vehicle.all()
   end
 
-  defp do_format_filter({key, string}) when key in ["label", "route"] do
+  defp do_format_filter({"label", string}) do
     case Params.split_on_comma(string) do
       [] ->
         []
 
       values ->
-        %{String.to_existing_atom("#{key}s") => values}
+        %{label: values}
+    end
+  end
+
+  defp do_format_filter({"route", string}) do
+    case Params.split_on_comma(string) do
+      [] ->
+        []
+
+      values ->
+        %{route_id: values}
     end
   end
 
@@ -163,7 +173,7 @@ defmodule ApiWeb.VehicleController do
         []
 
       route_types ->
-        %{route_types: route_types}
+        %{route_type: route_types}
     end
   end
 
