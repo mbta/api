@@ -65,6 +65,22 @@ defmodule ApiWeb.TripControllerTest do
       assert sorted_results == [trip]
     end
 
+    test "filters by route pattern", %{conn: base_conn} do
+      trip = %Model.Trip{id: "1", route_id: "2", route_pattern_id: "2-_-0"}
+      State.Trip.new_state([trip])
+
+      conn = get(base_conn, trip_path(base_conn, :index, route_pattern: "wrong"))
+      assert json_response(conn, 200)["data"] == []
+
+      conn = get(base_conn, trip_path(base_conn, :index, route_pattern: "2-_-0"))
+      response = json_response(conn, 200)["data"]
+      assert List.first(response)["id"] == "1"
+
+      conn = get(base_conn, trip_path(base_conn, :index, route_pattern: "2-_-0,wrong"))
+      response = json_response(conn, 200)["data"]
+      assert List.first(response)["id"] == "1"
+    end
+
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
       route = %Model.Route{id: "1"}
 
