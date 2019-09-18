@@ -26,4 +26,15 @@ defmodule ApiWeb.ShapeView do
     |> StopsOnRoute.by_route_id(shape_ids: [id])
     |> Stop.by_ids()
   end
+
+  def name(%{name: name}, %{assigns: %{api_version: version}}) when version >= "2019-07-01" do
+    name
+  end
+
+  def name(%{name: name}, _conn) do
+    case String.split(name, " - ", parts: 2) do
+      [_, name] -> name
+      [name] -> name
+    end
+  end
 end

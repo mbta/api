@@ -90,8 +90,11 @@ defmodule State.Schedule do
     GenServer.call(__MODULE__, :reset_gather)
   end
 
+  @schedule_relationships_with_schedules [nil, :cancelled, :no_data, :skipped]
+
   @spec schedule_for(Model.Prediction.t()) :: Model.Schedule.t() | nil
-  def schedule_for(%Model.Prediction{} = prediction) do
+  def schedule_for(%Model.Prediction{schedule_relationship: relationship} = prediction)
+      when relationship in @schedule_relationships_with_schedules do
     stop_ids =
       case State.Stop.siblings(prediction.stop_id) do
         [_ | _] = stops -> Enum.map(stops, & &1.id)
@@ -107,9 +110,18 @@ defmodule State.Schedule do
     |> List.first()
   end
 
+  def schedule_for(%Model.Prediction{}) do
+    nil
+  end
+
   @spec schedule_for_many([Model.Prediction.t()]) :: map
   def schedule_for_many(predictions) do
-    Map.new(predictions, &{{&1.trip_id, &1.stop_sequence}, schedule_for(&1)})
+    for prediction <- predictions,
+        schedule = schedule_for(prediction),
+        schedule != nil,
+        into: %{} do
+      {{prediction.trip_id, prediction.stop_sequence}, schedule}
+    end
   end
 
   @spec build_stop_sequence_matchers(stop_sequence | nil) :: [stop_sequence_matcher]

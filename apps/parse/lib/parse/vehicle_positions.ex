@@ -9,6 +9,10 @@ defmodule Parse.VehiclePositions do
   alias Parse.Realtime.FeedMessage
   import Parse.Helpers
 
+  def parse("{" <> _ = blob) do
+    Parse.VehiclePositionsJson.parse(blob)
+  end
+
   def parse(blob) do
     blob
     |> FeedMessage.decode()

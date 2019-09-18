@@ -99,11 +99,18 @@ defmodule State do
       {:error, :invalid_order_by}
 
   """
-  @spec all([map], [option]) :: [map] | {[map], State.Pagination.Offsets.t()} | {:error, atom}
+  @spec all([map], [option] | map) ::
+          [map] | {[map], State.Pagination.Offsets.t()} | {:error, atom}
   def all(results, opts \\ [])
   def all([], _), do: []
 
+  def all(results, []) do
+    results
+  end
+
   def all(results, opts) when is_list(results) do
+    opts = Map.new(opts)
+
     case State.order_by(results, opts) do
       {:error, _} = error ->
         error
@@ -114,13 +121,15 @@ defmodule State do
   end
 
   @doc false
-  @spec order_by([map], [sort_option]) :: [map] | {:error, atom}
+  @spec order_by([map], [sort_option] | map) :: [map] | {:error, atom}
   def order_by(results, opts \\ [])
   def order_by([], _), do: []
 
   def order_by(results, opts) do
-    case Keyword.fetch(opts, :order_by) do
-      {:ok, keys} ->
+    opts = Map.new(opts)
+
+    case opts do
+      %{order_by: keys} ->
         keys =
           keys
           |> List.wrap()
@@ -134,32 +143,29 @@ defmodule State do
     end
   end
 
+  defp order_by_keys(results, [{:distance, dir} | keys], %{latitude: _, longitude: _} = opts) do
+    results
+    |> do_order_by({:distance, get_latlng(opts)}, dir)
+    |> order_by_keys(keys, opts)
+  end
+
+  defp order_by_keys([result | _] = results, [{:time, dir} | keys], opts) do
+    if valid_order_by_key?(:arrival_time, result) or valid_order_by_key?(:departure_time, result) do
+      results
+      |> do_order_by(:time, dir)
+      |> order_by_keys(keys, opts)
+    else
+      {:error, :invalid_order_by}
+    end
+  end
+
   defp order_by_keys([result | _] = results, [{key, dir} | keys], opts) do
-    opts_map = Enum.into(opts, %{})
-
-    cond do
-      key == :distance and Map.has_key?(opts_map, :latitude) and
-          Map.has_key?(opts_map, :longitude) ->
-        {lat, lng} = get_latlng(opts)
-
-        results
-        |> sort_by_distance(lat, lng, dir)
-        |> order_by_keys(keys, opts)
-
-      key == :time and
-          (valid_order_by_key?(:arrival_time, result) or
-             valid_order_by_key?(:departure_time, result)) ->
-        results
-        |> sort_by_time(dir)
-        |> order_by_keys(keys, opts)
-
-      valid_order_by_key?(key, result) ->
-        results
-        |> do_order_by(key, dir)
-        |> order_by_keys(keys, opts)
-
-      true ->
-        {:error, :invalid_order_by}
+    if valid_order_by_key?(key, result) do
+      results
+      |> do_order_by(key, dir)
+      |> order_by_keys(keys, opts)
+    else
+      {:error, :invalid_order_by}
     end
   end
 
@@ -167,42 +173,44 @@ defmodule State do
     results
   end
 
+  defp order_by_keys(_results, _keys, _opts) do
+    {:error, :invalid_order_by}
+  end
+
   defp valid_order_by_key?(:distance, _) do
     false
   end
 
   defp valid_order_by_key?(key, result) do
-    case result do
-      %{^key => _} -> true
-      _ -> false
-    end
-  end
-
-  defp do_order_by(results, :distance, _) do
-    results
+    Map.has_key?(result, key)
   end
 
   defp do_order_by(results, key, :asc) do
-    Enum.sort_by(results, &mapper_fn(&1, key), &<=/2)
+    sort_fn = mapper_fn(key)
+    Enum.sort_by(results, sort_fn, &<=/2)
   end
 
   defp do_order_by(results, key, :desc) do
-    Enum.sort_by(results, &mapper_fn(&1, key), &>=/2)
+    sort_fn = mapper_fn(key)
+    Enum.sort_by(results, sort_fn, &>=/2)
   end
 
-  defp mapper_fn(result, key) do
-    case Map.get(result, key) do
-      %DateTime{} = dt -> {:date_time, DateTime.to_unix(dt)}
-      other -> other
+  defp mapper_fn({:distance, position}) do
+    &distance({&1.latitude, &1.longitude}, position)
+  end
+
+  defp mapper_fn(:time) do
+    &time/1
+  end
+
+  defp mapper_fn(key) do
+    fn
+      %{^key => %DateTime{} = dt} ->
+        {:date_time, DateTime.to_unix(dt)}
+
+      %{^key => value} ->
+        value
     end
-  end
-
-  def sort_by_distance(results, lat, lng, :asc) do
-    Enum.sort_by(results, &distance({&1.latitude, &1.longitude}, {lat, lng}), &<=/2)
-  end
-
-  def sort_by_distance(results, lat, lng, :desc) do
-    Enum.sort_by(results, &distance({&1.latitude, &1.longitude}, {lat, lng}), &>=/2)
   end
 
   defp time(%{arrival_time: nil, departure_time: time}) do
@@ -213,17 +221,9 @@ defmodule State do
     time
   end
 
-  def sort_by_time(results, :asc) do
-    Enum.sort_by(results, &time/1, &<=/2)
-  end
-
-  def sort_by_time(results, :desc) do
-    Enum.sort_by(results, &time/1, &>=/2)
-  end
-
-  defp fetch_float(opts, key) do
-    case Keyword.fetch(opts, key) do
-      {:ok, val} ->
+  defp fetch_float(opts_map, key) do
+    case opts_map do
+      %{^key => val} ->
         case Float.parse(val) do
           {parsed_value, ""} ->
             parsed_value

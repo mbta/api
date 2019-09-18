@@ -25,26 +25,29 @@ defmodule ApiWeb.Params do
   ## Examples
 
       iex> ApiWeb.Params.filter_opts(%{"page" => %{"offset" => 0}}, [:offset], build_conn())
-      [offset: 0]
+      %{offset: 0}
 
       iex> ApiWeb.Params.filter_opts(%{"page" => %{"limit" => 10}}, [:limit], build_conn())
-      [limit: 10]
+      %{limit: 10}
 
       iex> ApiWeb.Params.filter_opts(%{"sort" => "name"}, [:order_by], build_conn())
-      [order_by: [{:name, :asc}]]
+      %{order_by: [{:name, :asc}]}
 
       iex> ApiWeb.Params.filter_opts(%{"sort" => "-name,value"}, [:order_by], build_conn())
-      [order_by: [{:name, :desc}, {:value, :asc}]]
+      %{order_by: [{:name, :desc}, {:value, :asc}]}
+
+      iex> ApiWeb.Params.filter_opts(%{"sort" => "-name"}, [:order_by], build_conn(), order_by: [name: :asc])
+      %{order_by: [name: :desc]}
   """
-  def filter_opts(params, options, conn, acc \\ []) do
-    Enum.reduce(options, acc, fn opt, acc ->
+  def filter_opts(params, options, conn, acc \\ %{}) do
+    Enum.reduce(options, Map.new(acc), fn opt, acc ->
       filter_opt(opt, params, conn, acc)
     end)
   end
 
   defp filter_opt(:offset, %{"page" => %{"offset" => offset}}, _conn, acc) do
     case parse_int(offset) do
-      {:ok, offset} when offset >= 0 -> [{:offset, offset} | acc]
+      {:ok, offset} when offset >= 0 -> Map.put(acc, :offset, offset)
       _ -> acc
     end
   end
@@ -54,7 +57,7 @@ defmodule ApiWeb.Params do
   defp filter_opt(:limit, %{"page" => %{"limit" => limit}}, _conn, acc) do
     case parse_int(limit) do
       {:ok, limit} when limit > 0 and limit <= @max_limit ->
-        [{:limit, limit} | acc]
+        Map.put(acc, :limit, limit)
 
       _ ->
         acc
@@ -64,16 +67,16 @@ defmodule ApiWeb.Params do
   defp filter_opt(:limit, _params, _conn, acc), do: acc
 
   defp filter_opt(:distance, %{"filter" => %{"latitude" => lat, "longitude" => lng}}, _conn, acc),
-    do: [{:latitude, lat}, {:longitude, lng} | acc]
+    do: Map.merge(acc, %{latitude: lat, longitude: lng})
 
   defp filter_opt(:distance, %{"filter" => %{"latitude" => lat}, "longitude" => lng}, _conn, acc),
-    do: [{:latitude, lat}, {:longitude, lng} | acc]
+    do: Map.merge(acc, %{latitude: lat, longitude: lng})
 
   defp filter_opt(:distance, %{"filter" => %{"longitude" => lng}, "latitude" => lat}, _conn, acc),
-    do: [{:latitude, lat}, {:longitude, lng} | acc]
+    do: Map.merge(acc, %{latitude: lat, longitude: lng})
 
   defp filter_opt(:distance, %{"longitude" => lng, "latitude" => lat}, _conn, acc),
-    do: [{:latitude, lat}, {:longitude, lng} | acc]
+    do: Map.merge(acc, %{latitude: lat, longitude: lng})
 
   defp filter_opt(:distance, _params, _conn, acc), do: acc
 
@@ -89,11 +92,11 @@ defmodule ApiWeb.Params do
         end
       end
 
-    [{:order_by, order_by} | acc]
+    Map.put(acc, :order_by, order_by)
   rescue
     ArgumentError ->
       if conn.assigns.api_version >= "2019-07-01" do
-        [{:order_by, [{:invalid, :asc}]} | acc]
+        Map.put(acc, :order_by, [{:invalid, :asc}])
       else
         acc
       end
@@ -176,8 +179,7 @@ defmodule ApiWeb.Params do
   @spec split_on_comma(String.t() | nil) :: [String.t()]
   def split_on_comma(str) when is_binary(str) and str != "" do
     str
-    |> String.split(",")
-    |> Enum.reject(&(&1 == ""))
+    |> String.splitter(",", trim: true)
     |> Enum.uniq()
   end
 
