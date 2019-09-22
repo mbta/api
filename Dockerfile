@@ -1,4 +1,4 @@
-FROM erlang:22 as builder
+FROM erlang:22.0 as builder
 
 # elixir expects utf8.
 ENV ELIXIR_VERSION="v1.9.1" \
