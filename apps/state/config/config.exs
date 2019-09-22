@@ -123,7 +123,13 @@ config :state, :stops_on_route,
   stop_order_overrides: %{
     {"CR-Franklin", 0} => [
       ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"],
-      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"]
+      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
+      ["Walpole", "Foxboro", "Norfolk"],
+      ["place-FB-0191", "place-FS-0049", "place-FB-0230"]
+    ],
+    {"CR-Franklin", 1} => [
+      ["Norfolk", "Foxboro", "Walpole"],
+      ["place-FB-0230", "place-FS-0049", "place-FB-0191"]
     ]
   }
 
