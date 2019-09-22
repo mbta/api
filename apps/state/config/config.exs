@@ -130,6 +130,14 @@ config :state, :stops_on_route,
     {"CR-Franklin", 1} => [
       ["Norfolk", "Foxboro", "Walpole"],
       ["place-FB-0230", "place-FS-0049", "place-FB-0191"]
+    ],
+    {"CR-Fairmount", 0} => [
+      ["Readville", "Dedham Corp Center", "Foxboro"],
+      ["place-DB-0095", "place-FB-0118", "place-FS-0049"]
+    ],
+    {"CR-Fairmount", 1} => [
+      ["Foxboro", "Dedham Corp Center", "Readville"],
+      ["place-FS-0049", "place-FB-0118", "place-DB-0095"]
     ]
   }
 
