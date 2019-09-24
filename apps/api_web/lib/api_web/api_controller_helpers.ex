@@ -135,15 +135,15 @@ defmodule ApiWeb.ApiControllerHelpers do
   Invalid attributes, invalid types, and types without any valid attributes are
   removed.
   """
-  @spec filter_valid_field_params(Plug.Conn.t(), map | nil) :: map
-  def filter_valid_field_params(_conn, nil), do: nil
-
-  def filter_valid_field_params(conn, fields) do
+  @spec filter_valid_field_params(Plug.Conn.t(), term) :: map
+  def filter_valid_field_params(conn, %{} = fields) do
     for {type, _} = field <- fields, valid_type?(type), into: %{} do
       attributes = do_filter_valid_field_attributes(conn, field)
       {type, attributes}
     end
   end
+
+  def filter_valid_field_params(_conn, _params), do: nil
 
   # Filter types for types with a view like ShapeView or RouteView
   defp valid_type?(type) do

@@ -121,6 +121,12 @@ defmodule ApiWeb.ApiControllerHelpersTest do
                "stop" => []
              }
     end
+
+    test "non-map arguments are mapped to nil" do
+      for params <- [[], ["one"], "", "invalid", nil] do
+        assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) == nil
+      end
+    end
   end
 
   describe "opts_for_params/2" do
