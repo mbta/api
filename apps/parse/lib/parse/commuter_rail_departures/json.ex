@@ -31,6 +31,7 @@ defmodule Parse.CommuterRailDepartures.JSON do
     %Model.Prediction{
       trip_id: trip |> Map.get("trip_id") |> copy,
       route_id: trip |> Map.get("route_id") |> copy,
+      route_pattern_id: trip |> Map.get("route_pattern_id") |> copy,
       direction_id: Map.get(trip, "direction_id"),
       vehicle_id: vehicle_id(raw),
       schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship"))

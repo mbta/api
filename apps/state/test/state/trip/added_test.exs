@@ -4,11 +4,13 @@ defmodule State.Trip.AddedTest do
   import State.Trip.Added
   @trip_id "added_trip"
   @route_id "route"
+  @route_pattern_id "pattern"
   @route_type 3
   @direction_id 0
   @prediction %Model.Prediction{
     trip_id: @trip_id,
     route_id: @route_id,
+    route_pattern_id: @route_pattern_id,
     direction_id: @direction_id,
     schedule_relationship: :added
   }
@@ -63,6 +65,7 @@ defmodule State.Trip.AddedTest do
                %Model.Trip{
                  id: @trip_id,
                  route_id: @route_id,
+                 route_pattern_id: @route_pattern_id,
                  route_type: @route_type,
                  headsign: "Parent",
                  wheelchair_accessible: 0,
