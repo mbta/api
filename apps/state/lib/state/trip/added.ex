@@ -79,6 +79,7 @@ defmodule State.Trip.Added do
         %Trip{
           id: trip_id,
           route_id: prediction.route_id,
+          route_pattern_id: prediction.route_pattern_id,
           direction_id: prediction.direction_id,
           route_type: if(route, do: route.type),
           wheelchair_accessible: 0,

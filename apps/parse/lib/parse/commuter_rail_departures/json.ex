@@ -5,12 +5,11 @@ defmodule Parse.CommuterRailDepartures.JSON do
   This used to be only for Commuter Rail, but it's now generated for all modes.
   """
   @behaviour Parse
-  import Parse.Helpers
 
   @impl true
   def parse(body) do
     body
-    |> Jason.decode!()
+    |> Jason.decode!(strings: :copy)
     |> Map.get("entity")
     |> Enum.flat_map(&parse_entity/1)
   end
@@ -29,8 +28,9 @@ defmodule Parse.CommuterRailDepartures.JSON do
 
   def base_prediction(trip, raw) do
     %Model.Prediction{
-      trip_id: trip |> Map.get("trip_id") |> copy,
-      route_id: trip |> Map.get("route_id") |> copy,
+      trip_id: Map.get(trip, "trip_id"),
+      route_id: Map.get(trip, "route_id"),
+      route_pattern_id: Map.get(trip, "route_pattern_id"),
       direction_id: Map.get(trip, "direction_id"),
       vehicle_id: vehicle_id(raw),
       schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship"))
@@ -40,12 +40,12 @@ defmodule Parse.CommuterRailDepartures.JSON do
   def prediction(update, base) do
     %{
       base
-      | stop_id: update |> Map.get("stop_id") |> copy,
+      | stop_id: Map.get(update, "stop_id"),
         arrival_time: time(Map.get(update, "arrival")),
         departure_time: time(Map.get(update, "departure")),
         stop_sequence: Map.get(update, "stop_sequence"),
         schedule_relationship: best_schedule_relationship(base.schedule_relationship, update),
-        status: copy(Map.get(update, "boarding_status"))
+        status: Map.get(update, "boarding_status")
     }
   end
 
@@ -57,7 +57,7 @@ defmodule Parse.CommuterRailDepartures.JSON do
     nil
   end
 
-  defp vehicle_id(%{"vehicle" => %{"id" => id}}), do: copy(id)
+  defp vehicle_id(%{"vehicle" => %{"id" => id}}), do: id
   defp vehicle_id(_), do: nil
 
   defp best_schedule_relationship(relationship, update) do
