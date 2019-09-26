@@ -2,6 +2,13 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :state, :route_pattern,
+  ignore_overrides: %{
+    # don't ignore Foxboro via Fairmount trips
+    "CR-Franklin-3-0" => false,
+    "CR-Franklin-3-1" => false
+  }
+
 config :state, :shape,
   overrides: %{
     # Green Line
