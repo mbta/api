@@ -2,7 +2,7 @@
 FROM debian:stretch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-		libssl1.1 libsctp1 curl \
+		libssl1.1 libsctp1 curl dumb-init \
 	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
@@ -15,5 +15,7 @@ ADD . rel/api
 RUN mkdir /root/work
 
 WORKDIR /root/work
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 CMD ["/root/rel/api/bin/startup", "foreground"]
