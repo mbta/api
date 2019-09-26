@@ -29,10 +29,18 @@ defmodule State.Helpers do
   @doc """
   Returns true if the given Model.Trip shouldn't be considered (by default) as being part of the route based on the pattern.
 
-  We ignore as alternate route trips, as well as very-atypical patterns.
+  We ignore as alternate route trips, as well as very-atypical patterns. This
+  can be overridden with :ignore_overrides in the configuration.
   """
   @spec ignore_trip_route_pattern?(Model.Trip.t()) :: boolean
   def ignore_trip_route_pattern?(trip)
+
+  for {route_pattern_id, ignore?} <-
+        Application.get_env(:state, :route_pattern)[:ignore_overrides] do
+    def ignore_trip_route_pattern?(%Trip{route_pattern_id: unquote(route_pattern_id)}),
+      do: unquote(ignore?)
+  end
+
   def ignore_trip_route_pattern?(%Trip{route_type: int}) when is_integer(int), do: true
   def ignore_trip_route_pattern?(%Trip{alternate_route: bool}) when is_boolean(bool), do: true
 
