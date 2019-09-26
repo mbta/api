@@ -54,27 +54,22 @@ defmodule State.Alert.Hooks do
     end
   end
 
-  defp put_optional_activies(%{} = merged, entities) do
-    case entities do
-      [_ | _] ->
-        activities =
-          Enum.reduce(entities, MapSet.new(), fn ie, acc ->
-            case Map.get(ie, :activities) do
-              [_ | _] = activities -> MapSet.union(acc, MapSet.new(activities))
-              _ -> acc
-            end
-          end)
-          |> MapSet.to_list()
-
-        case activities do
-          [_ | _] -> Map.put(merged, :activities, activities)
-          _ -> merged
+  defp put_optional_activies(%{} = merged, [_ | _] = entities) do
+    activities =
+      Enum.reduce(entities, MapSet.new(), fn ie, acc ->
+        case Map.get(ie, :activities) do
+          [_ | _] = activities -> MapSet.union(acc, MapSet.new(activities))
+          _ -> acc
         end
+      end)
 
-      _ ->
-        merged
+    case MapSet.size(activities) do
+      0 -> merged
+      _ -> Map.put(merged, :activities, MapSet.to_list(activities))
     end
   end
+
+  defp put_optional_activies(%{} = merged, _), do: merged
 
   defp all_route_entities(%{trip: trip_id} = entity) when is_binary(trip_id) do
     trips = State.Trip.by_id(trip_id)
