@@ -17,7 +17,63 @@ defmodule State.Alert.Hooks do
     entities
     |> Stream.flat_map(&include_entity_parent_stop/1)
     |> Stream.flat_map(&include_entity_alternate_trips/1)
+    |> Enum.group_by(&get_key/1)
+    |> Stream.map(&merge_entities/1)
     |> Enum.uniq()
+  end
+
+  defp get_key(%{} = informed_entity) do
+    %{
+      route: Map.get(informed_entity, :route),
+      stop: Map.get(informed_entity, :stop),
+      trip: Map.get(informed_entity, :trip)
+    }
+  end
+
+  defp merge_entities({%{} = key, entities}) do
+    merged =
+      [:route, :stop, :trip]
+      |> Enum.reduce(Map.new(), &put_optional_key(&2, key, &1))
+      |> put_optional_activies(entities)
+
+    [:direction_id, :facility, :route_type]
+    |> Enum.reduce(merged, &put_optional_value(&2, entities, &1))
+  end
+
+  defp put_optional_key(%{} = merged, %{} = key, inner_key) when is_atom(inner_key) do
+    case Map.get(key, inner_key) do
+      k when is_binary(k) -> Map.put(merged, inner_key, k)
+      nil -> merged
+    end
+  end
+
+  defp put_optional_value(%{} = merged, [head | _], value_name) when is_atom(value_name) do
+    case Map.get(head, value_name) do
+      nil -> merged
+      v -> Map.put(merged, value_name, v)
+    end
+  end
+
+  defp put_optional_activies(%{} = merged, entities) do
+    case entities do
+      [_ | _] ->
+        activities =
+          Enum.reduce(entities, MapSet.new(), fn ie, acc ->
+            case Map.get(ie, :activities) do
+              [_ | _] = activities -> MapSet.union(acc, MapSet.new(activities))
+              _ -> acc
+            end
+          end)
+          |> MapSet.to_list()
+
+        case activities do
+          [_ | _] -> Map.put(merged, :activities, activities)
+          _ -> merged
+        end
+
+      _ ->
+        merged
+    end
   end
 
   defp all_route_entities(%{trip: trip_id} = entity) when is_binary(trip_id) do
