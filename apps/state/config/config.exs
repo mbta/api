@@ -140,6 +140,22 @@ config :state, :stops_on_route,
       ["Foxboro", "Dedham Corp Center", "Readville"],
       ["place-FS-0049", "place-FB-0118", "place-DB-0095"]
     ]
+  },
+  not_on_route: %{
+    {"CR-Fairmount", 0} => [
+      "place-FB-0166",
+      "place-FB-0148",
+      "place-FB-0143",
+      "place-FB-0125",
+      "place-FB-0109"
+    ],
+    {"CR-Fairmount", 1} => [
+      "place-FB-0166",
+      "place-FB-0148",
+      "place-FB-0143",
+      "place-FB-0125",
+      "place-FB-0109"
+    ]
   }
 
 import_config "#{Mix.env()}.exs"

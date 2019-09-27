@@ -152,6 +152,7 @@ defmodule State.StopsOnRoute do
       trip_group
       |> stop_ids_for_trips()
       |> merge_group_stop_ids(global_order)
+      |> drop_stops_not_on_route(route.id, direction_id)
 
     if stop_ids == [] do
       []
@@ -181,6 +182,7 @@ defmodule State.StopsOnRoute do
       trips
       |> Stream.reject(&ignore_trip_for_route?/1)
       |> stop_ids_for_trips()
+      |> drop_stops_not_on_route(route.id, direction_id)
 
     overrides = stop_order_overrides(route.id, direction_id, trip_stops)
 
@@ -204,6 +206,20 @@ defmodule State.StopsOnRoute do
       |> Enum.reduce(&MapSet.union/2)
 
     Enum.filter(global_order, &MapSet.member?(group_stop_id_map, &1))
+  end
+
+  @spec drop_stops_not_on_route(stop_id_list, Model.Route.id(), Model.Direction.id()) ::
+          stop_id_list
+  defp drop_stops_not_on_route(stop_ids, route_id, direction_id) do
+    config = Application.get_env(:state, :stops_on_route)[:not_on_route]
+
+    case Map.fetch(config, {route_id, direction_id}) do
+      {:ok, list} ->
+        stop_ids -- list
+
+      :error ->
+        stop_ids
+    end
   end
 
   # additional ordered stop IDs to include during the merge
