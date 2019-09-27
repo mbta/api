@@ -22,13 +22,7 @@ defmodule State.Alert.Hooks do
     |> Enum.uniq()
   end
 
-  defp get_key(%{} = informed_entity) do
-    %{
-      route: Map.get(informed_entity, :route),
-      stop: Map.get(informed_entity, :stop),
-      trip: Map.get(informed_entity, :trip)
-    }
-  end
+  defp get_key(%{} = ie), do: Map.take(ie, ~w(route stop trip)a)
 
   defp merge_entities({%{} = key, entities}) do
     merged =
