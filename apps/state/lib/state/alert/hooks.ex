@@ -17,7 +17,31 @@ defmodule State.Alert.Hooks do
     entities
     |> Stream.flat_map(&include_entity_parent_stop/1)
     |> Stream.flat_map(&include_entity_alternate_trips/1)
+    |> Enum.group_by(&get_key/1)
+    |> Stream.flat_map(&merge_entities/1)
     |> Enum.uniq()
+  end
+
+  defp get_key(%{} = ie), do: Map.take(ie, ~w(route stop trip)a)
+
+  defp merge_entities({_key, entities}) do
+    activities = merge_activities(entities)
+
+    if MapSet.size(activities) == 0 do
+      entities
+    else
+      result = MapSet.to_list(activities)
+      for entity <- entities, do: Map.put(entity, :activities, result)
+    end
+  end
+
+  defp merge_activities(entities) when is_list(entities) do
+    Enum.reduce(entities, MapSet.new(), fn ie, acc ->
+      case Map.get(ie, :activities) do
+        [_ | _] = activities -> MapSet.union(acc, MapSet.new(activities))
+        _ -> acc
+      end
+    end)
   end
 
   defp all_route_entities(%{trip: trip_id} = entity) when is_binary(trip_id) do
