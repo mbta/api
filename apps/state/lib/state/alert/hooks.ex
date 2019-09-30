@@ -18,52 +18,31 @@ defmodule State.Alert.Hooks do
     |> Stream.flat_map(&include_entity_parent_stop/1)
     |> Stream.flat_map(&include_entity_alternate_trips/1)
     |> Enum.group_by(&get_key/1)
-    |> Stream.map(&merge_entities/1)
+    |> Stream.flat_map(&merge_entities/1)
     |> Enum.uniq()
   end
 
   defp get_key(%{} = ie), do: Map.take(ie, ~w(route stop trip)a)
 
-  defp merge_entities({%{} = key, entities}) do
-    merged =
-      [:route, :stop, :trip]
-      |> Enum.reduce(Map.new(), &put_optional_key(&2, key, &1))
-      |> put_optional_activies(entities)
+  defp merge_entities({_key, entities}) do
+    activities = merge_activities(entities)
 
-    [:direction_id, :facility, :route_type]
-    |> Enum.reduce(merged, &put_optional_value(&2, entities, &1))
-  end
-
-  defp put_optional_key(%{} = merged, %{} = key, inner_key) when is_atom(inner_key) do
-    case Map.get(key, inner_key) do
-      k when is_binary(k) -> Map.put(merged, inner_key, k)
-      nil -> merged
+    if MapSet.size(activities) == 0 do
+      entities
+    else
+      result = MapSet.to_list(activities)
+      for entity <- entities, do: Map.put(entity, :activities, result)
     end
   end
 
-  defp put_optional_value(%{} = merged, [head | _], value_name) when is_atom(value_name) do
-    case Map.get(head, value_name) do
-      nil -> merged
-      v -> Map.put(merged, value_name, v)
-    end
+  defp merge_activities(entities) when is_list(entities) do
+    Enum.reduce(entities, MapSet.new(), fn ie, acc ->
+      case Map.get(ie, :activities) do
+        [_ | _] = activities -> MapSet.union(acc, MapSet.new(activities))
+        _ -> acc
+      end
+    end)
   end
-
-  defp put_optional_activies(%{} = merged, [_ | _] = entities) do
-    activities =
-      Enum.reduce(entities, MapSet.new(), fn ie, acc ->
-        case Map.get(ie, :activities) do
-          [_ | _] = activities -> MapSet.union(acc, MapSet.new(activities))
-          _ -> acc
-        end
-      end)
-
-    case MapSet.size(activities) do
-      0 -> merged
-      _ -> Map.put(merged, :activities, MapSet.to_list(activities))
-    end
-  end
-
-  defp put_optional_activies(%{} = merged, _), do: merged
 
   defp all_route_entities(%{trip: trip_id} = entity) when is_binary(trip_id) do
     trips = State.Trip.by_id(trip_id)
