@@ -75,9 +75,38 @@ defmodule ApiWeb.RoutePatternController do
       filtered
       |> format_filters()
       |> RoutePattern.filter_by()
+      |> add_origin()
       |> State.all(pagination_opts(params, conn))
     else
       {:error, _, _} = error -> error
+    end
+  end
+
+  defp add_origin(route_patterns) do
+    origins =
+      route_patterns
+      |> List.wrap()
+      |> Stream.map(& &1.representative_trip_id)
+      |> Stream.uniq()
+      |> Enum.reduce(Map.new(), fn id, acc ->
+        origin =
+          [%{id: id}]
+          |> State.StopsOnRoute.stop_ids_for_trips()
+          |> List.flatten()
+          |> List.first()
+          |> State.Stop.by_id()
+
+        case origin do
+          %Model.Stop{name: stop_name} -> Map.put_new(acc, id, stop_name)
+          _ -> acc
+        end
+      end)
+
+    for rp <- List.wrap(route_patterns) do
+      case Map.get(origins, rp.representative_trip_id) do
+        stop_name when is_binary(stop_name) -> Map.put(rp, :origin, stop_name)
+        _ -> rp
+      end
     end
   end
 
@@ -128,7 +157,10 @@ defmodule ApiWeb.RoutePatternController do
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, @includes, conn) do
       {:ok, _includes} ->
-        RoutePattern.by_id(id)
+        id
+        |> RoutePattern.by_id()
+        |> add_origin()
+        |> List.first()
 
       {:error, _, _} = error ->
         error
@@ -175,6 +207,14 @@ defmodule ApiWeb.RoutePatternController do
               but will in the future.
               """,
               example: "Forge Park/495 - South Station via Fairmount"
+            )
+
+            origin(
+              :string,
+              """
+              First stop for the route patterns
+              """,
+              example: "Alewife"
             )
 
             time_desc(

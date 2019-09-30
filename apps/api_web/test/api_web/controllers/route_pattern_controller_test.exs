@@ -32,6 +32,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
         route_id: "route id",
         direction_id: 0,
         name: "route pattern name",
+        origin: "route pattern origin",
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
@@ -302,6 +303,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
         route_id: "route id",
         direction_id: 0,
         name: "route pattern name",
+        origin: "route pattern origin",
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
@@ -317,6 +319,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
                "attributes" => %{
                  "direction_id" => 0,
                  "name" => "route pattern name",
+                 "origin" => "route pattern origin",
                  "time_desc" => nil,
                  "typicality" => 1,
                  "sort_order" => 101
@@ -362,6 +365,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
         route_id: "route id",
         direction_id: 0,
         name: "route pattern name",
+        origin: "origin",
         time_desc: nil,
         typicality: 1,
         sort_order: 101,

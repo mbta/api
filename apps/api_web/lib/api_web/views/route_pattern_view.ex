@@ -20,6 +20,7 @@ defmodule ApiWeb.RoutePatternView do
   attributes([
     :direction_id,
     :name,
+    :origin,
     :time_desc,
     :typicality,
     :sort_order

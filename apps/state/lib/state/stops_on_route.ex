@@ -162,7 +162,7 @@ defmodule State.StopsOnRoute do
     end
   end
 
-  defp stop_ids_for_trips(trips) do
+  def stop_ids_for_trips(trips) do
     trips
     |> Stream.map(fn trip ->
       trip.id
