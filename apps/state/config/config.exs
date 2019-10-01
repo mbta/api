@@ -55,10 +55,9 @@ config :state, :shape,
     # Order the Red Line Ashmont first, and change the northbound names to
     # the names of the branch.
     "931_0009" => 2,
-    "931_0010" => {2, "Ashmont"},
+    "931_0010" => 2,
     "933_0009" => 1,
-    "933_0010" => {1, "Braintree"},
-    "934_0001" => {-1, "JFK / UMass"},
+    "933_0010" => 1,
 
     # Silver Line
     # SL1: last trip, goes right by South Station
