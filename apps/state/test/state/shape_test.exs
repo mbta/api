@@ -424,13 +424,13 @@ defmodule State.ShapeTest do
   describe "arrange_by_priority/1" do
     test "can override priorities from the configuration" do
       shapes = [
-        %Model.Shape{id: "931_0010", priority: 0},
+        %Model.Shape{id: "9810006", priority: 0},
         %Model.Shape{id: "9890008", priority: 0},
         %Model.Shape{id: "FakeShuttle-S", priority: 0}
       ]
 
-      [red_ashmont, providence, shuttle] = State.Shape.arrange_by_priority(shapes)
-      assert %{name: "Ashmont", priority: 2} = red_ashmont
+      [rockport, providence, shuttle] = State.Shape.arrange_by_priority(shapes)
+      assert %{name: "Rockport - North Station", priority: 1} = rockport
       assert %{name: "Wickford Junction - South Station", priority: 0} = providence
       assert %{name: nil, priority: -1} = shuttle
     end
