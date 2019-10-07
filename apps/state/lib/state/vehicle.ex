@@ -7,7 +7,7 @@ defmodule State.Vehicle do
   * label
   """
   use State.Server,
-    indices: [:id, :trip_id, :effective_route_id, :label],
+    indices: [:id, :trip_id, :effective_route_id],
     parser: Parse.VehiclePositions,
     recordable: Model.Vehicle,
     hibernate: false
@@ -66,11 +66,40 @@ defmodule State.Vehicle do
     State.Vehicle.select(matchers, idx)
   end
 
-  defp get_index(%{labels: labels}) when labels != [], do: :label
   defp get_index(%{routes: routes}) when routes != [], do: :effective_route_id
   defp get_index(_filters), do: nil
 
   defp build_filters(matchers, _key, nil, _filters), do: matchers
+
+  defp build_filters(matchers, :label, labels, _filters) do
+    consist_matches? = fn %Model.Vehicle{consist: consist}, labels ->
+      case consist do
+        nil ->
+          false
+
+        _ ->
+          labels
+          |> MapSet.new()
+          |> MapSet.intersection(consist)
+          |> Kernel.!==(MapSet.new())
+      end
+    end
+
+    label_matches? = fn %Model.Vehicle{label: label}, labels ->
+      label in labels
+    end
+
+    vehicle_ids =
+      all()
+      |> Enum.filter(fn vehicle ->
+        label_matches?.(vehicle, labels) or consist_matches?.(vehicle, labels)
+      end)
+      |> Enum.map(& &1.id)
+
+    for matcher <- matchers, vehicle_id <- vehicle_ids do
+      Map.put(matcher, :id, vehicle_id)
+    end
+  end
 
   defp build_filters(matchers, :route_type, route_types, _filters) do
     route_ids =
@@ -99,9 +128,5 @@ defmodule State.Vehicle do
       |> Map.put(:effective_route_id, route_id)
       |> Map.put(:direction_id, direction_id)
     end
-  end
-
-  defp build_filters(matchers, key, values, _filters) do
-    for matcher <- matchers, value <- values, do: Map.put(matcher, key, value)
   end
 end
