@@ -62,33 +62,53 @@ defmodule State.MetadataTest do
     end
   end
 
-  describe "feed_updated/1" do
+  describe "feed_updated/3" do
     test "caches the feed version" do
       version = "TEST_VERSION"
-      Metadata.feed_updated(version)
-      assert cached?(State.Feed, version)
+      start_date = ~D[2019-01-01]
+      end_date = ~D[2019-01-02]
+      Metadata.feed_updated(version, start_date, end_date)
+      assert cached?(State.Feed, {version, start_date, end_date})
     end
 
-    test "overwrites a previously stored valued" do
-      cache(State.Feed, "OLD_VERSION")
-      expected = "UPDATED_VERSION"
-      Metadata.feed_updated(expected)
-      assert cached?(State.Feed, expected)
+    test "overwrites a previously stored value" do
+      old_version = "OLD_VERSION"
+      old_start_date = ~D[2019-01-01]
+      old_end_date = ~D[2019-01-02]
+      Metadata.feed_updated(old_version, old_start_date, old_end_date)
+
+      new_version = "NEW_VERSION"
+      new_start_date = ~D[2019-02-01]
+      new_end_date = ~D[2019-02-02]
+      Metadata.feed_updated(new_version, new_start_date, new_end_date)
+      assert cached?(State.Feed, {new_version, new_start_date, new_end_date})
     end
   end
 
-  describe "feed_version/0" do
-    test "returns the cached feed version" do
-      expected = "TEST_VERSION"
+  describe "feed_metadata/0" do
+    test "returns the cached feed metadata" do
+      version = "TEST_VERSION"
+      start_date = ~D[2019-01-01]
+      end_date = ~D[2019-01-02]
+      expected = {version, start_date, end_date}
       cache(State.Feed, expected)
-      assert Metadata.feed_version() == expected
+      assert Metadata.feed_metadata() == expected
     end
 
-    test "fetches and caches feed version on cache miss" do
+    test "fetches and caches feed metadata on cache miss" do
       :ets.delete(Metadata.table_name(), State.Feed)
-      expected = "UPDATED_VERSION"
-      State.Feed.new_state(%Model.Feed{version: expected})
-      assert Metadata.feed_version() == expected
+      version = "TEST_VERSION"
+      start_date = ~D[2019-01-01]
+      end_date = ~D[2019-01-02]
+      expected = {version, start_date, end_date}
+
+      State.Feed.new_state(%Model.Feed{
+        version: version,
+        start_date: start_date,
+        end_date: end_date
+      })
+
+      assert Metadata.feed_metadata() == expected
     end
   end
 
@@ -109,6 +129,10 @@ defmodule State.MetadataTest do
   @doc """
   Caches a value.
   """
+  def cache(key, {version, start_date, end_date}) do
+    :ets.insert(Metadata.table_name(), {key, version, start_date, end_date})
+  end
+
   def cache(key, value) do
     :ets.insert(Metadata.table_name(), {key, value})
   end
@@ -116,6 +140,13 @@ defmodule State.MetadataTest do
   @doc """
   Checks the State.Metatable for a cached value.
   """
+  def cached?(key, {version, start_date, end_date}) do
+    case :ets.lookup(Metadata.table_name(), key) do
+      [{^key, ^version, ^start_date, ^end_date}] -> true
+      _ -> false
+    end
+  end
+
   def cached?(key, value) do
     case :ets.lookup(Metadata.table_name(), key) do
       [{^key, ^value}] -> true

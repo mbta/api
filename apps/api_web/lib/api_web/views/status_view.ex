@@ -2,7 +2,7 @@ defmodule ApiWeb.StatusView do
   use ApiWeb.Web, :api_view
 
   attributes([
-    :feed_version,
+    :feed,
     :alert,
     :facility,
     :prediction,
@@ -15,7 +15,7 @@ defmodule ApiWeb.StatusView do
     :vehicle
   ])
 
-  def feed_version(data, _), do: data.feed_version
+  def feed(data, _), do: data.feed
 
   def alert(data, _) do
     %{last_updated: data.timestamps.alert}

@@ -21,12 +21,11 @@ defmodule State.Feed do
   end
 
   @doc """
-  Gets the current feed version.
+  Gets a tuple of the current feed version, start_date and end_date.
   """
-  @spec current_version() :: String.t()
-  def current_version do
-    {:ok, %Feed{version: version}} = get()
-    version
+  def feed_metadata do
+    {:ok, %Feed{version: version, start_date: start_date, end_date: end_date}} = get()
+    {version, start_date, end_date}
   end
 
   @impl Events.Server
@@ -59,7 +58,7 @@ defmodule State.Feed do
     :ets.insert(@table, {:feed, result})
 
     with {:ok, feed} <- result do
-      State.Metadata.feed_updated(feed.version)
+      State.Metadata.feed_updated(feed.version, feed.start_date, feed.end_date)
     end
 
     :ok
