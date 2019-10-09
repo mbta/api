@@ -56,50 +56,19 @@ defmodule State.Vehicle do
 
   @spec filter_by(filter_opts) :: [Vehicle.t()]
   def filter_by(%{} = filters) do
-    matchers =
-      [%{}]
-      |> build_filters(:label, Map.get(filters, :labels), filters)
-      |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
-      |> build_filters(:route_type, Map.get(filters, :route_types), filters)
-
     idx = get_index(filters)
-    State.Vehicle.select(matchers, idx)
+
+    [%{}]
+    |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
+    |> build_filters(:route_type, Map.get(filters, :route_types), filters)
+    |> State.Vehicle.select(idx)
+    |> do_post_search_filter(filters)
   end
 
   defp get_index(%{routes: routes}) when routes != [], do: :effective_route_id
   defp get_index(_filters), do: nil
 
   defp build_filters(matchers, _key, nil, _filters), do: matchers
-
-  defp build_filters(matchers, :label, labels, _filters) do
-    consist_matches? = fn %Model.Vehicle{consist: consist}, labels ->
-      case consist do
-        nil ->
-          false
-
-        _ ->
-          labels
-          |> MapSet.new()
-          |> MapSet.intersection(consist)
-          |> Kernel.!==(MapSet.new())
-      end
-    end
-
-    label_matches? = fn %Model.Vehicle{label: label}, labels ->
-      label in labels
-    end
-
-    vehicle_ids =
-      all()
-      |> Enum.filter(fn vehicle ->
-        label_matches?.(vehicle, labels) or consist_matches?.(vehicle, labels)
-      end)
-      |> Enum.map(& &1.id)
-
-    for matcher <- matchers, vehicle_id <- vehicle_ids do
-      Map.put(matcher, :id, vehicle_id)
-    end
-  end
 
   defp build_filters(matchers, :route_type, route_types, _filters) do
     route_ids =
@@ -129,4 +98,33 @@ defmodule State.Vehicle do
       |> Map.put(:direction_id, direction_id)
     end
   end
+
+  @spec do_post_search_filter([Vehicle.t()], filter_opts) :: [Vehicle.t()]
+  defp do_post_search_filter(vehicles, %{labels: labels}) when is_list(labels) do
+    labels = MapSet.new(labels)
+
+    consist_matches? = fn %Model.Vehicle{consist: consist}, labels ->
+      case consist do
+        nil ->
+          false
+
+        _ ->
+          consist
+          |> MapSet.new()
+          |> MapSet.intersection(labels)
+          |> MapSet.size()
+          |> Kernel.!==(0)
+      end
+    end
+
+    label_matches? = fn %Model.Vehicle{label: label}, labels ->
+      label in labels
+    end
+
+    Enum.filter(vehicles, fn vehicle ->
+      label_matches?.(vehicle, labels) or consist_matches?.(vehicle, labels)
+    end)
+  end
+
+  defp do_post_search_filter(vehicles, _filters), do: vehicles
 end

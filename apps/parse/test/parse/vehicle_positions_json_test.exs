@@ -128,7 +128,7 @@ defmodule Parse.VehiclePositionsJsonTest do
       }
 
       [%{consist: consist}] = parse_entity(entity)
-      assert consist == MapSet.new(["1832", "1833", "1854", "1855", "1876", "1877"])
+      assert consist == ["1877", "1876", "1854", "1855", "1833", "1832"]
     end
   end
 end
