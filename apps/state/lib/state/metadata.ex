@@ -49,7 +49,7 @@ defmodule State.Metadata do
   Sets latest version, start_date and end_date of the Feed.
   """
   def feed_updated(version, start_date, end_date) do
-    :ets.insert(table_name(), {State.Feed, version, start_date, end_date})
+    :ets.insert(table_name(), {State.Feed, {version, start_date, end_date}})
   rescue
     _ -> :error
   end
@@ -82,7 +82,7 @@ defmodule State.Metadata do
   @spec feed_metadata() :: {String.t(), Date.t(), Date.t()}
   def feed_metadata do
     case :ets.lookup(table_name(), State.Feed) do
-      [{State.Feed, version, start_date, end_date}] ->
+      [{State.Feed, {version, start_date, end_date}}] ->
         {version, start_date, end_date}
 
       _ ->

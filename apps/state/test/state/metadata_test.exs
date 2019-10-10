@@ -96,7 +96,6 @@ defmodule State.MetadataTest do
     end
 
     test "fetches and caches feed metadata on cache miss" do
-      :ets.delete(Metadata.table_name(), State.Feed)
       version = "TEST_VERSION"
       start_date = ~D[2019-01-01]
       end_date = ~D[2019-01-02]
@@ -108,6 +107,7 @@ defmodule State.MetadataTest do
         end_date: end_date
       })
 
+      :ets.delete(Metadata.table_name(), State.Feed)
       assert Metadata.feed_metadata() == expected
     end
   end
@@ -129,10 +129,6 @@ defmodule State.MetadataTest do
   @doc """
   Caches a value.
   """
-  def cache(key, {version, start_date, end_date}) do
-    :ets.insert(Metadata.table_name(), {key, version, start_date, end_date})
-  end
-
   def cache(key, value) do
     :ets.insert(Metadata.table_name(), {key, value})
   end
@@ -140,13 +136,6 @@ defmodule State.MetadataTest do
   @doc """
   Checks the State.Metatable for a cached value.
   """
-  def cached?(key, {version, start_date, end_date}) do
-    case :ets.lookup(Metadata.table_name(), key) do
-      [{^key, ^version, ^start_date, ^end_date}] -> true
-      _ -> false
-    end
-  end
-
   def cached?(key, value) do
     case :ets.lookup(Metadata.table_name(), key) do
       [{^key, ^value}] -> true
