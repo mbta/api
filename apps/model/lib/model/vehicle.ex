@@ -91,7 +91,7 @@ defmodule Model.Vehicle do
           speed: speed | nil,
           stop_id: Model.Stop.id() | nil,
           trip_id: Model.Trip.id() | nil,
-          consist: MapSet.t(String.t()) | nil
+          consist: [String.t()] | nil
         }
 
   def primary?(%__MODULE__{route_id: id, effective_route_id: id}), do: true

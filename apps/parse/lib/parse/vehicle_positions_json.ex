@@ -49,8 +49,7 @@ defmodule Parse.VehiclePositionsJson do
   end
 
   defp parse_consist([_ | _] = consist) do
-    consist
-    |> Enum.map(fn %{"label" => car_label} -> car_label end)
+    Enum.map(consist, fn %{"label" => car_label} -> car_label end)
   end
 
   defp parse_consist(nil), do: nil

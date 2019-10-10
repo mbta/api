@@ -103,26 +103,22 @@ defmodule State.Vehicle do
   defp do_post_search_filter(vehicles, %{labels: labels}) when is_list(labels) do
     labels = MapSet.new(labels)
 
-    consist_matches? = fn %Model.Vehicle{consist: consist}, labels ->
+    consist_matches? = fn %Model.Vehicle{consist: consist} ->
       case consist do
         nil ->
           false
 
         _ ->
-          consist
-          |> MapSet.new()
-          |> MapSet.intersection(labels)
-          |> MapSet.size()
-          |> Kernel.!==(0)
+          not MapSet.disjoint?(labels, MapSet.new(consist))
       end
     end
 
-    label_matches? = fn %Model.Vehicle{label: label}, labels ->
+    label_matches? = fn %Model.Vehicle{label: label} ->
       label in labels
     end
 
     Enum.filter(vehicles, fn vehicle ->
-      label_matches?.(vehicle, labels) or consist_matches?.(vehicle, labels)
+      label_matches?.(vehicle) or consist_matches?.(vehicle)
     end)
   end
 
