@@ -62,26 +62,20 @@ defmodule State.MetadataTest do
     end
   end
 
-  describe "feed_updated/3" do
+  describe "feed_updated/1" do
     test "caches the feed version" do
-      version = "TEST_VERSION"
-      start_date = ~D[2019-01-01]
-      end_date = ~D[2019-01-02]
-      Metadata.feed_updated(version, start_date, end_date)
-      assert cached?(State.Feed, {version, start_date, end_date})
+      expected = {"TEST_VERSION", ~D[2019-01-01], ~D[2019-01-02]}
+      Metadata.feed_updated(expected)
+      assert cached?(State.Feed, expected)
     end
 
     test "overwrites a previously stored value" do
-      old_version = "OLD_VERSION"
-      old_start_date = ~D[2019-01-01]
-      old_end_date = ~D[2019-01-02]
-      Metadata.feed_updated(old_version, old_start_date, old_end_date)
+      old = {"OLD_VERSION", ~D[2019-01-01], ~D[2019-01-02]}
+      Metadata.feed_updated(old)
 
-      new_version = "NEW_VERSION"
-      new_start_date = ~D[2019-02-01]
-      new_end_date = ~D[2019-02-02]
-      Metadata.feed_updated(new_version, new_start_date, new_end_date)
-      assert cached?(State.Feed, {new_version, new_start_date, new_end_date})
+      new = {"NEW_VERSION", ~D[2019-02-01], ~D[2019-02-02]}
+      Metadata.feed_updated(new)
+      assert cached?(State.Feed, new)
     end
   end
 

@@ -58,7 +58,7 @@ defmodule State.Feed do
     :ets.insert(@table, {:feed, result})
 
     with {:ok, feed} <- result do
-      State.Metadata.feed_updated(feed.version, feed.start_date, feed.end_date)
+      State.Metadata.feed_updated({feed.version, feed.start_date, feed.end_date})
     end
 
     :ok
