@@ -64,31 +64,45 @@ defmodule State.MetadataTest do
 
   describe "feed_updated/1" do
     test "caches the feed version" do
-      version = "TEST_VERSION"
-      Metadata.feed_updated(version)
-      assert cached?(State.Feed, version)
-    end
-
-    test "overwrites a previously stored valued" do
-      cache(State.Feed, "OLD_VERSION")
-      expected = "UPDATED_VERSION"
+      expected = {"TEST_VERSION", ~D[2019-01-01], ~D[2019-01-02]}
       Metadata.feed_updated(expected)
       assert cached?(State.Feed, expected)
     end
+
+    test "overwrites a previously stored value" do
+      old = {"OLD_VERSION", ~D[2019-01-01], ~D[2019-01-02]}
+      Metadata.feed_updated(old)
+
+      new = {"NEW_VERSION", ~D[2019-02-01], ~D[2019-02-02]}
+      Metadata.feed_updated(new)
+      assert cached?(State.Feed, new)
+    end
   end
 
-  describe "feed_version/0" do
-    test "returns the cached feed version" do
-      expected = "TEST_VERSION"
+  describe "feed_metadata/0" do
+    test "returns the cached feed metadata" do
+      version = "TEST_VERSION"
+      start_date = ~D[2019-01-01]
+      end_date = ~D[2019-01-02]
+      expected = {version, start_date, end_date}
       cache(State.Feed, expected)
-      assert Metadata.feed_version() == expected
+      assert Metadata.feed_metadata() == expected
     end
 
-    test "fetches and caches feed version on cache miss" do
+    test "fetches and caches feed metadata on cache miss" do
+      version = "TEST_VERSION"
+      start_date = ~D[2019-01-01]
+      end_date = ~D[2019-01-02]
+      expected = {version, start_date, end_date}
+
+      State.Feed.new_state(%Model.Feed{
+        version: version,
+        start_date: start_date,
+        end_date: end_date
+      })
+
       :ets.delete(Metadata.table_name(), State.Feed)
-      expected = "UPDATED_VERSION"
-      State.Feed.new_state(%Model.Feed{version: expected})
-      assert Metadata.feed_version() == expected
+      assert Metadata.feed_metadata() == expected
     end
   end
 
