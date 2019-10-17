@@ -7,7 +7,7 @@ defmodule State.Vehicle do
   * label
   """
   use State.Server,
-    indices: [:id, :trip_id, :effective_route_id, :label],
+    indices: [:id, :trip_id, :effective_route_id],
     parser: Parse.VehiclePositions,
     recordable: Model.Vehicle,
     hibernate: false
@@ -56,17 +56,15 @@ defmodule State.Vehicle do
 
   @spec filter_by(filter_opts) :: [Vehicle.t()]
   def filter_by(%{} = filters) do
-    matchers =
-      [%{}]
-      |> build_filters(:label, Map.get(filters, :labels), filters)
-      |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
-      |> build_filters(:route_type, Map.get(filters, :route_types), filters)
-
     idx = get_index(filters)
-    State.Vehicle.select(matchers, idx)
+
+    [%{}]
+    |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
+    |> build_filters(:route_type, Map.get(filters, :route_types), filters)
+    |> State.Vehicle.select(idx)
+    |> do_post_search_filter(filters)
   end
 
-  defp get_index(%{labels: labels}) when labels != [], do: :label
   defp get_index(%{routes: routes}) when routes != [], do: :effective_route_id
   defp get_index(_filters), do: nil
 
@@ -101,7 +99,28 @@ defmodule State.Vehicle do
     end
   end
 
-  defp build_filters(matchers, key, values, _filters) do
-    for matcher <- matchers, value <- values, do: Map.put(matcher, key, value)
+  @spec do_post_search_filter([Vehicle.t()], filter_opts) :: [Vehicle.t()]
+  defp do_post_search_filter(vehicles, %{labels: labels}) when is_list(labels) do
+    labels = MapSet.new(labels)
+
+    consist_matches? = fn %Model.Vehicle{consist: consist} ->
+      case consist do
+        nil ->
+          false
+
+        _ ->
+          not MapSet.disjoint?(labels, MapSet.new(consist))
+      end
+    end
+
+    label_matches? = fn %Model.Vehicle{label: label} ->
+      label in labels
+    end
+
+    Enum.filter(vehicles, fn vehicle ->
+      label_matches?.(vehicle) or consist_matches?.(vehicle)
+    end)
   end
+
+  defp do_post_search_filter(vehicles, _filters), do: vehicles
 end

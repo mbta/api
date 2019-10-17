@@ -17,7 +17,8 @@ defmodule Model.Vehicle do
     :current_status,
     :current_stop_sequence,
     :updated_at,
-    :effective_route_id
+    :effective_route_id,
+    :consist
   ]
 
   alias Model.WGS84
@@ -59,8 +60,9 @@ defmodule Model.Vehicle do
   * `:effective_route_id` - The `Model.Route.id` of the `Model.Route.t` that the vehicle is _currently_ on.  When
       `trip_id` has only one route, then `effective_route_id` and `route_id` will always match.  If `trip_id` has
       multiple routes, then `effective_route_id` can be any of the routes of `trip_id`.
-  * `:label` - User visible label, such as the one of on the signage on the vehicle.  See
+  * `:label` - User visible label, such as the one on the signage on the vehicle.  See
       [GTFS-realtime VehicleDescriptor label](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-vehicledescriptor).
+  * `:consist` - Set of user visible labels (such as the one on the signage on the vehicle) on individual cars. Only present for light and heavy rail.
   * `:updated_at` - Time at which vehicle information was last updated.
   * `:latitude` - Latitude of the vehicle's current position.  See
       [GTFS-realtime Position latitude](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-position).
@@ -88,7 +90,8 @@ defmodule Model.Vehicle do
           route_id: Model.Route.id() | nil,
           speed: speed | nil,
           stop_id: Model.Stop.id() | nil,
-          trip_id: Model.Trip.id() | nil
+          trip_id: Model.Trip.id() | nil,
+          consist: [String.t()] | nil
         }
 
   def primary?(%__MODULE__{route_id: id, effective_route_id: id}), do: true
