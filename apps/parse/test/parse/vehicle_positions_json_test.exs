@@ -130,5 +130,32 @@ defmodule Parse.VehiclePositionsJsonTest do
       [%{consist: consist}] = parse_entity(entity)
       assert consist == ["1877", "1876", "1854", "1855", "1833", "1832"]
     end
+
+    test "handles an empty consist" do
+      entity = %{
+        "id" => "O-54609FDE",
+        "vehicle" => %{
+          "current_status" => "IN_TRANSIT_TO",
+          "current_stop_sequence" => 150,
+          "position" => %{
+            "bearing" => 305,
+            "latitude" => 42.37259,
+            "longitude" => -71.06766
+          },
+          "stop_id" => "70031",
+          "timestamp" => 1_571_676_712,
+          "trip" => %{
+            "direction_id" => 0,
+            "route_id" => "Orange",
+            "schedule_relationship" => "ADDED",
+            "start_date" => "20191021",
+            "trip_id" => "ADDED-1571239831"
+          },
+          "vehicle" => %{"consist" => [], "id" => "O-54609FDE"}
+        }
+      }
+
+      assert [%{consist: nil}] = parse_entity(entity)
+    end
   end
 end
