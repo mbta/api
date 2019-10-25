@@ -3,8 +3,17 @@ defmodule Parse.StopTimes do
   Parses the GTFS stop_times.txt file.
   """
   @behaviour Parse
-  @compile :native
-  @compile {:hipe, [:o3]}
+  import NimbleParsec
+
+  # credo:disable-for-lines:4 Credo.Check.Refactor.PipeChainStart
+  defparsec(
+    :time,
+    integer(min: 1, max: 2)
+    |> ignore(string(":"))
+    |> integer(2)
+    |> ignore(string(":"))
+    |> integer(2)
+  )
 
   import :binary, only: [copy: 1]
 
@@ -26,28 +35,27 @@ defmodule Parse.StopTimes do
       arrival_time: convert_time(row["arrival_time"], row["drop_off_type"]),
       departure_time: convert_time(row["departure_time"], row["pickup_type"]),
       stop_sequence: String.to_integer(row["stop_sequence"]),
-      pickup_type: String.to_integer(row["pickup_type"]),
-      drop_off_type: String.to_integer(row["drop_off_type"]),
+      pickup_type: pick_drop_type(row["pickup_type"]),
+      drop_off_type: pick_drop_type(row["drop_off_type"]),
       timepoint?: row["timepoint"] != "0"
     }
   end
 
   defp convert_time(_, "1"), do: nil
 
-  defp convert_time(str, _) do
-    str
-    |> String.split(":")
-    |> Enum.map(&String.to_integer/1)
-    # [hour, minute, second] in seconds
-    |> Enum.zip([3600, 60, 1])
-    |> Enum.map(fn {part, mult} -> part * mult end)
-    |> Enum.sum()
+  defp convert_time(binary, _) do
+    {:ok, [h, m, s], _, _, _, _} = time(binary)
+    3600 * h + 60 * m + s
   end
+
+  defp pick_drop_type("0"), do: 0
+  defp pick_drop_type("1"), do: 1
+  defp pick_drop_type("2"), do: 2
+  defp pick_drop_type("3"), do: 3
 
   defp parse_rows(rows, nil) do
     rows
     |> Enum.map(&parse_row/1)
-    |> Enum.sort_by(&Map.get(&1, :stop_sequence))
     |> position_first_row
     |> position_last_row
   end
@@ -76,11 +84,8 @@ defmodule Parse.StopTimes do
     [first | rest]
   end
 
-  defp position_last_row([last]) do
-    [%{last | position: :last}]
-  end
-
-  defp position_last_row([first | rest]) do
-    [first | position_last_row(rest)]
+  defp position_last_row(list) do
+    [last | rest] = Enum.reverse(list)
+    Enum.reverse([%{last | position: :last} | rest])
   end
 end
