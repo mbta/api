@@ -66,8 +66,13 @@ defmodule State.Shape do
   @impl State.Server
   def handle_new_state([%Polyline{} | _] = polylines) do
     super(fn ->
+      trips_by_shape =
+        State.Trip.all()
+        |> Enum.group_by(& &1.shape_id)
+        |> Map.new()
+
       polylines
-      |> Enum.flat_map(&shape_from_polyline/1)
+      |> Enum.flat_map(&shape_from_polyline(&1, Map.get(trips_by_shape, &1.id, [])))
       |> Enum.group_by(&{&1.route_id, &1.direction_id})
       |> Enum.flat_map(fn {_key, shapes} -> arrange_by_priority(shapes) end)
     end)
@@ -84,10 +89,14 @@ defmodule State.Shape do
     handle_new_state(polylines)
   end
 
-  def shape_from_polyline(%Polyline{} = polyline) do
-    trips = State.Trip.select([%{shape_id: polyline.id}])
-    trip = Enum.find(trips, &(Model.Trip.primary?(&1) && &1.route_pattern_id))
+  defp shape_from_polyline(polyline, trips)
 
+  defp shape_from_polyline(_, []) do
+    []
+  end
+
+  defp shape_from_polyline(%Polyline{} = polyline, trips) do
+    trip = Enum.find(trips, &(Model.Trip.primary?(&1) && &1.route_pattern_id))
     shape_from_trips_for_polyline(polyline, trip, trips)
   end
 
