@@ -78,9 +78,9 @@ defmodule BinaryLineSplit do
 
   defp unfold(acc, sep) do
     case :binary.split(acc, sep, [:trim]) do
-      [] -> nil
-      [first] -> {first, ""}
       [first, rest] -> {first, rest}
+      [first] -> {first, ""}
+      [] -> nil
     end
   end
 end
