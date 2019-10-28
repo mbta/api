@@ -250,6 +250,17 @@ defmodule ApiWeb.RouteControllerTest do
     end
 
     test "if all routes were hidden, show them anyways", %{conn: conn} do
+      hidden = %{@route | id: "Shuttle-hidden", type: 2, listed_route: false}
+
+      State.Route.new_state([
+        @route,
+        hidden
+      ])
+
+      assert ApiWeb.RouteController.index_data(conn, %{"type" => "2"}) == [hidden]
+    end
+
+    test "shows hidden routes if filtered by id", %{conn: conn} do
       hidden = %{@route | id: "Shuttle-hidden", listed_route: false}
 
       State.Route.new_state([
@@ -257,7 +268,8 @@ defmodule ApiWeb.RouteControllerTest do
         hidden
       ])
 
-      assert ApiWeb.RouteController.index_data(conn, %{"id" => hidden.id}) == [hidden]
+      data = ApiWeb.RouteController.index_data(conn, %{"id" => "#{@route.id},#{hidden.id}"})
+      assert Enum.sort_by(data, & &1.id) == [@route, hidden]
     end
   end
 
