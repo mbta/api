@@ -263,7 +263,24 @@ defmodule ApiAccounts do
   def clone_key(%Key{} = key) do
     clone_api_key = UUID.uuid4(:hex)
     now = DateTime.utc_now()
-    clone = %{key | key: clone_api_key, created: now, requested_date: now}
+
+    description = key.description
+
+    description =
+      if is_binary(key.description) and description != "" do
+        "#{description} (clone)"
+      else
+        description
+      end
+
+    clone = %{
+      key
+      | key: clone_api_key,
+        description: description,
+        created: now,
+        requested_date: now
+    }
+
     Dynamo.put_item(clone)
   end
 

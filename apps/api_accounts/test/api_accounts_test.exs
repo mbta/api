@@ -218,6 +218,12 @@ defmodule ApiAccountsTest do
       assert clone.api_version == api_version
       assert clone.daily_limit == daily_limit
     end
+
+    test "adds (clone) to the description if one is present", %{user: user} do
+      {:ok, key} = ApiAccounts.create_key(user, %{approved: true, description: "description"})
+      {:ok, clone} = ApiAccounts.clone_key(key)
+      assert clone.description == "description (clone)"
+    end
   end
 
   describe "keys" do
