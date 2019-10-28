@@ -59,6 +59,21 @@ defmodule Fetch.Worker do
     {:reply, response, update_state(state, http_response), :hibernate}
   end
 
+  def handle_info({:ssl_closed, _}, state) do
+    # ignore spurious SSL closed message: https://github.com/benoitc/hackney/issues/464
+    {:noreply, state}
+  end
+
+  def handle_info(message, state) do
+    _ =
+      Logger.warn(fn ->
+        # no cover
+        "unexpected message to Fetch.Worker[#{state.url}]: #{inspect(message)}"
+      end)
+
+    {:noreply, state}
+  end
+
   defp initial_state(url, opts) do
     uri = URI.parse(url)
 
