@@ -92,7 +92,7 @@ defmodule StateMediator.Integration.GtfsTest do
     test "correctly calculates first/last stops on routes" do
       assert_first_last_stop_id("Red", "place-alfcl", "place-brntn")
       assert_first_last_stop_id("CR-Providence", "place-sstat", "place-NEC-1659")
-      assert_first_last_stop_id("CR-Fairmount", "place-sstat", "place-DB-0095")
+      assert_first_last_stop_id("CR-Fairmount", "place-sstat", ["place-DB-0095", "place-FS-0049"])
       assert_first_last_stop_id("CR-Franklin", "place-sstat", "place-FB-0303")
       assert_first_last_stop_id("CR-Haverhill", "place-north", "place-WR-0329")
       assert_first_last_stop_id("CR-Lowell", "place-north", "place-NHRML-0254")
@@ -243,6 +243,61 @@ defmodule StateMediator.Integration.GtfsTest do
               }),
             invalid?.(data) do
           date
+        end
+
+      assert invalid_dates == []
+    end
+
+    test "Foxboro is on CR-Franklin after 2019-10-21" do
+      foxboro? = fn stops ->
+        Enum.find(stops, &(&1.id == "place-FS-0049")) != nil
+      end
+
+      assert foxboro?.(State.Stop.filter_by(%{routes: ["CR-Franklin"]}))
+      assert foxboro?.(State.Stop.filter_by(%{routes: ["CR-Franklin"], direction_id: 0}))
+      assert foxboro?.(State.Stop.filter_by(%{routes: ["CR-Franklin"], direction_id: 1}))
+
+      invalid_dates =
+        for date <- dates_of_rating(),
+            direction_id <- [nil, 0, 1],
+            data =
+              State.Stop.filter_by(%{
+                routes: ["CR-Franklin"],
+                direction_id: direction_id,
+                date: date
+              }),
+            after_oct21? = Date.compare(date, ~D[2019-10-21]) != :lt,
+            has_foxboro? = foxboro?.(data),
+            after_oct21? != has_foxboro? do
+          {date, direction_id}
+        end
+
+      assert invalid_dates == []
+    end
+
+    test "Foxboro and Dedham Corporate Center are on CR-Fairmount after 2019-10-21" do
+      valid? = fn stops ->
+        Enum.find(stops, &(&1.id == "place-FS-0049")) != nil and
+          Enum.find(stops, &(&1.id == "place-FB-0118")) != nil
+      end
+
+      assert valid?.(State.Stop.filter_by(%{routes: ["CR-Fairmount"]}))
+      assert valid?.(State.Stop.filter_by(%{routes: ["CR-Fairmount"], direction_id: 0}))
+      assert valid?.(State.Stop.filter_by(%{routes: ["CR-Fairmount"], direction_id: 1}))
+
+      invalid_dates =
+        for date <- dates_of_rating(),
+            direction_id <- [nil, 0, 1],
+            data =
+              State.Stop.filter_by(%{
+                routes: ["CR-Fairmount"],
+                direction_id: direction_id,
+                date: date
+              }),
+            after_oct21? = Date.compare(date, ~D[2019-10-21]) != :lt,
+            is_valid? = valid?.(data),
+            after_oct21? != is_valid? do
+          {date, direction_id}
         end
 
       assert invalid_dates == []

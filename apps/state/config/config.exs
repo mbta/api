@@ -2,6 +2,13 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :state, :route_pattern,
+  ignore_overrides: %{
+    # don't ignore Foxboro via Fairmount trips
+    "CR-Franklin-3-0" => false,
+    "CR-Franklin-3-1" => false
+  }
+
 config :state, :shape,
   overrides: %{
     # Green Line
@@ -116,7 +123,37 @@ config :state, :stops_on_route,
   stop_order_overrides: %{
     {"CR-Franklin", 0} => [
       ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"],
-      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"]
+      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
+      ["Walpole", "Foxboro", "Norfolk"],
+      ["place-FB-0191", "place-FS-0049", "place-FB-0230"]
+    ],
+    {"CR-Franklin", 1} => [
+      ["Norfolk", "Foxboro", "Walpole"],
+      ["place-FB-0230", "place-FS-0049", "place-FB-0191"]
+    ],
+    {"CR-Fairmount", 0} => [
+      ["Readville", "Dedham Corp Center", "Foxboro"],
+      ["place-DB-0095", "place-FB-0118", "place-FS-0049"]
+    ],
+    {"CR-Fairmount", 1} => [
+      ["Foxboro", "Dedham Corp Center", "Readville"],
+      ["place-FS-0049", "place-FB-0118", "place-DB-0095"]
+    ]
+  },
+  not_on_route: %{
+    {"CR-Fairmount", 0} => [
+      "place-FB-0166",
+      "place-FB-0148",
+      "place-FB-0143",
+      "place-FB-0125",
+      "place-FB-0109"
+    ],
+    {"CR-Fairmount", 1} => [
+      "place-FB-0166",
+      "place-FB-0148",
+      "place-FB-0143",
+      "place-FB-0125",
+      "place-FB-0109"
     ]
   }
 

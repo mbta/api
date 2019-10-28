@@ -32,8 +32,14 @@ defmodule State.VehicleTest do
     vehicle = %Vehicle{id: "1", label: "2"}
     new_state([vehicle])
 
-    assert [%Vehicle{id: "1"}] = by_label("2")
-    assert [%Vehicle{id: "1"}] = match(%{label: "2", id: "1"}, :label)
+    assert [%Vehicle{id: "1"}] = filter_by(%{labels: ["2"]})
+  end
+
+  test "querying by label matches individual car labels in consist" do
+    vehicle = %Vehicle{id: "1", label: "1400-1401", consist: MapSet.new(["1400", "1401"])}
+    new_state([vehicle])
+
+    assert [%Vehicle{id: "1"}] = filter_by(%{labels: ["1401"]})
   end
 
   test "can add vehicle and query it by route_type" do

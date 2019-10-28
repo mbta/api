@@ -31,17 +31,19 @@ defmodule State.FeedTest do
       assert {:error, _} = get()
     end
 
-    test "caches the feed version" do
-      expected = "TEST_VERSION"
-      State.Feed.new_state(%Feed{version: expected})
+    test "caches the feed Metadata" do
+      version = "TEST_VERSION"
+      start_date = ~D[2019-01-01]
+      end_date = ~D[2019-01-02]
+      State.Feed.new_state(%Feed{version: version, start_date: start_date, end_date: end_date})
       await_feed_status(:ok)
-      assert State.Metadata.feed_version() == expected
+      assert State.Metadata.feed_metadata() == {version, start_date, end_date}
     end
   end
 
-  test "current_version/0" do
+  test "feed_metadata/0" do
     Events.publish({:fetch, "feed_info.txt"}, @blob)
     await_feed_status(:ok)
-    assert State.Feed.current_version()
+    assert State.Feed.feed_metadata()
   end
 end
