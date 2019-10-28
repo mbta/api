@@ -60,6 +60,18 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
     end
   end
 
+  def clone(conn, %{"id" => key_id}) do
+    key = ApiAccounts.get_key!(key_id)
+    user = conn.assigns.user
+
+    {:ok, key} = ApiAccounts.clone_key(key)
+    ApiAccounts.Keys.cache_key(key)
+
+    conn
+    |> put_flash(:info, "Key cloned successfully.")
+    |> redirect(to: admin_user_path(conn, :show, user))
+  end
+
   def delete(conn, %{"id" => key_id} = params) do
     user = conn.assigns.user
     key = ApiAccounts.get_key!(key_id)

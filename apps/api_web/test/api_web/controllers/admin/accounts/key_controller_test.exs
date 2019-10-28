@@ -190,6 +190,21 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
     assert redirected_to(conn) == expected_path
   end
 
+  test "can clone a key", %{conn: base_conn, user: user} do
+    {:ok, key} = ApiAccounts.create_key(user)
+    {:ok, key} = ApiAccounts.update_key(key, %{approved: true})
+    ApiAccounts.Keys.cache_key(key)
+
+    conn =
+      base_conn
+      |> form_header()
+      |> put(admin_key_path(base_conn, :clone, user, key))
+
+    assert redirected_to(conn) == admin_user_path(conn, :show, user)
+    # ensure there are now two keys
+    assert [_, _] = ApiAccounts.list_keys_for_user(user)
+  end
+
   describe "find_user_by_key/1" do
     test "redirects to user if key is found", %{conn: conn, user: user} do
       assert {:ok, key} = ApiAccounts.create_key(user)
