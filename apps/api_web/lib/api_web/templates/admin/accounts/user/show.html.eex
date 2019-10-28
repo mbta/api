@@ -105,7 +105,12 @@
           <td><%= if key.approved == true do %>✔<% end %></td>
           <td><%= if key.locked == true do %>✔<% end %></td>
           <td>
-            <%= link "Edit", to: admin_key_path(@conn, :edit, @user, key), class: "btn btn-default btn-xs" %>
+            <%= link "Edit", to: admin_key_path(@conn, :edit, @user, key), class: "btn btn-default btn-s" %>
+            <%= link "Clone", to: admin_key_path(@conn, :clone, @user, key),
+                class: "btn btn-default btn-xs",
+                method: :put,
+                style: "display: inline-block",
+                data: [confirm: "Are you sure?"] %>
             <%= link "Delete", to: admin_key_path(@conn, :delete, @user, key),
                                method: :delete,
                                style: "display: inline-block",
