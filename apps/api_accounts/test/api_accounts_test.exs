@@ -190,6 +190,36 @@ defmodule ApiAccountsTest do
     end
   end
 
+  describe "clone_key/1" do
+    setup :setup_user
+
+    test "creates a new key with a different ID", %{user: user} do
+      {:ok, key} = ApiAccounts.create_key(user, %{approved: true})
+      assert {:ok, clone} = ApiAccounts.clone_key(key)
+      refute key.key == clone.key
+      assert clone.approved
+      assert key.user_id == clone.user_id
+      assert key.api_version == clone.api_version
+    end
+
+    test "keeps the other key's version and rate limit", %{user: user} do
+      api_version = "2017-11-28"
+      daily_limit = 50
+
+      {:ok, key} =
+        ApiAccounts.create_key(user, %{
+          approved: true,
+          api_version: api_version,
+          daily_limit: daily_limit
+        })
+
+      {:ok, clone} = ApiAccounts.clone_key(key)
+
+      assert clone.api_version == api_version
+      assert clone.daily_limit == daily_limit
+    end
+  end
+
   describe "keys" do
     setup :setup_user
 
