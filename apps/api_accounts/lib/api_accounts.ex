@@ -252,6 +252,22 @@ defmodule ApiAccounts do
   end
 
   @doc """
+  Creates a clone of an existing key with a different ID.
+
+  ## Examples
+
+      iex> clone_key(key)
+      {:ok, %Key{...}}
+  """
+  @spec clone_key(Key.t()) :: {:ok, Key.t()} | {:error, any}
+  def clone_key(%Key{} = key) do
+    clone_api_key = UUID.uuid4(:hex)
+    now = DateTime.utc_now()
+    clone = %{key | key: clone_api_key, created: now, requested_date: now}
+    Dynamo.put_item(clone)
+  end
+
+  @doc """
   Fetches a single api key.
 
   ## Examples
