@@ -28,7 +28,7 @@
   "ex_json_schema": {:hex, :ex_json_schema, "0.6.2", "de23d80478215987469c81688208fe0ff440ee0e0e6ae2268fcadbb2ff35df9d", [:mix], [], "hexpm"},
   "excoveralls": {:hex, :excoveralls, "0.11.1", "dd677fbdd49114fdbdbf445540ec735808250d56b011077798316505064edb2c", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
   "exjsx": {:hex, :exjsx, "4.0.0", "60548841e0212df401e38e63c0078ec57b33e7ea49b032c796ccad8cde794b5c", [:mix], [{:jsx, "~> 2.8.0", [hex: :jsx, repo: "hexpm", optional: false]}], "hexpm"},
-  "exprotobuf": {:hex, :exprotobuf, "1.2.16", "16ab9650a7fe53f6946b58c82b680f89a817c0df408ab46971ac77253b4c23e3", [:mix], [{:gpb, "~> 4.0", [hex: :gpb, repo: "hexpm", optional: false]}], "hexpm"},
+  "exprotobuf": {:hex, :exprotobuf, "1.2.17", "3003937da617f588a8fb63ebdd7b127a18d78d6502623c272076fd54c07c4de1", [:mix], [{:gpb, "~> 4.0", [hex: :gpb, repo: "hexpm", optional: false]}], "hexpm"},
   "fast_local_datetime": {:hex, :fast_local_datetime, "1.0.0", "ad17a70abfc03032f5fefa4a255509ecc21f421b836e6321b8b9ff2bf4ea666f", [:mix], [{:tzdata, "~> 1.0", [hex: :tzdata, repo: "hexpm", optional: false]}], "hexpm"},
   "gettext": {:hex, :gettext, "0.17.0", "abe21542c831887a2b16f4c94556db9c421ab301aee417b7c4fbde7fbdbe01ec", [:mix], [], "hexpm"},
   "gpb": {:hex, :gpb, "4.6.0", "ef178d35f85139f21c8586cf5c905a8ee7b188341b0e457bf864c21b92bf7750", [:make, :rebar], [], "hexpm"},
