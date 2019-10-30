@@ -2,6 +2,8 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
   @moduledoc """
   Supervisor for multiple connections to a Memcache instance.
   """
+  require Logger
+
   @worker_count 5
   @registry_name __MODULE__.Registry
 
@@ -24,7 +26,9 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
 
   @doc "Decrement a given key, using a random child."
   def decr(key, opts) do
-    Memcache.decr(random_child(), key, opts)
+    child = random_child()
+    _ = Logger.debug(fn -> "Memcache decr using child #{child}" end)
+    Memcache.decr(child, key, opts)
   end
 
   defp worker_name(index) do
