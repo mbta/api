@@ -82,7 +82,7 @@ defmodule ApiWeb.RouteController do
       filtered
       |> format_filters()
       |> do_filter()
-      |> filter_hidden()
+      |> filter_hidden(filtered)
       |> State.all(pagination_opts(params, conn))
     else
       {:error, _, _} = error -> error
@@ -203,11 +203,13 @@ defmodule ApiWeb.RouteController do
     Params.filter_opts(params, @pagination_opts, conn, order_by: {:sort_order, :asc})
   end
 
-  defp filter_hidden({route_list, offsets}) do
-    {filter_hidden(route_list), offsets}
+  defp filter_hidden({route_list, offsets}, filtered) do
+    {filter_hidden(route_list, filtered), offsets}
   end
 
-  defp filter_hidden(route_list) do
+  defp filter_hidden(route_list, %{"id" => _ids}), do: route_list
+
+  defp filter_hidden(route_list, _) do
     filtered = Enum.reject(route_list, &Route.hidden?/1)
 
     if filtered == [] do

@@ -333,6 +333,26 @@ defmodule State.StopsOnRouteTest do
                "Plimptonville"
              ]
     end
+
+    test "can drop stops from a route" do
+      trip_id = "fairmont-trip"
+      stop_ids = ["place-sstat", "place-FB-0109", "place-FB-0118"]
+
+      State.Stop.new_state(for stop_id <- stop_ids, do: %Model.Stop{id: stop_id})
+      State.Route.new_state([%Model.Route{id: "CR-Fairmount"}])
+      State.Trip.new_state([%Model.Trip{id: trip_id, route_id: "CR-Fairmount", direction_id: 1}])
+
+      State.Schedule.new_state(
+        for {stop_id, sequence} <- Enum.with_index(stop_ids),
+            do: %Model.Schedule{trip_id: trip_id, stop_id: stop_id, stop_sequence: sequence}
+      )
+
+      update!()
+
+      stop_ids = by_route_id("CR-Fairmount")
+
+      assert stop_ids == ["place-sstat", "place-FB-0118"]
+    end
   end
 
   describe "by_route_ids/2" do

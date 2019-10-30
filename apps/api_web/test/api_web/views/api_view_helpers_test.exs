@@ -1,5 +1,5 @@
 defmodule ApiWeb.ApiViewHelpersTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   alias ApiWeb.ApiViewHelpers
   import ApiViewHelpers
 

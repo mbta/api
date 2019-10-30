@@ -1,6 +1,6 @@
 defmodule Fetch.WorkerTest do
   use ExUnit.Case, async: true
-
+  import ExUnit.CaptureLog
   import Plug.Conn
 
   @moduletag capture_log: true
@@ -236,5 +236,28 @@ defmodule Fetch.WorkerTest do
     Bypass.up(bypass)
 
     assert {:ok, "body"} == Fetch.Worker.fetch_url(pid, [])
+  end
+
+  describe "handle_info/2" do
+    test "logs a message with an unknown message" do
+      state = %{url: "url"}
+
+      log =
+        capture_log(fn ->
+          assert {:noreply, ^state} = Fetch.Worker.handle_info(:message, state)
+        end)
+
+      assert log =~ "Worker[url]"
+      assert log =~ ":message"
+    end
+
+    test "ignores an {:ssl_closed, _} messages" do
+      log =
+        capture_log(fn ->
+          assert {:noreply, :state} = Fetch.Worker.handle_info({:ssl_closed, :socket}, :state)
+        end)
+
+      refute log =~ "Worker"
+    end
   end
 end

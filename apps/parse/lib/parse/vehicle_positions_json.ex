@@ -38,7 +38,8 @@ defmodule Parse.VehiclePositionsJson do
         speed: Map.get(position, "speed"),
         current_status: parse_status(Map.get(data, "current_status")),
         current_stop_sequence: Map.get(data, "current_stop_sequence"),
-        updated_at: unix_to_local(Map.get(data, "timestamp"))
+        updated_at: unix_to_local(Map.get(data, "timestamp")),
+        consist: parse_consist(Map.get(vehicle, "consist"))
       }
     ]
   end
@@ -46,6 +47,13 @@ defmodule Parse.VehiclePositionsJson do
   def parse_entity(%{}) do
     []
   end
+
+  defp parse_consist([_ | _] = consist) do
+    Enum.map(consist, fn %{"label" => car_label} -> car_label end)
+  end
+
+  defp parse_consist([]), do: nil
+  defp parse_consist(nil), do: nil
 
   defp parse_status(nil) do
     :in_transit_to

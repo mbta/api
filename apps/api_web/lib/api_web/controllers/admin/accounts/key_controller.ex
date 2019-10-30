@@ -17,7 +17,7 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
     {:ok, _} = ApiAccounts.update_key(key, %{requested_date: key.created, approved: true})
 
     conn
-    |> put_flash(:info, "Key created successfully.")
+    |> put_flash(:info, "Key created successfully: #{key.key}")
     |> redirect(to: admin_user_path(conn, :show, user))
   end
 
@@ -58,6 +58,18 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         render(conn, "edit.html", user: user, key: key, changeset: changeset)
     end
+  end
+
+  def clone(conn, %{"id" => key_id}) do
+    key = ApiAccounts.get_key!(key_id)
+    user = conn.assigns.user
+
+    {:ok, key} = ApiAccounts.clone_key(key)
+    ApiAccounts.Keys.cache_key(key)
+
+    conn
+    |> put_flash(:info, "Key cloned successfully: #{key.key}")
+    |> redirect(to: admin_user_path(conn, :show, user))
   end
 
   def delete(conn, %{"id" => key_id} = params) do

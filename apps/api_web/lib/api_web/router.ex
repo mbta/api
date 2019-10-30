@@ -107,6 +107,7 @@ defmodule ApiWeb.Router do
   scope "/admin/users/:user_id/keys", ApiWeb.Admin.Accounts, as: :admin do
     pipe_through([:secure, :browser, :admin_view, :admin])
     resources("/", KeyController, only: [:create, :edit, :update, :delete])
+    put("/:id/clone", KeyController, :clone)
     put("/:id/approve", KeyController, :approve)
   end
 
