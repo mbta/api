@@ -22,6 +22,7 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
     conn = post(form_header(conn), admin_key_path(conn, :create, user))
     assert redirected_to(conn) == admin_user_path(conn, :show, user)
     assert [key] = ApiAccounts.list_keys_for_user(user)
+    assert get_flash(conn, :info) =~ key.key
     assert key.approved
     assert key.created
     assert key.requested_date
@@ -202,7 +203,9 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
 
     assert redirected_to(conn) == admin_user_path(conn, :show, user)
     # ensure there are now two keys
-    assert [_, _] = ApiAccounts.list_keys_for_user(user)
+    assert [_, _] = keys = ApiAccounts.list_keys_for_user(user)
+    new_key = Enum.find(keys, &(&1.key != key.key))
+    assert get_flash(conn, :info) =~ new_key.key
   end
 
   describe "find_user_by_key/1" do

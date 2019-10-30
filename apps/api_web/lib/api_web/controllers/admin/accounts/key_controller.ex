@@ -17,7 +17,7 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
     {:ok, _} = ApiAccounts.update_key(key, %{requested_date: key.created, approved: true})
 
     conn
-    |> put_flash(:info, "Key created successfully.")
+    |> put_flash(:info, "Key created successfully: #{key.key}")
     |> redirect(to: admin_user_path(conn, :show, user))
   end
 
@@ -68,7 +68,7 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
     ApiAccounts.Keys.cache_key(key)
 
     conn
-    |> put_flash(:info, "Key cloned successfully.")
+    |> put_flash(:info, "Key cloned successfully: #{key.key}")
     |> redirect(to: admin_user_path(conn, :show, user))
   end
 
