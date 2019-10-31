@@ -32,6 +32,6 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
   end
 
   defp random_child do
-    worker_name(:random.uniform(@worker_count))
+    worker_name(:rand.uniform(@worker_count))
   end
 end
