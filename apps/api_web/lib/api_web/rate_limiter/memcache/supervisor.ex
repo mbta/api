@@ -27,7 +27,8 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
   @doc "Decrement a given key, using a random child."
   def decr(key, opts) do
     child = random_child()
-    _ = Logger.debug(fn -> "Memcache decr using child #{child}" end)
+    {_, _, {_, index}} = child
+    _ = Logger.debug(fn -> "Memcache decr using child #{index}" end)
     Memcache.decr(child, key, opts)
   end
 
