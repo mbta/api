@@ -273,6 +273,31 @@ defmodule ApiWeb.StopControllerTest do
       assert Enum.map(json_response(conn, 200)["data"], & &1["id"]) == []
     end
 
+    test "can filter routes by service", %{conn: base_conn} do
+      today = Parse.Time.service_date()
+      stop = %Stop{id: "1"}
+      service = %Model.Service{id: "service", start_date: today, end_date: today}
+      route = %Model.Route{id: "route", type: 2}
+      trip = %Model.Trip{id: "trip", route_id: "route", service_id: "service"}
+      schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
+      State.Service.new_state([service])
+      State.Trip.reset_gather()
+      State.Stop.new_state([stop])
+      State.Route.new_state([route])
+      State.Trip.new_state([trip])
+      State.Schedule.new_state([schedule])
+      State.RoutesPatternsAtStop.update!()
+      State.StopsOnRoute.update!()
+
+      params = %{"filter" => %{"route" => "route", "service" => "service"}}
+      conn = get(base_conn, stop_path(base_conn, :index, params))
+      assert Enum.map(json_response(conn, 200)["data"], & &1["id"]) == ["1"]
+
+      params = put_in(params, ["filter", "service"], "bad_service")
+      conn = get(base_conn, stop_path(base_conn, :index, params))
+      assert Enum.map(json_response(conn, 200)["data"], & &1["id"]) == []
+    end
+
     test "can filter by location_type", %{conn: base_conn} do
       stop = %Stop{id: 1, location_type: 0}
       State.Stop.new_state([stop])

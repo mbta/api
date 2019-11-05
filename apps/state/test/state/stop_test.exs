@@ -232,6 +232,49 @@ defmodule State.StopTest do
       assert State.Stop.filter_by(%{date: bad_date}) == [stop]
     end
 
+    test "filters by routes and services" do
+      today = Parse.Time.service_date()
+      stop = %Stop{id: "1"}
+      service = %Model.Service{id: "service", start_date: today, end_date: today}
+      route = %Model.Route{id: "route", type: 2}
+      trip = %Model.Trip{id: "trip", route_id: "route", service_id: "service"}
+      schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
+      State.Service.new_state([service])
+      State.Trip.reset_gather()
+      State.Stop.new_state([stop])
+      State.Route.new_state([route])
+      State.Trip.new_state([trip])
+      State.Schedule.new_state([schedule])
+      State.RoutesPatternsAtStop.update!()
+      State.StopsOnRoute.update!()
+
+      assert State.Stop.filter_by(%{routes: ["route"], services: ["service"]}) == [stop]
+      assert State.Stop.filter_by(%{routes: ["route"], services: ["bad_service"]}) == []
+      assert State.Stop.filter_by(%{routes: ["bad_route"], services: ["service"]}) == []
+    end
+
+    test "filtering by services requires also filtering by routes" do
+      today = Parse.Time.service_date()
+      stop = %Stop{id: "1"}
+      service = %Model.Service{id: "service", start_date: today, end_date: today}
+      route = %Model.Route{id: "route", type: 2}
+      trip = %Model.Trip{id: "trip", route_id: "route", service_id: "service"}
+      schedule = %Model.Schedule{trip_id: "trip", stop_id: "1"}
+      State.Service.new_state([service])
+      State.Trip.reset_gather()
+      State.Stop.new_state([stop])
+      State.Route.new_state([route])
+      State.Trip.new_state([trip])
+      State.Schedule.new_state([schedule])
+      State.RoutesPatternsAtStop.update!()
+      State.StopsOnRoute.update!()
+
+      assert State.Stop.filter_by(%{routes: ["route"], services: ["service"]}) == [stop]
+      assert State.Stop.filter_by(%{routes: ["route"], services: ["bad_service"]}) == []
+      assert State.Stop.filter_by(%{services: ["service"]}) == [stop]
+      assert State.Stop.filter_by(%{services: ["bad_service"]}) == [stop]
+    end
+
     test "filters by latitude and longitude" do
       stop = %Stop{id: "1", latitude: 1, longitude: 2}
       route = %Model.Route{id: "route", type: 2}
