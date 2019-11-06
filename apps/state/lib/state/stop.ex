@@ -17,7 +17,8 @@ defmodule State.Stop do
           optional(:latitude) => WGS84.latitude(),
           optional(:radius) => State.Stop.List.radius(),
           optional(:route_types) => [Model.Route.route_type()],
-          optional(:location_type) => [Stop.location_type()]
+          optional(:location_type) => [Stop.location_type()],
+          optional(:services) => [Model.Service.id()]
         }
 
   @type post_search_filter_opts :: %{
@@ -187,16 +188,19 @@ defmodule State.Stop do
           []
       end
 
-    date_opts =
-      case Map.get(filters, :date) do
-        date = %Date{} ->
+    service_opts =
+      case {Map.get(filters, :services), Map.get(filters, :date)} do
+        {[_] = service_ids, _} ->
+          [service_ids: service_ids]
+
+        {_, %Date{} = date} ->
           [service_ids: ServiceByDate.by_date(date)]
 
         _ ->
           []
       end
 
-    opts = Keyword.merge(direction_opts, date_opts)
+    opts = Keyword.merge(direction_opts, service_opts)
 
     search_operation = fn ->
       route_ids
@@ -205,7 +209,7 @@ defmodule State.Stop do
     end
 
     filters
-    |> Map.drop([:routes, :direction_id, :date])
+    |> Map.drop([:routes, :direction_id, :date, :services])
     |> build_filtered_searches([search_operation | searches])
   end
 

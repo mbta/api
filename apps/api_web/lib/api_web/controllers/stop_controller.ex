@@ -4,7 +4,7 @@ defmodule ApiWeb.StopController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id latitude longitude radius route route_type location_type)s
+  @filters ~w(id date direction_id latitude longitude radius route route_type location_type service)s
   @pagination_opts ~w(offset limit order_by distance)a
   @includes ~w(parent_station child_stops recommended_transfers facilities route)
   @show_includes ~w(parent_station child_stops recommended_transfers facilities)
@@ -35,7 +35,11 @@ defmodule ApiWeb.StopController do
         "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`."
     )
 
-    filter_param(:date, description: "Filter by date when stop is in use")
+    filter_param(:date,
+      description:
+        "Filter by date when stop is in use. Will be ignored unless filter[route] is present. If filter[service] is present, this filter will be ignored."
+    )
+
     filter_param(:direction_id)
 
     parameter("filter[latitude]", :query, :string, """
@@ -63,10 +67,14 @@ defmodule ApiWeb.StopController do
     filter_param(:route_type)
     filter_param(:id, name: :route)
 
+    parameter("filter[service]", :query, :string, """
+    Filter by service_id for which stop is in use. Multiple service_ids #{comma_separated_list()}.
+    """)
+
     parameter("filter[location_type]", :query, :string, """
     Filter by location_type https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#stopstxt. Multiple location_type #{
       comma_separated_list()
-    }
+    }.
     """)
 
     consumes("application/vnd.api+json")
@@ -115,6 +123,16 @@ defmodule ApiWeb.StopController do
 
       _ ->
         []
+    end
+  end
+
+  defp do_format_filter({"service", service_string}) do
+    case Params.split_on_comma(service_string) do
+      [] ->
+        []
+
+      service_ids ->
+        %{services: service_ids}
     end
   end
 
