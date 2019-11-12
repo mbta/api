@@ -10,7 +10,7 @@ defmodule ApiWeb.Endpoint do
     plug(Phoenix.CodeReloader)
   end
 
-  plug(Plug.Static, at: "/", from: :api_web, gzip: false, only: ~w(js css images))
+  plug(Plug.Static, at: "/", from: :api_web, gzip: false, only: ~w(js css images favicon.ico))
 
   plug(Plug.RequestId)
   plug(Logster.Plugs.Logger)
