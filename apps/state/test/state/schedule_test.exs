@@ -16,7 +16,14 @@ defmodule State.ScheduleTest do
     added_dates: [@today],
     removed_dates: []
   }
-  @trip %Model.Trip{id: "trip", route_id: "route", direction_id: 1, service_id: "service"}
+  @route_pattern %Model.RoutePattern{id: "route-_-1"}
+  @trip %Model.Trip{
+    id: "trip",
+    route_id: "route",
+    direction_id: 1,
+    service_id: "service",
+    route_pattern_id: "route-_-1"
+  }
   @schedule %Model.Schedule{
     route_id: "route",
     trip_id: "trip",
@@ -35,6 +42,7 @@ defmodule State.ScheduleTest do
     State.Trip.new_state([@trip])
     State.Service.new_state([@service])
     Schedule.new_state([@schedule])
+    State.RoutePattern.new_state([@route_pattern])
     State.RoutesPatternsAtStop.update!()
   end
 
@@ -105,6 +113,50 @@ defmodule State.ScheduleTest do
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :stops, [])) == []
       assert Schedule.filter_by(Map.put(params, :trips, [])) == []
+    end
+
+    test ":stops/:trips does not return multiple values for multi route trips" do
+      # trips:
+      # - solo_trip_id: only part of the main route
+      # - other_trip_id: only part of the other route
+      # - trip_id: part of both routes
+
+      solo_trip_id = "solo_trip_id"
+      other_route_id = "other_route"
+      other_trip_id = "other_trip_id"
+      route_pattern_id = "CR-Franklin-3-1"
+
+      routes = [
+        @route,
+        %{@route | id: other_route_id}
+      ]
+
+      trips = [
+        %{@trip | alternate_route: false, route_pattern_id: route_pattern_id},
+        %{
+          @trip
+          | alternate_route: true,
+            route_id: other_route_id,
+            route_pattern_id: route_pattern_id
+        },
+        %{@trip | id: solo_trip_id},
+        %{@trip | id: other_trip_id, route_id: other_route_id}
+      ]
+
+      schedules = [
+        @schedule,
+        %{@schedule | trip_id: solo_trip_id},
+        %{@schedule | trip_id: other_trip_id, route_id: other_route_id}
+      ]
+
+      State.Route.new_state(routes)
+      State.Trip.new_state(trips)
+      Schedule.new_state(schedules)
+      State.RoutesPatternsAtStop.update!()
+
+      # we expect to only get the one schedule record back
+      params = %{stops: [@stop.id], trips: [@trip.id]}
+      assert Schedule.filter_by(params) == [@schedule]
     end
 
     test "filters on :stops and :routes" do
