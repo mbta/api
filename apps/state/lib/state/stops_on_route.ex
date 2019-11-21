@@ -3,6 +3,45 @@ defmodule State.StopsOnRoute do
 
   Maintains an ETS-based cache of the stops (in order) for a route.
 
+  ## Data
+
+  The lists of stops are stored as tuples:
+      {route_id, direction_id, shape_id, service_id, alternate?, stop_id_list}
+
+  - shape_id is either a shape ID binary, or :all for a set of stops combined from all the relevant shapes
+  - alternate? is false if we used the default ignores during stop
+    calculation (see State.Trip for more on alternate route trips)
+  - the stop IDs in stop_id_list are rolled up to parent station IDs
+
+  ## Calculation
+
+  For each route:
+
+  1. Get all the trips on that route (both normal and alternate)
+  1. Group the trips by direction_id
+  1. Build a global stop order across all those trips
+  1. Build stop orders for each shape ID/service ID, as well as all shapes on each service ID
+
+  We ignore some trips in the default calculations:
+  - we ignore trips which are alternate route trips or have a route type override
+  - we ignore shapes which have a negative priority
+  - for service ID only, we also ignore atypical route patterns, as well as
+    some custom overrides in config (`route_pattern`/`ignore_overrides`)
+
+  ### Stop order
+
+  GTFS does not have the concept of a stop order, or even a list of stops on
+  a route. All we can do is look at the stops served by trips on the route,
+  and try to combine them. There are some overrides:
+
+  - `stop_order_overrides`: these are small lists of stops in order, used to
+    order stops which are not served by the same trips
+  - `not_on_route`: these are stops to remove from the list, even if a trip
+    on that route does stop there
+
+  Once we've dropped the stops from `not_on_route` and included the
+  `stop_order_overrides`, we're ready to merge the stop lists together: see
+  `merge_ids/2` for that logic.
   """
   use Events.Server
   require Logger
@@ -262,6 +301,31 @@ defmodule State.StopsOnRoute do
   defp stop_id_or_parent(%{parent_station: nil, id: id}), do: id
   defp stop_id_or_parent(%{parent_station: id}), do: id
 
+  @doc """
+  Merge an arbitrary list of stop IDs together into a global order.
+
+  Optionally takes a list of overrides, which are smaller lists of stop IDs.
+
+  1. Order the lists longest to shortest, with the overrides (if any) first.
+  1. Pairwise merge the lists together until we have a single list.
+
+  ## Pairwise merging
+
+  1. Calculate the [Myers
+  difference](https://blog.jcoglan.com/2017/02/12/the-myers-diff-algorithm-part-1/)
+  between the two lists.
+  1. Start on the `front` side.
+  1. If we're on the front side and see a delete/insert pair, the shorter
+  branch is the delete and the longer branch is the insert, so we want to put
+  the stops from the longer branch first: the new list is `insert` ++ `del`
+  ++ merge the rest. Remain on the front side.
+  1. If we see an equal list of stops, we've gotten to the center of the
+  route. Switch to the back side.
+  1. If none of the previous steps match, include the stops in the growing
+  list.
+
+  For examples, see the test cases in stops_on_route_test.exs.
+  """
   @spec merge_ids([stop_id_list]) :: stop_id_list
   @spec merge_ids([stop_id_list], [stop_id_list]) :: stop_id_list
   def merge_ids(lists_of_ids, override_lists \\ [])
@@ -280,7 +344,7 @@ defmodule State.StopsOnRoute do
   end
 
   @spec list_merge_key(stop_id_list) ::
-          {non_neg_integer, Model.Stop.id() | nil, Model.Stop.id() | nil}
+          {pos_integer, Model.Stop.id(), Model.Stop.id()} | {0, nil, nil}
   defp list_merge_key(list_of_ids) do
     # returns a tuple of {length, first stop id, last stop id}
     Enum.reduce(list_of_ids, {0, nil, nil}, fn id, {count, first_id, _last_id} ->
