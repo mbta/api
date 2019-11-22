@@ -193,7 +193,7 @@ defmodule State.Schedule do
 
     filtered_routes =
       stops
-      |> State.RoutesPatternsAtStop.routes_by_stops_and_direction()
+      |> State.RoutesPatternsAtStop.routes_by_stops_and_direction(ignore?: false)
       |> MapSet.new()
       |> MapSet.intersection(routes_from_trips)
 

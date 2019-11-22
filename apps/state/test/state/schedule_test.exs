@@ -159,6 +159,41 @@ defmodule State.ScheduleTest do
       assert Schedule.filter_by(params) == [@schedule]
     end
 
+    test ":stops/:routes returns multi route trips, but not duplicates" do
+      other_route_id = "other_route_id"
+
+      routes = [
+        @route,
+        %{@route | id: other_route_id}
+      ]
+
+      trips = [
+        %{@trip | alternate_route: false},
+        %{
+          @trip
+          | alternate_route: true,
+            route_id: other_route_id
+        }
+      ]
+
+      schedules = [
+        @schedule
+      ]
+
+      State.Route.new_state(routes)
+      State.Trip.new_state(trips)
+      Schedule.new_state(schedules)
+      State.RoutesPatternsAtStop.update!()
+
+      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [@route.id]})) == [
+               @schedule
+             ]
+
+      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [other_route_id]})) == [
+               @schedule
+             ]
+    end
+
     test "filters on :stops and :routes" do
       params = %{stops: [@stop.id], routes: [@route.id]}
       assert Schedule.filter_by(params) == [@schedule]
