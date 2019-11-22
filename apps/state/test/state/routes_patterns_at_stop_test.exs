@@ -67,6 +67,10 @@ defmodule State.RoutesPatternsAtStopTest do
       State.Shape.new_state([shape])
       update!()
       assert routes_by_stop_and_direction("stop", direction_id: 1) == []
+
+      assert routes_by_stop_and_direction("stop", direction_id: 1, ignore?: false) == [
+               @trip.route_id
+             ]
     end
   end
 
@@ -101,6 +105,10 @@ defmodule State.RoutesPatternsAtStopTest do
       State.Shape.new_state([shape])
       update!()
       assert route_patterns_by_stop_and_direction("stop", direction_id: 1) == []
+
+      assert route_patterns_by_stop_and_direction("stop", direction_id: 1, ignore?: false) == [
+               @trip.route_pattern_id
+             ]
     end
   end
 
