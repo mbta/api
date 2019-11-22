@@ -41,11 +41,11 @@ defmodule ApiUmbrella.Mixfile do
   defp deps do
     # Static analysis and style checking
     [
-      {:credo, ">= 0.0.0", only: [:dev, :test]},
+      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
       # Test coverage reporting on coveralls.io
       {:excoveralls, "~> 0.5", only: :test},
       # Generate docs with `mix docs`
-      {:ex_doc, "~> 0.20", only: [:dev, :test]}
+      {:ex_doc, "~> 0.20", only: [:dev, :test], runtime: false}
     ]
   end
 
