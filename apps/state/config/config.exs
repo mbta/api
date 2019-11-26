@@ -36,6 +36,10 @@ config :state, :shape,
     "830_0003" => -1,
     # Green-C (Lechmere)
     "830_0004" => -1,
+    # Green-C (Lechmere)
+    "830_0005" => -1,
+    # Green-C (Lechmere)
+    "830_0006" => -1,
     # Green-C (Park)
     "833t0001" => -1,
     # Green-C (Park)
