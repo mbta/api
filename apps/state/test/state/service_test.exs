@@ -36,7 +36,10 @@ defmodule State.ServiceTest do
         description: "description",
         schedule_name: "name",
         schedule_type: "type",
-        schedule_typicality: 1
+        schedule_typicality: 1,
+        rating_start_date: ~D[2018-12-22],
+        rating_end_date: ~D[2019-03-14],
+        rating_description: "Winter"
       }
     ]
 
@@ -69,7 +72,10 @@ defmodule State.ServiceTest do
       added_dates: [Timex.today()],
       added_dates_notes: ["This Code's Birthday"],
       removed_dates: [Timex.shift(Timex.today(), days: 1)],
-      removed_dates_notes: [nil]
+      removed_dates_notes: [nil],
+      rating_start_date: ~D[2018-12-22],
+      rating_end_date: ~D[2019-03-14],
+      rating_description: "Winter"
     }
 
     assert State.Service.by_id("service") == service
@@ -147,7 +153,10 @@ defmodule State.ServiceTest do
         description: nil,
         schedule_name: nil,
         schedule_type: nil,
-        schedule_typicality: nil
+        schedule_typicality: nil,
+        rating_start_date: nil,
+        rating_end_date: nil,
+        rating_description: nil
       }
     ]
 
@@ -166,7 +175,10 @@ defmodule State.ServiceTest do
              added_dates: [],
              added_dates_notes: [],
              removed_dates: [],
-             removed_dates_notes: []
+             removed_dates_notes: [],
+             rating_start_date: nil,
+             rating_end_date: nil,
+             rating_description: nil
            }
   end
 end
