@@ -1,5 +1,6 @@
 defmodule StateTest do
   use ExUnit.Case
+  use ExUnitProperties
   doctest State, only: [all: 2]
 
   @items for i <- 1..10, do: %{id: i}
@@ -92,9 +93,9 @@ defmodule StateTest do
     test "sorts by time" do
       items = [
         %{arrival_time: nil, departure_time: nil},
-        %{arrival_time: DateTime.from_unix(1_000), departure_time: nil},
-        %{arrival_time: nil, departure_time: DateTime.from_unix(2_000)},
-        %{arrival_time: DateTime.from_unix(3_000), departure_time: DateTime.from_unix(4_000)}
+        %{arrival_time: DateTime.from_unix!(1_000), departure_time: nil},
+        %{arrival_time: nil, departure_time: DateTime.from_unix!(2_000)},
+        %{arrival_time: DateTime.from_unix!(3_000), departure_time: DateTime.from_unix!(4_000)}
       ]
 
       shuffled_items = Enum.shuffle(items)
@@ -109,6 +110,17 @@ defmodule StateTest do
       ]
 
       assert State.order_by(items, order_by: [time: :asc]) == {:error, :invalid_order_by}
+    end
+
+    property "sorting by time always works properly" do
+      check all(times <- list_of(integer())) do
+        items = for time <- times, do: %{arrival_time: DateTime.from_unix!(time)}
+
+        expected = Enum.sort_by(items, &DateTime.to_unix(&1.arrival_time))
+        actual = State.order_by(items, order_by: [time: :asc])
+
+        assert expected == actual
+      end
     end
 
     test "can sort by multiple keys" do
