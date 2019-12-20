@@ -217,12 +217,20 @@ defmodule State do
     nil
   end
 
-  defp time(%{arrival_time: nil, departure_time: time}) do
+  defp time(%{arrival_time: nil, departure_time: %DateTime{} = time}) do
     {:date_time, DateTime.to_unix(time)}
   end
 
-  defp time(%{arrival_time: time}) do
+  defp time(%{arrival_time: %DateTime{} = time}) do
     {:date_time, DateTime.to_unix(time)}
+  end
+
+  defp time(%{arrival_time: nil, departure_time: time}) do
+    {:seconds, time}
+  end
+
+  defp time(%{arrival_time: time}) do
+    {:seconds, time}
   end
 
   defp fetch_float(opts_map, key) do

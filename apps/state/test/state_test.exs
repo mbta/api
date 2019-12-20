@@ -112,11 +112,22 @@ defmodule StateTest do
       assert State.order_by(items, order_by: [time: :asc]) == {:error, :invalid_order_by}
     end
 
-    property "sorting by time always works properly" do
+    property "sorting by time always works properly for datetimes" do
       check all(times <- list_of(integer())) do
         items = for time <- times, do: %{arrival_time: DateTime.from_unix!(time)}
 
         expected = Enum.sort_by(items, &DateTime.to_unix(&1.arrival_time))
+        actual = State.order_by(items, order_by: [time: :asc])
+
+        assert expected == actual
+      end
+    end
+
+    property "sorting by time always works properly for seconds_past_midnight" do
+      check all(times <- list_of(integer())) do
+        items = for time <- times, do: %{arrival_time: time}
+
+        expected = Enum.sort_by(items, & &1.arrival_time)
         actual = State.order_by(items, order_by: [time: :asc])
 
         assert expected == actual
