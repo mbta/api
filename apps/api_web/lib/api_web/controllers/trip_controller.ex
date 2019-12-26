@@ -268,6 +268,7 @@ defmodule ApiWeb.TripController do
       | `shape`         | The shape of the trip. |
       | `route_pattern` | The route pattern for the trip. |
       | `predictions`   | Predictions of when the `vehicle` on this `trip` will arrive at or depart from each stop on the route(s) on the `trip`. |
+      | `stops`         | The stops this trips goes through. |
       """
     )
   end
