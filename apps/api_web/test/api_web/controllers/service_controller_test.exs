@@ -16,7 +16,10 @@ defmodule ApiWeb.ServiceControllerTest do
         schedule_type: "Weekday",
         schedule_typicality: 1,
         added_dates: [~D[2018-12-29], ~D[2018-12-30]],
-        removed_dates: [~D[2019-01-01]]
+        removed_dates: [~D[2019-01-01]],
+        rating_start_date: ~D[2018-12-22],
+        rating_end_date: ~D[2019-03-14],
+        rating_description: "Winter"
       },
       %Service{
         id: "2",
@@ -28,7 +31,10 @@ defmodule ApiWeb.ServiceControllerTest do
         schedule_type: nil,
         schedule_typicality: 0,
         added_dates: [~D[2019-01-13]],
-        removed_dates: []
+        removed_dates: [],
+        rating_start_date: nil,
+        rating_end_date: nil,
+        rating_description: nil
       }
     ])
 

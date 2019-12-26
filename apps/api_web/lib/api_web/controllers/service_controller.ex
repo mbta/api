@@ -163,6 +163,29 @@ defmodule ApiWeb.ServiceController do
               enum: Enum.to_list(0..5),
               example: 1
             )
+
+            rating_start_date(
+              :string,
+              "Earliest date which is a part of the rating (season) which contains this service. Format is ISO8601.",
+              "x-nullable": true,
+              format: :date,
+              example: "2018-12-22"
+            )
+
+            rating_end_date(
+              :string,
+              "Latest date which is a part of the rating (season) which contains this service. Format is ISO8601.",
+              "x-nullable": true,
+              format: :date,
+              example: "2019-03-14"
+            )
+
+            rating_description(
+              :string,
+              "Human-readable description of the rating (season), as it should appear on public-facing websites and applications.",
+              "x-nullable": true,
+              example: "Winter"
+            )
           end
 
           array_attribute(

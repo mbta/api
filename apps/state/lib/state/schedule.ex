@@ -188,12 +188,12 @@ defmodule State.Schedule do
   defp build_filter_matchers(%{stops: stops, trips: trips} = filters) do
     stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
 
-    all_trips = State.Trip.by_ids(trips)
+    all_trips = State.Trip.by_primary_ids(trips)
     routes_from_trips = MapSet.new(all_trips, & &1.route_id)
 
     filtered_routes =
       stops
-      |> State.RoutesPatternsAtStop.routes_by_stops_and_direction()
+      |> State.RoutesPatternsAtStop.routes_by_stops_and_direction(ignore?: false)
       |> MapSet.new()
       |> MapSet.intersection(routes_from_trips)
 
