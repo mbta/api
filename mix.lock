@@ -1,7 +1,7 @@
 %{
   "artificery": {:hex, :artificery, "0.4.2", "3ded6e29e13113af52811c72f414d1e88f711410cac1b619ab3a2666bbd7efd4", [:mix], [], "hexpm"},
   "bamboo": {:git, "https://github.com/mbta/bamboo.git", "6ae35dedf757ca53c92167779a6c5a7292dc6b73", [ref: "6ae35de"]},
-  "bcrypt_elixir": {:hex, :bcrypt_elixir, "2.0.3", "64e0792d5b5064391927bf3b8e436994cafd18ca2d2b76dea5c76e0adcf66b7c", [:make, :mix], [{:comeonin, "~> 5.1", [hex: :comeonin, repo: "hexpm", optional: false]}, {:elixir_make, "~> 0.4", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
+  "bcrypt_elixir": {:hex, :bcrypt_elixir, "2.1.0", "84810266a9b5c6345624e335e4091556d45c876a5a1957b0d67800a1e8fd750f", [:make, :mix], [{:comeonin, "~> 5.2", [hex: :comeonin, repo: "hexpm", optional: false]}, {:elixir_make, "~> 0.5", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
   "benchfella": {:hex, :benchfella, "0.3.5", "b2122c234117b3f91ed7b43b6e915e19e1ab216971154acd0a80ce0e9b8c05f5", [:mix], [], "hexpm"},
   "benchwarmer": {:hex, :benchwarmer, "0.0.2", "902e5c020608647b07c38b82103e4af6d2667dfd5d5d13c67382238de6943136", [:mix], [], "hexpm"},
   "bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], [], "hexpm"},
