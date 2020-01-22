@@ -60,6 +60,12 @@ defmodule Parse.CommuterRailDepartures.JSON do
   defp vehicle_id(%{"vehicle" => %{"id" => id}}), do: id
   defp vehicle_id(_), do: nil
 
+  defp best_schedule_relationship(relationship, update)
+
+  defp best_schedule_relationship(:cancelled = relationship, _update) do
+    relationship
+  end
+
   defp best_schedule_relationship(relationship, update) do
     if update_relationship = schedule_relationship(Map.get(update, "schedule_relationship")) do
       update_relationship
