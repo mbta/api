@@ -128,6 +128,14 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
       assert %Model.Prediction{schedule_relationship: :skipped} = actual
     end
 
+    test "prefers CANCELLED statuses to SKIPPED" do
+      update = put_in(@update["schedule_relationship"], "SKIPPED")
+      base = %{@base | schedule_relationship: :cancelled}
+      actual = prediction(update, base)
+
+      assert %Model.Prediction{schedule_relationship: :cancelled} = actual
+    end
+
     test "handles various cases of missing time" do
       for departure <- [
             nil,
