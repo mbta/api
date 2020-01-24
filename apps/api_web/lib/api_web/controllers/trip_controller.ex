@@ -20,7 +20,7 @@ defmodule ApiWeb.TripController do
     get(path(__MODULE__, :index))
 
     description("""
-    **NOTE:** A filter **MUST** be present for any trips to be returned.
+    **NOTE:** A id, route, route_pattern, or name filter **MUST** be present for any trips to be returned.
 
     List of trips, the journies of a particular vehicle through a set of stops on a primary `route` and zero or more \
     alternative `route`s that can be filtered on.
@@ -38,7 +38,7 @@ defmodule ApiWeb.TripController do
       "filter[route_pattern]",
       :query,
       :string,
-      "Filter by route patern IDs #{comma_separated_list()}.",
+      "Filter by route pattern IDs #{comma_separated_list()}.",
       example: "Red-1-0,Red-1-1"
     )
 
