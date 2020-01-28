@@ -145,6 +145,24 @@ config :state, :stops_on_route,
     ]
   },
   not_on_route: %{
+    {"CR-Franklin", 0} => [
+      "place-DB-2265",
+      "place-DB-2258",
+      "place-DB-2249",
+      "place-DB-2240",
+      "place-DB-2230",
+      "place-DB-2222",
+      "place-DB-2205"
+    ],
+    {"CR-Franklin", 1} => [
+      "place-DB-2265",
+      "place-DB-2258",
+      "place-DB-2249",
+      "place-DB-2240",
+      "place-DB-2230",
+      "place-DB-2222",
+      "place-DB-2205"
+    ],
     {"CR-Fairmount", 0} => [
       "place-FB-0166",
       "place-FB-0148",
