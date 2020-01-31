@@ -66,6 +66,7 @@ defmodule ApiWeb.PredictionViewTest do
     State.Stop.new_state(@stops)
     State.Trip.new_state(@trips)
     State.Schedule.new_state([@associated_schedule, @other_schedule])
+    State.RoutesPatternsAtStop.update!()
     :ok
   end
 
