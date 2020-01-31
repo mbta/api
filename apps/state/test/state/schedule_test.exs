@@ -401,6 +401,7 @@ defmodule State.ScheduleTest do
 
     setup do
       State.Schedule.new_state(@schedules)
+      State.RoutesPatternsAtStop.update!()
     end
 
     test "returns the schedule that has the same {trip, stop, stop_sequence}" do
@@ -498,6 +499,7 @@ defmodule State.ScheduleTest do
       ])
 
       State.Schedule.new_state([@schedule1, @schedule2])
+      State.RoutesPatternsAtStop.update!()
     end
 
     test "returns schedules for multiple predictions" do
