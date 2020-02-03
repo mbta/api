@@ -86,7 +86,7 @@ defmodule ApiWeb.SwaggerHelpers do
       :query,
       :string,
       """
-      Filter by direction of travel along the route.
+      Filter by direction of travel along the route. Must be used in conjuction with `filter[route]` to apply.
 
       #{direction_id_description()}
 
