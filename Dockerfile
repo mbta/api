@@ -23,5 +23,38 @@ RUN mix local.hex --force && \
 
 ENV MIX_ENV=prod
 
-ADD . .
-RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest, distillery.release --verbose
+ADD apps apps
+ADD config config
+ADD mix.* /root/
+
+RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest
+
+ADD rel/ rel/
+
+RUN elixir --erl "-smp enable" /usr/local/bin/mix distillery.release --verbose
+
+ADD rel rel
+
+# The one the elixir image was built with
+FROM debian:stretch
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		libssl1.1 libsctp1 curl dumb-init \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root
+
+COPY --from=builder /root/_build/prod/rel/api_web /root/rel
+COPY --from=builder /root/rel/bin/startup /root/rel/bin/
+
+# Set exposed ports
+EXPOSE 4000
+ENV PORT=4000 MIX_ENV=prod TERM=xterm LANG=C.UTF-8 REPLACE_OS_VARS=true
+
+RUN mkdir /root/work
+
+WORKDIR /root/work
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+CMD ["/root/rel/bin/startup", "foreground"]
