@@ -6,6 +6,7 @@ apps/*/node_modules
 apps/*/test
 cache
 rel
+!rel/bin/startup
 !rel/config.exs
 !rel/vm.args
 erl_crash.dump
