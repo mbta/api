@@ -56,7 +56,8 @@ defmodule ApiAccounts.Mixfile do
      {:comeonin, "~> 5.1"},
      {:bcrypt_elixir, "~> 2.0"},
      {:uuid, "~> 1.1"},
-     {:bamboo, github: "mbta/bamboo", ref: "6ae35de"}]
+     {:bamboo, "~> 1.0"},
+     {:bamboo_ses, "~> 0.1.0"}]
   end
 
   defp docs, do: [extras: extras()]
