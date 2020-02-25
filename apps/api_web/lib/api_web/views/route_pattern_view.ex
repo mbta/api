@@ -1,7 +1,10 @@
 defmodule ApiWeb.RoutePatternView do
   use ApiWeb.Web, :api_view
 
-  location("/route_patterns/:id")
+  location(:route_pattern_location)
+
+  def route_pattern_location(route_pattern, conn),
+    do: route_pattern_path(conn, :show, route_pattern.id)
 
   has_one(
     :route,

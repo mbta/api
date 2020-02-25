@@ -8,7 +8,7 @@ defmodule ApiWeb.EventStream.DiffServerTest do
   @moduletag timeout: 5_000
 
   setup %{conn: conn} do
-    State.Route.new_state([%Model.Route{}])
+    State.Route.new_state([%Model.Route{id: "diff_test"}])
 
     conn =
       conn

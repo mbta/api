@@ -13,7 +13,9 @@ defmodule ApiWeb.TripView do
 
   alias State.{Prediction, RoutePattern, Schedule, Service, Shape, Stop, Vehicle}
 
-  location("/trips/:id")
+  location(:trip_location)
+
+  def trip_location(trip, conn), do: trip_path(conn, :show, trip.id)
 
   attributes([:name, :headsign, :direction_id, :wheelchair_accessible, :block_id, :bikes_allowed])
 

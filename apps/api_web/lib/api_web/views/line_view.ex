@@ -1,7 +1,9 @@
 defmodule ApiWeb.LineView do
   use ApiWeb.Web, :api_view
 
-  location("/lines/:id")
+  location(:line_location)
+
+  def line_location(line, conn), do: line_path(conn, :show, line.id)
 
   # no cover
   attributes([

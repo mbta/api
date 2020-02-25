@@ -322,7 +322,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "sort_order" => 101
                },
                "links" => %{
-                 "self" => "/route_patterns/route pattern id"
+                 "self" => "/route_patterns/route%20pattern%20id"
                },
                "relationships" => %{
                  "route" => %{

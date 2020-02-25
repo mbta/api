@@ -1,7 +1,9 @@
 defmodule ApiWeb.VehicleView do
   use ApiWeb.Web, :api_view
 
-  location("/vehicles/:id")
+  location(:vehicle_location)
+
+  def vehicle_location(vehicle, conn), do: vehicle_path(conn, :show, vehicle.id)
 
   attributes([
     :direction_id,

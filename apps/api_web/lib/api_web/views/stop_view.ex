@@ -2,7 +2,9 @@ defmodule ApiWeb.StopView do
   use ApiWeb.Web, :api_view
   alias ApiWeb.Params
   import ApiWeb.StopController, only: [filters: 0]
-  location("/stops/:url_safe_id")
+  location(:stop_location)
+
+  def stop_location(stop, conn), do: stop_path(conn, :show, stop.id)
 
   attributes([
     :name,

@@ -1,7 +1,9 @@
 defmodule ApiWeb.ServiceView do
   use ApiWeb.Web, :api_view
 
-  location("/services/:id")
+  location(:service_location)
+
+  def service_location(service, conn), do: service_path(conn, :show, service.id)
 
   attributes([
     :start_date,
