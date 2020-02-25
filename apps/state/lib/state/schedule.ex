@@ -30,7 +30,9 @@ defmodule State.Schedule do
            optional(:trips) => [Model.Trip.id()],
            optional(:direction_id) => Model.Direction.id(),
            optional(:stops) => [Model.Stop.id()],
-           optional(:date) => Date.t()
+           optional(:date) => Date.t(),
+           optional(:min_time) => non_neg_integer,
+           optional(:max_time) => non_neg_integer
          }
 
   @typep min_time :: non_neg_integer
@@ -77,11 +79,12 @@ defmodule State.Schedule do
   """
   @spec filter_by(filter_opts) :: [Schedule.t()]
   def filter_by(filters) do
-    filters
-    |> convert_filters()
+    converted = convert_filters(filters)
+
+    converted
     |> build_filter_matchers()
-    |> do_filtered_search(filters)
-    |> do_post_search_filter(filters)
+    |> do_filtered_search(converted)
+    |> do_post_search_filter(converted)
   end
 
   # Only for tests
@@ -164,15 +167,16 @@ defmodule State.Schedule do
     # Routes have priority for filtering on trip ids
     # Modify :trips in the filters with the trip ids based on the route ids
 
-    trips_ids =
+    trip_ids =
       filters
       |> Map.take([:routes, :direction_id, :date])
       |> State.Trip.filter_by()
       |> Enum.map(& &1.id)
 
+    # keep direction_id, as we can use that if there's also a stop filter
     filters
-    |> Map.delete(:routes)
-    |> Map.put(:trips, trips_ids)
+    |> Map.drop([:routes, :date])
+    |> Map.put(:trips, trip_ids)
     |> convert_filters()
   end
 
@@ -255,7 +259,7 @@ defmodule State.Schedule do
   end
 
   # Performs the search on the given index and matchers
-  @spec do_filtered_search(search, filter_opts) :: [Schedule.t()]
+  @spec do_filtered_search(search, convert_filters) :: [Schedule.t()]
   defp do_filtered_search(
          %{index: index, matchers: [_ | _] = matchers},
          filters
@@ -268,7 +272,7 @@ defmodule State.Schedule do
   defp do_filtered_search(_, _), do: []
 
   # Filters schedules for a given service date
-  @spec do_service_date_filter([Schedule.t()], filter_opts) :: [Schedule.t()]
+  @spec do_service_date_filter([Schedule.t()], convert_filters) :: [Schedule.t()]
   defp do_service_date_filter(schedules, %{date: %Date{} = date}) do
     Enum.filter(schedules, &State.ServiceByDate.valid?(&1.service_id, date))
   end
@@ -277,7 +281,7 @@ defmodule State.Schedule do
 
   # Apply any filters after a completed search. Currently, only a time window
   # filter is supported
-  @spec do_post_search_filter([Schedule.t()], filter_opts) :: [Schedule.t()]
+  @spec do_post_search_filter([Schedule.t()], convert_filters) :: [Schedule.t()]
   defp do_post_search_filter(schedules, %{min_time: min, max_time: max}) do
     do_time_filter(schedules, min, max)
   end
