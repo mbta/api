@@ -10,6 +10,8 @@ defmodule ApiWeb.ApiViewHelpers do
 
   defmacro __using__(_) do
     quote do
+      import ApiWeb.Router.Helpers, except: [url: 1]
+
       import ApiWeb.ApiViewHelpers,
         only: [
           optional_relationship: 4,

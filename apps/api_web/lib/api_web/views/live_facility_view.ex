@@ -4,7 +4,9 @@ defmodule ApiWeb.LiveFacilityView do
   """
   use ApiWeb.Web, :api_view
 
-  location("/live_facilities/:id")
+  location(:live_facility_location)
+
+  def live_facility_location(lf, conn), do: live_facility_path(conn, :show, lf.facility_id)
 
   has_one(
     :facility,

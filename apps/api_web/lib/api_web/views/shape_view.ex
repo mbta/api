@@ -4,7 +4,9 @@ defmodule ApiWeb.ShapeView do
   alias ApiWeb.{RouteView, StopView}
   alias State.{Stop, StopsOnRoute}
 
-  location("/shapes/:id")
+  location(:shape_location)
+
+  def shape_location(shape, conn), do: shape_path(conn, :show, shape.id)
 
   attributes([:name, :direction_id, :polyline, :priority])
 

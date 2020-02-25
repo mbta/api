@@ -6,7 +6,9 @@ defmodule ApiWeb.AlertView do
 
   alias State.{Facility, Route, Stop, Trip}
 
-  location("/alerts/:id")
+  location(:alert_location)
+
+  def alert_location(alert, conn), do: alert_path(conn, :show, alert.id)
 
   attributes([
     :header,

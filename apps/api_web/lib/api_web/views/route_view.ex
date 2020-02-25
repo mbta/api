@@ -1,7 +1,9 @@
 defmodule ApiWeb.RouteView do
   use ApiWeb.Web, :api_view
 
-  location("/routes/:id")
+  location(:route_location)
+
+  def route_location(route, conn), do: route_path(conn, :show, route.id)
 
   has_one(
     :line,

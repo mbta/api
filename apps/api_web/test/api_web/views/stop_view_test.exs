@@ -56,7 +56,7 @@ defmodule ApiWeb.StopViewTest do
         |> Phoenix.Controller.put_view(StopView)
         |> ApiWeb.ApiControllerHelpers.split_include([])
 
-      stop = %Stop{}
+      stop = %Stop{id: "show"}
       rendered = render(StopView, "show.json-api", data: stop, conn: conn)
       refute rendered["data"]["relationships"]["route"]
     end
