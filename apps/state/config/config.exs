@@ -3,10 +3,11 @@
 use Mix.Config
 
 config :state, :route_pattern,
-  ignore_overrides: %{
+  ignore_override_prefixes: %{
     # don't ignore Foxboro via Fairmount trips
     "CR-Franklin-3-0" => false,
-    "CR-Franklin-3-1" => false
+    "CR-Franklin-3-1" => false,
+    "CR-Franklin-Foxboro-" => false
   }
 
 config :state, :shape,

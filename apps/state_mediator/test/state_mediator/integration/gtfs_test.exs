@@ -309,11 +309,11 @@ defmodule StateMediator.Integration.GtfsTest do
     test "Providence/Stoughton has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Providence")
 
-      assert [%{name: "South Station - Wickford Junction"}, %{name: "South Station - Stoughton"}] =
-               shapes_0
+      shape_0_names = shapes_0 |> Enum.map(& &1.name) |> Enum.sort()
+      assert shape_0_names == ["South Station - Stoughton", "South Station - Wickford Junction"]
 
-      assert [%{name: "Wickford Junction - South Station"}, %{name: "Stoughton - South Station"}] =
-               shapes_1
+      shape_1_names = shapes_1 |> Enum.map(& &1.name) |> Enum.sort()
+      assert shape_1_names == ["Stoughton - South Station", "Wickford Junction - South Station"]
     end
 
     test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
