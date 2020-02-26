@@ -59,11 +59,27 @@ config :state, :shape,
     # Green-D (Lechmere),
     "840_0005" => -1,
     # Green-D (Lechmere)
+    "840_0008" => -1,
+    # Green-D (Lechmere)
+    "840_0009" => -1,
+    # Green-D (Lechmere)
     "850_0006" => -1,
     # Green-D (Lechmere)
     "850_0007" => -1,
+    # Green-D (Lechmere)
+    "850_0010" => -1,
+    # Green-D (Lechmere)
+    "850_0011" => -1,
     # Green-D (North Station)
     "851_0008" => -1,
+    # Green-D (North Station)
+    "851_0010" => -1,
+    # Green-D (Newton Highlands)
+    "858_0002" => -1,
+    # Green-D (Newton Highlands)
+    "858t0001" => -1,
+    # Green-D (Newton Highlands)
+    "858t0002" => -1,
 
     # Order the Red Line Ashmont first, and change the northbound names to
     # the names of the branch.
