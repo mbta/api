@@ -36,8 +36,8 @@ defmodule State.Helpers do
   def ignore_trip_route_pattern?(trip)
 
   for {route_pattern_id, ignore?} <-
-        Application.get_env(:state, :route_pattern)[:ignore_overrides] do
-    def ignore_trip_route_pattern?(%Trip{route_pattern_id: unquote(route_pattern_id)}),
+        Application.get_env(:state, :route_pattern)[:ignore_override_prefixes] do
+    def ignore_trip_route_pattern?(%Trip{route_pattern_id: unquote(route_pattern_id) <> _}),
       do: unquote(ignore?)
   end
 

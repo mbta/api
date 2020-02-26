@@ -71,6 +71,40 @@ defmodule State.ShapeTest do
       assert Enum.empty?(by_id("no_matching_trip"))
     end
 
+    test "when one shape has many route patterns, uses earliest sorted route pattern" do
+      polylines = [%Polyline{id: "shape"}]
+
+      patterns = [
+        %RoutePattern{id: "rp1", name: "origin - variant", typicality: 3, sort_order: 100},
+        %RoutePattern{id: "rp2", name: "origin - variant", typicality: 1, sort_order: 99}
+      ]
+
+      trips = [
+        %Trip{
+          id: "1",
+          route_id: "1",
+          headsign: "headsign",
+          shape_id: "shape",
+          route_pattern_id: "rp1"
+        },
+        %Trip{
+          id: "2",
+          route_id: "1",
+          headsign: "headsign",
+          shape_id: "shape",
+          route_pattern_id: "rp2"
+        }
+      ]
+
+      State.Trip.new_state(trips)
+      State.RoutePattern.new_state(patterns)
+      State.Shape.new_state(polylines)
+
+      assert by_id("shape") == [
+               %Model.Shape{id: "shape", route_id: "1", name: "origin - variant", priority: 3}
+             ]
+    end
+
     test "uses full pattern name if a hyphen isn't present" do
       polylines = [
         %Polyline{id: "shape"}

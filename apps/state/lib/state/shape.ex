@@ -96,7 +96,11 @@ defmodule State.Shape do
   end
 
   defp shape_from_polyline(%Polyline{} = polyline, trips) do
-    trip = Enum.find(trips, &(Model.Trip.primary?(&1) && &1.route_pattern_id))
+    trip =
+      trips
+      |> Enum.filter(&(Model.Trip.primary?(&1) && &1.route_pattern_id))
+      |> Enum.min_by(&State.RoutePattern.by_id(&1.route_pattern_id).sort_order, fn -> nil end)
+
     shape_from_trips_for_polyline(polyline, trip, trips)
   end
 
