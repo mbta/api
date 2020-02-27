@@ -32,7 +32,7 @@ defmodule State.HelpersTest do
     end
 
     test "allows overriding the ignore value" do
-      route_pattern_id = "CR-Franklin-3-0"
+      route_pattern_id = "CR-Franklin-Foxboro-extra-chars"
 
       refute ignore_trip_route_pattern?(%Trip{
                route_pattern_id: route_pattern_id,
