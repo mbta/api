@@ -74,7 +74,7 @@ defmodule ApiWeb.ApiControllerHelpers do
     opts =
       conn
       |> ApiControllerHelpers.opts_for_params(params)
-      |> Keyword.put(:page, pagination_links)
+      |> Map.put(:page, pagination_links)
 
     render(conn, "index.json-api", data: data, opts: opts)
   end
@@ -123,10 +123,10 @@ defmodule ApiWeb.ApiControllerHelpers do
   def opts_for_params(conn, params) when is_map(params) do
     fields = filter_valid_field_params(conn, Map.get(params, "fields"))
 
-    [
+    %{
       include: Map.get(params, "include"),
       fields: fields
-    ]
+    }
   end
 
   @doc """

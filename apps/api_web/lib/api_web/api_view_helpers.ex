@@ -56,7 +56,7 @@ defmodule ApiWeb.ApiViewHelpers do
     args =
       assigns
       |> Map.put(:serializer, serializer)
-      |> Map.put_new(:opts, [])
+      |> Map.put_new(:opts, %{})
 
     builder = JaSerializer.Builder.build(args)
 
