@@ -30,37 +30,34 @@ defmodule ApiWeb.ScheduleView do
   ])
 
   def attributes(schedule, conn) do
-    opts = Map.get(conn.assigns, :opts, [])
-
     fields =
-      case Keyword.get(opts, :fields) do
-        %{"schedule" => fields} ->
+      case conn.assigns do
+        %{opts: %{fields: %{"schedule" => fields}}} ->
           fields
 
         _ ->
-          Map.keys(inlined_attributes_map(schedule, conn))
+          false
       end
 
-    base =
-      schedule
-      |> Map.put(:timepoint, schedule.timepoint?)
-      |> Map.take(fields)
+    base = %{
+      stop_sequence: schedule.stop_sequence,
+      pickup_type: schedule.pickup_type,
+      drop_off_type: schedule.drop_off_type,
+      timepoint: schedule.timepoint?,
+      direction_id: schedule.direction_id
+    }
 
     base =
-      case base do
-        %{arrival_time: time} ->
-          Map.put(base, :arrival_time, format_time(time, conn))
-
-        _ ->
-          base
-      end
-
-    case base do
-      %{departure_time: time} ->
-        Map.put(base, :departure_time, format_time(time, conn))
-
-      _ ->
+      if fields == false or :arrival_time in fields do
+        Map.put(base, :arrival_time, format_time(schedule.arrival_time, conn))
+      else
         base
+      end
+
+    if fields == false or :departure_time in fields do
+      Map.put(base, :departure_time, format_time(schedule.departure_time, conn))
+    else
+      base
     end
   end
 
@@ -93,11 +90,7 @@ defmodule ApiWeb.ScheduleView do
     State.Prediction.prediction_for(schedule, date)
   end
 
-  defp format_time(nil, _) do
-    nil
-  end
-
-  defp format_time(seconds, conn) do
+  defp format_time(seconds, conn) when is_integer(seconds) do
     conn.assigns
     |> case do
       %{date_seconds: date_seconds} -> date_seconds
@@ -105,5 +98,9 @@ defmodule ApiWeb.ScheduleView do
     end
     |> DateHelpers.add_seconds_to_date(seconds)
     |> DateTime.to_iso8601()
+  end
+
+  defp format_time(nil, _) do
+    nil
   end
 end

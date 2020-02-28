@@ -47,9 +47,15 @@ defmodule ApiWeb.ScheduleViewTest do
     conn =
       conn
       |> assign(:date, ~D[2016-11-05])
-      |> assign(:opts, fields: %{"schedule" => []})
+      |> assign(:opts, %{fields: %{"schedule" => []}})
 
-    rendered = render(ApiWeb.ScheduleView, "index.json-api", data: @schedule, conn: conn)
+    rendered =
+      render(ApiWeb.ScheduleView, "index.json-api",
+        data: @schedule,
+        conn: conn,
+        opts: conn.assigns.opts
+      )
+
     assert rendered["data"]["attributes"] == %{}
   end
 
@@ -82,7 +88,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
       prediction_id =
         ApiWeb.ScheduleView
-        |> render("index.json-api", data: @schedule, conn: conn, opts: [include: "prediction"])
+        |> render("index.json-api", data: @schedule, conn: conn, opts: %{include: "prediction"})
         |> get_in(["data", "relationships", "prediction", "data", "id"])
 
       assert prediction_id == "prediction-trip-stop-1"
@@ -116,7 +122,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
       prediction =
         ApiWeb.ScheduleView
-        |> render("index.json-api", data: @schedule, conn: conn, opts: [])
+        |> render("index.json-api", data: @schedule, conn: conn, opts: %{})
         |> get_in(["data", "relationships", "prediction"])
 
       assert prediction == %{}
@@ -141,7 +147,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
       prediction =
         ApiWeb.ScheduleView
-        |> render("index.json-api", data: @schedule, conn: conn, opts: [include: "prediction"])
+        |> render("index.json-api", data: @schedule, conn: conn, opts: %{include: "prediction"})
         |> get_in(["data", "relationships", "prediction", "data"])
 
       refute prediction
