@@ -117,7 +117,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   describe "migrate_table/1" do
-    alias ApiAccounts.Test.{MigrationModel}
+    alias ApiAccounts.Test.MigrationModel
 
     setup do
       {:ok, _} = Dynamo.create_table(MigrationModel)
