@@ -205,6 +205,7 @@ defmodule StateMediator.Integration.GtfsTest do
                 direction_id: 0,
                 date: date
               }),
+            data != [],
             invalid?.(data) do
           date
         end
