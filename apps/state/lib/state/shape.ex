@@ -203,12 +203,12 @@ defmodule State.Shape do
 
   defp override_priorities_from_configuration(shapes) do
     config = Application.fetch_env!(:state, :shape)
-    overrides = config[:overrides]
+    prefix_overrides = config[:prefix_overrides]
     suffix_overrides = config[:suffix_overrides]
 
     shapes
     |> Enum.map(fn %{id: id} = shape ->
-      case find_override(id, overrides, suffix_overrides) do
+      case find_override(id, prefix_overrides, suffix_overrides) do
         nil ->
           shape
 
@@ -222,16 +222,19 @@ defmodule State.Shape do
     |> Enum.sort_by(& &1.priority, &>=/2)
   end
 
-  defp find_override(id, overrides, suffix_overrides) do
-    if priority = Map.get(overrides, id) do
-      priority
-    else
-      Enum.find_value(suffix_overrides, fn {suffix, priority} ->
-        if String.ends_with?(id, suffix) do
-          priority
-        end
-      end)
-    end
+  defp find_override(id, prefix_overrides, suffix_overrides) do
+    Enum.find_value(
+      [{&String.starts_with?/2, prefix_overrides}, {&String.ends_with?/2, suffix_overrides}],
+      fn {check_fn, overrides} ->
+        find_override_priority(check_fn, overrides, id)
+      end
+    )
+  end
+
+  defp find_override_priority(check_fn, overrides, id) when is_function(check_fn, 2) do
+    Enum.find_value(overrides, fn {check_value, priority} ->
+      if check_fn.(id, check_value), do: priority
+    end)
   end
 
   defp optional_byte_size(binary) when is_binary(binary), do: byte_size(binary)
