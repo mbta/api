@@ -11,7 +11,7 @@ config :state, :route_pattern,
   }
 
 config :state, :shape,
-  overrides: %{
+  prefix_overrides: %{
     # Green Line
     # Green-B (Lechmere)
     "810_0004" => -1,

@@ -14,7 +14,7 @@ defmodule StateTest do
   end
 
   test "config/2 returns configuration" do
-    assert is_map(State.config(:shape, :overrides))
+    assert is_map(State.config(:shape, :prefix_overrides))
   end
 
   test "config/2 raises when key is missing" do
