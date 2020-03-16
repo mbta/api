@@ -195,6 +195,18 @@ config :state, :stops_on_route,
       "place-FB-0143",
       "place-FB-0125",
       "place-FB-0109"
+    ],
+    {"Green-D", 0} => [
+      "place-lech",
+      "place-spmnl",
+      "place-north",
+      "place-haecl"
+    ],
+    {"`Green-D", 1} => [
+      "place-lech",
+      "place-spmnl",
+      "place-north",
+      "place-haecl"
     ]
   }
 
