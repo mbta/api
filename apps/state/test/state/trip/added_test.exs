@@ -102,6 +102,18 @@ defmodule State.Trip.AddedTest do
       insert_predictions(predictions)
       assert by_id(@trip_id) == []
     end
+
+    test "creates a trip even if the schedule relationship is nil" do
+      predictions = [
+        %{@prediction | schedule_relationship: nil, stop_id: "child"}
+      ]
+
+      insert_predictions(predictions)
+
+      assert [
+               %Model.Trip{}
+             ] = by_id(@trip_id)
+    end
   end
 
   describe "handle_event/4 with shapes" do

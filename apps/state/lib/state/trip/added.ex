@@ -27,7 +27,6 @@ defmodule State.Trip.Added do
   @spec build_state :: Enumerable.t()
   defp build_state do
     State.Prediction.all()
-    |> Stream.reject(&is_nil(&1.schedule_relationship))
     |> Stream.reject(&is_nil(&1.trip_id))
     |> Stream.reject(&is_nil(&1.stop_id))
     |> Stream.filter(&(State.Trip.by_id(&1.trip_id) == []))
