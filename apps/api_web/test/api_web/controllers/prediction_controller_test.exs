@@ -530,12 +530,21 @@ defmodule ApiWeb.PredictionControllerTest do
 
   test "if the trip id can generate an Added trip, it's returned when included",
        %{conn: conn} do
-    # need a stop ID to generate an Added trip
-    State.Prediction.new_state([%Prediction{trip_id: "green", stop_id: "1", route_id: "Red"}])
-    conn = get(conn, "/predictions", filter: %{"route" => "Red"}, include: "trip")
-    response = json_response(conn, 200)
+    # run it 100 times since it's a race condition between State.Prediction and State.Trip.Added
+    for _ <- 0..100 do
+      State.Prediction.new_state([])
+      # wait for State,Trip.Added to clear
+      State.Trip.Added.last_updated()
+      # need a stop ID to generate an Added trip
+      State.Prediction.new_state([
+        %Prediction{trip_id: "ADDED-1234", stop_id: "1", route_id: "Red"}
+      ])
 
-    assert [%{"type" => "trip", "id" => "green"}] = response["included"]
+      conn = get(conn, "/predictions", filter: %{"route" => "Red"}, include: "trip")
+      response = json_response(conn, 200)
+
+      assert [%{"type" => "trip"}] = response["included"]
+    end
   end
 
   test "When including trip and trip id does exist, behavior is normal", %{conn: conn} do
