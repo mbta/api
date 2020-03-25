@@ -30,6 +30,12 @@ defmodule State.Trip.AddedTest do
 
     State.Stop.new_state(stops)
     State.Route.new_state([route])
+
+    on_exit(fn ->
+      State.Stop.new_state([])
+      State.Route.new_state([])
+    end)
+
     :ok
   end
 
@@ -186,6 +192,38 @@ defmodule State.Trip.AddedTest do
       State.Shape.new_state([%{shape | priority: -1}])
       insert_predictions([prediction])
       assert [%{headsign: "Parent"}] = by_id(@trip_id)
+    end
+  end
+
+  describe "handle_event/4 with route patterns" do
+    setup do
+      trip_id = "scheduled_trip"
+
+      State.RoutePattern.new_state([
+        %Model.RoutePattern{id: @route_pattern_id, representative_trip_id: trip_id}
+      ])
+
+      State.Trip.new_state([
+        %Model.Trip{id: trip_id, route_id: @route_id, direction_id: 0, headsign: "Headsign"}
+      ])
+
+      State.Schedule.new_state([
+        %Model.Schedule{trip_id: trip_id, stop_sequence: 1, stop_id: "child"},
+        %Model.Schedule{trip_id: trip_id, stop_sequence: 2, stop_id: "shape"}
+      ])
+
+      State.StopsOnRoute.update!()
+
+      on_exit(fn ->
+        State.RoutePattern.new_state([])
+        State.Trip.new_state([])
+        State.Schedule.new_state([])
+      end)
+    end
+
+    test "if there's a matching route_pattern, use the representative trip" do
+      insert_predictions([%{@prediction | stop_id: "child"}])
+      assert [%{headsign: "Headsign"}] = by_id(@trip_id)
     end
   end
 end

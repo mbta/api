@@ -52,7 +52,31 @@ defmodule State.Trip.Added do
   end
 
   @spec prediction_to_trip({Trip.id(), Prediction.t()}) :: [Trip.t()]
-  defp prediction_to_trip({trip_id, prediction}) do
+  defp prediction_to_trip({trip_id, %{route_pattern_id: route_pattern_id} = prediction})
+       when is_binary(route_pattern_id) do
+    with %{representative_trip_id: rep_id} <- State.RoutePattern.by_id(route_pattern_id),
+         [trip | _] <- State.Trip.by_id(rep_id) do
+      [
+        %{
+          trip
+          | id: trip_id,
+            block_id: nil,
+            service_id: nil,
+            wheelchair_accessible: 0,
+            bikes_allowed: 0
+        }
+      ]
+    else
+      _ ->
+        prediction_based_on_shape(prediction)
+    end
+  end
+
+  defp prediction_to_trip({_trip_id, %{route_pattern_id: nil} = prediction}) do
+    prediction_based_on_shape(prediction)
+  end
+
+  defp prediction_based_on_shape(prediction) do
     stop =
       case State.Stop.by_id(prediction.stop_id) do
         %{parent_station: nil} = stop -> stop
@@ -63,8 +87,8 @@ defmodule State.Trip.Added do
     last_stop_id =
       [prediction.route_id]
       |> State.Shape.select_routes(prediction.direction_id)
-      |> Enum.filter(&(&1.route_id == prediction.route_id))
-      |> Enum.find_value(&last_stop_on_shape(&1, prediction, stop))
+      |> Stream.filter(&(&1.route_id == prediction.route_id))
+      |> Enum.find_value(&last_stop_id_on_shape(&1, prediction, stop))
 
     stop =
       if is_nil(last_stop_id) or last_stop_id == stop.id do
@@ -80,7 +104,7 @@ defmodule State.Trip.Added do
 
       [
         %Trip{
-          id: trip_id,
+          id: prediction.trip_id,
           route_id: prediction.route_id,
           route_pattern_id: prediction.route_pattern_id,
           direction_id: prediction.direction_id,
@@ -94,7 +118,7 @@ defmodule State.Trip.Added do
     end
   end
 
-  defp last_stop_on_shape(%{priority: p} = shape, prediction, stop) when p >= 0 do
+  defp last_stop_id_on_shape(%{priority: p} = shape, prediction, stop) when p >= 0 do
     shape_stops =
       State.StopsOnRoute.by_route_id(
         prediction.route_id,
@@ -103,12 +127,12 @@ defmodule State.Trip.Added do
         include_alternates?: false
       )
 
-    if Enum.any?(shape_stops, &(&1 == stop.id)) do
+    if Enum.any?(shape_stops, &(&1 in [stop.id, stop.parent_station])) do
       List.last(shape_stops)
     end
   end
 
-  defp last_stop_on_shape(_, _, _) do
+  defp last_stop_id_on_shape(_, _, _) do
     nil
   end
 end
