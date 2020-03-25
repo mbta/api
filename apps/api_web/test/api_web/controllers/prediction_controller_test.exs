@@ -528,6 +528,16 @@ defmodule ApiWeb.PredictionControllerTest do
     assert response["data"] == include_response["data"]
   end
 
+  test "if the trip id can generate an Added trip, it's returned when included",
+       %{conn: conn} do
+    # need a stop ID to generate an Added trip
+    State.Prediction.new_state([%Prediction{trip_id: "green", stop_id: "1", route_id: "Red"}])
+    conn = get(conn, "/predictions", filter: %{"route" => "Red"}, include: "trip")
+    response = json_response(conn, 200)
+
+    assert [%{"type" => "trip", "id" => "green"}] = response["included"]
+  end
+
   test "When including trip and trip id does exist, behavior is normal", %{conn: conn} do
     State.Prediction.new_state([%Prediction{trip_id: "green", route_id: "Red"}])
     State.Trip.new_state([%Trip{id: "green", route_id: "Red"}])
