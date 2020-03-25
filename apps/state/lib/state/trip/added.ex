@@ -26,10 +26,9 @@ defmodule State.Trip.Added do
 
   @spec build_state :: Enumerable.t()
   defp build_state do
-    State.Prediction.all()
-    |> Stream.reject(&is_nil(&1.trip_id))
-    |> Stream.reject(&is_nil(&1.stop_id))
-    |> Stream.filter(&(State.Trip.by_id(&1.trip_id) == []))
+    [%{trip_match?: false}]
+    |> State.Prediction.select()
+    |> Stream.reject(&(is_nil(&1.trip_id) or is_nil(&1.stop_id)))
     |> Enum.reduce(%{}, &last_stop_prediction/2)
     |> Stream.flat_map(&prediction_to_trip/1)
   end
@@ -49,8 +48,6 @@ defmodule State.Trip.Added do
 
   @spec prediction_to_trip({Trip.id(), Prediction.t()}) :: [Trip.t()]
   defp prediction_to_trip({trip_id, prediction}) do
-    route = State.Route.by_id(prediction.route_id)
-
     stop =
       case State.Stop.by_id(prediction.stop_id) do
         %{parent_station: nil} = stop -> stop
@@ -74,6 +71,8 @@ defmodule State.Trip.Added do
     if stop == nil do
       []
     else
+      route = State.Route.by_id(prediction.route_id)
+
       [
         %Trip{
           id: trip_id,
