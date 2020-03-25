@@ -28,6 +28,11 @@ defmodule State.Trip.Added do
   defp build_state do
     [%{trip_match?: false}]
     |> State.Prediction.select()
+    |> predictions_to_trips()
+  end
+
+  def predictions_to_trips(predictions) do
+    predictions
     |> Stream.reject(&(is_nil(&1.trip_id) or is_nil(&1.stop_id)))
     |> Enum.reduce(%{}, &last_stop_prediction/2)
     |> Stream.flat_map(&prediction_to_trip/1)

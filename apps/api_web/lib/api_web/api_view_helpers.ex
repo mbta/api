@@ -106,7 +106,15 @@ defmodule ApiWeb.ApiViewHelpers do
     data
   end
 
+  defp do_preload(data, fetch_fn, :trip) do
+    do_preload_for_key(data, fetch_fn, :trip, &preload_trip_fallback/1)
+  end
+
   defp do_preload(data, fetch_fn, key) do
+    do_preload_for_key(data, fetch_fn, key, nil)
+  end
+
+  defp do_preload_for_key(data, fetch_fn, key, fallback_fn) do
     id_key = String.to_existing_atom("#{key}_id")
 
     ids =
@@ -117,7 +125,33 @@ defmodule ApiWeb.ApiViewHelpers do
     bulk_children = Map.new(fetch_fn.(ids), &{&1.id, &1})
 
     for item <- data do
-      Map.put(item, key, Map.get(bulk_children, Map.get(item, id_key)))
+      child_id = Map.get(item, id_key)
+
+      child =
+        if child = Map.get(bulk_children, child_id) do
+          child
+        else
+          if is_nil(fallback_fn) do
+            nil
+          else
+            fallback_fn.(child_id)
+          end
+        end
+
+      Map.put(item, key, child)
+    end
+  end
+
+  defp preload_trip_fallback(trip_id) do
+    predictions = State.Prediction.by_trip_id(trip_id)
+
+    if predictions == [] do
+      nil
+    else
+      predictions
+      |> State.Trip.Added.predictions_to_trips()
+      |> Enum.take(1)
+      |> List.first()
     end
   end
 
