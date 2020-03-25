@@ -48,7 +48,7 @@ defmodule State.PredictionTest do
 
     new_state([@prediction])
 
-    assert by_route_id("alternate") == [%{@prediction | route_id: "alternate"}]
+    assert [%{route_id: "alternate"}] = by_route_id("alternate")
   end
 
   describe "filter_by_route_type/2" do
@@ -85,6 +85,28 @@ defmodule State.PredictionTest do
       }
 
       assert [%{direction_id: 1}] = pre_insert_hook(prediction)
+    end
+
+    test "sets trip_match? to true if there's a trip in GTFS" do
+      State.Trip.new_state([
+        %Model.Trip{id: "trip"}
+      ])
+
+      prediction = %Model.Prediction{
+        trip_id: "trip"
+      }
+
+      assert [%{trip_match?: true}] = pre_insert_hook(prediction)
+    end
+
+    test "trip_match? is false if there's no trip in GTFS" do
+      State.Trip.new_state([])
+
+      prediction = %Model.Prediction{
+        trip_id: "trip"
+      }
+
+      assert [%{trip_match?: false}] = pre_insert_hook(prediction)
     end
   end
 

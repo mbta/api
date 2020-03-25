@@ -20,7 +20,8 @@ defmodule Model.Prediction do
     :departure_time,
     :stop_sequence,
     :schedule_relationship,
-    :status
+    :status,
+    trip_match?: false
   ]
 
   @typedoc """
@@ -60,6 +61,7 @@ defmodule Model.Prediction do
       consecutive.  See
       [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
   * `:trip_id` - The trip the `stop_id` is on. See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripdescriptor)
+  * `:trip_match?` - a boolean indicating whether the prediction is for a trip in the GTFS file
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
@@ -72,7 +74,8 @@ defmodule Model.Prediction do
           status: String.t() | nil,
           stop_id: Model.Stop.id(),
           stop_sequence: non_neg_integer | nil,
-          trip_id: Model.Trip.id()
+          trip_id: Model.Trip.id(),
+          trip_match?: boolean
         }
 
   @spec trip_id(t) :: Model.Trip.id()

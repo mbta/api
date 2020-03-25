@@ -61,8 +61,17 @@ defmodule State.Prediction do
       end
 
     prediction
+    |> fill_trip_match(trips)
     |> fill_missing_direction_ids(trips)
     |> update_route_from_alternate_trips(trips)
+  end
+
+  defp fill_trip_match(prediction, [_ | _]) do
+    %{prediction | trip_match?: true}
+  end
+
+  defp fill_trip_match(prediction, []) do
+    prediction
   end
 
   defp fill_missing_direction_ids(%{direction_id: direction_id} = prediction, _trips)
