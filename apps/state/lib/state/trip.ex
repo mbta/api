@@ -172,7 +172,7 @@ defmodule State.Trip do
       |> build_filters(:id, filters[:ids])
 
     idx = get_index(filters)
-    trips = State.Trip.select(matchers, idx) ++ State.Trip.Added.select(matchers, idx)
+    trips = State.Trip.Added.select(matchers, idx) ++ State.Trip.select(matchers, idx)
 
     case Map.fetch(filters, :date) do
       :error -> trips
