@@ -1,4 +1,4 @@
-FROM elixir:1.9.1 as builder
+FROM elixir:1.10.2 as builder
 
 WORKDIR /root
 
