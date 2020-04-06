@@ -19,6 +19,13 @@ defmodule State.PredictionTest do
     State.Trip.new_state([])
     State.Stop.new_state([])
     new_state([@prediction])
+
+    on_exit(fn ->
+      # clean up state afterwards
+      State.Trip.new_state([])
+      State.Stop.new_state([])
+      new_state([])
+    end)
   end
 
   test "can query by trip id, stop id, route id" do
