@@ -62,8 +62,6 @@ defmodule BinaryLineSplit do
   @moduledoc """
   Higher-throughput line-based streaming.
   """
-  @compile :native
-  @compile {:hipe, [:o3]}
   @sep ["\r\n", "\n"]
 
   @doc """

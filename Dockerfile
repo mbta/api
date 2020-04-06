@@ -1,10 +1,12 @@
-FROM elixir:1.10.2 as builder
+FROM elixir:1.10.2-alpine as builder
 
 WORKDIR /root
 
 # Install Hex+Rebar
 RUN mix local.hex --force && \
   mix local.rebar --force
+
+RUN apk add --update git make build-base erlang-dev
 
 ENV MIX_ENV=prod
 
@@ -19,11 +21,10 @@ ADD rel/ rel/
 RUN mix distillery.release --verbose
 
 # The one the elixir image was built with
-FROM debian:stretch
+FROM alpine:3.11
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		libssl1.1 libsctp1 curl dumb-init \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apk add --update libssl1.1 curl bash dumb-init \
+	&& rm -rf /var/cache/apk/*
 
 WORKDIR /root
 
