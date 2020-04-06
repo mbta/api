@@ -3,10 +3,10 @@ defmodule Fetch do
   Fetches URLs from the internet
   """
 
-  use Supervisor
-
   def start_link(opts \\ []) do
-    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+    # coveralls-ignore-start
+    DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
+    # coveralls-ignore-stop
   end
 
   def fetch_url(url, opts \\ []) do
@@ -26,14 +26,16 @@ defmodule Fetch do
   end
 
   def start_child(url) do
-    Supervisor.start_child(__MODULE__, [url])
+    DynamicSupervisor.start_child(__MODULE__, {Fetch.Worker, url})
   end
 
   def init(opts) do
-    children = [
-      worker(Fetch.Worker, [opts], restart: :temporary)
-    ]
+    # coveralls-ignore-start
+    DynamicSupervisor.init(
+      strategy: :one_for_one,
+      extra_arguments: [opts]
+    )
 
-    supervise(children, strategy: :simple_one_for_one)
+    # coveralls-ignore-stop
   end
 end

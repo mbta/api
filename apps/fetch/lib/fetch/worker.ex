@@ -5,7 +5,7 @@ defmodule Fetch.Worker do
   the file on the filesystem if :cache_directory is passed in as an option.
 
   """
-  use GenServer
+  use GenServer, restart: :temporary
   use Timex
   require Logger
 
