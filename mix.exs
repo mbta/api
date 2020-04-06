@@ -8,7 +8,7 @@ defmodule ApiUmbrella.Mixfile do
       build_embedded: Mix.env() == :prod,
       deps: deps(),
       dialyzer: [
-        plt_add_deps: :transitive,
+        plt_add_deps: :app_tree,
         flags: [
           :race_conditions,
           :unmatched_returns
