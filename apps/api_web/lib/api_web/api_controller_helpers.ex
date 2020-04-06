@@ -148,7 +148,11 @@ defmodule ApiWeb.ApiControllerHelpers do
   # Filter types for types with a view like ShapeView or RouteView
   defp valid_type?(type) do
     view_module = view_module_for_type(type)
-    Code.ensure_compiled?(view_module)
+
+    case Code.ensure_compiled(view_module) do
+      {:module, ^view_module} -> true
+      {:error, :nofile} -> false
+    end
   rescue
     ArgumentError -> false
   end
