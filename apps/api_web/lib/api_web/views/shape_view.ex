@@ -2,7 +2,10 @@ defmodule ApiWeb.ShapeView do
   use ApiWeb.Web, :api_view
 
   alias ApiWeb.{RouteView, StopView}
-  alias State.{Stop, StopsOnRoute}
+  alias State.{Route, Stop, StopsOnRoute}
+
+  alias JaSerializer.Relationship.HasMany
+  alias JaSerializer.Relationship.HasOne
 
   location(:shape_location)
 
@@ -10,23 +13,40 @@ defmodule ApiWeb.ShapeView do
 
   attributes([:name, :direction_id, :polyline, :priority])
 
-  has_one(
-    :route,
-    type: :route,
-    serializer: RouteView
-  )
+  @impl true
+  def attributes(shape, %{assigns: %{api_version: version}})
+      when version >= "2020-05-01" do
+    %{
+      polyline: shape.polyline
+    }
+  end
 
-  has_many(
-    :stops,
-    type: :stop,
-    identifiers: :always,
-    serializer: StopView
-  )
+  def attributes(shape, conn) do
+    super(shape, conn)
+  end
 
-  def stops(%{id: id, route_id: route_id}, _conn) do
-    route_id
-    |> StopsOnRoute.by_route_id(shape_ids: [id])
-    |> Stop.by_ids()
+  @impl true
+  def relationships(_shape, %{assigns: %{api_version: version}})
+      when version >= "2020-05-01" do
+    %{}
+  end
+
+  def relationships(shape, conn) do
+    %{
+      route: %HasOne{
+        serializer: RouteView,
+        data: optional_relationship("routes", shape.route_id, &Route.by_id/1, conn)
+      },
+      stops: %HasMany{
+        serializer: StopView,
+        data:
+          Enum.map(
+            StopsOnRoute.by_route_id(shape.route_id, shape_ids: [shape.id]),
+            &Stop.by_id/1
+          ),
+        identifiers: :always
+      }
+    }
   end
 
   def name(%{name: name}, %{assigns: %{api_version: version}}) when version >= "2019-07-01" do
