@@ -222,6 +222,70 @@ defmodule ApiWeb.RouteControllerTest do
       assert [] == data
     end
 
+    test "can filter by date", %{conn: base_conn} do
+      today = Parse.Time.service_date()
+      bad_date = ~D[2017-01-01]
+
+      service = %Model.Service{
+        id: "service",
+        start_date: today,
+        end_date: today,
+        added_dates: [today]
+      }
+
+      route = %Model.Route{id: "route"}
+      trip = %Model.Trip{id: "trip", route_id: route.id, service_id: service.id}
+      State.Service.new_state([service])
+      State.Trip.reset_gather()
+      State.Route.new_state([route])
+      State.Trip.new_state([trip])
+
+      today_iso = Date.to_iso8601(today)
+      bad_date_iso = Date.to_iso8601(bad_date)
+
+      params = %{"filter" => %{"date" => today_iso}}
+      data = ApiWeb.RouteController.index_data(base_conn, params)
+      assert [route] == data
+
+      params = put_in(params["filter"]["date"], bad_date_iso)
+      data = ApiWeb.RouteController.index_data(base_conn, params)
+      assert [] == data
+    end
+
+    test "can filter by date and type", %{conn: base_conn} do
+      today = Parse.Time.service_date()
+      bad_date = ~D[2017-01-01]
+
+      service = %Model.Service{
+        id: "service",
+        start_date: today,
+        end_date: today,
+        added_dates: [today]
+      }
+
+      route = %Model.Route{id: "route", type: 1}
+      trip = %Model.Trip{id: "trip", route_id: route.id, service_id: service.id}
+      State.Service.new_state([service])
+      State.Trip.reset_gather()
+      State.Route.new_state([route])
+      State.Trip.new_state([trip])
+
+      today_iso = Date.to_iso8601(today)
+      bad_date_iso = Date.to_iso8601(bad_date)
+
+      params = %{"filter" => %{"date" => today_iso, "type" => "1"}}
+      data = ApiWeb.RouteController.index_data(base_conn, params)
+      assert [route] == data
+
+      bad_type_params = put_in(params["filter"]["type"], "2")
+      data = ApiWeb.RouteController.index_data(base_conn, bad_type_params)
+      assert [] == data
+
+      bad_date_params = put_in(params["filter"]["date"], bad_date_iso)
+      data = ApiWeb.RouteController.index_data(base_conn, bad_date_params)
+      assert [] == data
+    end
+
     test "pagination", %{conn: conn} do
       params = %{"page" => %{"offset" => 2, "limit" => 1}}
       conn = get(conn, route_path(conn, :index, params))
