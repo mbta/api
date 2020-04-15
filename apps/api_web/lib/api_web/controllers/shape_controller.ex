@@ -103,12 +103,6 @@ defmodule ApiWeb.ShapeController do
           """)
 
           attributes do
-            name(
-              :string,
-              "User-facing name for shape. It may, but is not required to, be a headsign",
-              example: "Dudley"
-            )
-
             polyline(:string, """
             ## Encoding/Decoding
 
@@ -120,20 +114,9 @@ defmodule ApiWeb.ShapeController do
             * [Erlang](https://blog.kempkens.io/posts/encoding-and-decoding-polylines-with-erlang/)
             * [Elixir](https://hex.pm/packages/polyline)
             """)
-
-            priority(
-              :integer,
-              """
-              Representation of how important a shape is when choosing one for display. Higher number is higher \
-              priority.  Negative priority is not important enough to show as they only **MAY** be used.
-              """,
-              example: 2
-            )
           end
 
           direction_id_attribute()
-          relationship(:route)
-          relationship(:stops, type: :has_many)
         end,
       Shape: single(:ShapeResource),
       Shapes: page(:ShapeResource)
@@ -149,12 +132,6 @@ defmodule ApiWeb.ShapeController do
     `#{parent_pointer}/attributes/polyline` is in \
     [Encoded Polyline Algorithm Format](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), \
     which encodes the latitude and longitude of a sequence of points in the shape.
-
-    ### Stops
-
-    If instead of getting the latitude and longitude directly, you want to show the stops in this shape use \
-    `#{parent_pointer}/relationships/stops` to get the all the stop IDs or `include=stops` to include them in the \
-    response.
     """
   end
 end
