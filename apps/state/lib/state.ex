@@ -33,6 +33,7 @@ defmodule State do
       worker(State.StopsOnRoute, []),
       worker(State.RoutesPatternsAtStop, []),
       worker(State.ServiceByDate, []),
+      worker(State.RoutesByService, []),
       worker(State.Shape, []),
       worker(State.Feed, []),
       worker(State.Transfer, [])

@@ -239,6 +239,7 @@ defmodule ApiWeb.RouteControllerTest do
       State.Trip.reset_gather()
       State.Route.new_state([route])
       State.Trip.new_state([trip])
+      State.RoutesByService.update!()
 
       today_iso = Date.to_iso8601(today)
       bad_date_iso = Date.to_iso8601(bad_date)
@@ -269,6 +270,7 @@ defmodule ApiWeb.RouteControllerTest do
       State.Trip.reset_gather()
       State.Route.new_state([route])
       State.Trip.new_state([trip])
+      State.RoutesByService.update!()
 
       today_iso = Date.to_iso8601(today)
       bad_date_iso = Date.to_iso8601(bad_date)

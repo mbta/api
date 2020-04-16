@@ -9,7 +9,7 @@ defmodule ApiWeb.RouteController do
   * type
   """
   use ApiWeb.Web, :api_controller
-  alias State.{Route, RoutesPatternsAtStop, ServiceByDate, Trip}
+  alias State.{Route, RoutesByService, RoutesPatternsAtStop, ServiceByDate}
 
   @filters ~w(id stop type direction_id date)
   @pagination_opts [:offset, :limit, :order_by]
@@ -142,8 +142,10 @@ defmodule ApiWeb.RouteController do
     |> routes_by_id_and_type(types)
   end
 
-  defp do_filter(%{service_ids: service_ids, type: types}) do
-    service_ids |> routes_for_services() |> routes_by_id_and_type(types)
+  defp do_filter(%{service_ids: [], type: _}), do: []
+
+  defp do_filter(%{service_ids: [service_id | _], type: types}) do
+    service_id |> RoutesByService.for_service_id() |> routes_by_id_and_type(types)
   end
 
   defp do_filter(%{stops: _stops} = filters) do
@@ -156,8 +158,10 @@ defmodule ApiWeb.RouteController do
     Route.by_types(type)
   end
 
-  defp do_filter(%{service_ids: service_ids}) do
-    service_ids |> routes_for_services() |> Route.by_ids()
+  defp do_filter(%{service_ids: []}), do: []
+
+  defp do_filter(%{service_ids: [service_id | _]}) do
+    service_id |> RoutesByService.for_service_id() |> Route.by_ids()
   end
 
   defp do_filter(_filters) do
@@ -168,10 +172,6 @@ defmodule ApiWeb.RouteController do
     route_ids
     |> Enum.flat_map(fn id -> for type <- types, do: %{id: id, type: type} end)
     |> Route.select()
-  end
-
-  defp routes_for_services(service_ids) do
-    service_ids |> Trip.by_service_ids() |> Enum.map(fn x -> x.route_id end) |> Enum.uniq()
   end
 
   defp routes_at_stops(%{stops: stops} = filters) do
