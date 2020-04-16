@@ -2,6 +2,7 @@ defmodule State.RoutesByServiceTest do
   use ExUnit.Case
   use Timex
   import State.RoutesByService
+  import ExUnit.CaptureLog
 
   @route %Model.Route{id: "route"}
   @service %Model.Service{
@@ -18,13 +19,19 @@ defmodule State.RoutesByServiceTest do
     direction_id: 1,
     service_id: "service"
   }
-  setup do
+
+  setup_all do
+    Logger.configure(level: :info)
     State.Stop.new_state([])
     State.Route.new_state([@route])
     State.Trip.new_state([@trip])
     State.Service.new_state([@service])
     State.Shape.new_state([])
     update!()
+
+    on_exit(fn ->
+      Logger.configure(level: :warn)
+    end)
   end
 
   describe "for_service_id/1" do
@@ -40,12 +47,14 @@ defmodule State.RoutesByServiceTest do
   describe "crash" do
     @tag timeout: 1_000
     test "rebuilds properly if it's restarted" do
-      State.Route.new_state([@route])
-      State.Trip.new_state([@trip])
-      State.Service.new_state([@service])
+      assert capture_log([level: :info], fn ->
+               State.Route.new_state([@route])
+               State.Trip.new_state([@trip])
+               State.Service.new_state([@service])
 
-      GenServer.stop(State.RoutesByService)
-      await_size(State.RoutesByService)
+               GenServer.stop(State.RoutesByService)
+               await_size(State.RoutesByService)
+             end) =~ "Update #{State.RoutesByService}"
     end
 
     defp await_size(module) do
