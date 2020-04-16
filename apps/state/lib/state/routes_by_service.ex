@@ -19,7 +19,22 @@ defmodule State.RoutesByService do
   end
 
   def for_service_id(service_id) do
-    case :ets.lookup(@table, service_id) do
+    @table |> :ets.match_object({{service_id, :_}, :_}) |> do_get_routes()
+  end
+
+  def for_service_id_and_types(service_id, route_types) do
+    @table
+    |> :ets.select(
+      for(
+        type <- route_types,
+        do: {{{:"$0", :"$1"}, :"$2"}, [{:==, :"$0", service_id}, {:==, :"$1", type}], [:"$_"]}
+      )
+    )
+    |> do_get_routes()
+  end
+
+  defp do_get_routes(ets_items) do
+    case ets_items do
       [] ->
         []
 
@@ -74,10 +89,13 @@ defmodule State.RoutesByService do
 
   def update_state(state) do
     trips = State.Trip.all()
+    routes = Map.new(State.Route.all(), fn x -> {x.id, x} end)
 
     items =
       trips
-      |> Enum.group_by(fn x -> x.service_id end)
+      |> Enum.group_by(fn x ->
+        {x.service_id, Map.get(routes, x.route_id, %Model.Route{}).type}
+      end)
       |> Enum.map(fn {x, y} -> {x, Enum.map(y, fn x -> x.route_id end)} end)
 
     @table |> :ets.delete_all_objects()

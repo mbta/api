@@ -139,14 +139,14 @@ defmodule ApiWeb.RouteController do
   defp do_filter(%{stops: _stops, type: types} = filters) do
     filters
     |> routes_at_stops()
-    |> routes_by_id_and_type(types)
+    |> Enum.flat_map(fn id -> for type <- types, do: %{id: id, type: type} end)
+    |> Route.select()
   end
 
-  defp do_filter(%{service_ids: [], type: _}), do: []
+  defp do_filter(%{service_ids: []}), do: []
 
-  defp do_filter(%{service_ids: [service_id | _], type: types}) do
-    service_id |> RoutesByService.for_service_id() |> routes_by_id_and_type(types)
-  end
+  defp do_filter(%{service_ids: [service_id | _], type: types}),
+    do: RoutesByService.for_service_id_and_types(service_id, types) |> Route.by_ids()
 
   defp do_filter(%{stops: _stops} = filters) do
     filters
@@ -158,20 +158,12 @@ defmodule ApiWeb.RouteController do
     Route.by_types(type)
   end
 
-  defp do_filter(%{service_ids: []}), do: []
-
   defp do_filter(%{service_ids: [service_id | _]}) do
     service_id |> RoutesByService.for_service_id() |> Route.by_ids()
   end
 
   defp do_filter(_filters) do
     Route.all()
-  end
-
-  defp routes_by_id_and_type(route_ids, types) do
-    route_ids
-    |> Enum.flat_map(fn id -> for type <- types, do: %{id: id, type: type} end)
-    |> Route.select()
   end
 
   defp routes_at_stops(%{stops: stops} = filters) do

@@ -236,9 +236,9 @@ defmodule ApiWeb.RouteControllerTest do
       route = %Model.Route{id: "route"}
       trip = %Model.Trip{id: "trip", route_id: route.id, service_id: service.id}
       State.Service.new_state([service])
-      State.Trip.reset_gather()
       State.Route.new_state([route])
       State.Trip.new_state([trip])
+      State.Trip.reset_gather()
       State.RoutesByService.update!()
 
       today_iso = Date.to_iso8601(today)
@@ -307,7 +307,7 @@ defmodule ApiWeb.RouteControllerTest do
       State.Trip.new_state([trip])
       stop = %Model.Stop{id: "1"}
       State.Stop.new_state([stop])
-      schedule= %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
+      schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
       State.Schedule.new_state([schedule])
       State.RoutesPatternsAtStop.update!()
       State.RoutesByService.update!()

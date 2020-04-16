@@ -4,9 +4,16 @@ defmodule State.RoutesByServiceTest do
   import State.RoutesByService
   import ExUnit.CaptureLog
 
-  @route %Model.Route{id: "route"}
+  @route %Model.Route{id: "route", type: 3}
+  @other_route %Model.Route{id: "other_route", type: 2}
   @service %Model.Service{
     id: "service",
+    start_date: Timex.today(),
+    end_date: Timex.today(),
+    added_dates: [Timex.today()]
+  }
+  @other_service %Model.Service{
+    id: "other_service",
     start_date: Timex.today(),
     end_date: Timex.today(),
     added_dates: [Timex.today()]
@@ -19,13 +26,21 @@ defmodule State.RoutesByServiceTest do
     direction_id: 1,
     service_id: "service"
   }
+  @other_trip %Model.Trip{
+    id: "other_trip",
+    shape_id: "pattern",
+    route_id: "other_route",
+    route_pattern_id: "route_pattern",
+    direction_id: 1,
+    service_id: "other_service"
+  }
 
   setup_all do
     Logger.configure(level: :info)
     State.Stop.new_state([])
-    State.Route.new_state([@route])
-    State.Trip.new_state([@trip])
-    State.Service.new_state([@service])
+    State.Route.new_state([@route, @other_route])
+    State.Trip.new_state([@trip, @other_trip])
+    State.Service.new_state([@service, @other_service])
     State.Shape.new_state([])
     update!()
 
@@ -44,13 +59,24 @@ defmodule State.RoutesByServiceTest do
     end
   end
 
+  describe "for_service_id_and_types/2" do
+    test "returns the route IDs for a given service and type" do
+      assert for_service_id_and_types(@service.id, [@route.type]) == [@route.id]
+    end
+
+    test "returns an empty list if no match for service and type" do
+      assert for_service_id_and_types(@service.id, ["some_other_type"]) == []
+      assert for_service_id_and_types("some_other_service", [@route.type]) == []
+    end
+  end
+
   describe "crash" do
     @tag timeout: 1_000
     test "rebuilds properly if it's restarted" do
       assert capture_log([level: :info], fn ->
-               State.Route.new_state([@route])
-               State.Trip.new_state([@trip])
-               State.Service.new_state([@service])
+               State.Route.new_state([@route, @other_route])
+               State.Trip.new_state([@trip, @other_trip])
+               State.Service.new_state([@service, @other_service])
 
                GenServer.stop(State.RoutesByService)
                await_size(State.RoutesByService)
