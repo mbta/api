@@ -22,7 +22,7 @@ config :api_web, ApiWeb.Endpoint,
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n", level: :debug
+config :logger, :console, format: "[$level] $message\n", level: :error
 
 # Set a higher stacktrace during development.
 # Do not configure such in production as keeping

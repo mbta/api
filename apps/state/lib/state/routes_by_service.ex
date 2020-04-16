@@ -6,11 +6,16 @@ defmodule State.RoutesByService do
   require Logger
   use Events.Server
   import Events
+  import State.Helpers
 
   @table __MODULE__
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  end
+
+  def size do
+    safe_ets_size(@table)
   end
 
   def for_service_id(service_id) do
