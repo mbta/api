@@ -19,13 +19,12 @@ defmodule State.RoutesByService do
   end
 
   def for_service_id(service_id) do
-    results = :ets.lookup(@table, service_id)
+    case :ets.lookup(@table, service_id) do
+      [] ->
+        []
 
-    if Enum.empty?(results) do
-      []
-    else
-      [{_, routes} | _] = results
-      routes
+      [{_, routes} | _] ->
+        routes
     end
   end
 
@@ -74,7 +73,7 @@ defmodule State.RoutesByService do
   end
 
   def update_state(state) do
-    trips = State.Trip.all() ++ State.Trip.Added.all()
+    trips = State.Trip.all()
 
     items =
       trips
