@@ -27,7 +27,7 @@ defmodule State.RoutesByService do
     |> :ets.select(
       for(
         type <- route_types,
-        do: {{{:"$0", :"$1"}, :"$2"}, [{:==, :"$0", service_id}, {:==, :"$1", type}], [:"$_"]}
+        do: {{{service_id, type}, :_}, [], [:"$_"]}
       )
     )
     |> do_get_routes()
