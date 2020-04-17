@@ -318,6 +318,15 @@ defmodule ApiWeb.ScheduleController do
               example: 1
             )
 
+            stop_headsign(
+              nullable(%Schema{type: :string}, true),
+              """
+              Text identifying destination of the trip, overriding trip-level headsign if present.\
+              See [GTFS `stop_times.txt` `stop_headsign`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
+              """,
+              example: "Foxboro via Back Bay"
+            )
+
             pickup_type(
               %Schema{type: :integer, enum: Enum.to_list(0..3)},
               """
