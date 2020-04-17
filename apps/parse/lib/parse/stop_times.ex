@@ -4,6 +4,7 @@ defmodule Parse.StopTimes do
   """
   @behaviour Parse
   import NimbleParsec
+  import Parse.Helpers
 
   # credo:disable-for-lines:4 Credo.Check.Refactor.PipeChainStart
   defparsec(
@@ -14,8 +15,6 @@ defmodule Parse.StopTimes do
     |> ignore(string(":"))
     |> integer(2)
   )
-
-  import :binary, only: [copy: 1]
 
   alias Model.{Schedule, Trip}
   require Logger
@@ -35,6 +34,7 @@ defmodule Parse.StopTimes do
       arrival_time: convert_time(row["arrival_time"], row["drop_off_type"]),
       departure_time: convert_time(row["departure_time"], row["pickup_type"]),
       stop_sequence: String.to_integer(row["stop_sequence"]),
+      stop_headsign: optional_copy(row["stop_headsign"]),
       pickup_type: pick_drop_type(row["pickup_type"]),
       drop_off_type: pick_drop_type(row["drop_off_type"]),
       timepoint?: row["timepoint"] != "0"

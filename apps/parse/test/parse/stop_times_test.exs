@@ -7,7 +7,8 @@ defmodule Parse.StopTimesTest do
     blob = """
     "trip_id","arrival_time","departure_time","stop_id","stop_sequence","stop_headsign","pickup_type","drop_off_type","timepoint"
     "29063613","14:36:00","14:36:01","2300","6","","0","0","1"\r
-    "29063613","14:37:00","14:37:01","12301","7","","0","0","0"
+    "29063613","14:37:00","14:37:01","12301","7","","0","0","0"\r
+    "CR-Weekday-Fall-19-745","08:50:00","08:50:00","South Station","1","Foxboro via Back Bay","0","1","1"
     """
 
     {:ok, %{blob: blob}}
@@ -22,6 +23,7 @@ defmodule Parse.StopTimesTest do
                departure_time: 52_561,
                position: :first,
                stop_sequence: 6,
+               stop_headsign: nil,
                pickup_type: 0,
                drop_off_type: 0,
                timepoint?: true
@@ -33,9 +35,22 @@ defmodule Parse.StopTimesTest do
                departure_time: 52_621,
                position: :last,
                stop_sequence: 7,
+               stop_headsign: nil,
                pickup_type: 0,
                drop_off_type: 0,
                timepoint?: false
+             },
+             %Schedule{
+               trip_id: "CR-Weekday-Fall-19-745",
+               stop_id: "South Station",
+               arrival_time: nil,
+               departure_time: 31_800,
+               position: :last,
+               stop_sequence: 1,
+               stop_headsign: "Foxboro via Back Bay",
+               pickup_type: 0,
+               drop_off_type: 1,
+               timepoint?: true
              }
            ]
   end
@@ -54,6 +69,7 @@ defmodule Parse.StopTimesTest do
                departure_time: nil,
                position: :last,
                stop_sequence: 6,
+               stop_headsign: nil,
                pickup_type: 1,
                drop_off_type: 1,
                timepoint?: true
@@ -65,8 +81,17 @@ defmodule Parse.StopTimesTest do
        %{blob: blob} do
     all_schedules = blob |> parse |> Enum.sort()
 
-    assert blob |> parse(fn "29063613" -> %Trip{route_id: "route"} end) |> Enum.sort() ==
-             all_schedules |> Enum.map(&%{&1 | route_id: "route"})
+    assert blob
+           |> parse(fn trip_id ->
+             case trip_id do
+               "29063613" -> %Trip{route_id: "route"}
+               _ -> nil
+             end
+           end)
+           |> Enum.sort() ==
+             all_schedules
+             |> Enum.filter(&(&1.trip_id == "29063613"))
+             |> Enum.map(&%{&1 | route_id: "route"})
 
     assert [] == blob |> parse(fn _ -> nil end) |> Enum.into([])
   end

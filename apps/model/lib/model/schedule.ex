@@ -16,6 +16,7 @@ defmodule Model.Schedule do
     :arrival_time,
     :departure_time,
     :stop_sequence,
+    :stop_headsign,
     :pickup_type,
     :drop_off_type,
     :position,
@@ -73,6 +74,7 @@ defmodule Model.Schedule do
       monotonically increasing along the trip, but the `stop_sequence` along the `trip_id` are not necessarily
       consecutive.  See
       [GTFS `stop_times.txt` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
+  * `:stop_headsign` - Text identifying destination of the trip, overriding trip-level headsign if present.  See [GTFS `stop_times.txt` `stop_headsign`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
   * `:timepoint?` - `true` if `arrival_time` and `departure_time` are exact; otherwise, `false`. See
       [GTFS `stop_times.txt` `timepoint`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
   * `:trip_id` - The trip on which `stop_id` occurs in `stop_sequence`. See
@@ -89,6 +91,7 @@ defmodule Model.Schedule do
           service_id: Model.Service.id(),
           stop_id: Model.Stop.id(),
           stop_sequence: non_neg_integer,
+          stop_headsign: String.t() | nil,
           timepoint?: timepoint,
           trip_id: Model.Trip.id()
         }
