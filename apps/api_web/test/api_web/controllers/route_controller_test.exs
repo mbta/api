@@ -275,7 +275,7 @@ defmodule ApiWeb.RouteControllerTest do
       today_iso = Date.to_iso8601(today)
       bad_date_iso = Date.to_iso8601(bad_date)
 
-      params = %{"filter" => %{"date" => today_iso, "type" => "1"}}
+      params = %{"filter" => %{"date" => today_iso, "type" => "1,2"}}
       data = ApiWeb.RouteController.index_data(base_conn, params)
       assert [route] == data
 
