@@ -39,16 +39,6 @@ defmodule Parse.VehiclePositions do
     }
   end
 
-  defp optional_copy("") do
-    # empty string is a default value and should be treated as a not-provided
-    # value
-    nil
-  end
-
-  defp optional_copy(value) do
-    copy(value)
-  end
-
   defp optional_field_copy(%{} = struct, field) do
     optional_copy(Map.get(struct, field))
   end
