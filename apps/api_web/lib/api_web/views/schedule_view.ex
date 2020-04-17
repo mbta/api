@@ -26,7 +26,8 @@ defmodule ApiWeb.ScheduleView do
     :pickup_type,
     :drop_off_type,
     :timepoint,
-    :direction_id
+    :direction_id,
+    :stop_headsign
   ])
 
   def attributes(schedule, conn) do
@@ -44,7 +45,8 @@ defmodule ApiWeb.ScheduleView do
       pickup_type: schedule.pickup_type,
       drop_off_type: schedule.drop_off_type,
       timepoint: schedule.timepoint?,
-      direction_id: schedule.direction_id
+      direction_id: schedule.direction_id,
+      stop_headsign: schedule.stop_headsign
     }
 
     base =
