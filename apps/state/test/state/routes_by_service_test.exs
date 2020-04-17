@@ -51,22 +51,34 @@ defmodule State.RoutesByServiceTest do
 
   describe "for_service_id/1" do
     test "returns the route IDs for a given service" do
-      assert for_service_id(@service.id) == [@route.id]
+      assert for_service_ids([@service.id]) == [@route.id]
+
+      assert Enum.sort(for_service_ids([@service.id, @other_service.id])) == [
+               @other_route.id,
+               @route.id
+             ]
     end
 
     test "returns an empty list if no match for service id" do
-      assert for_service_id("some_other_service") == []
+      assert for_service_ids(["some_other_service"]) == []
     end
   end
 
   describe "for_service_id_and_types/2" do
     test "returns the route IDs for a given service and type" do
-      assert for_service_id_and_types(@service.id, [@route.type]) == [@route.id]
+      assert for_service_ids_and_types([@service.id], [@route.type]) == [@route.id]
+
+      assert Enum.sort(
+               for_service_ids_and_types([@service.id, @other_service.id], [
+                 @route.type,
+                 @other_route.type
+               ])
+             ) == [@other_route.id, @route.id]
     end
 
     test "returns an empty list if no match for service and type" do
-      assert for_service_id_and_types(@service.id, ["some_other_type"]) == []
-      assert for_service_id_and_types("some_other_service", [@route.type]) == []
+      assert for_service_ids_and_types([@service.id], ["some_other_type"]) == []
+      assert for_service_ids_and_types(["some_other_service"], [@route.type]) == []
     end
   end
 

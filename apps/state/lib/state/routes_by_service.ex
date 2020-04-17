@@ -18,17 +18,23 @@ defmodule State.RoutesByService do
     safe_ets_size(@table)
   end
 
-  def for_service_id(service_id) do
-    @table |> :ets.match_object({{service_id, :_}, :_}) |> do_get_routes()
-  end
-
-  def for_service_id_and_types(service_id, route_types) do
+  def for_service_ids(service_ids) do
     @table
     |> :ets.select(
       for(
-        type <- route_types,
-        do: {{{service_id, type}, :_}, [], [:"$_"]}
+        service_id <- service_ids,
+        do: {{{service_id, :_}, :_}, [], [:"$_"]}
       )
+    )
+    |> do_get_routes()
+  end
+
+  def for_service_ids_and_types(service_ids, route_types) do
+    @table
+    |> :ets.select(
+      Enum.flat_map(service_ids, fn service_id ->
+        Enum.map(route_types, fn type -> {{{service_id, type}, :_}, [], [:"$_"]} end)
+      end)
     )
     |> do_get_routes()
   end
@@ -38,8 +44,8 @@ defmodule State.RoutesByService do
       [] ->
         []
 
-      [{_, routes} | _] ->
-        routes
+      items ->
+        Enum.flat_map(items, fn {_key, routes} -> routes end)
     end
   end
 

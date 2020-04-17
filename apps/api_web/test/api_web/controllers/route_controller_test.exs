@@ -264,12 +264,27 @@ defmodule ApiWeb.RouteControllerTest do
         added_dates: [today]
       }
 
+      other_service = %Model.Service{
+        id: "other_service",
+        start_date: today,
+        end_date: today,
+        added_dates: [today]
+      }
+
       route = %Model.Route{id: "route", type: 1}
+      other_route = %Model.Route{id: "other_route", type: 2}
       trip = %Model.Trip{id: "trip", route_id: route.id, service_id: service.id}
-      State.Service.new_state([service])
+
+      other_trip = %Model.Trip{
+        id: "other_trip",
+        route_id: other_route.id,
+        service_id: other_service.id
+      }
+
+      State.Service.new_state([service, other_service])
       State.Trip.reset_gather()
-      State.Route.new_state([route])
-      State.Trip.new_state([trip])
+      State.Route.new_state([route, other_route])
+      State.Trip.new_state([trip, other_trip])
       State.RoutesByService.update!()
 
       today_iso = Date.to_iso8601(today)
@@ -277,9 +292,9 @@ defmodule ApiWeb.RouteControllerTest do
 
       params = %{"filter" => %{"date" => today_iso, "type" => "1,2"}}
       data = ApiWeb.RouteController.index_data(base_conn, params)
-      assert [route] == data
+      assert [other_route, route] == Enum.sort_by(data, fn x -> x.id end)
 
-      bad_type_params = put_in(params["filter"]["type"], "2")
+      bad_type_params = put_in(params["filter"]["type"], "3")
       data = ApiWeb.RouteController.index_data(base_conn, bad_type_params)
       assert [] == data
 
