@@ -98,8 +98,8 @@ defmodule State.RoutesByService do
       end)
       |> Enum.map(fn {x, y} -> {x, Enum.map(y, fn x -> x.route_id end)} end)
 
-    @table |> :ets.delete_all_objects()
-    @table |> :ets.insert(items)
+    :ets.delete_all_objects(@table)
+    :ets.insert(@table, items)
 
     size = length(items)
 
