@@ -9,7 +9,7 @@ defmodule ApiWeb.RouteController do
   * type
   """
   use ApiWeb.Web, :api_controller
-  alias State.{Route, RoutesPatternsAtStop, ServiceByDate}
+  alias State.{Route, RoutesByService, RoutesPatternsAtStop, ServiceByDate}
 
   @filters ~w(id stop type direction_id date)
   @pagination_opts [:offset, :limit, :order_by]
@@ -143,6 +143,11 @@ defmodule ApiWeb.RouteController do
     |> Route.select()
   end
 
+  defp do_filter(%{service_ids: []}), do: []
+
+  defp do_filter(%{service_ids: service_ids, type: types}),
+    do: service_ids |> RoutesByService.for_service_ids_and_types(types) |> Route.by_ids()
+
   defp do_filter(%{stops: _stops} = filters) do
     filters
     |> routes_at_stops()
@@ -151,6 +156,10 @@ defmodule ApiWeb.RouteController do
 
   defp do_filter(%{type: type}) do
     Route.by_types(type)
+  end
+
+  defp do_filter(%{service_ids: service_ids}) do
+    service_ids |> RoutesByService.for_service_ids() |> Route.by_ids()
   end
 
   defp do_filter(_filters) do
