@@ -29,12 +29,16 @@ defmodule ApiWeb.ShapeViewTest do
   end
 
   describe "relationships/2" do
-    test "excludes fields on versions after 2020-05-01", %{conn: conn} do
+    setup do
       State.Route.new_state([%Model.Route{id: "route"}])
       State.Stop.new_state([%Model.Stop{id: "stop"}])
       State.Trip.new_state([%Model.Trip{id: "trip", route_id: "route", shape_id: "shape"}])
       State.Schedule.new_state([%Model.Schedule{trip_id: "trip", stop_id: "stop"}])
+      State.StopsOnRoute.update!()
+      :ok
+    end
 
+    test "excludes fields on versions after 2020-05-01", %{conn: conn} do
       conn = assign(conn, :api_version, "2020-05-01")
       rendered = render("index.json-api", data: @shape, conn: conn)["data"]
 
@@ -42,11 +46,6 @@ defmodule ApiWeb.ShapeViewTest do
     end
 
     test "includes all fields on versions before 2020-05-01", %{conn: conn} do
-      State.Route.new_state([%Model.Route{id: "route"}])
-      State.Stop.new_state([%Model.Stop{id: "stop"}])
-      State.Trip.new_state([%Model.Trip{id: "trip", route_id: "route", shape_id: "shape"}])
-      State.Schedule.new_state([%Model.Schedule{trip_id: "trip", stop_id: "stop"}])
-
       conn = assign(conn, :api_version, "2019-07-01")
       rendered = render("index.json-api", data: @shape, conn: conn)["data"]
 
