@@ -5,10 +5,9 @@ defmodule ApiWeb.Plugs.RequestTrackTest do
   import Plug.Conn
 
   setup %{conn: conn} do
-    name = __MODULE__
     api_key = String.duplicate("v", 32)
 
-    {:ok, _} = RequestTrack.start_link(name: name)
+    {:ok, name} = RequestTrack.start_link()
     opts = init(name: name)
 
     conn = assign(conn, :api_user, api_key)
