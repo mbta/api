@@ -20,45 +20,6 @@ defmodule Fetch.WorkerTest do
     assert {:ok, "body"} = Fetch.Worker.fetch_url(pid, [])
   end
 
-  test "logs the response", %{bypass: bypass, pid: pid, url: url} do
-    Bypass.expect(bypass, fn conn ->
-      resp(conn, 200, "body")
-    end)
-
-    {:ok, ref} = Fetch.FileTap.MockTap.register!()
-
-    Fetch.Worker.fetch_url(pid, [])
-
-    assert_receive {:log_body, ^ref, ^url, "body", %DateTime{}}
-  end
-
-  test "logs the response with the Last modified time", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
-      conn
-      |> put_resp_header("Last-Modified", "Fri, 23 Jun 2017 13:27:18 GMT")
-      |> resp(200, "body with modified")
-    end)
-
-    {:ok, ref} = Fetch.FileTap.MockTap.register!()
-
-    Fetch.Worker.fetch_url(pid, [])
-
-    assert_receive {:log_body, ^ref, _, "body with modified", %DateTime{} = dt}
-    assert %{year: 2017, month: 6, day: 23, hour: 13, minute: 27, second: 18} = dt
-  end
-
-  test "does not log a response if the body is too big", %{bypass: bypass, pid: pid} do
-    body = String.duplicate("body", 100)
-
-    Bypass.expect(bypass, fn conn ->
-      resp(conn, 200, body)
-    end)
-
-    {:ok, ref} = Fetch.FileTap.MockTap.register!()
-    Fetch.Worker.fetch_url(pid, [])
-    refute_receive {:log_body, ^ref, _, ^body, _}
-  end
-
   test "fetching with a 304 returns returns :unmodified", %{bypass: bypass, pid: pid} do
     Bypass.expect(bypass, fn conn ->
       resp(conn, 304, "")
