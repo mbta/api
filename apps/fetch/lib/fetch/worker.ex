@@ -51,10 +51,7 @@ defmodule Fetch.Worker do
 
     http_response = HTTPoison.get(url, state_headers(state), opts)
 
-    response =
-      http_response
-      |> reply(opts, state)
-      |> log_response(state, http_response)
+    response = reply(http_response, opts, state)
 
     {:reply, response, update_state(state, http_response), :hibernate}
   end
@@ -205,24 +202,6 @@ defmodule Fetch.Worker do
     do: &Logger.warn/1
 
   defp logger_with_level_for_error(_), do: &Logger.error/1
-
-  defp log_response({:ok, body} = response, %{url: url}, {:ok, http_response}) do
-    dt =
-      with %{headers: headers} <- http_response,
-           modified when is_binary(modified) <- read_header(headers, "last-modified"),
-           {:ok, dt} <- Timex.parse(modified, "{RFC1123}") do
-        dt
-      else
-        _ -> DateTime.utc_now()
-      end
-
-    Fetch.FileTap.log_body(url, body, dt)
-    response
-  end
-
-  defp log_response(response, _, _) do
-    response
-  end
 
   defp update_state(
          %{cache_file: cache_file} = state,

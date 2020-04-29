@@ -13,7 +13,6 @@ defmodule Fetch.App do
     opts = Application.fetch_env!(:fetch, Fetch)
 
     children = [
-      worker(Fetch.FileTap, []),
       {Registry, keys: :unique, name: Fetch.Registry},
       supervisor(Fetch, [opts])
     ]
