@@ -19,7 +19,8 @@ defmodule ApiWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
+      import Plug.Conn
+      import Phoenix.ConnTest
       use PhoenixSwagger.SchemaTest, ApiWeb.swagger_path()
       import ApiWeb.ConnCase
       import ApiWeb.Router.Helpers

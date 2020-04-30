@@ -77,7 +77,7 @@ defmodule ApiWeb.Mixfile do
       {:diskusage_logger, "~> 0.2.0", only: :prod},
       {:jason, "~> 1.0"},
       {:stream_data, "~> 0.4", only: :test},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.1"}
     ]
   end
 end
