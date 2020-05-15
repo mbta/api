@@ -1,4 +1,4 @@
-FROM elixir:1.10.2-alpine as builder
+FROM hexpm/elixir:1.10.3-erlang-23.0.2-alpine-3.11.6 as builder
 
 WORKDIR /root
 
@@ -21,7 +21,7 @@ ADD rel/ rel/
 RUN mix distillery.release --verbose
 
 # The one the elixir image was built with
-FROM alpine:3.11
+FROM alpine:3.11.6
 
 RUN apk add --update libssl1.1 curl bash dumb-init \
 	&& rm -rf /var/cache/apk/*
