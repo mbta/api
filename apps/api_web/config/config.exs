@@ -48,6 +48,8 @@ config :logger, :console,
   metadata: [:request_id]
 
 # JSON-API configuration
+config :phoenix, json_library: Jason
+
 config :phoenix, :format_encoders,
   "json-api": Jason,
   json: Jason
