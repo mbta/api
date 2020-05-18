@@ -7,7 +7,8 @@ config :ex_aws,
     port: "8000",
     scheme: "http://",
     host: "localhost"
-  ]
+  ],
+  json_codec: Jason
 
 config :ex_aws, :hackney_opts,
   recv_timeout: 30_000,
