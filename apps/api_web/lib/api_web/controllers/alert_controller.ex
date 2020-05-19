@@ -306,7 +306,7 @@ defmodule ApiWeb.AlertController do
         end,
       InformedEntity:
         swagger_schema do
-          description("Object representing a particular part of the system affected by an alert")
+          description(typedoc(:informed_entity))
 
           properties do
             activities(
@@ -315,14 +315,34 @@ defmodule ApiWeb.AlertController do
               example: ["BOARD", "EXIT"]
             )
 
-            facility(:string, "Unique id of a facility", example: "405")
-            route(:string, "Unique id of a route", example: "CR_Worcester")
-            route_type(:integer, route_type_description(), example: 2)
-            stop(:string, "Unique id of a stop", example: "Auburndale")
-            trip(:string, "Unique id of a trip", example: "CR-Weekday-Spring-17-517")
-          end
+            direction_id(
+              nullable(direction_id_schema(), true),
+              "`direction_id` of the affected Trip.\n\n" <> direction_id_description(),
+              example: 0
+            )
 
-          direction_id_property()
+            facility(nullable(%Schema{type: :string}, true), "`id` of the affected Facility.",
+              example: "405"
+            )
+
+            route(nullable(%Schema{type: :string}, true), "`id` of the affected Route.",
+              example: "CR-Worcester"
+            )
+
+            route_type(
+              nullable(%Schema{type: :integer}, true),
+              "`type` of the affected Route.\n\n" <> route_type_description(),
+              example: 2
+            )
+
+            stop(nullable(%Schema{type: :string}, true), "`id` of the affected Stop.",
+              example: "Auburndale"
+            )
+
+            trip(nullable(%Schema{type: :string}, true), "`id` of the affected Trip.",
+              example: "CR-Weekday-Spring-17-517"
+            )
+          end
         end,
       ActivePeriod:
         swagger_schema do
@@ -338,7 +358,7 @@ defmodule ApiWeb.AlertController do
 
           property(
             "end",
-            :string,
+            nullable(%Schema{type: :string}, true),
             "End Date. Format is ISO8601.",
             format: :"date-time",
             example: "2017-08-14T14:54:01-04:00"
@@ -361,7 +381,7 @@ defmodule ApiWeb.AlertController do
             )
 
             banner(
-              :string,
+              nullable(%Schema{type: :string}, true),
               "Set if alert is meant to be displayed prominently, such as the top of every page.",
               example: "All service suspended due to severe weather"
             )
@@ -383,7 +403,7 @@ defmodule ApiWeb.AlertController do
             )
 
             description(
-              :string,
+              nullable(%Schema{type: :string}, true),
               """
               This plain-text string will be formatted as the body of the alert (or shown on an explicit \
               "expand" request by the user). The information in the description should add to the information \
@@ -428,10 +448,7 @@ defmodule ApiWeb.AlertController do
                 items: Schema.ref(:InformedEntity),
                 type: :array
               },
-              """
-              Entities whose users we should notify of this alert.  See \
-              [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `informed_entity`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
-              """
+              "Entities affected by this alert."
             )
 
             lifecycle(:string, typedoc(:lifecycle), example: "Ongoing")
@@ -459,7 +476,11 @@ defmodule ApiWeb.AlertController do
               """
             )
 
-            timeframe(:string, "Summarizes when an alert is in effect.", example: "Ongoing")
+            timeframe(
+              nullable(%Schema{type: :string}, true),
+              "Summarizes when an alert is in effect.",
+              example: "Ongoing"
+            )
 
             updated_at(
               %Schema{type: :string, format: :"date-time"},
@@ -468,7 +489,7 @@ defmodule ApiWeb.AlertController do
             )
 
             url(
-              :string,
+              nullable(%Schema{type: :string}, true),
               "A URL for extra details, such as outline construction or maintenance plans.",
               example:
                 "http://www.mbta.com/uploadedfiles/Documents/Schedules_and_Maps/Commuter_Rail/fairmount.pdf?led=6/3/2017%201:22:09%20AM"

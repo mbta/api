@@ -37,7 +37,18 @@ defmodule ApiWeb.SwaggerHelpers do
     fields_param(path_object, name)
   end
 
-  def direction_id_attribute(schema), do: direction_id(schema, JsonApi, :attribute)
+  def direction_id_attribute(schema) do
+    JsonApi.attribute(
+      schema,
+      :direction_id,
+      direction_id_schema(),
+      """
+      Direction in which trip is traveling: `0` or `1`.
+
+      #{direction_id_description()}
+      """
+    )
+  end
 
   def direction_id_description do
     """
@@ -46,7 +57,7 @@ defmodule ApiWeb.SwaggerHelpers do
     """
   end
 
-  def direction_id_property(schema), do: direction_id(schema, Schema, :property)
+  def direction_id_schema, do: %Schema{type: :integer, enum: [0, 1]}
 
   def include_parameters(path_object, includes, options \\ []) do
     Path.parameter(path_object, :include, :query, :string, """
@@ -226,19 +237,6 @@ defmodule ApiWeb.SwaggerHelpers do
 
   defp call_path(path_fn, :show) do
     "#{call_path(path_fn, :index)}/{id}"
-  end
-
-  defp direction_id(schema, module, function) do
-    apply(module, function, [
-      schema,
-      :direction_id,
-      %Schema{type: :integer, enum: [0, 1]},
-      """
-      Direction in which trip is traveling: `0` or `1`.
-
-      #{direction_id_description()}
-      """
-    ])
   end
 
   defp direction_to_prefix("ascending"), do: ""

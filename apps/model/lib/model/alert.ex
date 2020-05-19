@@ -60,21 +60,24 @@ defmodule Model.Alert do
   @type activities :: [activity]
 
   @typedoc """
-  At least one (>= 1) field will be non-`nil`
+  An entity affected by an alert. At least one of the fields other than `activities` will be \
+  non-null. The affected entity is the intersection of these fields, not the union: if `stop` \
+  and `route` both have values, the alert does not affect the entire route.
 
-  * `:direction_id` - Which direction along `route` the `trip` is going.  See
+  See [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `EntitySelector`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-entityselector).
+
+  * `activities` - The activities affected.
+  * `direction_id` - The direction of the affected `trip`. See \
       [GTFS `trips.txt` `direction_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxt).
-  * `:facility` - The facility this alert is about.
-  * `:route` - The route the alert is about.  See
+  * `facility` - The facility affected.
+  * `route` - The route affected. See \
       [GTFS `routes.txt` `route_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#routestxt)
-  * `:route_type` - The type of route affected, for when an entire mode of transport is affected. See
+  * `route_type` - The type of route affected. If present alone, indicates the entire mode of transit is affected. See \
       [GTFS `routes.txt` `route_type`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#routestxt)
-  * `:stop` - The stop affected. See
+  * `stop` - The stop affected. See \
       [GTFS `stops.txt` `stop_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stopstxt)
-  * `:trip` - The trip affected. See
+  * `trip` - The trip affected. See \
       [GTFS `trips.txt` `trip_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxt)
-
-  See [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `EntitySelector`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-entityselector)
   """
   @type informed_entity :: %{
           optional(:activities) => activities,
