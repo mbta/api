@@ -7,7 +7,7 @@ defmodule ApiWeb.Mixfile do
      aliases: aliases(),
      build_embedded: Mix.env == :prod,
      build_path: "../../_build",
-     compilers: [:phoenix, :phoenix_swagger] ++ Mix.compilers,
+     compilers: [:phoenix] ++ Mix.compilers ++ [:phoenix_swagger],
      config_path: "../../config/config.exs",
      deps: deps(),
      deps_path: "../../deps",
