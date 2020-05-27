@@ -7,6 +7,7 @@ defmodule Parse.VehiclePositionsJsonTest do
     "id" => "y0487",
     "vehicle" => %{
       "current_status" => "IN_TRANSIT_TO",
+      "occupancy_status" => "FEW_SEATS_AVAILABLE",
       "current_stop_sequence" => 1,
       "position" => %{
         "bearing" => 225,
@@ -43,6 +44,7 @@ defmodule Parse.VehiclePositionsJsonTest do
         %Model.Vehicle{
           bearing: 225,
           current_status: :in_transit_to,
+          occupancy_status: :few_seats_available,
           current_stop_sequence: 1,
           direction_id: 1,
           id: "y0487",
@@ -69,6 +71,7 @@ defmodule Parse.VehiclePositionsJsonTest do
         %Model.Vehicle{
           bearing: 225,
           current_status: :in_transit_to,
+          occupancy_status: :few_seats_available,
           current_stop_sequence: 1,
           direction_id: 1,
           id: "y0487",

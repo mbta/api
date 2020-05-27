@@ -244,6 +244,26 @@ defmodule ApiWeb.VehicleController do
               "Speed that the vehicle is traveling in meters per second. See [GTFS-realtime Position speed](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-position).",
               example: 16
             )
+
+            occupancy_status(
+              :string,
+              """
+              The degree of passenger occupancy for the vehicle. See [GTFS-realtime OccupancyStatus](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-vehiclestopstatus).
+
+              | _**Value**_                    | _**Description**_                                                                                   |
+              |--------------------------------|-----------------------------------------------------------------------------------------------------|
+              | **EMPTY**                      | The vehicle is considered empty by most measures, and has few or no passengers onboard, but is still accepting passengers. |
+              | **MANY_SEATS_AVAILABLE**       | The vehicle has a large percentage of seats available. What percentage of free seats out of the total seats available is to be considered large enough to fall into this category is determined at the discretion of the producer. |
+              | **FEW_SEATS_AVAILABLE**        | The vehicle has a small percentage of seats available. What percentage of free seats out of the total seats available is to be considered small enough to fall into this category is determined at the discretion of the producer. |
+              | **STANDING_ROOM_ONLY**         | The vehicle can currently accommodate only standing passengers.              |
+              | **CRUSHED_STANDING_ROOM_ONLY** | The vehicle can currently accommodate only standing passengers and has limited space for them. |
+              | **FULL**                       | The vehicle is considered full by most measures, but may still be allowing passengers to board. |
+              | **NOT_ACCEPTING_PASSENGERS**   | The vehicle can not accept passengers. |
+
+              """,
+              "x-nullable": true,
+              example: "FEW_SEATS_AVAILABLE"
+            )
           end
 
           direction_id_attribute()

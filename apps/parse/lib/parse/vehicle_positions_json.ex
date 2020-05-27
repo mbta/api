@@ -39,7 +39,8 @@ defmodule Parse.VehiclePositionsJson do
         current_status: parse_status(Map.get(data, "current_status")),
         current_stop_sequence: Map.get(data, "current_stop_sequence"),
         updated_at: unix_to_local(Map.get(data, "timestamp")),
-        consist: parse_consist(Map.get(vehicle, "consist"))
+        consist: parse_consist(Map.get(vehicle, "consist")),
+        occupancy_status: parse_occupancy_status(Map.get(data, "occupancy_status"))
       }
     ]
   end
@@ -70,6 +71,22 @@ defmodule Parse.VehiclePositionsJson do
   defp parse_status("STOPPED_AT") do
     :stopped_at
   end
+
+  defp parse_occupancy_status(nil), do: nil
+
+  defp parse_occupancy_status("EMPTY"), do: :empty
+
+  defp parse_occupancy_status("MANY_SEATS_AVAILABLE"), do: :many_seats_available
+
+  defp parse_occupancy_status("FEW_SEATS_AVAILABLE"), do: :few_seats_available
+
+  defp parse_occupancy_status("STANDING_ROOM_ONLY"), do: :standing_room_only
+
+  defp parse_occupancy_status("CRUSHED_STANDING_ROOM_ONLY"), do: :crushed_standing_room_only
+
+  defp parse_occupancy_status("FULL"), do: :full
+
+  defp parse_occupancy_status("NOT_ACCEPTING_PASSENGERS"), do: :not_accepting_passengers
 
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)

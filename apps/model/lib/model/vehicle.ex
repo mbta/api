@@ -18,7 +18,8 @@ defmodule Model.Vehicle do
     :current_stop_sequence,
     :updated_at,
     :effective_route_id,
-    :consist
+    :consist,
+    :occupancy_status
   ]
 
   alias Model.WGS84
@@ -39,6 +40,15 @@ defmodule Model.Vehicle do
 
   """
   @type current_status :: :in_transit_to | :incoming_at | :stopped_at
+
+  @type occupancy_status ::
+          :empty
+          | :many_seats_available
+          | :few_seats_available
+          | :standing_room_only
+          | :crushed_standing_room_only
+          | :full
+          | :not_accepting_passengers
 
   @typedoc """
   Meters per second
@@ -91,7 +101,8 @@ defmodule Model.Vehicle do
           speed: speed | nil,
           stop_id: Model.Stop.id() | nil,
           trip_id: Model.Trip.id() | nil,
-          consist: [String.t()] | nil
+          consist: [String.t()] | nil,
+          occupancy_status: occupancy_status() | nil
         }
 
   def primary?(%__MODULE__{route_id: id, effective_route_id: id}), do: true
