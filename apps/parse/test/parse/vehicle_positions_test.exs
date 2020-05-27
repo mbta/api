@@ -8,6 +8,7 @@ defmodule Parse.VehiclePositionsTest do
     "id" => "y1796",
     "vehicle" => %{
       "current_status" => "IN_TRANSIT_TO",
+      "occupancy_status" => "FULL",
       "current_stop_sequence" => 19,
       "position" => %{
         "bearing" => 45,
@@ -38,6 +39,34 @@ defmodule Parse.VehiclePositionsTest do
         %Model.Vehicle{
           bearing: 45,
           current_status: :in_transit_to,
+          occupancy_status: :full,
+          current_stop_sequence: 19,
+          direction_id: 1,
+          id: "y1796",
+          label: "1796",
+          latitude: 42.342471209,
+          longitude: -71.12175583,
+          route_id: "66",
+          speed: nil,
+          stop_id: "1308",
+          trip_id: "41893421",
+          updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"])
+        }
+      ]
+
+      actual = parse(body)
+      assert actual == expected
+    end
+
+    test "can parse JSON with nil occupancy_status" do
+      vehicle = %{@vehicle | "vehicle" => %{@vehicle["vehicle"] | "occupancy_status" => nil}}
+      body = Jason.encode!(%{entity: [vehicle]})
+
+      expected = [
+        %Model.Vehicle{
+          bearing: 45,
+          current_status: :in_transit_to,
+          occupancy_status: :full,
           current_stop_sequence: 19,
           direction_id: 1,
           id: "y1796",

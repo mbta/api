@@ -253,7 +253,8 @@ defmodule ApiWeb.VehicleControllerTest do
                  "direction_id" => nil,
                  "current_status" => nil,
                  "current_stop_sequence" => nil,
-                 "updated_at" => nil
+                 "updated_at" => nil,
+                 "occupancy_status" => nil
                }
              }
     end
@@ -337,7 +338,7 @@ defmodule ApiWeb.VehicleControllerTest do
       State.Vehicle.new_state([vehicle])
 
       response = get(conn, vehicle_path(conn, :show, "vehicle_1"))
-
+      IO.inspect(schema)
       assert validate_resp_schema(response, schema, "Vehicle")
     end
 

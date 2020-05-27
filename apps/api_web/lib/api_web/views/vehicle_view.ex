@@ -14,7 +14,8 @@ defmodule ApiWeb.VehicleView do
     :speed,
     :current_status,
     :current_stop_sequence,
-    :updated_at
+    :updated_at,
+    :occupancy_status
   ])
 
   has_one(
@@ -56,6 +57,22 @@ defmodule ApiWeb.VehicleView do
   end
 
   def current_status(_, _) do
+    nil
+  end
+
+  for status <-
+        ~w(empty many_seats_available few_seats_available standing_room_only crushed_standing_room_only full not_accepting_passengers)a do
+    status_binary =
+      status
+      |> Atom.to_string()
+      |> String.upcase()
+
+    def occupancy_status(%{occupancy_status: unquote(status)}, _conn) do
+      unquote(status_binary)
+    end
+  end
+
+  def occupancy_status(_, _) do
     nil
   end
 

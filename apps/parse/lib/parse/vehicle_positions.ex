@@ -35,7 +35,8 @@ defmodule Parse.VehiclePositions do
       speed: update.position && update.position.speed,
       current_status: current_status(update.current_status),
       current_stop_sequence: update.current_stop_sequence,
-      updated_at: unix_to_local(update.timestamp)
+      updated_at: unix_to_local(update.timestamp),
+      occupancy_status: occupancy_status(update.occupancy_status)
     }
   end
 
@@ -62,6 +63,22 @@ defmodule Parse.VehiclePositions do
   defp current_status(:STOPPED_AT) do
     :stopped_at
   end
+
+  defp occupancy_status(nil), do: nil
+
+  defp occupancy_status(:EMPTY), do: :empty
+
+  defp occupancy_status(:MANY_SEATS_AVAILABLE), do: :many_seats_available
+
+  defp occupancy_status(:FEW_SEATS_AVAILABLE), do: :few_seats_available
+
+  defp occupancy_status(:STANDING_ROOM_ONLY), do: :standing_room_only
+
+  defp occupancy_status(:CRUSHED_STANDING_ROOM_ONLY), do: :crushed_standing_room_only
+
+  defp occupancy_status(:FULL), do: :full
+
+  defp occupancy_status(:NOT_ACCEPTING_PASSENGERS), do: :not_accepting_passengers
 
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)
