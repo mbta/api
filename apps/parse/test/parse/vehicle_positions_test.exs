@@ -66,7 +66,7 @@ defmodule Parse.VehiclePositionsTest do
         %Model.Vehicle{
           bearing: 45,
           current_status: :in_transit_to,
-          occupancy_status: :full,
+          occupancy_status: nil,
           current_stop_sequence: 19,
           direction_id: 1,
           id: "y1796",
