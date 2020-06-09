@@ -286,13 +286,6 @@ defmodule StateMediator.Integration.GtfsTest do
       assert name =~ "Copley"
     end
 
-    test "CR-Lowell inbound has two rail shapes total" do
-      assert [_, _] =
-               ["CR-Lowell"]
-               |> State.Shape.select_routes(1)
-               |> Enum.reject(&(&1.priority < 0))
-    end
-
     test "CR-Lowell inbound has one rail shape with route_id CR-Lowell" do
       assert [_] =
                ["CR-Lowell"]
@@ -367,13 +360,6 @@ defmodule StateMediator.Integration.GtfsTest do
   end
 
   describe "schedules" do
-    test "CR-Lowell has a trip to Haverhill" do
-      refute State.Trip.match(
-               %{route_id: "CR-Lowell", direction_id: 0, headsign: "Haverhill"},
-               :route_id
-             ) == []
-    end
-
     test "CR-Fairmount has alternate route trips" do
       refute State.Trip.match(
                %{route_id: "CR-Fairmount", direction_id: 1, alternate_route: true},
