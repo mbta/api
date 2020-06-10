@@ -9,6 +9,10 @@ config :ex_aws,
     host: "localhost"
   ]
 
+config :ex_aws, :hackney_opts,
+  recv_timeout: 30_000,
+  pool: :ex_aws_pool
+
 config :api_accounts, ApiAccounts.Mailer, adapter: Bamboo.SesAdapter
 
 config :api_accounts, migrate_on_start: false

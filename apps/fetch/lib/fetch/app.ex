@@ -14,6 +14,7 @@ defmodule Fetch.App do
 
     children = [
       {Registry, keys: :unique, name: Fetch.Registry},
+      :hackney_pool.child_spec(:fetch_pool, []),
       supervisor(Fetch, [opts])
     ]
 

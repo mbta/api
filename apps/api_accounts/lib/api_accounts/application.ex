@@ -11,6 +11,7 @@ defmodule ApiAccounts.Application do
 
     Supervisor.start_link(
       [
+        :hackney_pool.child_spec(:ex_aws_pool, []),
         worker(ApiAccounts.Keys, [])
       ],
       strategy: :one_for_one,

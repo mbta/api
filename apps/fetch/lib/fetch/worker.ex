@@ -48,6 +48,7 @@ defmodule Fetch.Worker do
     opts =
       opts
       |> Keyword.put_new(:recv_timeout, opts[:timeout])
+      |> Keyword.put_new(:hackney, pool: :fetch_pool)
 
     http_response = HTTPoison.get(url, state_headers(state), opts)
 
