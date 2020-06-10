@@ -23,6 +23,10 @@ config :state, :shape,
     "810_0007" => -1,
     # Green-B (Lechmere)
     "810_0008" => -1,
+    # Green-B (North Station)
+    "811_0007" => -1,
+    # Green-B (North Station)
+    "811_0008" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
@@ -63,6 +67,10 @@ config :state, :shape,
     "840_0008" => -1,
     # Green-D (Lechmere)
     "840_0009" => -1,
+    # Green-D (North Station)
+    "841_0005" => -1,
+    # Green-D (North Station)
+    "841_0006" => -1,
     # Green-D (Lechmere)
     "850_0006" => -1,
     # Green-D (Lechmere)
