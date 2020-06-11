@@ -82,6 +82,8 @@ config :state, :shape,
     # Green-D (North Station)
     "851_0008" => -1,
     # Green-D (North Station)
+    "851_0009" => -1,
+    # Green-D (North Station)
     "851_0010" => -1,
     # Green-D (Newton Highlands)
     "858_0002" => -1,
