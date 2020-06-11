@@ -89,6 +89,9 @@ config :state, :shape,
     "858t0001" => -1,
     # Green-D (Newton Highlands)
     "858t0002" => -1,
+    # Green-E (shuttle bus)
+    "6020021" => -1,
+    "6020022" => -1,
 
     # Order the Red Line Ashmont first, and change the northbound names to
     # the names of the branch.

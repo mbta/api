@@ -275,7 +275,10 @@ defmodule StateMediator.Integration.GtfsTest do
         [primary_shape | _] = State.Shape.select_routes([route_id], 0)
         [last_stop | _] = stops(route_id, 1)
         # don't require an exact match
-        assert primary_shape.name =~ last_stop.name
+        assert primary_shape.name =~ last_stop.name,
+               "primary shape #{primary_shape.id} on route #{route_id} should end at #{
+                 last_stop.name
+               }, not #{primary_shape.name}"
       end
     end
 
