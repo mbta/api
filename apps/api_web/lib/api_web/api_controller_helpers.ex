@@ -16,7 +16,7 @@ defmodule ApiWeb.ApiControllerHelpers do
   alias State.Pagination.Offsets
 
   # # of milliseconds after which to terminate the request
-  @deadline_ms 20_000
+  @deadline_ms 10_000
 
   defmacro __using__(_) do
     quote location: :keep do
