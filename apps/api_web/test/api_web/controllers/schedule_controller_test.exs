@@ -13,7 +13,7 @@ defmodule ApiWeb.SchedulerControllerTest do
     valid_days: [],
     start_date: Time.service_date(),
     end_date: Timex.shift(Time.service_date(), days: 2),
-    added_dates: [~D[2017-08-28], Time.service_date()],
+    added_dates: [Time.service_date()],
     removed_dates: []
   }
   @trip %Model.Trip{id: "trip", route_id: "route", direction_id: 1, service_id: "service"}
@@ -100,7 +100,7 @@ defmodule ApiWeb.SchedulerControllerTest do
     end
 
     test "can include prediction", %{conn: conn} do
-      date = Timex.to_datetime(~D[2017-08-28], "America/New_York")
+      date = Timex.to_datetime(Time.service_date(), "America/New_York")
 
       associated_prediction = %Model.Prediction{
         route_id: "route",
@@ -128,7 +128,7 @@ defmodule ApiWeb.SchedulerControllerTest do
         get(
           conn,
           schedule_path(conn, :index),
-          filter: %{trip: "trip", date: "2017-08-28"},
+          filter: %{trip: "trip"},
           include: "prediction"
         )
 
