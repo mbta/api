@@ -252,13 +252,9 @@ defmodule ApiWeb.VehicleController do
 
               | _**Value**_                    | _**Description**_                                                                                   |
               |--------------------------------|-----------------------------------------------------------------------------------------------------|
-              | **EMPTY**                      | The vehicle is considered empty by most measures, and has few or no passengers onboard, but is still accepting passengers. |
-              | **MANY_SEATS_AVAILABLE**       | The vehicle has a large percentage of seats available. What percentage of free seats out of the total seats available is to be considered large enough to fall into this category is determined at the discretion of the producer. |
-              | **FEW_SEATS_AVAILABLE**        | The vehicle has a small percentage of seats available. What percentage of free seats out of the total seats available is to be considered small enough to fall into this category is determined at the discretion of the producer. |
-              | **STANDING_ROOM_ONLY**         | The vehicle can currently accommodate only standing passengers.              |
-              | **CRUSHED_STANDING_ROOM_ONLY** | The vehicle can currently accommodate only standing passengers and has limited space for them. |
-              | **FULL**                       | The vehicle is considered full by most measures, but may still be allowing passengers to board. |
-              | **NOT_ACCEPTING_PASSENGERS**   | The vehicle can not accept passengers. |
+              | **MANY_SEATS_AVAILABLE**       | Not crowded: the vehicle has a large percentage of seats available. |
+              | **FEW_SEATS_AVAILABLE**        | Some crowding: the vehicle has a small percentage of seats available. |
+              | **FULL**                       | Crowded: the vehicle is considered full by most measures, but may still be allowing passengers to board. |
 
               """,
               "x-nullable": true,
