@@ -1,25 +1,24 @@
 #!/bin/bash
 set -e
-ELIXIR_VERSION=1.10.2
-ERLANG_VERSION=22.3.2
 
 export MIX_HOME=$SEMAPHORE_CACHE_DIR/mix
 mkdir -p $MIX_HOME
 
-export ERL_HOME="${SEMAPHORE_CACHE_DIR}/.kerl/installs/${ERLANG_VERSION}"
+export ASDF_DATA_DIR=$SEMAPHORE_CACHE_DIR/.asdf
 
-if [ ! -d "${ERL_HOME}" ]; then
-    mkdir -p "${ERL_HOME}"
-    KERL_BUILD_BACKEND=git kerl build $ERLANG_VERSION $ERLANG_VERSION
-    kerl install $ERLANG_VERSION $ERL_HOME
+if [[ ! -d $ASDF_DATA_DIR ]]; then
+  mkdir -p $ASDF_DATA_DIR
+  git clone https://github.com/asdf-vm/asdf.git $ASDF_DATA_DIR --branch v0.7.8
 fi
 
-. $ERL_HOME/activate
+source $ASDF_DATA_DIR/asdf.sh
+asdf update
 
-if ! kiex use $ELIXIR_VERSION; then
-    kiex install $ELIXIR_VERSION
-    kiex use $ELIXIR_VERSION
-fi
+asdf plugin-add erlang || true
+asdf plugin-add elixir || true
+asdf plugin-update --all
+asdf install
+
 mix local.hex --force
 mix local.rebar --force
 
