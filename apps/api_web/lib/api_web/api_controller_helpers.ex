@@ -52,6 +52,21 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def show(module, conn, params) do
+    conn
+    |> get_format()
+    |> show_for_format(module, conn, params)
+  end
+
+  def show_for_format("event-stream", _module, conn, params) do
+    render_json_api(
+      conn,
+      params,
+      {:error, :not_acceptable,
+       "Streaming not supported for an individual resource. Instead list resources and filter by ID."}
+    )
+  end
+
+  def show_for_format(_format, module, conn, params) do
     data =
       case ApiWeb.Params.validate_show_params(params, conn) do
         :ok ->
@@ -104,6 +119,13 @@ defmodule ApiWeb.ApiControllerHelpers do
     |> put_status(:not_found)
     |> put_view(ApiWeb.ErrorView)
     |> render("404.json-api", [])
+  end
+
+  def render_json_api(conn, _params, {:error, :not_acceptable, details}) do
+    conn
+    |> put_status(:not_acceptable)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("406.json-api", details: details)
   end
 
   def render_json_api(conn, _params, {:error, error, details}) do
