@@ -99,6 +99,14 @@ defmodule ApiWeb.ErrorView do
     })
   end
 
+  def render("406.json" <> _, %{details: details}) do
+    ErrorSerializer.format(%{
+      code: :not_acceptable,
+      status: "406",
+      detail: details
+    })
+  end
+
   def render("406.json" <> _, _assigns) do
     ErrorSerializer.format(%{code: :not_acceptable, status: "406"})
   end

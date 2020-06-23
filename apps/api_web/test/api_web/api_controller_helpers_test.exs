@@ -152,4 +152,23 @@ defmodule ApiWeb.ApiControllerHelpersTest do
       assert conn.assigns[:split_include] == []
     end
   end
+
+  describe "server_sent_event streaming" do
+    test "returns 406 for a 'show' endpoint", %{conn: conn} do
+      response =
+        conn
+        |> put_req_header("accept", "text/event-stream")
+        |> get(vehicle_path(conn, :show, 1))
+
+      assert %{
+               "errors" => [
+                 %{
+                   "status" => "406",
+                   "code" => "not_acceptable",
+                   "detail" => "Streaming not supported" <> _
+                 }
+               ]
+             } = json_response(response, 406)
+    end
+  end
 end
