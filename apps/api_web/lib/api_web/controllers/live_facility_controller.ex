@@ -94,6 +94,7 @@ defmodule ApiWeb.LiveFacilityController do
     response(200, "OK", Schema.ref(:LiveFacility))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
+    response(406, "Not Acceptable", Schema.ref(:NotAcceptable))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 

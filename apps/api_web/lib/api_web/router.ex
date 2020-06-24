@@ -336,6 +336,40 @@ defmodule ApiWeb.Router do
               minItems: 1
             }
           }
+        },
+        NotAcceptable: %{
+          type: :object,
+          description: "A JSON-API error document when a request uses an invalid 'accept' header",
+          required: [:errors],
+          properties: %{
+            errors: %{
+              type: :array,
+              items: %{
+                type: :object,
+                description: "A JSON-API error when a request uses an invalid 'accept' header",
+                properties: %{
+                  code: %{
+                    type: :string,
+                    description: "An application-specific error code",
+                    example: "not_acceptable"
+                  },
+                  status: %{
+                    type: :string,
+                    description: "The HTTP status code applicable to the problem",
+                    example: "406"
+                  },
+                  detail: %{
+                    type: :string,
+                    description: "Human-readable summary of the problem",
+                    example:
+                      "Content-type text/event-stream is not supported for this kind of request."
+                  }
+                }
+              },
+              maxItems: 1,
+              minItems: 1
+            }
+          }
         }
       },
       securityDefinitions: %{
