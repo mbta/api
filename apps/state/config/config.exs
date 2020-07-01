@@ -183,6 +183,14 @@ config :state, :stops_on_route,
     {"CR-Fairmount", 1} => [
       ["Foxboro", "Dedham Corp Center", "Readville"],
       ["place-FS-0049", "place-FB-0118", "place-DB-0095"]
+    ],
+    {"CR-Newburyport", 0} => [
+      ["Manchester", "West Gloucester", "Gloucester", "Rockport"],
+      ["place-GB-0254", "place-GB-0296", "place-GB-0316", "place-GB-0353"]
+    ],
+    {"CR-Newburyport", 1} => [
+      ["Rockport", "Gloucester", "West Gloucester", "Manchester"],
+      ["place-GB-0353", "place-GB-0316", "place-GB-0296", "place-GB-0254"]
     ]
   },
   not_on_route: %{
