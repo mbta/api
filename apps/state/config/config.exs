@@ -10,7 +10,14 @@ config :state, :route_pattern,
     "CR-Franklin-Foxboro-" => false,
     # ignore North Station Green-D patterns
     "Green-D-1-1" => true,
-    "Green-D-3-1" => true
+    "Green-D-3-1" => true,
+    # don't ignore Rockport Branch shuttles
+    "Shuttle-ManchesterGloucester-0-0" => false,
+    "Shuttle-ManchesterGloucester-0-1" => false,
+    "Shuttle-ManchesterRockport-0-0" => false,
+    "Shuttle-ManchesterRockport-0-1" => false,
+    "Shuttle-RockportWestGloucester-0-0" => false,
+    "Shuttle-RockportWestGloucester-0-1" => false
   }
 
 config :state, :shape,
@@ -183,6 +190,46 @@ config :state, :stops_on_route,
     {"CR-Fairmount", 1} => [
       ["Foxboro", "Dedham Corp Center", "Readville"],
       ["place-FS-0049", "place-FB-0118", "place-DB-0095"]
+    ],
+    {"CR-Newburyport", 0} => [
+      [
+        "Montserrat",
+        "Prides Crossing",
+        "Beverly Farms",
+        "Manchester",
+        "West Gloucester",
+        "Gloucester",
+        "Rockport"
+      ],
+      [
+        "place-GB-0198",
+        "place-GB-0222",
+        "place-GB-0229",
+        "place-GB-0254",
+        "place-GB-0296",
+        "place-GB-0316",
+        "place-GB-0353"
+      ]
+    ],
+    {"CR-Newburyport", 1} => [
+      [
+        "Rockport",
+        "Gloucester",
+        "West Gloucester",
+        "Manchester",
+        "Beverly Farms",
+        "Prides Crossing",
+        "Montserrat"
+      ],
+      [
+        "place-GB-0353",
+        "place-GB-0316",
+        "place-GB-0296",
+        "place-GB-0254",
+        "place-GB-0229",
+        "place-GB-0222",
+        "place-GB-0198"
+      ]
     ]
   },
   not_on_route: %{
