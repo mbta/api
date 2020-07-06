@@ -51,7 +51,7 @@ defmodule ApiAccounts.Mixfile do
     [
      {:fetch, in_umbrella: true},
      {:ex_aws, "~> 2.0"},
-     {:ex_aws_dynamo, "~> 3.0"},
+     {:ex_aws_dynamo, "~> 4.0"},
      {:jason, "~> 1.0"},
      {:comeonin, "~> 5.1"},
      {:bcrypt_elixir, "~> 2.0"},
