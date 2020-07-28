@@ -50,7 +50,7 @@ defmodule ApiWeb.PredictionController do
 
     include_parameters(
       @includes,
-      description: include_example()
+      description: include_description()
     )
 
     filter_param(:position)
@@ -430,9 +430,10 @@ defmodule ApiWeb.PredictionController do
     """
   end
 
-  defp include_example do
+  defp include_description do
     """
-    Here is an example:
+    ## Example
+
     `https://api-v3.mbta.com/predictions?filter%5Bstop%5D=place-sstat&filter%5Bdirection_id%5D=0&include=stop`
     returns predictions from South Station with direction_id=0, below is a truncated response with only relevant fields displayed:
     ```
@@ -463,6 +464,19 @@ defmodule ApiWeb.PredictionController do
       }
     ```
     Note the stop relationship; use it to cross-reference  stop-id with the included stops to retrieve the platform_code for the given prediction.
+
+    ## Note on trips
+    A Vehicle's `trip` is what is currently being served.
+
+    A Prediction also has a `vehicle`: this is the vehicle we predict will serve this trip/stop.
+
+    Since we know vehicles make future trips, the trip the vehicle is currently servicing can be different from the trips we're making predictions for.
+
+    For example:
+    * Vehicle 1234 is currently serving trip A
+    * The block is Trip A → Trip B → Trip C
+
+    We'll be making predictions for the rest of trip A, as well as all the stops of trip B and trip C. The `trip` for the Vehicle is always `A`, and all of the Predictions will reference Vehicle 1234.
     """
   end
 end
