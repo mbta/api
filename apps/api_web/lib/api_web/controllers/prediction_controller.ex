@@ -12,11 +12,11 @@ defmodule ApiWeb.PredictionController do
   require Logger
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type date route_pattern)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
-  plug(:date)
+  plug(:assign_service_date)
 
   def state_module, do: State.Prediction
 
@@ -76,7 +76,7 @@ defmodule ApiWeb.PredictionController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered_params} <- Params.filter_params(params, @filters, conn),
+    with {:ok, filtered_params} <- Params.filter_params(params, filters(conn), conn),
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       pagination_opts =
         Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
@@ -123,6 +123,9 @@ defmodule ApiWeb.PredictionController do
       {:error, _, _} = error -> error
     end
   end
+
+  defp filters(%{assigns: %{api_version: ver}}) when ver < "2020-XX-XX", do: ["date" | @filters]
+  defp filters(_), do: @filters
 
   defp stop_ids(params, conn) do
     case Params.fetch_coords(params) do
@@ -408,8 +411,8 @@ defmodule ApiWeb.PredictionController do
     }
   end
 
-  @doc "Used when including schedules"
-  def date(conn, []) do
+  # Rendering schedules (if schedules are included) requires a service date to be assigned.
+  defp assign_service_date(conn, []) do
     {conn, date} = conn_service_date(conn)
 
     conn
