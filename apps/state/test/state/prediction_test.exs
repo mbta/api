@@ -81,6 +81,32 @@ defmodule State.PredictionTest do
     end
   end
 
+  describe "filter_by_departure_time/2" do
+    test "filters out predictions with a departure_time before the specified datetime" do
+      prediction_before = %Model.Prediction{departure_time: ~N[2020-01-01T11:59:59]}
+      prediction_at = %Model.Prediction{departure_time: ~N[2020-01-01T12:00:00]}
+      prediction_after = %Model.Prediction{departure_time: ~N[2020-01-01T12:00:01]}
+      prediction_nil = %Model.Prediction{departure_time: nil}
+      predictions = [prediction_before, prediction_at, prediction_after, prediction_nil]
+
+      expected = [prediction_at, prediction_after, prediction_nil]
+      assert filter_by_departure_time(predictions, ~N[2020-01-01T12:00:00]) == expected
+    end
+
+    test "accepts an ambiguous datetime and uses the `after` component" do
+      prediction_before = %Model.Prediction{departure_time: ~N[2020-01-01T11:59:59]}
+      prediction_after = %Model.Prediction{departure_time: ~N[2020-01-01T12:00:01]}
+      predictions = [prediction_before, prediction_after]
+
+      ambiguous_time = %Timex.AmbiguousDateTime{
+        before: ~N[2020-01-01T13:00:00],
+        after: ~N[2020-01-01T12:00:00]
+      }
+
+      assert filter_by_departure_time(predictions, ambiguous_time) == [prediction_after]
+    end
+  end
+
   describe "pre_insert_hook/1" do
     test "takes direction id from trip if missing" do
       State.Trip.new_state([

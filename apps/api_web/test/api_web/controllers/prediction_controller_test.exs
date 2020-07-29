@@ -142,6 +142,36 @@ defmodule ApiWeb.PredictionControllerTest do
     end
   end
 
+  test "versions before 2020-08-13 filter out predictions with past departures", %{conn: conn} do
+    State.Route.new_state([@route])
+
+    State.Prediction.new_state([
+      %Prediction{
+        status: "older",
+        route_id: @route.id,
+        departure_time: Timex.shift(Timex.now(), seconds: -6)
+      },
+      %Prediction{
+        status: "recent",
+        route_id: @route.id,
+        departure_time: Timex.shift(Timex.now(), seconds: -4)
+      },
+      %Prediction{
+        status: "future",
+        route_id: @route.id,
+        departure_time: Timex.shift(Timex.now(), seconds: 8)
+      }
+    ])
+
+    conn = assign(conn, :api_version, "2020-08-13")
+    resp = conn |> get("/predictions", route: @route.id) |> json_response(200)
+    assert Enum.map(resp["data"], & &1["attributes"]["status"]) == ["older", "recent", "future"]
+
+    conn = assign(conn, :api_version, "2020-05-01")
+    resp = conn |> get("/predictions", route: @route.id) |> json_response(200)
+    assert Enum.map(resp["data"], & &1["attributes"]["status"]) == ["recent", "future"]
+  end
+
   test "versions before 2019-02-12 include Alewife platformed stops", %{conn: conn} do
     stops = [
       %Stop{id: "South Station", parent_station: "place-sstat"},

@@ -40,6 +40,24 @@ defmodule State.Prediction do
     Enum.filter(predictions, &(&1.route_id in route_ids))
   end
 
+  @spec filter_by_departure_time(
+          [Model.Prediction.t()],
+          Timex.Comparable.comparable() | Timex.AmbiguousDateTime.t()
+        ) :: [Model.Prediction.t()]
+  def filter_by_departure_time(predictions, %Timex.AmbiguousDateTime{after: datetime}) do
+    filter_by_departure_time(predictions, datetime)
+  end
+
+  def filter_by_departure_time(predictions, datetime) do
+    Enum.filter(predictions, fn
+      %{departure_time: nil} ->
+        true
+
+      %{departure_time: departure_time} ->
+        not Timex.before?(departure_time, datetime)
+    end)
+  end
+
   defp prediction_key(%Model.Prediction{stop_sequence: stop_seq} = mod) do
     {stop_seq, mod.stop_id, mod.route_id, mod.trip_id, mod.direction_id}
   end

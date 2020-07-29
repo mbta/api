@@ -114,6 +114,7 @@ defmodule ApiWeb.PredictionController do
               all_stops_and_trips(stop_ids, trip_ids, matchers)
           end
           |> Prediction.filter_by_route_type(route_types)
+          |> filter_by_departure_time(conn)
           |> State.all(pagination_opts)
 
         _ ->
@@ -329,6 +330,13 @@ defmodule ApiWeb.PredictionController do
         [direction_id_matcher]
     end
   end
+
+  defp filter_by_departure_time(predictions, %{assigns: %{api_version: version}})
+       when version < "2020-08-13" do
+    Prediction.filter_by_departure_time(predictions, Timex.shift(Timex.now(), seconds: -5))
+  end
+
+  defp filter_by_departure_time(predictions, _), do: predictions
 
   def swagger_definitions do
     import PhoenixSwagger.JsonApi, except: [page: 1]
