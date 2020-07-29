@@ -142,6 +142,16 @@ defmodule ApiWeb.PredictionControllerTest do
     end
   end
 
+  test "versions before 2020-XX-XX allow an unused `date` filter", %{conn: conn} do
+    conn = assign(conn, :api_version, "2020-XX-XX")
+    resp = get(conn, "/predictions", stop: @stop.id, date: "2020-01-01")
+    assert json_response(resp, 400)
+
+    conn = assign(conn, :api_version, "2020-05-01")
+    resp = get(conn, "/predictions", stop: @stop.id, date: "2020-01-01")
+    assert json_response(resp, 200)
+  end
+
   test "versions before 2019-02-12 include Alewife platformed stops", %{conn: conn} do
     stops = [
       %Stop{id: "South Station", parent_station: "place-sstat"},
@@ -378,14 +388,7 @@ defmodule ApiWeb.PredictionControllerTest do
     State.Trip.new_state([%Trip{id: "trip", route_id: "route"}])
     State.Prediction.new_state([prediction])
 
-    conn =
-      get(
-        conn,
-        prediction_path(conn, :index),
-        trip: "trip",
-        include: "schedule",
-        date: DateTime.to_date(prediction.arrival_time)
-      )
+    conn = get(conn, prediction_path(conn, :index), trip: "trip", include: "schedule")
 
     [schedule] =
       conn
