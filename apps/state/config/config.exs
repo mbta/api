@@ -27,6 +27,8 @@ config :state, :shape,
     "811_0007" => -1,
     # Green-B (North Station)
     "811_0008" => -1,
+    # Green-B (North Station)
+    "811_0009" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
