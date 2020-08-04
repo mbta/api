@@ -27,6 +27,8 @@ config :state, :shape,
     "811_0007" => -1,
     # Green-B (North Station)
     "811_0008" => -1,
+    # Green-B (North Station)
+    "811_0009" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
@@ -61,7 +63,7 @@ config :state, :shape,
     "831_0009" => 2,
     # Green-D (Lechmere)
     "840_0004" => -1,
-    # Green-D (Lechmere),
+    # Green-D (Lechmere)
     "840_0005" => -1,
     # Green-D (Lechmere)
     "840_0008" => -1,
@@ -91,6 +93,10 @@ config :state, :shape,
     "858t0001" => -1,
     # Green-D (Newton Highlands)
     "858t0002" => -1,
+    # Green-E (Prudential)
+    "881_0012" => -1,
+    # Green-E (Prudential)
+    "881_0013" => -1,
     # Green-E (shuttle bus)
     "6020021" => -1,
     "6020022" => -1,
