@@ -7,7 +7,10 @@ config :state, :route_pattern,
     # don't ignore Foxboro via Fairmount trips
     "CR-Franklin-3-0" => false,
     "CR-Franklin-3-1" => false,
-    "CR-Franklin-Foxboro-" => false
+    "CR-Franklin-Foxboro-" => false,
+    # ignore North Station Green-D patterns
+    "Green-D-1-1" => true,
+    "Green-D-3-1" => true
   }
 
 config :state, :shape,
