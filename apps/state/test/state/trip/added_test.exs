@@ -193,6 +193,12 @@ defmodule State.Trip.AddedTest do
       insert_predictions([prediction])
       assert [%{headsign: "Parent"}] = by_id(@trip_id)
     end
+
+    test "doesn't create a trip when the stop doesn't match any shape" do
+      predictions = [%{@prediction | stop_id: "unknown"}]
+      insert_predictions(predictions)
+      assert by_id(@trip_id) == []
+    end
   end
 
   describe "handle_event/4 with route patterns" do

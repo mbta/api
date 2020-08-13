@@ -114,6 +114,8 @@ defmodule State.Trip.Added do
     end
   end
 
+  defp last_stop_id_on_shape(_, _, nil), do: nil
+
   defp last_stop_id_on_shape(%{priority: p} = shape, prediction, stop) when p >= 0 do
     shape_stops =
       State.StopsOnRoute.by_route_id(
