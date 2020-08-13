@@ -52,10 +52,10 @@ defmodule State.Trip.Added do
   end
 
   @spec prediction_to_trip({Trip.id(), Prediction.t()}) :: [Trip.t()]
-  defp prediction_to_trip({trip_id, %{route_pattern_id: route_pattern_id} = prediction})
-       when is_binary(route_pattern_id) do
-    with %{representative_trip_id: rep_id} <- State.RoutePattern.by_id(route_pattern_id),
-         [trip | _] <- State.Trip.by_id(rep_id) do
+  defp prediction_to_trip({trip_id, prediction}) do
+    with %{route_pattern_id: route_pattern_id} when is_binary(route_pattern_id) <- prediction,
+         %{representative_trip_id: rep_trip_id} <- State.RoutePattern.by_id(route_pattern_id),
+         [trip | _] <- State.Trip.by_id(rep_trip_id) do
       [
         %{
           trip
@@ -68,15 +68,11 @@ defmodule State.Trip.Added do
       ]
     else
       _ ->
-        prediction_based_on_shape(prediction)
+        prediction_to_trip_via_shape(prediction)
     end
   end
 
-  defp prediction_to_trip({_trip_id, %{route_pattern_id: nil} = prediction}) do
-    prediction_based_on_shape(prediction)
-  end
-
-  defp prediction_based_on_shape(prediction) do
+  defp prediction_to_trip_via_shape(prediction) do
     stop =
       case State.Stop.by_id(prediction.stop_id) do
         %{parent_station: nil} = stop -> stop
