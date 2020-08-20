@@ -97,7 +97,12 @@ defmodule ApiWeb.ShapeControllerTest do
       assert index_data(conn, %{"route" => "unknown"}) == []
     end
 
-    test "can filter by direction_id", %{conn: conn} do
+    test "versions before 2020-XX-XX can filter by direction_id", %{conn: conn} do
+      conn = assign(conn, :api_version, "2020-XX-XX")
+      expected = {:error, :bad_filter, ["direction_id"]}
+      assert index_data(conn, %{"route" => "route", "direction_id" => "0"}) == expected
+
+      conn = assign(conn, :api_version, "2020-05-01")
       assert index_data(conn, %{"route" => "route", "direction_id" => "1"}) == [@pattern]
       assert index_data(conn, %{"route" => "route", "direction_id" => "1,0"}) == [@pattern]
       assert index_data(conn, %{"route" => "route", "direction_id" => "0"}) == []
