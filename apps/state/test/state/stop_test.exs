@@ -116,7 +116,7 @@ defmodule State.StopTest do
       :ok = State.Stop.new_state(stops)
 
       sorted_results =
-        %{ids: ~w(one three)}
+        %{id: ~w(one three)}
         |> State.Stop.filter_by()
         |> Enum.sort_by(& &1.id)
 
@@ -135,8 +135,8 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{routes: ["route"]}) == [stop]
-      assert State.Stop.filter_by(%{routes: ["bad_route"]}) == []
+      assert State.Stop.filter_by(%{route_id: ["route"]}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["bad_route"]}) == []
     end
 
     test "filters by route and direction" do
@@ -151,8 +151,8 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{routes: ["route"], direction_id: 0}) == []
-      assert State.Stop.filter_by(%{routes: ["route"], direction_id: 1}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], direction_id: 0}) == []
+      assert State.Stop.filter_by(%{route_id: ["route"], direction_id: 1}) == [stop]
     end
 
     test "filtering by direction requires also filtering by routes" do
@@ -169,8 +169,8 @@ defmodule State.StopTest do
 
       assert State.Stop.filter_by(%{direction_id: 0}) == [stop]
       assert State.Stop.filter_by(%{direction_id: 1}) == [stop]
-      assert State.Stop.filter_by(%{routes: ["route"], direction_id: 0}) == []
-      assert State.Stop.filter_by(%{routes: ["route"], direction_id: 1}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], direction_id: 0}) == []
+      assert State.Stop.filter_by(%{route_id: ["route"], direction_id: 1}) == [stop]
     end
 
     test "filters by routes and date" do
@@ -197,9 +197,9 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{routes: ["route"], date: today}) == [stop]
-      assert State.Stop.filter_by(%{routes: ["route"], date: bad_date}) == []
-      assert State.Stop.filter_by(%{routes: ["0"], date: today}) == []
+      assert State.Stop.filter_by(%{route_id: ["route"], date: today}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], date: bad_date}) == []
+      assert State.Stop.filter_by(%{route_id: ["0"], date: today}) == []
     end
 
     test "filtering by date requires also filtering by routes" do
@@ -226,8 +226,8 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{routes: ["route"], date: today}) == [stop]
-      assert State.Stop.filter_by(%{routes: ["route"], date: bad_date}) == []
+      assert State.Stop.filter_by(%{route_id: ["route"], date: today}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], date: bad_date}) == []
       assert State.Stop.filter_by(%{date: today}) == [stop]
       assert State.Stop.filter_by(%{date: bad_date}) == [stop]
     end
@@ -248,9 +248,9 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{routes: ["route"], services: ["service"]}) == [stop]
-      assert State.Stop.filter_by(%{routes: ["route"], services: ["bad_service"]}) == []
-      assert State.Stop.filter_by(%{routes: ["bad_route"], services: ["service"]}) == []
+      assert State.Stop.filter_by(%{route_id: ["route"], service_id: ["service"]}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], service_id: ["bad_service"]}) == []
+      assert State.Stop.filter_by(%{route_id: ["bad_route"], service_id: ["service"]}) == []
     end
 
     test "filtering by services requires also filtering by routes" do
@@ -269,10 +269,10 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{routes: ["route"], services: ["service"]}) == [stop]
-      assert State.Stop.filter_by(%{routes: ["route"], services: ["bad_service"]}) == []
-      assert State.Stop.filter_by(%{services: ["service"]}) == [stop]
-      assert State.Stop.filter_by(%{services: ["bad_service"]}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], service_id: ["service"]}) == [stop]
+      assert State.Stop.filter_by(%{route_id: ["route"], service_id: ["bad_service"]}) == []
+      assert State.Stop.filter_by(%{service_id: ["service"]}) == [stop]
+      assert State.Stop.filter_by(%{service_id: ["bad_service"]}) == [stop]
     end
 
     test "filters by latitude and longitude" do
@@ -320,9 +320,9 @@ defmodule State.StopTest do
       State.RoutesPatternsAtStop.update!()
       State.StopsOnRoute.update!()
 
-      assert State.Stop.filter_by(%{route_types: [0]}) == []
-      assert State.Stop.filter_by(%{route_types: [2]}) == [stop]
-      assert State.Stop.filter_by(%{route_types: [0, 1, 2]}) == [stop]
+      assert State.Stop.filter_by(%{route_type: [0]}) == []
+      assert State.Stop.filter_by(%{route_type: [2]}) == [stop]
+      assert State.Stop.filter_by(%{route_type: [0, 1, 2]}) == [stop]
     end
 
     test "filters by location type" do
@@ -330,18 +330,18 @@ defmodule State.StopTest do
       entrance = %Stop{id: "2", location_type: 2}
       State.Stop.new_state([stop, entrance])
 
-      assert State.Stop.filter_by(%{location_types: [0]}) == [stop]
-      assert State.Stop.filter_by(%{location_types: [0, 1]}) == [stop]
-      assert State.Stop.filter_by(%{location_types: [2]}) == [entrance]
-      assert State.Stop.filter_by(%{location_types: [1]}) == []
+      assert State.Stop.filter_by(%{location_type: [0]}) == [stop]
+      assert State.Stop.filter_by(%{location_type: [0, 1]}) == [stop]
+      assert State.Stop.filter_by(%{location_type: [2]}) == [entrance]
+      assert State.Stop.filter_by(%{location_type: [1]}) == []
     end
 
     test "filters by location type and id" do
       stop = %Stop{id: "1", location_type: 0}
       State.Stop.new_state([stop])
 
-      assert State.Stop.filter_by(%{ids: [stop.id], location_types: [0]}) == [stop]
-      assert State.Stop.filter_by(%{ids: [stop.id], location_types: [1, 2]}) == []
+      assert State.Stop.filter_by(%{id: [stop.id], location_type: [0]}) == [stop]
+      assert State.Stop.filter_by(%{id: [stop.id], location_type: [1, 2]}) == []
     end
   end
 

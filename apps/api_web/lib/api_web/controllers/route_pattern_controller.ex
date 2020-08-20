@@ -86,16 +86,16 @@ defmodule ApiWeb.RoutePatternController do
     Map.new(filters, fn {key, value} ->
       case {key, value} do
         {"id", ids} ->
-          {:ids, Params.split_on_comma(ids)}
+          {:id, Params.split_on_comma(ids)}
 
         {"route", route_ids} ->
-          {:route_ids, Params.split_on_comma(route_ids)}
+          {:route_id, Params.split_on_comma(route_ids)}
 
         {"direction_id", direction_id} ->
           {:direction_id, Params.direction_id(%{"direction_id" => direction_id})}
 
         {"stop", stop_ids} ->
-          {:stop_ids, Params.split_on_comma(stop_ids)}
+          {:stop_id, Params.split_on_comma(stop_ids)}
       end
     end)
   end

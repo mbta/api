@@ -91,7 +91,7 @@ defmodule ApiWeb.TripController do
   end
 
   defp do_format_filter({"id", ids}) do
-    %{ids: Params.split_on_comma(ids)}
+    %{id: Params.split_on_comma(ids)}
   end
 
   defp do_format_filter({"date", date_string}) do
@@ -110,7 +110,7 @@ defmodule ApiWeb.TripController do
         []
 
       routes ->
-        %{routes: routes}
+        %{route_id: routes}
     end
   end
 
@@ -120,7 +120,7 @@ defmodule ApiWeb.TripController do
         []
 
       route_patterns ->
-        %{route_patterns: route_patterns}
+        %{route_pattern_id: route_patterns}
     end
   end
 
@@ -140,7 +140,7 @@ defmodule ApiWeb.TripController do
         []
 
       names ->
-        %{names: names}
+        %{name: names}
     end
   end
 

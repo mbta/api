@@ -11,10 +11,10 @@ defmodule State.RoutePatternTest do
 
       State.RoutePattern.new_state([route_pattern, other_pattern])
 
-      assert filter_by(%{ids: ["pattern"]}) == [route_pattern]
-      assert Enum.sort(filter_by(%{ids: ["pattern", "other"]})) == [other_pattern, route_pattern]
-      assert filter_by(%{ids: ["not_a_pattern"]}) == []
-      assert filter_by(%{ids: []}) == []
+      assert filter_by(%{id: ["pattern"]}) == [route_pattern]
+      assert Enum.sort(filter_by(%{id: ["pattern", "other"]})) == [other_pattern, route_pattern]
+      assert filter_by(%{id: ["not_a_pattern"]}) == []
+      assert filter_by(%{id: []}) == []
       assert Enum.sort(filter_by(%{})) == [other_pattern, route_pattern]
     end
 
@@ -39,14 +39,14 @@ defmodule State.RoutePatternTest do
       State.Schedule.new_state([schedule])
       State.RoutesPatternsAtStop.update!()
 
-      assert filter_by(%{stop_ids: ["stop"]}) == [route_pattern]
-      assert filter_by(%{stop_ids: ["not_stop"]}) == []
-      assert filter_by(%{stop_ids: ["stop"], direction_id: 0}) == [route_pattern]
-      assert filter_by(%{stop_ids: ["stop"], direction_id: 1}) == []
-      assert filter_by(%{route_ids: ["route"], direction_id: 0}) == [route_pattern]
-      assert filter_by(%{route_ids: ["route"], direction_id: 1}) == []
-      assert filter_by(%{route_ids: ["route"], stop_ids: ["stop"]}) == [route_pattern]
-      assert filter_by(%{route_ids: ["not_route"], stop_ids: ["stop"]}) == []
+      assert filter_by(%{stop_id: ["stop"]}) == [route_pattern]
+      assert filter_by(%{stop_id: ["not_stop"]}) == []
+      assert filter_by(%{stop_id: ["stop"], direction_id: 0}) == [route_pattern]
+      assert filter_by(%{stop_id: ["stop"], direction_id: 1}) == []
+      assert filter_by(%{route_id: ["route"], direction_id: 0}) == [route_pattern]
+      assert filter_by(%{route_id: ["route"], direction_id: 1}) == []
+      assert filter_by(%{route_id: ["route"], stop_id: ["stop"]}) == [route_pattern]
+      assert filter_by(%{route_id: ["not_route"], stop_id: ["stop"]}) == []
     end
 
     test "includes alternate route" do
@@ -75,8 +75,8 @@ defmodule State.RoutePatternTest do
       State.RoutePattern.new_state([route_pattern, other_pattern])
       State.Trip.new_state([normal_trip, primary_trip, alternate_trip])
 
-      assert filter_by(%{route_ids: ["route"]}) == [route_pattern, other_pattern]
-      assert filter_by(%{route_ids: ["other_route"]}) == [other_pattern]
+      assert filter_by(%{route_id: ["route"]}) == [route_pattern, other_pattern]
+      assert filter_by(%{route_id: ["other_route"]}) == [other_pattern]
     end
   end
 end

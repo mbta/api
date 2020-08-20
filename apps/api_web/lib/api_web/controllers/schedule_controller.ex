@@ -136,7 +136,7 @@ defmodule ApiWeb.ScheduleController do
         []
 
       ids ->
-        %{String.to_existing_atom("#{key}s") => ids}
+        %{String.to_existing_atom("#{key}_id") => ids}
     end
   end
 
@@ -148,7 +148,7 @@ defmodule ApiWeb.ScheduleController do
         ids
 
       conn.assigns.api_version >= "2019-02-12" ->
-        %{stops: ids}
+        %{stop_id: ids}
 
       true ->
         # if we're on an earlier version, re-map the new B branch platforms
@@ -167,7 +167,7 @@ defmodule ApiWeb.ScheduleController do
               [id]
           end)
 
-        %{stops: ids}
+        %{stop_id: ids}
     end
   end
 

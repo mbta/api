@@ -16,10 +16,10 @@ defmodule State.Vehicle do
   alias State.Trip
 
   @type filter_opts :: %{
-          optional(:labels) => [String.t(), ...],
-          optional(:routes) => [Model.Route.id(), ...],
+          optional(:label) => [String.t(), ...],
+          optional(:route_id) => [Model.Route.id(), ...],
           optional(:direction_id) => Model.Direction.id() | nil,
-          optional(:route_types) => [Model.Route.route_type(), ...]
+          optional(:route_type) => [Model.Route.route_type(), ...]
         }
 
   @impl State.Server
@@ -59,13 +59,13 @@ defmodule State.Vehicle do
     idx = get_index(filters)
 
     [%{}]
-    |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
-    |> build_filters(:route_type, Map.get(filters, :route_types), filters)
+    |> build_filters(:effective_route_id, Map.get(filters, :route_id), filters)
+    |> build_filters(:route_type, Map.get(filters, :route_type), filters)
     |> State.Vehicle.select(idx)
     |> do_post_search_filter(filters)
   end
 
-  defp get_index(%{routes: routes}) when routes != [], do: :effective_route_id
+  defp get_index(%{route_id: routes}) when routes != [], do: :effective_route_id
   defp get_index(_filters), do: nil
 
   defp build_filters(matchers, _key, nil, _filters), do: matchers
@@ -100,7 +100,7 @@ defmodule State.Vehicle do
   end
 
   @spec do_post_search_filter([Vehicle.t()], filter_opts) :: [Vehicle.t()]
-  defp do_post_search_filter(vehicles, %{labels: labels}) when is_list(labels) do
+  defp do_post_search_filter(vehicles, %{label: labels}) when is_list(labels) do
     labels = MapSet.new(labels)
 
     consist_matches? = fn %Model.Vehicle{consist: consist} ->

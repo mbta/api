@@ -15,10 +15,10 @@ defmodule State.Schedule do
   @subscriptions [@fetch_stop_times, {:new_state, Trip}]
 
   @type filter_opts :: %{
-          optional(:routes) => [Model.Route.id()],
-          optional(:trips) => [Model.Trip.id()],
+          optional(:route_id) => [Model.Route.id()],
+          optional(:trip_id) => [Model.Trip.id()],
           optional(:direction_id) => Model.Direction.id(),
-          optional(:stops) => [Model.Stop.id()],
+          optional(:stop_id) => [Model.Stop.id()],
           optional(:stop_sequence) => stop_sequence,
           optional(:date) => Date.t(),
           optional(:min_time) => non_neg_integer,
@@ -26,10 +26,10 @@ defmodule State.Schedule do
         }
 
   @typep convert_filters :: %{
-           optional(:routes) => [Model.Route.id()],
-           optional(:trips) => [Model.Trip.id()],
+           optional(:route_id) => [Model.Route.id()],
+           optional(:trip_id) => [Model.Trip.id()],
            optional(:direction_id) => Model.Direction.id(),
-           optional(:stops) => [Model.Stop.id()],
+           optional(:stop_id) => [Model.Stop.id()],
            optional(:date) => Date.t(),
            optional(:min_time) => non_neg_integer,
            optional(:max_time) => non_neg_integer
@@ -51,30 +51,30 @@ defmodule State.Schedule do
   Applies a filtered search on Schedules based on a map of filters values.
 
   The allowed filterable keys are:
-    :routes
+    :route_id
     :direction_id
-    :trips
+    :trip_id
     :stop_sequence
-    :stops
+    :stop_id
     :min_time
     :max_time
     :date
 
   At least one of the following filters must be applied for any schedules to
   returned:
-    :routes
-    :trips
-    :stops
+    :route_id
+    :trip_id
+    :stop_id
 
   ### Important Behavior Notes
 
-  When filtering on both `:routes` and `:trips`, `:routes` has priority for
+  When filtering on both `:route_id` and `:trip_id`, `:route_id` has priority for
   filtering.
 
-  When filtering with `:direction_id`, either `:routes` or `:stops` must also
+  When filtering with `:direction_id`, either `:route_id` or `:stop_id` must also
   be applied.
 
-  When filtering with `:date`, either `:routes` or `:stops` must also be
+  When filtering with `:date`, either `:route_id` or `:stop_id` must also be
   applied.
   """
   @spec filter_by(filter_opts) :: [Schedule.t()]
@@ -105,8 +105,8 @@ defmodule State.Schedule do
       end
 
     %{
-      trips: [prediction.trip_id],
-      stops: stop_ids,
+      trip_id: [prediction.trip_id],
+      stop_id: stop_ids,
       stop_sequence: [prediction.stop_sequence]
     }
     |> filter_by
@@ -163,33 +163,33 @@ defmodule State.Schedule do
 
   # Converts routes and stops into workable ids
   @spec convert_filters(filter_opts) :: convert_filters
-  defp convert_filters(%{routes: _} = filters) do
+  defp convert_filters(%{route_id: _} = filters) do
     # Routes have priority for filtering on trip ids
     # Modify :trips in the filters with the trip ids based on the route ids
 
     trip_ids =
       filters
-      |> Map.take([:routes, :direction_id, :date])
+      |> Map.take([:route_id, :direction_id, :date])
       |> State.Trip.filter_by()
       |> Enum.map(& &1.id)
 
     # keep direction_id, as we can use that if there's also a stop filter
     filters
-    |> Map.drop([:routes, :date])
-    |> Map.put(:trips, trip_ids)
+    |> Map.drop([:route_id, :date])
+    |> Map.put(:trip_id, trip_ids)
     |> convert_filters()
   end
 
-  defp convert_filters(%{stops: stop_ids} = filters) do
+  defp convert_filters(%{stop_id: stop_ids} = filters) do
     stops = State.Stop.location_type_0_ids_by_parent_ids(stop_ids)
-    Map.put(filters, :stops, stops)
+    Map.put(filters, :stop_id, stops)
   end
 
   defp convert_filters(filters), do: filters
 
   # Build search criteria
   @spec build_filter_matchers(convert_filters) :: search | %{}
-  defp build_filter_matchers(%{stops: stops, trips: trips} = filters) do
+  defp build_filter_matchers(%{stop_id: stops, trip_id: trips} = filters) do
     stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
 
     all_trips = State.Trip.by_primary_ids(trips)
@@ -218,7 +218,7 @@ defmodule State.Schedule do
     %{index: :trip_id, matchers: matchers}
   end
 
-  defp build_filter_matchers(%{stops: stops} = filters) do
+  defp build_filter_matchers(%{stop_id: stops} = filters) do
     direction_matcher = State.Matchers.direction_id(filters[:direction_id])
     stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
 
@@ -233,7 +233,7 @@ defmodule State.Schedule do
     %{index: :stop_id, matchers: matchers}
   end
 
-  defp build_filter_matchers(%{trips: trips} = filters) do
+  defp build_filter_matchers(%{trip_id: trips} = filters) do
     stop_sequence_matchers = build_stop_sequence_matchers(filters[:stop_sequence])
 
     matchers =

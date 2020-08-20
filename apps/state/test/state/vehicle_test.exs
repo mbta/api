@@ -49,17 +49,17 @@ defmodule State.VehicleTest do
     vehicle = %Vehicle{id: "1", route_id: "route", effective_route_id: "route"}
     new_state([vehicle])
 
-    assert [vehicle] == filter_by(%{route_types: [1]})
-    assert [] == filter_by(%{route_types: [0]})
+    assert [vehicle] == filter_by(%{route_type: [1]})
+    assert [] == filter_by(%{route_type: [0]})
   end
 
   test "can add vehicle and query it by route and direction_id" do
     vehicle = %Vehicle{id: "1", route_id: "route", effective_route_id: "route", direction_id: 1}
     new_state([vehicle])
 
-    assert [vehicle] == filter_by(%{routes: ["route"]})
-    assert [vehicle] == filter_by(%{routes: ["route"], direction_id: 1})
-    assert [] == filter_by(%{routes: ["route"], direction_id: 0})
+    assert [vehicle] == filter_by(%{route_id: ["route"]})
+    assert [vehicle] == filter_by(%{route_id: ["route"], direction_id: 1})
+    assert [] == filter_by(%{route_id: ["route"], direction_id: 0})
     assert [vehicle] == filter_by(%{direction_id: 0})
   end
 

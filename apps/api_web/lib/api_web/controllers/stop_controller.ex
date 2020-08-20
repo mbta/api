@@ -132,7 +132,7 @@ defmodule ApiWeb.StopController do
         []
 
       service_ids ->
-        %{services: service_ids}
+        %{service_id: service_ids}
     end
   end
 
@@ -142,7 +142,7 @@ defmodule ApiWeb.StopController do
         []
 
       route_ids ->
-        %{routes: route_ids}
+        %{route_id: route_ids}
     end
   end
 
@@ -163,12 +163,12 @@ defmodule ApiWeb.StopController do
     if route_type_ids == [] do
       []
     else
-      %{route_types: route_type_ids}
+      %{route_type: route_type_ids}
     end
   end
 
   defp do_format_filter({"id", stop_ids}) do
-    %{ids: Params.split_on_comma(stop_ids)}
+    %{id: Params.split_on_comma(stop_ids)}
   end
 
   defp do_format_filter({"direction_id", direction_id}) do
@@ -198,7 +198,7 @@ defmodule ApiWeb.StopController do
     if location_types == [] do
       []
     else
-      %{location_types: location_types}
+      %{location_type: location_types}
     end
   end
 

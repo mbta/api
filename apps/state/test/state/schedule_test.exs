@@ -51,71 +51,71 @@ defmodule State.ScheduleTest do
   end
 
   describe "filter_by/1" do
-    test "returns [] when neither :routes, :trips, or :stops is applied" do
+    test "returns [] when neither :route_id, :trip_id, or :stop_id is applied" do
       assert Schedule.filter_by(%{}) == []
-      refute Schedule.filter_by(%{routes: [@route.id]}) == []
-      refute Schedule.filter_by(%{trips: [@trip.id]}) == []
-      refute Schedule.filter_by(%{stops: [@stop.id]}) == []
+      refute Schedule.filter_by(%{route_id: [@route.id]}) == []
+      refute Schedule.filter_by(%{trip_id: [@trip.id]}) == []
+      refute Schedule.filter_by(%{stop_id: [@stop.id]}) == []
     end
 
-    test "filters on :stops" do
-      assert Schedule.filter_by(%{stops: [@stop.id]}) == [@schedule]
-      assert Schedule.filter_by(%{stops: [@stop.id, "bad_id"]}) == [@schedule]
-      assert Schedule.filter_by(%{stops: ["bad_id"]}) == []
-      assert Schedule.filter_by(%{stops: [""]}) == []
+    test "filters on :stop_id" do
+      assert Schedule.filter_by(%{stop_id: [@stop.id]}) == [@schedule]
+      assert Schedule.filter_by(%{stop_id: [@stop.id, "bad_id"]}) == [@schedule]
+      assert Schedule.filter_by(%{stop_id: ["bad_id"]}) == []
+      assert Schedule.filter_by(%{stop_id: [""]}) == []
     end
 
-    test "filters on :routes" do
-      assert Schedule.filter_by(%{routes: [@route.id]}) == [@schedule]
-      assert Schedule.filter_by(%{routes: [@route.id, "bad_id"]}) == [@schedule]
-      assert Schedule.filter_by(%{routes: ["bad_id"]}) == []
-      assert Schedule.filter_by(%{routes: []}) == []
+    test "filters on :route_id" do
+      assert Schedule.filter_by(%{route_id: [@route.id]}) == [@schedule]
+      assert Schedule.filter_by(%{route_id: [@route.id, "bad_id"]}) == [@schedule]
+      assert Schedule.filter_by(%{route_id: ["bad_id"]}) == []
+      assert Schedule.filter_by(%{route_id: []}) == []
     end
 
-    test "filters on :trips" do
-      assert Schedule.filter_by(%{trips: [@trip.id]}) == [@schedule]
-      assert Schedule.filter_by(%{trips: [@trip.id, "bad_id"]}) == [@schedule]
-      assert Schedule.filter_by(%{trips: ["bad_id"]}) == []
-      assert Schedule.filter_by(%{trips: []}) == []
+    test "filters on :trip_id" do
+      assert Schedule.filter_by(%{trip_id: [@trip.id]}) == [@schedule]
+      assert Schedule.filter_by(%{trip_id: [@trip.id, "bad_id"]}) == [@schedule]
+      assert Schedule.filter_by(%{trip_id: ["bad_id"]}) == []
+      assert Schedule.filter_by(%{trip_id: []}) == []
     end
 
-    test "filters on :trips and :date" do
-      assert Schedule.filter_by(%{trips: [@trip.id], date: @today}) == [@schedule]
-      assert Schedule.filter_by(%{trips: [@trip.id], date: Timex.shift(@today, days: -1)}) == []
+    test "filters on :trip_id and :date" do
+      assert Schedule.filter_by(%{trip_id: [@trip.id], date: @today}) == [@schedule]
+      assert Schedule.filter_by(%{trip_id: [@trip.id], date: Timex.shift(@today, days: -1)}) == []
     end
 
-    test "filters on :routes and :date" do
+    test "filters on :route_id and :date" do
       bad_date = %{@today | year: @today.year - 1}
-      params = %{routes: [@route.id], date: @today}
+      params = %{route_id: [@route.id], date: @today}
       assert Schedule.filter_by(params) == [@schedule]
-      assert Schedule.filter_by(Map.put(params, :routes, [])) == []
+      assert Schedule.filter_by(Map.put(params, :route_id, [])) == []
       assert Schedule.filter_by(Map.put(params, :date, bad_date)) == []
     end
 
-    test "filters on :routes and :direction_id" do
-      params = %{routes: [@route.id], direction_id: 1}
+    test "filters on :route_id and :direction_id" do
+      params = %{route_id: [@route.id], direction_id: 1}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :direction_id, 0)) == []
-      assert Schedule.filter_by(Map.put(params, :routes, [])) == []
+      assert Schedule.filter_by(Map.put(params, :route_id, [])) == []
     end
 
-    test "filters on :routes, :date, and :direction_id" do
+    test "filters on :route_id, :date, and :direction_id" do
       bad_date = %{@today | year: @today.year - 1}
-      params = %{routes: [@route.id], direction_id: 1, date: @today}
+      params = %{route_id: [@route.id], direction_id: 1, date: @today}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :direction_id, 0)) == []
       assert Schedule.filter_by(Map.put(params, :date, bad_date)) == []
-      assert Schedule.filter_by(Map.put(params, :routes, [])) == []
+      assert Schedule.filter_by(Map.put(params, :route_id, [])) == []
     end
 
-    test "filters on :stops and :trips" do
-      params = %{stops: [@stop.id], trips: [@trip.id]}
+    test "filters on :stop_id and :trip_id" do
+      params = %{stop_id: [@stop.id], trip_id: [@trip.id]}
       assert Schedule.filter_by(params) == [@schedule]
-      assert Schedule.filter_by(Map.put(params, :stops, [])) == []
-      assert Schedule.filter_by(Map.put(params, :trips, [])) == []
+      assert Schedule.filter_by(Map.put(params, :stop_id, [])) == []
+      assert Schedule.filter_by(Map.put(params, :trip_id, [])) == []
     end
 
-    test ":stops/:trips does not return multiple values for multi route trips" do
+    test ":stop_id/:trip_id does not return multiple values for multi route trips" do
       # trips:
       # - solo_trip_id: only part of the main route
       # - other_trip_id: only part of the other route
@@ -155,7 +155,7 @@ defmodule State.ScheduleTest do
       State.RoutesPatternsAtStop.update!()
 
       # we expect to only get the one schedule record back
-      params = %{stops: [@stop.id], trips: [@trip.id]}
+      params = %{stop_id: [@stop.id], trip_id: [@trip.id]}
       assert Schedule.filter_by(params) == [@schedule]
     end
 
@@ -185,49 +185,50 @@ defmodule State.ScheduleTest do
       Schedule.new_state(schedules)
       State.RoutesPatternsAtStop.update!()
 
-      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [@route.id]})) == [
+      assert Enum.sort(Schedule.filter_by(%{stop_id: [@stop.id], route_id: [@route.id]})) == [
                @schedule
              ]
 
-      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [other_route_id]})) == [
-               @schedule
-             ]
+      assert Enum.sort(Schedule.filter_by(%{stop_id: [@stop.id], route_id: [other_route_id]})) ==
+               [
+                 @schedule
+               ]
     end
 
-    test "filters on :stops and :routes" do
-      params = %{stops: [@stop.id], routes: [@route.id]}
+    test "filters on :stop_id and :route_id" do
+      params = %{stop_id: [@stop.id], route_id: [@route.id]}
       assert Schedule.filter_by(params) == [@schedule]
-      assert Schedule.filter_by(Map.put(params, :stops, [])) == []
-      assert Schedule.filter_by(Map.put(params, :routes, [])) == []
+      assert Schedule.filter_by(Map.put(params, :stop_id, [])) == []
+      assert Schedule.filter_by(Map.put(params, :route_id, [])) == []
     end
 
-    test "filters on :stops and :date" do
+    test "filters on :stop_id and :date" do
       bad_date = %{@today | year: @today.year - 1}
-      params = %{stops: [@stop.id], date: @today}
+      params = %{stop_id: [@stop.id], date: @today}
       assert Schedule.filter_by(params) == [@schedule]
-      assert Schedule.filter_by(Map.put(params, :stops, [])) == []
+      assert Schedule.filter_by(Map.put(params, :stop_id, [])) == []
       assert Schedule.filter_by(Map.put(params, :date, bad_date)) == []
     end
 
     test "filters on :stops and :direction_id" do
-      params = %{stops: [@stop.id], direction_id: 1}
+      params = %{stop_id: [@stop.id], direction_id: 1}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :direction_id, 0)) == []
-      assert Schedule.filter_by(Map.put(params, :stops, [])) == []
+      assert Schedule.filter_by(Map.put(params, :stop_id, [])) == []
     end
 
     test "filters on :stop_sequence" do
-      params = %{routes: [@route.id], stop_sequence: [2]}
+      params = %{route_id: [@route.id], stop_sequence: [2]}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :stop_sequence, [:first])) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :stop_sequence, [:last])) == []
-      assert Schedule.filter_by(Map.put(params, :stops, [@stop.id])) == [@schedule]
+      assert Schedule.filter_by(Map.put(params, :stop_id, [@stop.id])) == [@schedule]
     end
 
     test "filters on :min_time" do
       # 12:29:59 in seconds
       min_time = 44_999
-      params = %{stops: [@stop.id], min_time: min_time}
+      params = %{stop_id: [@stop.id], min_time: min_time}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :min_time, min_time + 1)) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :min_time, min_time + 2)) == []
@@ -236,7 +237,7 @@ defmodule State.ScheduleTest do
     test "filters on :max_time" do
       # 12:30:01 in seconds
       max_time = 45_001
-      params = %{stops: [@stop.id], max_time: max_time}
+      params = %{stop_id: [@stop.id], max_time: max_time}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :max_time, max_time - 1)) == [@schedule]
       assert Schedule.filter_by(Map.put(params, :max_time, max_time - 2)) == []
@@ -247,8 +248,8 @@ defmodule State.ScheduleTest do
       min_time = 44_999
       # 12:30:01 in seconds
       max_time = 45_001
-      params = %{stops: [@stop.id], min_time: min_time, max_time: max_time}
-      bad_params = %{stops: [@stop.id], min_time: 10, max_time: 5_000}
+      params = %{stop_id: [@stop.id], min_time: min_time, max_time: max_time}
+      bad_params = %{stop_id: [@stop.id], min_time: 10, max_time: 5_000}
       assert Schedule.filter_by(params) == [@schedule]
       assert Schedule.filter_by(bad_params) == []
     end

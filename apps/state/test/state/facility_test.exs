@@ -72,7 +72,7 @@ defmodule State.FacilityTest do
 
     test "filters by stop_id" do
       sorted_results =
-        %{stops: ~w(place-alfcl)}
+        %{stop_id: ~w(place-alfcl)}
         |> State.Facility.filter_by()
         |> Enum.sort_by(& &1.id)
 
@@ -81,7 +81,7 @@ defmodule State.FacilityTest do
 
     test "filters by type" do
       sorted_results =
-        %{types: ~w(ELEVATOR)}
+        %{type: ~w(ELEVATOR)}
         |> State.Facility.filter_by()
         |> Enum.sort_by(& &1.id)
 
@@ -90,7 +90,7 @@ defmodule State.FacilityTest do
 
     test "filters by stop_id and type" do
       sorted_results =
-        %{stops: ~w(place-alfcl), types: ~w(ELEVATOR)}
+        %{stop_id: ~w(place-alfcl), type: ~w(ELEVATOR)}
         |> State.Facility.filter_by()
         |> Enum.sort_by(& &1.id)
 

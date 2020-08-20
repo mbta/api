@@ -47,8 +47,8 @@ defmodule ApiWeb.TripControllerTest do
       State.Trip.new_state([trip])
 
       # Sanity checks
-      [] = State.Trip.filter_by(%{routes: ["1"]})
-      [^trip] = State.Trip.filter_by(%{routes: ["2"]})
+      [] = State.Trip.filter_by(%{route_id: ["1"]})
+      [^trip] = State.Trip.filter_by(%{route_id: ["2"]})
 
       conn = get(base_conn, trip_path(base_conn, :index, route: "1"))
       assert json_response(conn, 200)["data"] == []
@@ -63,6 +63,22 @@ defmodule ApiWeb.TripControllerTest do
         |> Enum.sort(&(&1.id < &2.id))
 
       assert sorted_results == [trip]
+    end
+
+    test "filters by route pattern", %{conn: base_conn} do
+      trip = %Model.Trip{id: "1", route_id: "2", route_pattern_id: "2-_-0"}
+      State.Trip.new_state([trip])
+
+      conn = get(base_conn, trip_path(base_conn, :index, route_pattern: "wrong"))
+      assert json_response(conn, 200)["data"] == []
+
+      conn = get(base_conn, trip_path(base_conn, :index, route_pattern: "2-_-0"))
+      response = json_response(conn, 200)["data"]
+      assert List.first(response)["id"] == "1"
+
+      conn = get(base_conn, trip_path(base_conn, :index, route_pattern: "2-_-0,wrong"))
+      response = json_response(conn, 200)["data"]
+      assert List.first(response)["id"] == "1"
     end
 
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
