@@ -1,13 +1,11 @@
 defmodule ApiWeb.ShapeController do
   @moduledoc """
-  Controller for shapes. Filterable by:
-
-  * route
+  Controller for shapes. Filterable only by route (required).
   """
   use ApiWeb.Web, :api_controller
   alias State.Shape
 
-  @filters ~w(route direction_id)s
+  @filters ~w(route)s
   @pagination_opts ~w(offset limit)a
   @includes ~w(route stops)
 
@@ -27,7 +25,6 @@ defmodule ApiWeb.ShapeController do
     common_index_parameters(__MODULE__, :shape)
     include_parameters(@includes)
     filter_param(:id, name: :route, required: true)
-    filter_param(:direction_id)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -38,13 +35,18 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+    with {:ok, filtered} <- Params.filter_params(params, filters(conn), conn),
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       do_filter(filtered, params, conn)
     else
       {:error, _, _} = error -> error
     end
   end
+
+  defp filters(%{assigns: %{api_version: ver}}) when ver < "2020-XX-XX",
+    do: ["direction_id" | @filters]
+
+  defp filters(_), do: @filters
 
   defp do_filter(%{"route" => route_ids} = filtered_params, params, conn) do
     route_ids = Params.split_on_comma(route_ids)
@@ -116,8 +118,6 @@ defmodule ApiWeb.ShapeController do
             * [Elixir](https://hex.pm/packages/polyline)
             """)
           end
-
-          direction_id_attribute()
         end,
       Shape: single(:ShapeResource),
       Shapes: page(:ShapeResource)
