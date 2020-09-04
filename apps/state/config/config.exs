@@ -10,7 +10,10 @@ config :state, :route_pattern,
     "CR-Franklin-Foxboro-" => false,
     # ignore North Station Green-D patterns
     "Green-D-1-1" => true,
-    "Green-D-3-1" => true
+    "Green-D-3-1" => true,
+    # don't ignore Rockport-West Gloucester shuttle
+    "Shuttle-RockportWestGloucester-0-0" => false,
+    "Shuttle-RockportWestGloucester-0-1" => false
   }
 
 config :state, :shape,
