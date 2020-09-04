@@ -10,6 +10,7 @@ defmodule ApiWeb.PredictionController do
   """
   use ApiWeb.Web, :api_controller
   require Logger
+  alias ApiWeb.LegacyStops
   alias State.Prediction
 
   @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern)s
@@ -132,7 +133,7 @@ defmodule ApiWeb.PredictionController do
       :error ->
         params
         |> Params.split_on_comma("stop")
-        |> include_legacy_stop_ids(conn.assigns.api_version)
+        |> LegacyStops.expand(conn.assigns.api_version)
         |> State.Stop.location_type_0_ids_by_parent_ids()
 
       {:ok, {latitude, longitude, radius}} ->
@@ -142,108 +143,6 @@ defmodule ApiWeb.PredictionController do
         |> Enum.sort_by(GeoDistance.cmp(latitude, longitude))
         |> Enum.map(& &1.id)
     end
-  end
-
-  defp include_legacy_stop_ids(ids, version) when version >= "2019-02-12" do
-    ids
-  end
-
-  defp include_legacy_stop_ids(ids, version) when version >= "2018-07-23" do
-    include_legacy_stop_ids_2019_02_12(ids)
-  end
-
-  defp include_legacy_stop_ids(ids, _version) do
-    ids
-    |> include_legacy_stop_ids_2019_02_12
-    |> include_legacy_stop_ids_2018_07_23
-  end
-
-  defp include_legacy_stop_ids_2019_02_12(ids) do
-    Enum.flat_map(
-      ids,
-      fn
-        "70061" ->
-          [
-            "70061",
-            "Alewife-01",
-            "Alewife-02"
-          ]
-
-        "70105" ->
-          [
-            "70105",
-            "Braintree-01",
-            "Braintree-02"
-          ]
-
-        "70036" ->
-          ["70036", "Oak Grove-01", "Oak Grove-02"]
-
-        "70001" ->
-          ["70001", "Forest Hills-01", "Forest Hills-02"]
-
-        "70200" ->
-          ["70200", "71199"]
-
-        "70150" ->
-          ["70150", "71150"]
-
-        "70151" ->
-          ["70151", "71151"]
-
-        id when id in ["70201", "70202"] ->
-          [id, "Government Center-Brattle"]
-
-        id ->
-          [id]
-      end
-    )
-  end
-
-  defp include_legacy_stop_ids_2018_07_23(ids) do
-    Enum.flat_map(
-      ids,
-      fn
-        "South Station" ->
-          [
-            "South Station",
-            "South Station-01",
-            "South Station-02",
-            "South Station-03",
-            "South Station-04",
-            "South Station-05",
-            "South Station-06",
-            "South Station-07",
-            "South Station-08",
-            "South Station-09",
-            "South Station-10",
-            "South Station-11",
-            "South Station-12",
-            "South Station-13"
-          ]
-
-        "North Station" ->
-          [
-            "North Station",
-            "North Station-01",
-            "North Station-02",
-            "North Station-03",
-            "North Station-04",
-            "North Station-05",
-            "North Station-06",
-            "North Station-07",
-            "North Station-08",
-            "North Station-09",
-            "North Station-10"
-          ]
-
-        "Back Bay" ->
-          ["Back Bay", "Back Bay-01", "Back Bay-02", "Back Bay-03", "Back Bay-05", "Back Bay-07"]
-
-        id ->
-          [id]
-      end
-    )
   end
 
   defp all_stops_and_routes([] = _stop_ids, [] = _route_ids, _matchers), do: []
