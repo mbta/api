@@ -41,6 +41,7 @@ defmodule ApiWeb.FacilityController do
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> format_filters()
+      |> expand_stops_filter(:stops, conn.assigns.api_version)
       |> Facility.filter_by()
       |> State.all(Params.filter_opts(params, @pagination_opts, conn))
     else

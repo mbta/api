@@ -7,7 +7,7 @@ defmodule ApiWeb.StopControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index_data/2" do
+  describe "index" do
     test "lists all entries", %{conn: conn} do
       conn = get(conn, stop_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
@@ -342,6 +342,18 @@ defmodule ApiWeb.StopControllerTest do
 
       assert [%{"type" => "facility", "id" => "6"}] = response["included"]
     end
+
+    test "can filter by ID with legacy stop ID translation", %{conn: conn} do
+      State.Stop.new_state([%Stop{id: "place-nubn"}, %Stop{id: "other"}])
+
+      response =
+        conn
+        |> assign(:api_version, "2020-05-01")
+        |> get(stop_path(conn, :index), %{"id" => "place-dudly,other"})
+        |> json_response(200)
+
+      assert Enum.map(response["data"], & &1["id"]) == ~w(place-nubn other)
+    end
   end
 
   describe "show" do
@@ -504,6 +516,58 @@ defmodule ApiWeb.StopControllerTest do
 
       assert json_response(conn, 200)
       refute get_resp_header(conn, "access-control-allow-origin") == []
+    end
+
+    test "translates stop IDs that were renamed", %{conn: conn} do
+      State.Stop.new_state([%Stop{id: "place-nubn"}])
+
+      response =
+        conn
+        |> assign(:api_version, "2020-05-01")
+        |> get(stop_path(conn, :show, "place-dudly"))
+        |> json_response(200)
+
+      assert response["data"]["id"] == "place-nubn"
+
+      response =
+        conn
+        |> assign(:api_version, "2020-XX-XX")
+        |> get(stop_path(conn, :show, "place-dudly"))
+        |> json_response(404)
+
+      assert response["errors"]
+
+      # ensure this also works *before* the transition has occurred
+
+      State.Stop.new_state([%Stop{id: "place-dudly"}])
+
+      response =
+        conn
+        |> assign(:api_version, "2020-05-01")
+        |> get(stop_path(conn, :show, "place-dudly"))
+        |> json_response(200)
+
+      assert response["data"]["id"] == "place-dudly"
+
+      response =
+        conn
+        |> assign(:api_version, "2020-XX-XX")
+        |> get(stop_path(conn, :show, "place-dudly"))
+        |> json_response(200)
+
+      assert response["data"]["id"] == "place-dudly"
+    end
+
+    test "doesn't translate stop IDs that weren't renamed", %{conn: conn} do
+      State.Stop.new_state([%Stop{id: "Alewife-01"}, %Stop{id: "Alewife-02"}])
+
+      response =
+        conn
+        |> assign(:api_version, "2018-07-23")
+        |> get(stop_path(conn, :show, "70061"))
+        |> json_response(404)
+
+      assert response["errors"]
     end
   end
 

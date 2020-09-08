@@ -11,6 +11,15 @@ defmodule ApiWeb.RoutePatternControllerTest do
   end
 
   describe "index_data/2" do
+    defp new_state!(stops, routes, route_patterns, trips, schedules) do
+      State.Stop.new_state(stops)
+      State.Route.new_state(routes)
+      State.RoutePattern.new_state(route_patterns)
+      State.Trip.new_state(trips)
+      State.Schedule.new_state(schedules)
+      State.RoutesPatternsAtStop.update!()
+    end
+
     test "lists all entries on index by sort order", %{conn: conn} do
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp1", sort_order: "200"},
@@ -140,13 +149,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       stop = %Model.Stop{id: "stop"}
       schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
-
-      State.Stop.new_state([stop])
-      State.Route.new_state([route])
-      State.RoutePattern.new_state([route_pattern])
-      State.Trip.new_state([trip])
-      State.Schedule.new_state([schedule])
-      State.RoutesPatternsAtStop.update!()
+      new_state!([stop], [route], [route_pattern], [trip], [schedule])
 
       conn =
         get(
@@ -158,6 +161,38 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       [data] = json_response(conn, 200)["data"]
       assert "pattern" == data["id"]
+    end
+
+    test "can filter by stop with legacy stop ID translation", %{conn: conn} do
+      route = %Model.Route{id: "route"}
+      route_pattern = %RoutePattern{id: "pattern", route_id: route.id}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: route.id,
+        route_pattern_id: route_pattern.id,
+        direction_id: 0
+      }
+
+      stop = %Model.Stop{id: "place-nubn"}
+      schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
+      new_state!([stop], [route], [route_pattern], [trip], [schedule])
+
+      response =
+        conn
+        |> assign(:api_version, "2020-05-01")
+        |> get(route_pattern_path(conn, :index, %{"filter" => %{"stop" => "place-dudly"}}))
+        |> json_response(200)
+
+      assert hd(response["data"])["id"] == "pattern"
+
+      response =
+        conn
+        |> assign(:api_version, "2020-XX-XX")
+        |> get(route_pattern_path(conn, :index, %{"filter" => %{"stop" => "place-dudly"}}))
+        |> json_response(200)
+
+      assert response["data"] == []
     end
 
     test "can filter by route, stop and direction", %{conn: conn} do
@@ -173,13 +208,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       stop = %Model.Stop{id: "stop"}
       schedule = %Model.Schedule{trip_id: trip.id, stop_id: stop.id, route_id: route.id}
-
-      State.Stop.new_state([stop])
-      State.Route.new_state([route])
-      State.RoutePattern.new_state([route_pattern])
-      State.Trip.new_state([trip])
-      State.Schedule.new_state([schedule])
-      State.RoutesPatternsAtStop.update!()
+      new_state!([stop], [route], [route_pattern], [trip], [schedule])
 
       conn =
         get(
