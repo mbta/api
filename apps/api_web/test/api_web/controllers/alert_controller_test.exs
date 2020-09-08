@@ -137,6 +137,21 @@ defmodule ApiWeb.AlertControllerTest do
       assert Enum.sort(ids) == ["filter_banner_test_2"]
     end
 
+    test "can filter by stop with legacy stop ID translation", %{conn: conn} do
+      alert = %Model.Alert{
+        id: "test",
+        informed_entity: [%{stop: "place-nubn", activities: ["BOARD"]}]
+      }
+
+      insert_alerts!([alert | @alerts])
+
+      data = conn |> assign(:api_version, "2020-05-01") |> index_data(%{"stop" => "place-dudly"})
+      assert data == [alert]
+
+      data = conn |> assign(:api_version, "2020-XX-XX") |> index_data(%{"stop" => "place-dudly"})
+      assert data == []
+    end
+
     test "returns an {:error, _} tuple with an invalid filter", %{conn: conn} do
       assert {:error, _} = index_data(conn, %{"direction_id" => "invalid"})
     end

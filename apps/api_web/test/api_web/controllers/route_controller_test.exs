@@ -149,6 +149,24 @@ defmodule ApiWeb.RouteControllerTest do
              } = List.first(response["included"])
     end
 
+    test "can filter by stop with legacy stop ID translation", %{conn: conn} do
+      stop = %Model.Stop{id: "place-nubn"}
+      State.Stop.new_state([stop])
+      State.Trip.new_state([%Model.Trip{id: "trip", route_id: "1"}])
+
+      State.Schedule.new_state([
+        %Model.Schedule{trip_id: "trip", stop_id: "place-nubn", route_id: "1"}
+      ])
+
+      State.RoutesPatternsAtStop.update!()
+
+      conn = assign(conn, :api_version, "2020-05-01")
+      assert ApiWeb.RouteController.index_data(conn, %{"stop" => "place-dudly"}) == [@route]
+
+      conn = assign(conn, :api_version, "2020-XX-XX")
+      assert ApiWeb.RouteController.index_data(conn, %{"stop" => "place-dudly"}) == []
+    end
+
     test "can filter by stop and direction_id", %{conn: conn} do
       trip1 = %Model.Trip{id: "trip1", route_id: "1", direction_id: 0}
       trip2 = %Model.Trip{id: "trip2", route_id: "2", direction_id: 1}

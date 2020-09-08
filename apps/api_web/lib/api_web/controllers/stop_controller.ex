@@ -1,5 +1,7 @@
 defmodule ApiWeb.StopController do
   use ApiWeb.Web, :api_controller
+
+  alias ApiWeb.LegacyStops
   alias State.Stop
 
   plug(ApiWeb.Plugs.ValidateDate)
@@ -93,6 +95,7 @@ defmodule ApiWeb.StopController do
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> format_filters()
+      |> expand_stops_filter(:ids, conn.assigns.api_version)
       |> Stop.filter_by()
       |> State.all(filter_opts)
     else
@@ -240,7 +243,9 @@ defmodule ApiWeb.StopController do
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, @show_includes, conn) do
       {:ok, _includes} ->
-        Stop.by_id(id)
+        [id]
+        |> LegacyStops.expand(conn.assigns.api_version, only_renames: true)
+        |> Enum.find_value(&Stop.by_id/1)
 
       {:error, _, _} = error ->
         error

@@ -119,7 +119,7 @@ defmodule ApiWeb.AlertController do
     with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
-      |> apply_filters()
+      |> apply_filters(conn.assigns.api_version)
       |> case do
         list when is_list(list) ->
           State.all(list, Params.filter_opts(params, @pagination_opts, conn))
@@ -166,15 +166,16 @@ defmodule ApiWeb.AlertController do
     end
   end
 
-  defp apply_filters(param_list) when param_list == %{} do
+  defp apply_filters(param_list, _api_version) when param_list == %{} do
     # this gets around what should be default filtering where activities
     # without one of the default activities
     State.Alert.all()
   end
 
-  defp apply_filters(param_list) do
+  defp apply_filters(param_list, api_version) do
     param_list
     |> build_query()
+    |> expand_stops_filter(:stops, api_version)
     |> State.Alert.filter_by()
   rescue
     ArgumentError ->
