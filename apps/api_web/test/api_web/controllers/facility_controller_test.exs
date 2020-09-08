@@ -72,6 +72,25 @@ defmodule ApiWeb.FacilityControllerTest do
       assert results == [facility_1]
     end
 
+    test "can filter by stop with legacy stop ID translation", %{conn: conn} do
+      facility = %Facility{id: "test", type: "ELEVATOR", stop_id: "place-nubn"}
+      State.Facility.new_state([facility])
+
+      results =
+        conn
+        |> assign(:api_version, "2020-05-01")
+        |> index_data(%{"filter" => %{"stop" => "place-dudly"}})
+
+      assert results == [facility]
+
+      results =
+        conn
+        |> assign(:api_version, "2020-XX-XX")
+        |> index_data(%{"filter" => %{"stop" => "place-dudly"}})
+
+      assert results == []
+    end
+
     test "returns errors for invalid filters", %{conn: conn} do
       results = index_data(conn, %{"filter" => %{"stop" => "place-alfcl", "id" => "ignored"}})
       assert results == {:error, :bad_filter, ~w(id)}

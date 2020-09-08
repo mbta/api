@@ -152,6 +152,32 @@ defmodule ApiWeb.PredictionControllerTest do
     assert json_response(resp, 200)
   end
 
+  test "versions before 2020-XX-XX can filter using the old stop ID for Nubian", %{conn: conn} do
+    nubn_predict = %Prediction{stop_id: "place-nubn", arrival_time: @latest_arrival}
+    other_predict = %Prediction{stop_id: "other", arrival_time: @latest_arrival}
+    predictions = [nubn_predict, other_predict]
+    State.Stop.new_state([%Stop{id: "place-nubn"}, %Stop{id: "other"}])
+    State.Prediction.new_state(predictions)
+
+    conn = assign(conn, :api_version, "2020-05-01")
+    assert index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}}) == predictions
+
+    conn = assign(conn, :api_version, "2020-XX-XX")
+    assert index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}}) == [other_predict]
+
+    # ensure this also works *before* the transition has occurred
+
+    prediction = %Prediction{stop_id: "place-dudly", arrival_time: @latest_arrival}
+    State.Stop.new_state([%Stop{id: "place-dudly"}])
+    State.Prediction.new_state([prediction])
+
+    conn = assign(conn, :api_version, "2020-05-01")
+    assert index_data(conn, %{"filter" => %{"stop" => "place-dudly"}}) == [prediction]
+
+    conn = assign(conn, :api_version, "2020-XX-XX")
+    assert index_data(conn, %{"filter" => %{"stop" => "place-dudly"}}) == [prediction]
+  end
+
   test "versions before 2019-02-12 include Alewife platformed stops", %{conn: conn} do
     stops = [
       %Stop{id: "South Station", parent_station: "place-sstat"},

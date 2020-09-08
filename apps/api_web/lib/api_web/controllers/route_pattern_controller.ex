@@ -74,6 +74,7 @@ defmodule ApiWeb.RoutePatternController do
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
       filtered
       |> format_filters()
+      |> expand_stops_filter(:stop_ids, conn.assigns.api_version)
       |> RoutePattern.filter_by()
       |> State.all(pagination_opts(params, conn))
     else
