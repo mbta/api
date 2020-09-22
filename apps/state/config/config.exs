@@ -224,11 +224,21 @@ config :state, :stops_on_route,
       "place-north",
       "place-haecl"
     ],
-    {"`Green-D", 1} => [
+    {"Green-D", 1} => [
       "place-lech",
       "place-spmnl",
       "place-north",
       "place-haecl"
+    ],
+    {"Green-E", 0} => [
+      "place-lech",
+      "14159",
+      "21458"
+    ],
+    {"Green-E", 1} => [
+      "place-lech",
+      "14155",
+      "21458"
     ]
   }
 
