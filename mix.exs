@@ -18,7 +18,25 @@ defmodule ApiUmbrella.Mixfile do
       docs: docs(),
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/mbta/api",
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      default_release: :api_web,
+      releases: [
+        api_web: [
+          applications: [
+            runtime_tools: :permanent,
+            api_web: :permanent,
+            api_accounts: :permanent,
+            events: :permanent,
+            fetch: :permanent,
+            health: :permanent,
+            model: :permanent,
+            parse: :permanent,
+            state: :permanent,
+            state_mediator: :permanent
+          ],
+          version: "0.1.0"
+        ]
+      ]
     ]
   end
 

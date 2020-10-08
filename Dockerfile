@@ -18,13 +18,13 @@ RUN mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest
 
 ADD rel/ rel/
 
-RUN mix distillery.release --verbose
+RUN mix release
 
 # The one the elixir image was built with
 FROM alpine:3.11.6
 
 RUN apk add --update libssl1.1 curl bash dumb-init \
-	&& rm -rf /var/cache/apk/*
+  && rm -rf /var/cache/apk/*
 
 WORKDIR /root
 
@@ -41,4 +41,4 @@ WORKDIR /root/work
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["/root/rel/bin/startup", "foreground"]
+CMD ["/root/rel/bin/startup", "start"]
