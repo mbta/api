@@ -432,15 +432,6 @@ defmodule ApiAccounts.Dynamo do
   defp ex_aws_client, do: ExAws
 
   def config do
-    case Application.get_env(:ex_aws, :dynamodb) do
-      [{:port, port_bin} | rest] when is_binary(port_bin) ->
-        port = String.to_integer(port_bin)
-        config = [{:port, port} | rest]
-        Application.put_env(:ex_aws, :dynamodb, config)
-        config
-
-      config ->
-        config
-    end
+    Application.get_env(:ex_aws, :dynamodb)
   end
 end
