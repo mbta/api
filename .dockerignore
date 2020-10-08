@@ -6,9 +6,8 @@ apps/*/node_modules
 apps/*/test
 cache
 rel
-!rel/bin/startup
-!rel/config.exs
-!rel/vm.args
+!rel/env.sh.eex
+!rel/vm.args.eex
 erl_crash.dump
 build.sh
 deploy.sh

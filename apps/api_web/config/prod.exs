@@ -20,11 +20,8 @@ config :api_web, ApiWeb.Endpoint,
     ]
   ],
   url: [scheme: "https", host: {:system, "HOST"}, port: 443],
-  secret_key_base: "${SECRET_KEY_BASE}",
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
-
-config :api_web, :signing_salt, "${SIGNING_SALT}"
 
 # configured separately so that we can have the health check not require
 # SSL
@@ -42,12 +39,6 @@ config :api_web, :api_pipeline,
 config :api_web, :rate_limiter,
   limiter: ApiWeb.RateLimiter.Memcache,
   wait_time_ms: 100
-
-config :api_web, RateLimiter.Memcache,
-  connection_opts: [
-    namespace: "${HOST}",
-    hostname: "${MEMCACHED_HOST}"
-  ]
 
 # Configures Elixir's Logger
 config :sasl, errlog_type: :error

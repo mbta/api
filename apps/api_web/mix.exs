@@ -3,29 +3,30 @@ defmodule ApiWeb.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :api_web,
-     aliases: aliases(),
-     build_embedded: Mix.env == :prod,
-     build_path: "../../_build",
-     compilers: [:phoenix] ++ Mix.compilers ++ [:phoenix_swagger],
-     config_path: "../../config/config.exs",
-     deps: deps(),
-     deps_path: "../../deps",
-     elixir: "~> 1.9",
-     elixirc_paths: elixirc_paths(Mix.env),
-     lockfile: "../../mix.lock",
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: ExCoveralls],
-     version: "0.1.0"]
+    [
+      app: :api_web,
+      aliases: aliases(),
+      build_embedded: Mix.env() == :prod,
+      build_path: "../../_build",
+      compilers: [:phoenix] ++ Mix.compilers() ++ [:phoenix_swagger],
+      config_path: "../../config/config.exs",
+      deps: deps(),
+      deps_path: "../../deps",
+      elixir: "~> 1.10",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      lockfile: "../../mix.lock",
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      version: "0.1.0"
+    ]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    extra_applications = [:logger, :phoenix_swagger | env_applications(Mix.env)]
-    [mod: {ApiWeb, []},
-     extra_applications: extra_applications]
+    extra_applications = [:logger, :phoenix_swagger | env_applications(Mix.env())]
+    [mod: {ApiWeb, []}, extra_applications: extra_applications]
   end
 
   defp aliases do
@@ -35,13 +36,14 @@ defmodule ApiWeb.Mixfile do
   defp env_applications(:prod) do
     [:sasl, :diskusage_logger]
   end
+
   defp env_applications(_) do
     []
   end
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Dependencies can be Hex packages:
   #
@@ -63,7 +65,6 @@ defmodule ApiWeb.Mixfile do
       {:ja_serializer, github: "mbta/ja_serializer", branch: "master"},
       {:timex, "~> 3.2"},
       {:corsica, "~> 1.1"},
-      {:distillery, "~> 2.0", runtime: :false},
       {:state_mediator, in_umbrella: true},
       {:health, in_umbrella: true},
       {:api_accounts, in_umbrella: true},
