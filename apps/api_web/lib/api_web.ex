@@ -31,16 +31,6 @@ defmodule ApiWeb do
 
   def runtime_config! do
     # pulls some configuration from the environment
-    case System.get_env("HTTP_ACCEPTS") do
-      nil ->
-        :ok
-
-      accepts ->
-        env = Application.get_env(:api_web, :api_pipeline)
-        env = Keyword.put(env, :accepts, String.split(accepts, " "))
-        Application.put_env(:api_web, :api_pipeline, env)
-    end
-
     case System.get_env("LOG_LEVEL") do
       "debug" ->
         Logger.configure(level: :debug)

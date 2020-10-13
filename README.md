@@ -22,7 +22,6 @@ In addition to the Elixir config files, the V3 API allows runtime configuration 
 
 | Environment Variable | Default | Description |
 | - | - | - |
-| `HTTP_ACCEPTS` | `json json-api event-stream` | Space-separated Phoenix types the API will accept. |
 | `LOG_LEVEL` | `info` | Log level to use. Can be changed to `debug`. |
 | `PORT` | `4000` | The HTTP port the server will listen on. |
 | `HOST` | undefined | The public-facing hostname for the server, used to generate URLs. |
