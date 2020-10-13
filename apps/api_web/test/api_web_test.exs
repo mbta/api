@@ -13,17 +13,6 @@ defmodule ApiWebTest do
 
       :ok
     end
-
-    test "can configure the MIME types the API expects" do
-      initial_accepts = ApiWeb.config(:api_pipeline, :accepts)
-      # makes no change by default
-      ApiWeb.runtime_config!()
-      assert ApiWeb.config(:api_pipeline, :accepts) == initial_accepts
-
-      System.put_env("HTTP_ACCEPTS", "json json-api event-stream extra")
-      ApiWeb.runtime_config!()
-      assert ApiWeb.config(:api_pipeline, :accepts) == ~w(json json-api event-stream extra)
-    end
   end
 
   test "config/1 returns configuration" do

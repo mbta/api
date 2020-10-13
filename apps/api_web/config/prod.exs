@@ -31,10 +31,9 @@ config :site, :secure_pipeline,
     rewrite_on: [:x_forwarded_proto]
   ]
 
-# by default, don't enable the event-stream type
 config :api_web, :api_pipeline,
   authenticated_accepts: ["event-stream"],
-  accepts: ["json", "json-api"]
+  accepts: ["json", "json-api", "event-stream"]
 
 config :api_web, :rate_limiter,
   limiter: ApiWeb.RateLimiter.Memcache,
