@@ -2,8 +2,7 @@ import Config
 
 config :ex_aws,
   dynamodb: [
-    # make sure port is first, otherwise it won't be converted to an integer
-    port: System.get_env("DYNAMO_PORT"),
+    port: "DYNAMO_PORT" |> System.get_env() |> String.to_integer(),
     scheme: System.get_env("DYNAMO_SCHEME"),
     host: System.get_env("DYNAMO_HOST")
   ]

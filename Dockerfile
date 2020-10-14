@@ -29,7 +29,6 @@ RUN apk add --update libssl1.1 curl bash dumb-init \
 WORKDIR /root
 
 COPY --from=builder /root/_build/prod/rel/api_web /root/rel
-COPY --from=builder /root/rel/bin/startup /root/rel/bin/
 
 # Set exposed ports
 EXPOSE 4000
@@ -41,4 +40,4 @@ WORKDIR /root/work
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["/root/rel/bin/startup", "start"]
+CMD ["/root/rel/bin/api_web", "start"]
