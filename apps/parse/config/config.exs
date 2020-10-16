@@ -6,7 +6,7 @@ config :parse, Facility.Parking,
   garages: %{
     "Alewife" => "park-alfcl-garage",
     "Braintree" => "park-brntn-garage",
-    # Woodland
+    "Woodland" => "park-woodl-garage",
     "DataPark" => "park-woodl-garage",
     "MBTA BEVERLY" => "park-ER-0183-garage",
     "MBTA Route 128" => "park-NEC-2173-garage",
