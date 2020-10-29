@@ -75,7 +75,7 @@ defmodule ApiWeb.SwaggerHelpers do
 
   def filter_param(path_object, name, opts \\ [])
 
-  def filter_param(path_object, :route_type, _opts) do
+  def filter_param(path_object, :route_type, opts) do
     Path.parameter(
       path_object,
       "filter[route_type]",
@@ -85,6 +85,8 @@ defmodule ApiWeb.SwaggerHelpers do
       Filter by route_type: https://developers.google.com/transit/gtfs/reference/routes-file.
 
       Multiple `route_type` #{comma_separated_list()}.
+
+      #{opts[:desc]}
       """,
       enum: ["0", "1", "2", "3", "4"]
     )

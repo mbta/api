@@ -16,8 +16,7 @@ defmodule ApiWeb.ScheduleController do
   plug(ApiWeb.Plugs.ValidateDate)
   plug(:date)
 
-  @filters ~w(date direction_id max_time min_time route stop stop_sequence
-              trip)s
+  @filters ~w(date direction_id max_time min_time route stop stop_sequence route_type trip)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(stop trip prediction route)
 
@@ -59,6 +58,7 @@ defmodule ApiWeb.ScheduleController do
     include_parameters(@includes)
     filter_param(:date, description: "Filter schedule by date that they are active.")
     filter_param(:direction_id)
+    filter_param(:route_type, desc: "Must be used in conjunction with another filter.")
 
     filter_param(
       :time,
@@ -94,11 +94,15 @@ defmodule ApiWeb.ScheduleController do
   def index_data(conn, params) do
     with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
          {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+      # must include one additional filter besides `route_type` and `date`, is automatically included
       case format_filters(filtered, conn) do
+        %{route_type: _} = filters when map_size(filters) == 2 ->
+          {:error, :only_route_type}
+
         filters when map_size(filters) > 1 ->
-          # greater than 1 because `date` is automatically included
           filters
           |> Schedule.filter_by()
+          |> Schedule.filter_by_route_type(Map.get(filters, :route_type))
           |> populate_extra_times(conn)
           |> State.all(Params.filter_opts(params, @pagination_opts, conn))
 
@@ -185,6 +189,10 @@ defmodule ApiWeb.ScheduleController do
           []
         end
     end
+  end
+
+  defp do_format_filter({"route_type", route_types}) do
+    %{route_type: Params.route_types(%{"route_type" => route_types})}
   end
 
   defp do_format_filter({key, time}) when key in ["min_time", "max_time"] do

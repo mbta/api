@@ -514,4 +514,64 @@ defmodule State.ScheduleTest do
       assert Schedule.schedule_for_many([prediction]) == %{}
     end
   end
+
+  describe "filter_by_route_type/2" do
+    @schedule1 %Model.Schedule{
+      route_id: "route",
+      trip_id: "trip1",
+      stop_id: "stop",
+      direction_id: 1,
+      # 12:30pm
+      arrival_time: 45_000,
+      departure_time: 45_100,
+      drop_off_type: 1,
+      pickup_type: 1,
+      timepoint?: false,
+      service_id: "service",
+      stop_sequence: 1,
+      position: :first
+    }
+    @schedule2 %Model.Schedule{
+      route_id: "route2",
+      trip_id: "trip2",
+      stop_id: "stop",
+      direction_id: 1,
+      # 12:30pm
+      arrival_time: 45_000,
+      departure_time: 45_100,
+      drop_off_type: 1,
+      pickup_type: 1,
+      timepoint?: false,
+      service_id: "service",
+      stop_sequence: 2,
+      position: :first
+    }
+
+    @route1 %Model.Route{id: "route", type: 0}
+    @route2 %Model.Route{id: "route2", type: 1}
+
+    test "returns all predictions if no filters set" do
+      State.Route.new_state([@route1, @route2])
+
+      assert Schedule.filter_by_route_type([@schedule, @schedule2], nil) == [
+               @schedule,
+               @schedule2
+             ]
+
+      assert Schedule.filter_by_route_type([@schedule, @schedule2], []) == [@schedule, @schedule2]
+    end
+
+    test "filters by route_type" do
+      State.Route.new_state([@route1, @route2])
+      assert Schedule.filter_by_route_type([@schedule, @schedule2], [0]) == [@schedule]
+      assert Schedule.filter_by_route_type([@schedule, @schedule2], [1]) == [@schedule2]
+
+      assert Schedule.filter_by_route_type([@schedule, @schedule2], [0, 1]) == [
+               @schedule,
+               @schedule2
+             ]
+
+      assert Schedule.filter_by_route_type([@schedule, @schedule2], [2]) == []
+    end
+  end
 end

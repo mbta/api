@@ -156,9 +156,76 @@ defmodule ApiWeb.SchedulerControllerTest do
       assert index_data(conn, %{}) == {:error, :filter_required}
     end
 
+    test "returns an error if only the route_type filter is provided", %{conn: conn} do
+      assert ApiWeb.ScheduleController.index_data(conn, %{"route_type" => "0,1"}) ==
+               {:error, :only_route_type}
+    end
+
     test "can filter by stop", %{conn: conn} do
       assert index_data(conn, %{"stop" => "stop"}) == [@schedule]
       assert index_data(conn, %{"stop" => "not stop"}) == []
+    end
+
+    test "can filter by route_type", %{conn: conn} do
+      schedule1 = %Model.Schedule{
+        route_id: "1",
+        trip_id: "trip",
+        stop_id: "stop",
+        direction_id: 1,
+        arrival_time: 45_000,
+        departure_time: 45_100,
+        drop_off_type: 0,
+        pickup_type: 0,
+        timepoint?: false,
+        service_id: "service",
+        stop_sequence: 2,
+        position: :first
+      }
+
+      schedule2 = %Model.Schedule{
+        route_id: "2",
+        trip_id: "trip",
+        stop_id: "stop",
+        direction_id: 1,
+        arrival_time: 45_000,
+        departure_time: 45_100,
+        drop_off_type: 0,
+        pickup_type: 0,
+        timepoint?: false,
+        service_id: "service",
+        stop_sequence: 2,
+        position: :first
+      }
+
+      route1 = %Model.Route{
+        id: "1",
+        type: 1,
+        sort_order: 1,
+        description: "First Route",
+        short_name: "First",
+        long_name: "First"
+      }
+
+      route2 = %Model.Route{
+        id: "2",
+        type: 2,
+        sort_order: 1,
+        description: "Second Route",
+        short_name: "Second",
+        long_name: "Second"
+      }
+
+      State.Route.new_state([route1, route2])
+      State.Schedule.new_state([schedule1, schedule2])
+
+      conn = get(conn, "/schedules", %{"stop" => "stop"})
+      assert conn.assigns.data == [schedule1, schedule2]
+
+      conn = get(conn, "/schedules", %{"stop" => "stop", "route_type" => "2"})
+      assert conn.assigns.data == [schedule2]
+
+      conn = get(conn, "/schedules", %{"stop" => "stop", "route_type" => "1,2"})
+      assert conn.assigns.data == [schedule1, schedule2]
     end
 
     test "versions before 2019-02-12 include new Kenmore stops", %{conn: conn} do
