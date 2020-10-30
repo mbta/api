@@ -57,7 +57,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:position)
     filter_param(:radius)
     filter_param(:direction_id)
-    filter_param(:route_type)
+    filter_param(:route_type, desc: "Must be used in conjunction with another filter.")
     filter_param(:id, name: :stop)
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)

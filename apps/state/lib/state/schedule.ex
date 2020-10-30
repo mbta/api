@@ -19,6 +19,7 @@ defmodule State.Schedule do
           optional(:trips) => [Model.Trip.id()],
           optional(:direction_id) => Model.Direction.id(),
           optional(:stops) => [Model.Stop.id()],
+          optional(:route_type) => [Model.Route.route_type()],
           optional(:stop_sequence) => stop_sequence,
           optional(:date) => Date.t(),
           optional(:min_time) => non_neg_integer,
@@ -30,6 +31,7 @@ defmodule State.Schedule do
            optional(:trips) => [Model.Trip.id()],
            optional(:direction_id) => Model.Direction.id(),
            optional(:stops) => [Model.Stop.id()],
+           optional(:route_type) => [Model.Route.route_type()],
            optional(:date) => Date.t(),
            optional(:min_time) => non_neg_integer,
            optional(:max_time) => non_neg_integer
@@ -306,5 +308,17 @@ defmodule State.Schedule do
   defp in_time_range?(schedule, min_time, max_time) do
     time = Schedule.time(schedule)
     min_time <= time and time <= max_time
+  end
+
+  def filter_by_route_type(schedules, nil), do: schedules
+  def filter_by_route_type(schedules, []), do: schedules
+
+  def filter_by_route_type(schedules, route_types) do
+    route_ids =
+      route_types
+      |> State.Route.by_types()
+      |> MapSet.new(& &1.id)
+
+    Enum.filter(schedules, &(&1.route_id in route_ids))
   end
 end
