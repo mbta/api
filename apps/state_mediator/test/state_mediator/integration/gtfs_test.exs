@@ -310,7 +310,7 @@ defmodule StateMediator.Integration.GtfsTest do
   describe "schedules" do
     test "CR-Fairmount has alternate route trips" do
       refute State.Trip.match(
-               %{route_id: "CR-Fairmount", direction_id: 1, alternate_route: true},
+               %{route_id: "CR-Fairmount", direction_id: 0, alternate_route: true},
                :route_id
              ) == []
     end
