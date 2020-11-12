@@ -212,61 +212,6 @@ defmodule StateMediator.Integration.GtfsTest do
 
       assert invalid_dates == []
     end
-
-    test "Foxboro is on CR-Franklin after 2019-10-21" do
-      foxboro? = fn stops ->
-        Enum.find(stops, &(&1.id == "place-FS-0049")) != nil
-      end
-
-      assert foxboro?.(State.Stop.filter_by(%{routes: ["CR-Franklin"]}))
-      assert foxboro?.(State.Stop.filter_by(%{routes: ["CR-Franklin"], direction_id: 0}))
-      assert foxboro?.(State.Stop.filter_by(%{routes: ["CR-Franklin"], direction_id: 1}))
-
-      invalid_dates =
-        for date <- dates_of_rating(),
-            direction_id <- [nil, 0, 1],
-            data =
-              State.Stop.filter_by(%{
-                routes: ["CR-Franklin"],
-                direction_id: direction_id,
-                date: date
-              }),
-            after_oct21? = Date.compare(date, ~D[2019-10-21]) != :lt,
-            has_foxboro? = foxboro?.(data),
-            after_oct21? != has_foxboro? do
-          {date, direction_id}
-        end
-
-      assert invalid_dates == []
-    end
-
-    test "Foxboro and Dedham Corporate Center are on CR-Fairmount after 2019-10-21" do
-      valid? = fn stops ->
-        Enum.find(stops, &(&1.id == "place-FS-0049")) != nil and
-          Enum.find(stops, &(&1.id == "place-FB-0118")) != nil
-      end
-
-      assert valid?.(State.Stop.filter_by(%{routes: ["CR-Fairmount"]}))
-      assert valid?.(State.Stop.filter_by(%{routes: ["CR-Fairmount"], direction_id: 0}))
-      assert valid?.(State.Stop.filter_by(%{routes: ["CR-Fairmount"], direction_id: 1}))
-
-      invalid_dates =
-        for date <- dates_of_rating(),
-            direction_id <- [nil, 0, 1],
-            data =
-              State.Stop.filter_by(%{
-                routes: ["CR-Fairmount"],
-                direction_id: direction_id,
-                date: date
-              }),
-            after_oct21? = Date.compare(date, ~D[2019-10-21]) != :lt,
-            is_valid? = valid?.(data),
-            after_oct21? != is_valid? do
-          {date, direction_id}
-        end
-
-      assert invalid_dates == []
-    end
   end
 
   describe "shapes" do
@@ -316,7 +261,7 @@ defmodule StateMediator.Integration.GtfsTest do
     test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
 
-      assert [%{name: "North Station - Rockport"}, %{name: "North Station - Newburyport"}] =
+      assert [%{name: "North Station - Manchester"}, %{name: "North Station - Newburyport"}] =
                shapes_0
 
       assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
@@ -365,7 +310,7 @@ defmodule StateMediator.Integration.GtfsTest do
   describe "schedules" do
     test "CR-Fairmount has alternate route trips" do
       refute State.Trip.match(
-               %{route_id: "CR-Fairmount", direction_id: 1, alternate_route: true},
+               %{route_id: "CR-Fairmount", direction_id: 0, alternate_route: true},
                :route_id
              ) == []
     end
