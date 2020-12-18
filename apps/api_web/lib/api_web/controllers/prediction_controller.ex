@@ -125,7 +125,7 @@ defmodule ApiWeb.PredictionController do
     end
   end
 
-  defp filters(%{assigns: %{api_version: ver}}) when ver < "2020-XX-XX", do: ["date" | @filters]
+  defp filters(%{assigns: %{api_version: ver}}) when ver < "2021-01-09", do: ["date" | @filters]
   defp filters(_), do: @filters
 
   defp stop_ids(params, conn) do

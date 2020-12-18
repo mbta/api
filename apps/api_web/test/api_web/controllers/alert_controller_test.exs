@@ -148,7 +148,7 @@ defmodule ApiWeb.AlertControllerTest do
       data = conn |> assign(:api_version, "2020-05-01") |> index_data(%{"stop" => "place-dudly"})
       assert data == [alert]
 
-      data = conn |> assign(:api_version, "2020-XX-XX") |> index_data(%{"stop" => "place-dudly"})
+      data = conn |> assign(:api_version, "2021-01-09") |> index_data(%{"stop" => "place-dudly"})
       assert data == []
     end
 

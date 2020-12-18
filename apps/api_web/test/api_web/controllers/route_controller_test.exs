@@ -163,7 +163,7 @@ defmodule ApiWeb.RouteControllerTest do
       conn = assign(conn, :api_version, "2020-05-01")
       assert ApiWeb.RouteController.index_data(conn, %{"stop" => "place-dudly"}) == [@route]
 
-      conn = assign(conn, :api_version, "2020-XX-XX")
+      conn = assign(conn, :api_version, "2021-01-09")
       assert ApiWeb.RouteController.index_data(conn, %{"stop" => "place-dudly"}) == []
     end
 

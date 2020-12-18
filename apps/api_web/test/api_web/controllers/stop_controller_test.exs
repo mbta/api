@@ -531,7 +531,7 @@ defmodule ApiWeb.StopControllerTest do
 
       response =
         conn
-        |> assign(:api_version, "2020-XX-XX")
+        |> assign(:api_version, "2021-01-09")
         |> get(stop_path(conn, :show, "place-dudly"))
         |> json_response(404)
 
@@ -551,7 +551,7 @@ defmodule ApiWeb.StopControllerTest do
 
       response =
         conn
-        |> assign(:api_version, "2020-XX-XX")
+        |> assign(:api_version, "2021-01-09")
         |> get(stop_path(conn, :show, "place-dudly"))
         |> json_response(200)
 
