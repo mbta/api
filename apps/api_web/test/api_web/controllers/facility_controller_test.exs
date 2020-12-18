@@ -85,7 +85,7 @@ defmodule ApiWeb.FacilityControllerTest do
 
       results =
         conn
-        |> assign(:api_version, "2020-XX-XX")
+        |> assign(:api_version, "2021-01-09")
         |> index_data(%{"filter" => %{"stop" => "place-dudly"}})
 
       assert results == []

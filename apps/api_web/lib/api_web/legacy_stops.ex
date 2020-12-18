@@ -66,7 +66,7 @@ defmodule ApiWeb.LegacyStops do
       "70201" => {nil, ["Government Center-Brattle"]},
       "70202" => {nil, ["Government Center-Brattle"]}
     },
-    "2020-XX-XX" => %{
+    "2021-01-09" => %{
       "Abington" => {"PB-0194-S", []},
       "Anderson/ Woburn" => {"NHRML-0127", ["NHRML-0127-01", "NHRML-0127-02"]},
       "Andover" => {"WR-0228-02", []},

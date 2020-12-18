@@ -142,8 +142,8 @@ defmodule ApiWeb.PredictionControllerTest do
     end
   end
 
-  test "versions before 2020-XX-XX allow an unused `date` filter", %{conn: conn} do
-    conn = assign(conn, :api_version, "2020-XX-XX")
+  test "versions before 2021-01-09 allow an unused `date` filter", %{conn: conn} do
+    conn = assign(conn, :api_version, "2021-01-09")
     resp = get(conn, "/predictions", stop: @stop.id, date: "2020-01-01")
     assert json_response(resp, 400)
 
@@ -152,7 +152,7 @@ defmodule ApiWeb.PredictionControllerTest do
     assert json_response(resp, 200)
   end
 
-  test "versions before 2020-XX-XX can filter using the old stop ID for Nubian", %{conn: conn} do
+  test "versions before 2021-01-09 can filter using the old stop ID for Nubian", %{conn: conn} do
     nubn_predict = %Prediction{stop_id: "place-nubn", arrival_time: @latest_arrival}
     other_predict = %Prediction{stop_id: "other", arrival_time: @latest_arrival}
     predictions = [nubn_predict, other_predict]
@@ -162,7 +162,7 @@ defmodule ApiWeb.PredictionControllerTest do
     conn = assign(conn, :api_version, "2020-05-01")
     assert index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}}) == predictions
 
-    conn = assign(conn, :api_version, "2020-XX-XX")
+    conn = assign(conn, :api_version, "2021-01-09")
     assert index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}}) == [other_predict]
 
     # ensure this also works *before* the transition has occurred
@@ -174,7 +174,7 @@ defmodule ApiWeb.PredictionControllerTest do
     conn = assign(conn, :api_version, "2020-05-01")
     assert index_data(conn, %{"filter" => %{"stop" => "place-dudly"}}) == [prediction]
 
-    conn = assign(conn, :api_version, "2020-XX-XX")
+    conn = assign(conn, :api_version, "2021-01-09")
     assert index_data(conn, %{"filter" => %{"stop" => "place-dudly"}}) == [prediction]
   end
 

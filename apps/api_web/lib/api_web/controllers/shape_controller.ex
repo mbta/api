@@ -43,7 +43,7 @@ defmodule ApiWeb.ShapeController do
     end
   end
 
-  defp filters(%{assigns: %{api_version: ver}}) when ver < "2020-XX-XX",
+  defp filters(%{assigns: %{api_version: ver}}) when ver < "2021-01-09",
     do: ["direction_id" | @filters]
 
   defp filters(_), do: @filters
