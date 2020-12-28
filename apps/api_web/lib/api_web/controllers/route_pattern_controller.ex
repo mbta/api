@@ -46,7 +46,7 @@ defmodule ApiWeb.RoutePatternController do
 
     filter_param(:id, name: :route)
     filter_param(:direction_id)
-    filter_param(:id, name: :stop)
+    filter_param(:stop_id, includes_children: true)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
