@@ -63,7 +63,7 @@ defmodule State.RoutePattern do
         _ -> []
       end
 
-    RoutesPatternsAtStop.route_patterns_by_stops_and_direction(stop_ids, opts)
+    RoutesPatternsAtStop.route_patterns_by_family_stops(stop_ids, opts)
   end
 
   defp ids_from_routes(%{route_ids: route_ids} = filters) do

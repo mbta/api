@@ -49,6 +49,50 @@ defmodule State.RoutePatternTest do
       assert filter_by(%{route_ids: ["not_route"], stop_ids: ["stop"]}) == []
     end
 
+    test "includes child stops" do
+      route = %Model.Route{id: "route"}
+      route_pattern0 = %RoutePattern{id: "pattern0", route_id: route.id, direction_id: 0}
+      route_pattern1 = %RoutePattern{id: "pattern1", route_id: route.id, direction_id: 1}
+      route_patterns = [route_pattern0, route_pattern1]
+
+      stops = [
+        %Model.Stop{id: "stop", location_type: 1},
+        %Model.Stop{id: "child0", parent_station: "stop"},
+        %Model.Stop{id: "child1", parent_station: "stop"}
+      ]
+
+      trips = [
+        %Model.Trip{
+          id: "trip0",
+          route_id: route.id,
+          route_pattern_id: "pattern0",
+          direction_id: 0
+        },
+        %Model.Trip{
+          id: "trip1",
+          route_id: route.id,
+          route_pattern_id: "pattern1",
+          direction_id: 1
+        }
+      ]
+
+      schedules = [
+        %Model.Schedule{trip_id: "trip0", stop_id: "child0", route_id: route.id},
+        %Model.Schedule{trip_id: "trip1", stop_id: "child1", route_id: route.id}
+      ]
+
+      State.Stop.new_state(stops)
+      State.Route.new_state([route])
+      State.RoutePattern.new_state(route_patterns)
+      State.Trip.new_state(trips)
+      State.Schedule.new_state(schedules)
+      State.RoutesPatternsAtStop.update!()
+
+      assert Enum.sort(filter_by(%{stop_ids: ["stop"]})) == Enum.sort(route_patterns)
+      assert filter_by(%{stop_ids: ["child0"]}) == [route_pattern0]
+      assert filter_by(%{stop_ids: ["child1"]}) == [route_pattern1]
+    end
+
     test "includes alternate route" do
       route = %Model.Route{id: "route"}
       other_route = %Model.Route{id: "other_route"}
