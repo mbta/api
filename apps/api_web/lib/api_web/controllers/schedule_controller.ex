@@ -75,7 +75,7 @@ defmodule ApiWeb.ScheduleController do
     )
 
     filter_param(:id, name: :route)
-    filter_param(:id, name: :stop)
+    filter_param(:stop_id, includes_children: true)
     filter_param(:id, name: :trip)
 
     parameter(:"filter[stop_sequence]", :query, :string, """

@@ -158,26 +158,35 @@ defmodule ApiWeb.SwaggerHelpers do
     Path.parameter(path_object, "filter[#{name}]", :query, :string, desc, format: :time)
   end
 
+  def filter_param(path_object, :stop_id, opts) do
+    desc = opts[:desc] || ""
+
+    desc =
+      if opts[:includes_children] do
+        "Parent station IDs are treated as though their child stops were also included. #{desc}"
+      else
+        desc
+      end
+
+    filter_param(path_object, :id, Keyword.merge(opts, desc: desc, name: :stop))
+  end
+
   def filter_param(path_object, :id, opts) do
-    name = opts[:name]
+    name = Keyword.fetch!(opts, :name)
     json_pointer = "`/data/{index}/relationships/#{name}/data/id`"
-
-    details =
-      Keyword.get_lazy(opts, :desc, fn ->
-        "Multiple #{json_pointer} #{comma_separated_list()}."
-      end)
-
-    description =
-      ["Filter by #{json_pointer}.", details]
-      |> Enum.filter(& &1)
-      |> Enum.join(" ")
 
     Path.parameter(
       path_object,
       "filter[#{name}]",
       :query,
       :string,
-      description,
+      """
+      Filter by #{json_pointer}.
+
+      Multiple IDs #{comma_separated_list()}.
+
+      #{opts[:desc]}
+      """,
       Keyword.drop(opts, [:desc, :name])
     )
   end

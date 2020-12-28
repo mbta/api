@@ -62,7 +62,7 @@ defmodule ApiWeb.AlertController do
     filter_param(:route_type)
     filter_param(:direction_id)
     filter_param(:id, name: :route)
-    filter_param(:id, name: :stop)
+    filter_param(:stop_id, includes_children: true)
     filter_param(:id, name: :trip)
     filter_param(:id, name: :facility)
 

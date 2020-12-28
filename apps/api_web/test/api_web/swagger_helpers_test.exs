@@ -124,11 +124,10 @@ defmodule SwaggerHelpersTest do
         |> Enum.find(fn %{name: name} -> name == "filter[route]" end)
 
       assert param.type == :string
+      assert param.description =~ "Filter by `/data/{index}/relationships/route/data/id`."
 
-      assert param.description ==
-               "Filter by `/data/{index}/relationships/route/data/id`. Multiple " <>
-                 "`/data/{index}/relationships/route/data/id` **MUST** be a comma-separated " <>
-                 "(U+002C COMMA, \",\") list."
+      assert param.description =~
+               "Multiple IDs **MUST** be a comma-separated (U+002C COMMA, \",\") list."
     end
   end
 

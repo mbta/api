@@ -31,14 +31,10 @@ defmodule ApiWeb.RouteController do
 
     include_parameters(
       @includes_index,
-      description: "include=stop only works when `filter[stop]` is also used"
+      description: "`stop` can only be included when `filter[stop]` is also specified."
     )
 
-    filter_param(
-      :id,
-      name: :stop,
-      desc: "Must filter by stop in order to include stop with response"
-    )
+    filter_param(:stop_id)
 
     parameter(
       "filter[type]",

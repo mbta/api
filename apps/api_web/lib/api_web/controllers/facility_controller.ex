@@ -19,13 +19,13 @@ defmodule ApiWeb.FacilityController do
 
     common_index_parameters(__MODULE__, :facility)
     include_parameters(@includes)
-    filter_param(:id, name: :stop)
+    filter_param(:stop_id)
 
     parameter(
       "filter[type]",
       :query,
       :string,
-      "Filter by multiple types.  Multiple types **MUST** be a comma-separated (U+002C COMMA, \",\") list."
+      "Filter by type. Multiple types #{comma_separated_list()}."
     )
 
     consumes("application/vnd.api+json")
