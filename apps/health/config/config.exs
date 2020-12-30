@@ -5,5 +5,6 @@ use Mix.Config
 config :health,
   checkers: [
     Health.Checkers.State,
-    Health.Checkers.RunQueue
+    Health.Checkers.RunQueue,
+    Health.Checkers.RealTime
   ]
