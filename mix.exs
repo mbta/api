@@ -24,6 +24,7 @@ defmodule ApiUmbrella.Mixfile do
         api_web: [
           applications: [
             runtime_tools: :permanent,
+            alb_monitor: :permanent,
             api_web: :permanent,
             api_accounts: :permanent,
             events: :permanent,

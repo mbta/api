@@ -7,6 +7,10 @@ config :ex_aws,
     host: System.get_env("DYNAMO_HOST")
   ]
 
+config :alb_monitor,
+  ecs_metadata_uri: System.get_env("ECS_CONTAINER_METADATA_URI"),
+  target_group_arn: System.get_env("ALB_TARGET_GROUP_ARN")
+
 config :api_accounts,
   table_prefix: System.get_env("DYNAMO_TABLE_PREFIX"),
   migrate_on_start: true
