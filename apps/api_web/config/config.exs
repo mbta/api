@@ -42,7 +42,7 @@ config :api_web, :versions,
     "2020-05-01",
     "2021-01-09"
   ],
-  default: "2020-05-01"
+  default: "2021-01-09"
 
 config :logger, :console,
   format: "$date $time $metadata[$level] $message\n",
