@@ -163,33 +163,6 @@ defmodule StateMediator.Integration.GtfsTest do
       assert invalid_services == []
     end
 
-    test "keeps Winsor Gardens and Plimptonville in the right order" do
-      [direction_0, direction_1] =
-        for direction_id <- [0, 1] do
-          stops =
-            State.Stop.filter_by(%{
-              routes: ["CR-Franklin"],
-              direction_id: direction_id
-            })
-
-          stops
-          |> Enum.map(& &1.id)
-          |> Enum.filter(
-            &(&1 in ["Windsor Gardens", "Plimptonville", "place-FB-0166", "place-FB-0177"])
-          )
-        end
-
-      assert direction_0 in [
-               ["Windsor Gardens", "Plimptonville"],
-               ["place-FB-0166", "place-FB-0177"]
-             ]
-
-      assert direction_1 in [
-               ["Plimptonville", "Windsor Gardens"],
-               ["place-FB-0177", "place-FB-0166"]
-             ]
-    end
-
     test "Broadway @ Temple (2725) is on the 101" do
       invalid? = fn stops ->
         ids = Enum.map(stops, & &1.id)
@@ -262,10 +235,10 @@ defmodule StateMediator.Integration.GtfsTest do
     test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
 
-      assert [%{name: "North Station - Manchester"}, %{name: "North Station - Newburyport"}] =
+      assert [%{name: "North Station - Newburyport"}, %{name: "North Station - Manchester"}] =
                shapes_0
 
-      assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
+      assert [%{name: "Newburyport - North Station"}, %{name: "Rockport - North Station"}] =
                shapes_1
     end
 
@@ -305,15 +278,6 @@ defmodule StateMediator.Integration.GtfsTest do
       for %{shape_id: shape_id} <- State.Trip.all() do
         assert State.Shape.by_id(shape_id)
       end
-    end
-  end
-
-  describe "schedules" do
-    test "CR-Fairmount has alternate route trips" do
-      refute State.Trip.match(
-               %{route_id: "CR-Fairmount", direction_id: 0, alternate_route: true},
-               :route_id
-             ) == []
     end
   end
 
