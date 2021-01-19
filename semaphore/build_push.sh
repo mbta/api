@@ -14,6 +14,8 @@ fi
 githash=$(git rev-parse --short HEAD)
 docker build --pull -t $APP:latest .
 docker tag $APP:latest $DOCKER_REPO:git-$githash
+docker tag $APP:latest $DOCKER_REPO:latest
 
 # push images to ECS image repo
 docker push $DOCKER_REPO:git-$githash
+docker push $DOCKER_REPO:latest
