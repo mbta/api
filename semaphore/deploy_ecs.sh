@@ -1,18 +1,14 @@
 #!/bin/bash
 set -e -u
 
-# uncomment to debug
-set -x
-
-# monitor ECS service for deployment status.
-# h/t to this blog post for inspriration:
-# https://medium.com/@aaron.kaz.music/monitoring-the-health-of-ecs-service-deployments-baeea41ae737
-
-# this script should be called with an aws environment name (dev / dev-green / prod)
-# other required configuration:
-# * AWS_REGION
+# This script should be called with an AWS environment name as an argument
+# (only `dev-blue` will work for now). Required environment configuration:
 # * APP
+# * AWS_REGION
 # * DOCKER_REPO
+
+# h/t to this blog post for inspiration:
+# https://medium.com/@aaron.kaz.music/monitoring-the-health-of-ecs-service-deployments-baeea41ae737
 
 ## Install later version of aws cli (in particular, to get secretOptions)
 curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
