@@ -19,7 +19,12 @@ config :state, :route_pattern,
     "Shuttle-ManchesterRockport-0-0" => false,
     "Shuttle-ManchesterRockport-0-1" => false,
     "Shuttle-RockportWestGloucester-0-0" => false,
-    "Shuttle-RockportWestGloucester-0-1" => false
+    "Shuttle-RockportWestGloucester-0-1" => false,
+    # don't ignore Fitchburg Line shuttles to/from Alewife
+    "Shuttle-AlewifeLittletonExpress-0-0" => false,
+    "Shuttle-AlewifeLittletonExpress-0-1" => false,
+    "Shuttle-AlewifeLittletonLocal-0-0" => false,
+    "Shuttle-AlewifeLittletonLocal-0-1" => false
   }
 
 config :state, :shape,
@@ -194,6 +199,14 @@ config :state, :stops_on_route,
     {"CR-Fairmount", 1} => [
       ["Foxboro", "Dedham Corp Center", "Readville"],
       ["place-FS-0049", "place-FB-0118", "place-DB-0095"]
+    ],
+    {"CR-Fitchburg", 0} => [
+      ["place-portr", "place-alfcl", "place-FR-0064"],
+      ["place-FR-0253", "place-FR-0301", "place-FR-0361"]
+    ],
+    {"CR-Fitchburg", 1} => [
+      ["place-FR-0361", "place-FR-0301", "place-FR-0253"],
+      ["place-FR-0064", "place-alfcl", "place-portr"]
     ],
     {"CR-Newburyport", 0} => [
       [
