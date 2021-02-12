@@ -19,10 +19,6 @@ defmodule ApiWeb.EventStream.DiffServer do
     end
   end
 
-  def stop(pid) do
-    GenServer.stop(pid)
-  end
-
   def subscribe(pid) do
     GenServer.cast(pid, {:subscribe, self()})
   end

@@ -18,15 +18,6 @@ defmodule ApiWeb.EventStream.DiffServerTest do
     {:ok, %{conn: conn}}
   end
 
-  describe "stop/1" do
-    test "stops the server", %{conn: conn} do
-      {:ok, pid} = start_link({conn, @module, []})
-      stop(pid)
-
-      assert_stopped(pid)
-    end
-  end
-
   describe "handle_info(:event, _)" do
     test "handles paged responses", %{conn: conn} do
       conn = %{conn | params: %{"page" => %{"limit" => "1"}}}
