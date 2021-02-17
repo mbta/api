@@ -20,7 +20,8 @@ defmodule ApiWeb do
       worker(ApiWeb.RateLimiter, []),
       worker(RequestTrack, [[name: ApiWeb.RequestTrack]]),
       supervisor(ApiWeb.EventStream.Supervisor, []),
-      supervisor(ApiWeb.Endpoint, [])
+      supervisor(ApiWeb.Endpoint, []),
+      worker(ApiWeb.EventStream.Canary, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
