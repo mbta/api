@@ -3,34 +3,41 @@ defmodule ApiWeb.EventStream.SupervisorTest do
   use ApiWeb.ConnCase
   import ApiWeb.EventStream.Supervisor
   import ApiWeb.Test.ProcessHelper
+  alias ApiWeb.RouteController
 
-  describe "server_child/2" do
-    setup %{conn: conn} do
-      conn = get(conn, "/routes")
-      {:ok, %{conn: conn}}
-    end
+  setup %{conn: conn} do
+    conn = get(conn, "/routes")
+    {:ok, %{conn: conn}}
+  end
 
-    test "returns an {:ok, pid} tuple", %{conn: conn} do
-      assert {:ok, pid} = server_child(conn, ApiWeb.RouteController)
+  describe "server_subscribe/2" do
+    test "subscribes the current process to events and returns {:ok, pid}", %{conn: conn} do
+      assert {:ok, pid} = server_subscribe(conn, RouteController)
       assert is_pid(pid)
       assert_receive {:events, [{"reset", _}]}
     end
 
-    @tag :capture_log
-    test "returns the same {:ok, pid} tuple if it already exists", %{conn: conn} do
-      assert {:ok, pid} = server_child(conn, ApiWeb.RouteController)
+    test "returns the same pid if a server already exists for the given args", %{conn: conn} do
+      assert {:ok, pid} = server_subscribe(conn, RouteController)
       {:ok, agent} = Agent.start_link(fn -> :ok end)
 
       conn = %{conn | query_params: %{"api_key" => "key"}}
-
-      assert {:ok, ^pid} =
-               Agent.get(agent, fn _ -> server_child(conn, ApiWeb.RouteController) end)
+      assert {:ok, ^pid} = Agent.get(agent, fn _ -> server_subscribe(conn, RouteController) end)
     end
+  end
 
-    @tag :capture_log
+  describe "server_unsubscribe/1" do
     test "server stops when clients have unsubscribed", %{conn: conn} do
-      {:ok, pid} = server_child(conn, ApiWeb.RouteController)
+      {:ok, pid} = server_subscribe(conn, RouteController)
       :ok = server_unsubscribe(pid)
+      assert_stopped(pid)
+    end
+  end
+
+  describe "terminate_servers/0" do
+    test "terminates all servers", %{conn: conn} do
+      {:ok, pid} = server_subscribe(conn, RouteController)
+      :ok = terminate_servers()
       assert_stopped(pid)
     end
   end

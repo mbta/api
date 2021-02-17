@@ -1,6 +1,7 @@
 defmodule ApiWeb.EventStreamTest do
   @moduledoc false
   use ApiWeb.ConnCase
+  alias ApiWeb.EventStream.{Canary, ServerSupervisor}
   import ApiWeb.EventStream
   import Plug.Conn
   import ApiWeb.Test.ProcessHelper
@@ -72,7 +73,7 @@ defmodule ApiWeb.EventStreamTest do
 
       State.Prediction.new_state([prediction])
 
-      assert {:ok, state} = receive_result(state)
+      assert {:continue, state} = receive_result(state)
       chunks = chunks(state.conn)
       assert chunks =~ "event: "
       assert chunks =~ "data: "
@@ -83,7 +84,7 @@ defmodule ApiWeb.EventStreamTest do
     test "returns a keepalive when nothing happens", %{conn: conn} do
       state = initialize(conn, @module, 50)
       assert_receive_data()
-      assert {:ok, state} = receive_result(state)
+      assert {:continue, state} = receive_result(state)
       assert chunks(state.conn) == ": keep-alive\n"
       on_exit(fn -> assert_stopped(state.pid) end)
     end
@@ -93,14 +94,49 @@ defmodule ApiWeb.EventStreamTest do
       assert_receive_data()
 
       send(self(), {:error, ["filter[]", " is required"]})
-      assert {:error, {:ok, conn}} = receive_result(state)
+      assert {:close, conn} = receive_result(state)
       assert chunks(conn) =~ "filter[] is required"
+      on_exit(fn -> assert_stopped(state.pid) end)
+    end
+
+    test "closes the connection when its diff server exits normally", %{conn: conn} do
+      state = initialize(conn, @module)
+      %{pid: diff_server_pid} = state
+      assert_receive_data()
+
+      :ok = DynamicSupervisor.terminate_child(ServerSupervisor, diff_server_pid)
+      assert {:close, conn} = receive_result(state)
+      assert chunks(conn) == ""
+      on_exit(fn -> assert_stopped(state.pid) end)
+    end
+
+    test "returns an error and closes the connection if its diff server crashes", %{conn: conn} do
+      state = initialize(conn, @module)
+      %{pid: diff_server_pid} = state
+      assert_receive_data()
+
+      Process.exit(diff_server_pid, :kill)
+      assert {:close, conn} = receive_result(state)
+      assert chunks(conn) =~ "internal_error"
+      on_exit(fn -> assert_stopped(state.pid) end)
+    end
+
+    test "closes the connection when the Canary is shut down", %{conn: conn} do
+      # prevent the test process from exiting when we terminate the Canary
+      Process.flag(:trap_exit, true)
+      state = initialize(conn, @module)
+      {:ok, canary} = Canary.start_link()
+      assert_receive_data()
+
+      GenServer.stop(canary, :shutdown)
+      assert {:close, conn} = receive_result(state)
+      assert chunks(conn) == ""
       on_exit(fn -> assert_stopped(state.pid) end)
     end
   end
 
   describe "hibernate_loop/1" do
-    test "returns an error and unsubscribes if we receive an error message", %{conn: conn} do
+    test "returns the final conn and unsubscribes if it receives an error", %{conn: conn} do
       state = initialize(conn, @module)
       assert_receive_data()
 
@@ -109,7 +145,7 @@ defmodule ApiWeb.EventStreamTest do
 
       send(self(), {:error, ["got an error"]})
 
-      assert {:error, _} = hibernate_loop(state)
+      assert %Plug.Conn{state: :chunked} = hibernate_loop(state)
 
       # unsubscribed process is terminated
       assert_receive {:DOWN, ^ref, :process, ^pid, :normal}

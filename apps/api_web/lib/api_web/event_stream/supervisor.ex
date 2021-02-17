@@ -2,32 +2,35 @@ defmodule ApiWeb.EventStream.Supervisor do
   @moduledoc """
   Supervisor for the infrastructure needed for event streaming.
 
-  - ServerRegistry - mapping controller/params pairs to an EventStream.Server
+  - ServerRegistry - mapping controller/params pairs to a DiffServer
   - ServerSupervisor - DynamicSupervisor for managing the children
   """
+
+  alias ApiWeb.EventStream.{DiffServer, ServerRegistry, ServerSupervisor}
+
   def start_link do
     Supervisor.start_link(
       [
-        {Registry, name: ApiWeb.EventStream.ServerRegistry, keys: :unique},
-        {DynamicSupervisor, name: ApiWeb.EventStream.ServerSupervisor, strategy: :one_for_one}
+        {Registry, name: ServerRegistry, keys: :unique},
+        {DynamicSupervisor, name: ServerSupervisor, strategy: :one_for_one}
       ],
       strategy: :one_for_all
     )
   end
 
   @doc """
-  Returns a {:ok, pid} tuple for an EventStream.Server for the given connection/module.
-
-  If one already exists, the same one will be returned.
+  Subscribes the current process to the appropriate DiffServer for the given connection/module,
+  starting it if it doesn't exist.
   """
-  def server_child(conn, module) do
+  @spec server_subscribe(Plug.Conn.t(), module) :: DynamicSupervisor.on_start_child()
+  def server_subscribe(conn, module) do
     case start_child(conn, module) do
       {:ok, pid} ->
-        :ok = ApiWeb.EventStream.DiffServer.subscribe(pid)
+        :ok = DiffServer.subscribe(pid)
         {:ok, pid}
 
       {:error, {:already_started, pid}} ->
-        :ok = ApiWeb.EventStream.DiffServer.subscribe(pid)
+        :ok = DiffServer.subscribe(pid)
         {:ok, pid}
 
       {:error, _} = error ->
@@ -35,19 +38,35 @@ defmodule ApiWeb.EventStream.Supervisor do
     end
   end
 
-  @doc "Unsubscribes the current pid from the given Server pid."
-  defdelegate server_unsubscribe(pid), to: ApiWeb.EventStream.DiffServer, as: :unsubscribe
+  @doc "Unsubscribes the current process from the given DiffServer."
+  defdelegate server_unsubscribe(pid), to: DiffServer, as: :unsubscribe
+
+  @doc """
+  Terminates all DiffServers. Assuming subscribers are monitoring their server, this is a way to
+  give them advance notice that the app is shutting down (see `Canary`).
+  """
+  @spec terminate_servers() :: :ok
+  def terminate_servers do
+    ServerSupervisor
+    |> DynamicSupervisor.which_children()
+    |> Enum.each(fn
+      {_, :restarting, _, _} -> nil
+      {_, pid, _, _} -> DynamicSupervisor.terminate_child(ServerSupervisor, pid)
+    end)
+
+    :ok
+  end
 
   defp start_child(conn, module) do
     key = server_key(conn, module)
 
     DynamicSupervisor.start_child(
-      ApiWeb.EventStream.ServerSupervisor,
+      ServerSupervisor,
       %{
-        id: ApiWeb.EventStream.DiffServer,
+        id: DiffServer,
         start:
-          {ApiWeb.EventStream.DiffServer, :start_link,
-           [{conn, module, name: {:via, Registry, {ApiWeb.EventStream.ServerRegistry, key}}}]},
+          {DiffServer, :start_link,
+           [{conn, module, name: {:via, Registry, {ServerRegistry, key}}}]},
         restart: :temporary
       }
     )
