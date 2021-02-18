@@ -52,7 +52,7 @@ defmodule Parse.Mixfile do
       {:model, in_umbrella: true},
       {:polyline, "~> 1.0"},
       {:fast_local_datetime, "~> 1.0"},
-      {:nimble_parsec, "~> 0.5"}
+      {:nimble_parsec, "~> 1.1"}
     ]
   end
 end
