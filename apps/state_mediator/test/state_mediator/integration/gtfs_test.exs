@@ -138,31 +138,6 @@ defmodule StateMediator.Integration.GtfsTest do
       assert invalid_routes == []
     end
 
-    test "CR-Kingston stops at both Kingston and Plymouth for typical services" do
-      invalid? = fn stops ->
-        ids = Enum.map(stops, & &1.id)
-
-        ("Kingston" not in ids and "place-KB-0351" not in ids) or
-          ("Plymouth" not in ids and "place-PB-0356" not in ids)
-      end
-
-      invalid_services =
-        for %{id: service_id, schedule_typicality: typicality} when typicality in [1, 2, 3] <-
-              State.Service.by_route_id("CR-Kingston"),
-            direction_id <- [0, 1],
-            data =
-              State.Stop.filter_by(%{
-                routes: ["CR-Kingston"],
-                direction_id: direction_id,
-                services: [service_id]
-              }),
-            invalid?.(data) do
-          {service_id, direction_id}
-        end
-
-      assert invalid_services == []
-    end
-
     test "Broadway @ Temple (2725) is on the 101" do
       invalid? = fn stops ->
         ids = Enum.map(stops, & &1.id)
