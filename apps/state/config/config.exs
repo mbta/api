@@ -275,6 +275,28 @@ config :state, :stops_on_route,
         "place-ER-0208",
         "place-ER-0183"
       ]
+    ],
+    {"CR-Worcester", 0} => [
+      [
+        "place-WML-0035",
+        "place-newtn",
+        "place-WML-0081",
+        "place-WML-0091",
+        "place-WML-0102",
+        "place-river",
+        "place-WML-0125"
+      ]
+    ],
+    {"CR-Worcester", 1} => [
+      [
+        "place-WML-0125",
+        "place-river",
+        "place-WML-0102",
+        "place-WML-0091",
+        "place-WML-0081",
+        "place-newtn",
+        "place-WML-0035"
+      ]
     ]
   },
   not_on_route: %{
