@@ -24,7 +24,10 @@ config :state, :route_pattern,
     "Shuttle-AlewifeLittletonExpress-0-0" => false,
     "Shuttle-AlewifeLittletonExpress-0-1" => false,
     "Shuttle-AlewifeLittletonLocal-0-0" => false,
-    "Shuttle-AlewifeLittletonLocal-0-1" => false
+    "Shuttle-AlewifeLittletonLocal-0-1" => false,
+    # don't ignore Newton Connection RailBus for Worcester Line
+    "Shuttle-NewtonHighlandsWellesleyFarms-0-0" => false,
+    "Shuttle-NewtonHighlandsWellesleyFarms-0-1" => false
   }
 
 config :state, :shape,
