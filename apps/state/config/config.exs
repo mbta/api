@@ -5,8 +5,6 @@ use Mix.Config
 config :state, :route_pattern,
   ignore_override_prefixes: %{
     # don't ignore Foxboro via Fairmount trips
-    "CR-Franklin-3-0" => false,
-    "CR-Franklin-3-1" => false,
     "CR-Franklin-Foxboro-" => false,
     # ignore North Station Green-D patterns
     "Green-D-1-1" => true,
@@ -146,24 +144,6 @@ config :state, :shape,
     "9890008" => {nil, "Wickford Junction - South Station"},
     "9890009" => {nil, "South Station - Wickford Junction"},
     "9890003" => {nil, "Stoughton - South Station"},
-
-    # Kingston
-    # Kingston (from Kingston) inbound
-    "9790001" => -1,
-    # Kingston inbound
-    "9790003" => -1,
-    # Kingston (from Plymouth) inbound
-    "9790005" => -1,
-    # Kingston inbound: from Plymouth through Kingston
-    "9790007" => 2,
-    # Kingston outbound (to Kingston)
-    "9790002" => -1,
-    # Kingston outbound (to Kingston then Plymouth)
-    "9790004" => 2,
-    # Kingston outbound (to Plymouth but without JFK)
-    "9790006" => -1,
-    # Kingston outbound
-    "9790008" => -1,
 
     # Newburyport
     "9810006" => {nil, "Rockport - North Station"},
