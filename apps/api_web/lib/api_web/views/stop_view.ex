@@ -44,6 +44,14 @@ defmodule ApiWeb.StopView do
   )
 
   has_many(
+    :connecting_stops,
+    type: :stop,
+    serializer: ApiWeb.StopView,
+    identifiers: :when_included,
+    field: :connecting_stops
+  )
+
+  has_many(
     :recommended_transfers,
     type: :stop,
     serializer: ApiWeb.StopView,
@@ -91,9 +99,11 @@ defmodule ApiWeb.StopView do
     State.Stop.by_parent_station(parent_id)
   end
 
-  def recommended_transfers(%{id: stop_id}, _conn) do
-    State.Transfer.recommended_transfers_from(stop_id)
+  def connecting_stops(%{id: stop_id}, _conn) do
+    State.ConnectingStops.for_stop_id(stop_id)
   end
+
+  defdelegate recommended_transfers(stop, conn), to: __MODULE__, as: :connecting_stops
 
   def relationships(stop, %Plug.Conn{private: %{phoenix_view: __MODULE__}} = conn) do
     # only do this include if we're the top-level view, not if we're included

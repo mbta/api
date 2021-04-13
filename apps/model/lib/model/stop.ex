@@ -112,4 +112,20 @@ defmodule Model.Stop do
         false
     end
   end
+
+  @doc """
+  Indicates whether a stop is "standalone" (is a stopping location and has no parent).
+
+  iex> standalone?(%Stop{location_type: 0, parent_station: nil})
+  true
+
+  iex> standalone?(%Stop{location_type: 0, parent_station: "id"})
+  false
+
+  iex> standalone?(%Stop{location_type: 1, parent_station: nil})
+  false
+  """
+  @spec standalone?(t) :: boolean
+  def standalone?(%__MODULE__{location_type: 0, parent_station: nil}), do: true
+  def standalone?(%__MODULE__{}), do: false
 end

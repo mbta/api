@@ -8,8 +8,9 @@ defmodule ApiWeb.StopController do
 
   @filters ~w(id date direction_id latitude longitude radius route route_type location_type service)s
   @pagination_opts ~w(offset limit order_by distance)a
-  @includes ~w(parent_station child_stops recommended_transfers facilities route)
-  @show_includes ~w(parent_station child_stops recommended_transfers facilities)
+  @includes ~w(child_stops connecting_stops facilities parent_station recommended_transfers route)
+  @show_includes ~w(child_stops connecting_stops facilities parent_station recommended_transfers)
+  @nodoc_includes ~w(recommended_transfers)
 
   def state_module, do: State.Stop.Cache
 
@@ -32,7 +33,7 @@ defmodule ApiWeb.StopController do
 
     common_index_parameters(__MODULE__, :stop, :include_distance)
 
-    include_parameters(@includes,
+    include_parameters(@includes -- @nodoc_includes,
       description:
         "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`."
     )
@@ -227,7 +228,7 @@ defmodule ApiWeb.StopController do
 
     parameter(:id, :path, :string, "Unique identifier for stop")
     common_show_parameters(:stop)
-    include_parameters(@show_includes)
+    include_parameters(@show_includes -- @nodoc_includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
