@@ -1,6 +1,6 @@
 defmodule ApiWeb.StopControllerTest do
   use ApiWeb.ConnCase
-  alias Model.{Facility, Stop, Transfer}
+  alias Model.{Facility, Schedule, Stop, Trip}
 
   setup %{conn: conn} do
     State.Stop.new_state([])
@@ -426,27 +426,59 @@ defmodule ApiWeb.StopControllerTest do
       assert included["id"] == "2"
     end
 
-    test "can include recommended transfers", %{conn: conn} do
-      from = %Stop{id: "1"}
-      to = %Stop{id: "2"}
-      transfer = %Transfer{from_stop_id: "1", to_stop_id: "2", transfer_type: 0}
-      State.Stop.new_state([from, to])
-      State.Transfer.new_state([transfer])
+    test "can include connecting stops", %{conn: conn} do
+      State.Stop.new_state([
+        %Stop{id: "parent", location_type: 1, latitude: 42, longitude: -71},
+        %Stop{
+          id: "child",
+          location_type: 0,
+          parent_station: "parent",
+          latitude: 42,
+          longitude: -71
+        },
+        %Stop{
+          id: "entrance",
+          location_type: 2,
+          parent_station: "parent",
+          latitude: 42.002,
+          longitude: -71
+        },
+        %Stop{id: "close", location_type: 0, latitude: 42.0021, longitude: -71},
+        %Stop{id: "far", location_type: 0, latitude: 42.005, longitude: -71}
+      ])
 
-      conn = get(conn, stop_path(conn, :show, from))
+      State.Trip.new_state([
+        %Trip{id: "trip1", route_pattern_id: "pattern1", direction_id: 0},
+        %Trip{id: "trip2", route_pattern_id: "pattern2", direction_id: 0},
+        %Trip{id: "trip3", route_pattern_id: "pattern2", direction_id: 0}
+      ])
+
+      State.Schedule.new_state([
+        %Schedule{trip_id: "trip1", stop_id: "child"},
+        %Schedule{trip_id: "trip2", stop_id: "close"},
+        %Schedule{trip_id: "trip3", stop_id: "far"}
+      ])
+
+      State.RoutesPatternsAtStop.update!()
+      State.ConnectingStops.update!()
+
+      # should not be included by default
+      conn = get(conn, stop_path(conn, :show, "parent"))
       response = json_response(conn, 200)
+      refute response["data"]["relationships"]["connecting_stops"]["data"]
 
-      refute response["data"]["relationships"]["recommended_transfers"]["data"]
-
-      conn = get(conn, stop_path(conn, :show, from), %{include: "recommended_transfers"})
+      # should be included when requested
+      conn = get(conn, stop_path(conn, :show, "parent"), %{include: "connecting_stops"})
       response = json_response(conn, 200)
+      connecting_stops = response["data"]["relationships"]["connecting_stops"]["data"]
+      assert connecting_stops == [%{"type" => "stop", "id" => "close"}]
+      assert [%{"id" => "close"}] = response["included"]
 
-      assert response["data"]["relationships"]["recommended_transfers"]["data"] == [
-               %{"type" => "stop", "id" => "2"}
-             ]
-
-      [included] = response["included"]
-      assert included["id"] == "2"
+      # should be included using the deprecated alias `recommended_transfers`
+      conn = get(conn, stop_path(conn, :show, "parent"), %{include: "recommended_transfers"})
+      response = json_response(conn, 200)
+      connecting_stops = response["data"]["relationships"]["recommended_transfers"]["data"]
+      assert connecting_stops == [%{"type" => "stop", "id" => "close"}]
     end
 
     test "can include facilities", %{conn: conn} do

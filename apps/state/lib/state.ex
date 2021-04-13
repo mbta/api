@@ -32,11 +32,11 @@ defmodule State do
       worker(State.Prediction, []),
       worker(State.StopsOnRoute, []),
       worker(State.RoutesPatternsAtStop, []),
+      worker(State.ConnectingStops, []),
       worker(State.ServiceByDate, []),
       worker(State.RoutesByService, []),
       worker(State.Shape, []),
-      worker(State.Feed, []),
-      worker(State.Transfer, [])
+      worker(State.Feed, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
