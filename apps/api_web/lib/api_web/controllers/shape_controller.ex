@@ -100,22 +100,19 @@ defmodule ApiWeb.ShapeController do
       ShapeResource:
         resource do
           description("""
-          Shape representing the stops to which a particular trip can go. Trips grouped under the same route can have \
-          different shapes, and thus different stops. See \
-          [GTFS `shapes.txt`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#shapestxt)
+          Sequence of geographic points representing a path vehicles will travel on a trip. See \
+          [GTFS `shapes.txt`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#shapestxt).
           """)
 
           attributes do
             polyline(:string, """
-            ## Encoding/Decoding
+            The sequence of points in \
+            [Encoded Polyline Algorithm Format](https://developers.google.com/maps/documentation/utilities/polylinealgorithm).
+            Libraries for decoding polylines are available in many languages, for example:
 
-            [Encoded Polyline Algorithm Format](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-
-            ## Example Libraries
-
-            * [Javascript](https://www.npmjs.com/package/polyline)
-            * [Erlang](https://blog.kempkens.io/posts/encoding-and-decoding-polylines-with-erlang/)
             * [Elixir](https://hex.pm/packages/polyline)
+            * [JavaScript](https://www.npmjs.com/package/polyline)
+            * [Python](https://pypi.org/project/polyline/)
             """)
           end
         end,

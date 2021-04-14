@@ -5,8 +5,6 @@ use Mix.Config
 config :state, :route_pattern,
   ignore_override_prefixes: %{
     # don't ignore Foxboro via Fairmount trips
-    "CR-Franklin-3-0" => false,
-    "CR-Franklin-3-1" => false,
     "CR-Franklin-Foxboro-" => false,
     # ignore North Station Green-D patterns
     "Green-D-1-1" => true,
@@ -24,7 +22,10 @@ config :state, :route_pattern,
     "Shuttle-AlewifeLittletonExpress-0-0" => false,
     "Shuttle-AlewifeLittletonExpress-0-1" => false,
     "Shuttle-AlewifeLittletonLocal-0-0" => false,
-    "Shuttle-AlewifeLittletonLocal-0-1" => false
+    "Shuttle-AlewifeLittletonLocal-0-1" => false,
+    # don't ignore Newton Connection RailBus for Worcester Line
+    "Shuttle-NewtonHighlandsWellesleyFarms-0-0" => false,
+    "Shuttle-NewtonHighlandsWellesleyFarms-0-1" => false
   }
 
 config :state, :shape,
@@ -48,6 +49,10 @@ config :state, :shape,
     "811_0009" => -1,
     # Green-B (North Station)
     "811_0010" => -1,
+    # Green-B (North Station)
+    "811_0011" => -1,
+    # Green-B (North Station)
+    "811_0012" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
@@ -139,24 +144,6 @@ config :state, :shape,
     "9890008" => {nil, "Wickford Junction - South Station"},
     "9890009" => {nil, "South Station - Wickford Junction"},
     "9890003" => {nil, "Stoughton - South Station"},
-
-    # Kingston
-    # Kingston (from Kingston) inbound
-    "9790001" => -1,
-    # Kingston inbound
-    "9790003" => -1,
-    # Kingston (from Plymouth) inbound
-    "9790005" => -1,
-    # Kingston inbound: from Plymouth through Kingston
-    "9790007" => 2,
-    # Kingston outbound (to Kingston)
-    "9790002" => -1,
-    # Kingston outbound (to Kingston then Plymouth)
-    "9790004" => 2,
-    # Kingston outbound (to Plymouth but without JFK)
-    "9790006" => -1,
-    # Kingston outbound
-    "9790008" => -1,
 
     # Newburyport
     "9810006" => {nil, "Rockport - North Station"},
@@ -270,6 +257,28 @@ config :state, :stops_on_route,
         "place-ER-0227",
         "place-ER-0208",
         "place-ER-0183"
+      ]
+    ],
+    {"CR-Worcester", 0} => [
+      [
+        "place-WML-0035",
+        "place-newtn",
+        "place-WML-0081",
+        "place-WML-0091",
+        "place-WML-0102",
+        "place-river",
+        "place-WML-0125"
+      ]
+    ],
+    {"CR-Worcester", 1} => [
+      [
+        "place-WML-0125",
+        "place-river",
+        "place-WML-0102",
+        "place-WML-0091",
+        "place-WML-0081",
+        "place-newtn",
+        "place-WML-0035"
       ]
     ]
   },
