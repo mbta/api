@@ -1,0 +1,94 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: excoveralls
+    versions:
+    - ">= 0.12.a, < 0.13"
+  - dependency-name: ex_json_schema
+    versions:
+    - ">= 0.7.a, < 0.8"
+  - dependency-name: gpb
+    versions:
+    - 4.16.1
+    - 4.16.2
+    - 4.17.0
+    - 4.17.1
+  - dependency-name: ex_aws
+    versions:
+    - 2.1.6
+    - 2.1.7
+    - 2.1.8
+    - 2.1.9
+    - 2.2.0
+  - dependency-name: ex_doc
+    versions:
+    - 0.23.0
+    - 0.24.0
+    - 0.24.1
+  - dependency-name: phoenix
+    versions:
+    - 1.5.7
+  - dependency-name: bamboo
+    versions:
+    - 1.6.0
+    - 1.7.0
+  - dependency-name: credo
+    versions:
+    - 1.5.4
+  - dependency-name: excoveralls
+    versions:
+    - 0.13.4
+- package-ecosystem: mix
+  directory: "/apps/api_accounts"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/api_web"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/events"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/fetch"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/health"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/model"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/state"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/state_mediator"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
