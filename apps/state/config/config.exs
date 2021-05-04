@@ -25,7 +25,9 @@ config :state, :route_pattern,
     "Shuttle-AlewifeLittletonLocal-0-1" => false,
     # don't ignore Newton Connection RailBus for Worcester Line
     "Shuttle-NewtonHighlandsWellesleyFarms-0-0" => false,
-    "Shuttle-NewtonHighlandsWellesleyFarms-0-1" => false
+    "Shuttle-NewtonHighlandsWellesleyFarms-0-1" => false,
+    # don't ignore Providence trains stopping at Forest Hills
+    "CR-Providence-d01bc229-0" => false
   }
 
 config :state, :shape,
