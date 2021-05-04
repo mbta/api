@@ -282,6 +282,13 @@ config :state, :stops_on_route,
         "place-newtn",
         "place-WML-0035"
       ]
+    ],
+    {"CR-Providence", 0} => [
+      [
+        "place-rugg",
+        "place-forhl",
+        "place-NEC-2203"
+      ]
     ]
   },
   not_on_route: %{
