@@ -51,41 +51,33 @@ class ApiUser(HttpUser):
     ]
 
     # helper function to construct JSONAPI queries
-    def api_request(self, endpoint, **kwargs):
-
-        if "name" in kwargs.keys():
-            name = kwargs["name"]
-        else:
-            name = None
+    def api_request(self, endpoint,
+                    name=None,
+                    fields=None,
+                    filters=None,
+                    include=None,
+                    sort=None):
 
         params = {}
-        # NOTE: is there an easier way to do this?
-        if "filters" in kwargs.keys():
-            filters = kwargs["filters"]
-            for fltr in filters.keys():
-                if type(filters[fltr]) == list:
-                    fltr_val = ",".join(filters[fltr])
-                else:
-                    fltr_val = str(filters[fltr])
+        if filters is not None:
+            for fltr, fltr_val in filters.items():
+                if isinstance(fltr_val, list):
+                    fltr_val = ",".join(fltr_val)
                 params[f"filter[{fltr}]"] = fltr_val
 
-        if "fields" in kwargs.keys():
-            fields = kwargs["fields"]
-            for field in fields.keys():
-                if type(fields[field]) == list:
-                    field_val = ",".join(fields[field])
-                else:
-                    field_val = str(fields[field])
+        if fields is not None:
+            for field, field_val in fields.items():
+                if isinstance(field_val, list):
+                    field_val = ",".join(field_val)
                 params[f"fields[{field}]"] = field_val
 
-        if "include" in kwargs.keys():
-            if type(kwargs["include"]) == list:
-                params["include"] = ",".join(kwargs["include"])
-            else:
-                params["include"] = kwargs["include"]
+        if include is not None:
+            if isinstance(include, list):
+                include = ",".join(include)
+            params["include"] = include
 
-        if "sort" in kwargs.keys():
-            params["sort"] = kwargs["sort"]
+        if sort is not None:
+            params["sort"] = sort
 
         return self.client.get(endpoint,
                                name=name,
