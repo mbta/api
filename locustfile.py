@@ -11,7 +11,7 @@ for reference, prod handles ~250 requests/second with 3 instances
 """
 import os
 from locust import HttpUser, task, between
-from random import randint
+from random import choice, randint
 
 
 class ApiUser(HttpUser):
@@ -118,38 +118,42 @@ class ApiUser(HttpUser):
 
     @task(len(subway_routes))
     def get_subway_schedules(self):
-        for route in self.subway_routes:
-            self.api_request("/schedules",
-                             name="/schedules (subway routes)",
-                             filters={"route": route})
+        # pick a random route to query for
+        route = choice(self.subway_routes)
+        self.api_request("/schedules",
+                         name="/schedules (subway routes)",
+                         filters={"route": route})
 
     @task(len(key_bus_routes))
     def get_key_bus_route_schedules(self):
-        for route in self.key_bus_routes:
-            self.api_request("/schedules",
-                             name="/schedules (key bus routes)",
-                             filters={"route": route})
+        # pick a random route to query for
+        route = choice(self.key_bus_routes)
+        self.api_request("/schedules",
+                         name="/schedules (key bus routes)",
+                         filters={"route": route})
 
     @task(len(green_line_routes))
     def get_green_line_trips(self):
-        for route in self.green_line_routes:
-            self.api_request("/trips",
-                             name="/trips (Green Line)",
-                             filters={"route": route},
-                             include=["route", "vehicle", "service",
-                                      "predictions"])
+        # pick a random route to query for
+        route = choice(self.green_line_routes)
+        self.api_request("/trips",
+                         name="/trips (Green Line)",
+                         filters={"route": route},
+                         include=["route", "vehicle", "service",
+                                  "predictions"])
 
     # station schedules/predictions
 
     @task(len(solari_screen_stations))
     def get_station_predictions(self):
-        for stop in self.solari_screen_stations:
-            self.api_request("/predictions",
-                             name="/predictions (Solari screens)",
-                             filters={"stop": stop},
-                             include=["route", "stop", "trip", "trip.stops",
-                                      "vehicle", "alerts"],
-                             sort="departure_time")
+        # pick a random route to query for
+        stop = choice(self.solari_screen_stations)
+        self.api_request("/predictions",
+                         name="/predictions (Solari screens)",
+                         filters={"stop": stop},
+                         include=["route", "stop", "trip", "trip.stops",
+                                  "vehicle", "alerts"],
+                         sort="departure_time")
 
     @task(2 * len(eink_screen_stations))
     def get_station_schedules(self):
@@ -184,29 +188,32 @@ class ApiUser(HttpUser):
 
     @task(len(green_line_routes))
     def get_green_line_schedules_with_predictions(self):
-        for route in self.green_line_routes:
-            self.api_request("/schedules",
-                             name="/schedules (Green Line branches)",
-                             filters={"route": route},
-                             include=["prediction", "stop"])
+        # pick a random route to query for
+        route = choice(self.green_line_routes)
+        self.api_request("/schedules",
+                         name="/schedules (Green Line branches)",
+                         filters={"route": route},
+                         include=["prediction", "stop"])
 
     @task(len(heavy_rail_routes))
     def get_heavy_rail_schedules_with_predictions(self):
-        for route in self.heavy_rail_routes:
-            self.api_request("/schedules",
-                             name="/schedules (heavy rail)",
-                             filters={"route": route},
-                             include=["stop", "trip", "prediction"],
-                             sort="arrival_time")
+        # pick a random route to query for
+        route = choice(self.heavy_rail_routes)
+        self.api_request("/schedules",
+                         name="/schedules (heavy rail)",
+                         filters={"route": route},
+                         include=["stop", "trip", "prediction"],
+                         sort="arrival_time")
 
     @task(len(heavy_rail_routes))
     def get_heavy_rail_predictions_with_alerts(self):
-        for route in self.heavy_rail_routes:
-            self.api_request("/predictions",
-                             name="/predictions (heavy rail)",
-                             filters={"route": route},
-                             include=["stop", "trip", "route",
-                                      "vehicle", "alerts"])
+        # pick a random route to query for
+        route = choice(self.heavy_rail_routes)
+        self.api_request("/predictions",
+                         name="/predictions (heavy rail)",
+                         filters={"route": route},
+                         include=["stop", "trip", "route",
+                                  "vehicle", "alerts"])
 
     @task
     def get_all_green_line_predictions_with_alerts(self):
