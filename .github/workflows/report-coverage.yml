@@ -1,0 +1,54 @@
+name: Report Elixir Coverage
+
+on:
+  workflow_run:
+    workflows:
+      - Elixir CI
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+
+jobs:
+  report-coverage:
+    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: mkdir -p ${{ runner.temp }}/cover
+      - run: echo Fetching artifacts for ${{ github.event.workflow_run.id }}, event name ${{ github.event_name }}, triggered by ${{ github.event.workflow_run.event }}
+      - name: Download artifact
+        uses: actions/github-script@v3.1.0
+        with:
+          script: |
+            var artifacts = await github.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{github.event.workflow_run.id }},
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "elixir-lcov"
+            })[0];
+            var download = await github.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{ runner.temp }}/cover/elixir-lcov.zip', Buffer.from(download.data));
+      - working-directory: ${{ runner.temp }}/cover
+        run: |
+          unzip elixir-lcov.zip
+          echo "PR_SHA=$(cat PR_SHA)" >> $GITHUB_ENV
+          echo "PR_NUMBER=$(cat PR_NUMBER)" >> $GITHUB_ENV
+      - uses: actions/checkout@v2 # UNTRUSTED CODE - do not run scripts from it
+        with:
+          ref: ${{ env.PR_SHA }}
+      - name: Upload coverage artifact and post comment
+        uses: mbta/github-actions-report-lcov@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-files: ${{ runner.temp }}/cover/lcov*.info
+          artifact-name: elixir-code-coverage

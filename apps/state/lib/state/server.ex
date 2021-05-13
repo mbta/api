@@ -339,9 +339,7 @@ defmodule State.Server do
       debug_time(
         func,
         fn milliseconds ->
-          # coveralls-ignore-start
           "create_enum #{module} #{inspect(self())} took #{milliseconds}ms"
-          # coveralls-ignore-stop
         end
       )
 
@@ -374,9 +372,7 @@ defmodule State.Server do
       debug_time(
         delete_all,
         fn milliseconds ->
-          # coveralls-ignore-start
           "delete_all #{module} #{inspect(self())} took #{milliseconds}ms"
-          # coveralls-ignore-stop
         end
       )
 
@@ -384,9 +380,7 @@ defmodule State.Server do
       debug_time(
         write_new,
         fn milliseconds ->
-          # coveralls-ignore-start
           "write_new #{module} #{inspect(self())} took #{milliseconds}ms"
-          # coveralls-ignore-stop
         end
       )
   end
@@ -533,9 +527,7 @@ defmodule State.Server do
       debug_time(
         fn -> create!(func, module) end,
         fn milliseconds ->
-          # coveralls-ignore-start
           "init_table #{module} #{inspect(self())} took #{milliseconds}ms"
-          # coveralls-ignore-stop
         end
       )
 
@@ -553,9 +545,7 @@ defmodule State.Server do
 
     _ =
       Logger.info(fn ->
-        # coveralls-ignore-start
         "Update #{module} #{inspect(self())}: #{new_size} items"
-        # coveralls-ignore-stop
       end)
 
     module.update_metadata()

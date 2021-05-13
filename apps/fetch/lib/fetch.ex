@@ -4,9 +4,7 @@ defmodule Fetch do
   """
 
   def start_link(opts \\ []) do
-    # coveralls-ignore-start
     DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)
-    # coveralls-ignore-stop
   end
 
   def fetch_url(url, opts \\ []) do
@@ -30,12 +28,9 @@ defmodule Fetch do
   end
 
   def init(opts) do
-    # coveralls-ignore-start
     DynamicSupervisor.init(
       strategy: :one_for_one,
       extra_arguments: [opts]
     )
-
-    # coveralls-ignore-stop
   end
 end
