@@ -12,7 +12,7 @@ defmodule StateMediator.Mixfile do
      elixir: "~> 1.3",
      lockfile: "../../mix.lock",
      start_permanent: Mix.env == :prod,
-     test_coverage: [tool: ExCoveralls],
+     test_coverage: [tool: LcovEx],
      version: "0.1.0"]
   end
 

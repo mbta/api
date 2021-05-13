@@ -1,0 +1,76 @@
+name: Elixir CI
+
+on:
+  push:
+    branches: master
+  pull_request:
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - 8000:8000
+
+    steps:
+      - uses: actions/checkout@v2
+      # cache the ASDF directory, using the values from .tool-versions
+      - name: ASDF cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-v2-${{ hashFiles('.tool-versions') }}
+        id: asdf-cache
+      # only run `asdf install` if we didn't hit the cache
+      - uses: asdf-vm/actions/install@v1
+        if: steps.asdf-cache.outputs.cache-hit != 'true'
+      # if we did hit the cache, set up the environment
+      - name: Setup ASDF environment
+        run: |
+          echo "ASDF_DIR=$HOME/.asdf" >> $GITHUB_ENV
+          echo "ASDF_DATA_DIR=$HOME/.asdf" >> $GITHUB_ENV
+        if: steps.asdf-cache.outputs.cache-hit == 'true'
+      - name: Reshim ASDF
+        run: |
+          echo "$ASDF_DIR/bin" >> $GITHUB_PATH
+          echo "$ASDF_DIR/shims" >> $GITHUB_PATH
+          $ASDF_DIR/bin/asdf reshim
+      - name: Restore dependencies cache
+        id: deps-cache
+        uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+      - name: Install dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+      - name: Compile (warnings as errors)
+        run: mix compile --force --warnings-as-errors
+      - name: Check formatting
+        run: mix format --check-formatted
+      - name: Credo
+        run: mix credo --strict
+      - name: Run tests
+        run: |
+          mix test --cover
+          cd apps/state_mediator
+          mix test --only integration
+      - name: Save PR information
+        run: |
+          mkdir -p cover
+          echo "${{ github.event.pull_request.number }}" > cover/PR_NUMBER
+          echo "${{ github.event.pull_request.head.sha }}" > cover/PR_SHA
+        if: github.event.pull_request
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: elixir-lcov
+          path: cover/
+      - uses: mbta/actions/dialyzer@v1
