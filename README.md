@@ -1,6 +1,3 @@
-[![Build Status](https://semaphoreci.com/api/v1/mbta/api/branches/master/shields_badge.svg)](https://semaphoreci.com/mbta/api) [![codecov](https://codecov.io/gh/mbta/api/branch/master/graph/badge.svg?token=Ubzk57i0ia)](https://codecov.io/gh/mbta/api)
-
-
 # V3 API
 
 To start your Phoenix app:

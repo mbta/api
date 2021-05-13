@@ -12,5 +12,3 @@ $(dirname $0)/deps_get.sh
 mix compile --force --warnings-as-errors
 
 mix coveralls.json -u
-
-bash <(curl -s https://codecov.io/bash)
