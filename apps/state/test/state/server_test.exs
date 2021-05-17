@@ -19,15 +19,13 @@ defmodule State.ServerTest do
       recordable: State.ServerTest.Example
   end
 
-  alias State.ServerTest.{Example, Server}
-
-  setup do
-    Server.start_link()
-    Server.new_state([])
+  defp start_server(module) do
+    module.start_link()
+    module.new_state([])
 
     on_exit(fn ->
       try do
-        GenServer.stop(Server, :normal, 5_000)
+        GenServer.stop(module, :normal, 5_000)
       catch
         :exit, _ -> :ok
       end
@@ -37,6 +35,10 @@ defmodule State.ServerTest do
   end
 
   describe "generated server" do
+    setup do
+      start_server(Server)
+    end
+
     test "size/0 returns the size" do
       assert Server.size() == 0
       Server.new_state([%Example{}])
@@ -178,7 +180,57 @@ defmodule State.ServerTest do
     end
   end
 
+  describe "hooks" do
+    defmodule HooksServer do
+      use State.Server,
+        indices: [:id, :other_key],
+        parser: State.ServerTest.Parser,
+        recordable: State.ServerTest.Example
+
+      @impl State.Server
+      def post_load_hook(examples) do
+        Enum.map(examples, fn
+          %Example{data: data} = example when is_integer(data) -> struct!(example, data: data + 1)
+          example -> example
+        end)
+      end
+
+      @impl State.Server
+      def pre_insert_hook(%Example{data: data} = example) when is_binary(data) do
+        [struct!(example, data: "modified " <> data), struct!(example, data: "new " <> data)]
+      end
+
+      def pre_insert_hook(example), do: [example]
+    end
+
+    setup do
+      start_server(HooksServer)
+    end
+
+    test "post_load_hook transforms the results when structs are retrieved" do
+      HooksServer.new_state([
+        %Example{id: 1, data: 37},
+        %Example{id: 1, data: 43},
+        %Example{id: 2, data: :other}
+      ])
+
+      assert [%{data: 38}, %{data: 44}, %{data: :other}] = HooksServer.all()
+      assert [%{data: 38}, %{data: 44}] = HooksServer.by_id(1)
+      assert [%{data: 38}] = HooksServer.select([%{data: 37}])
+    end
+
+    test "pre_insert_hook transforms structs into one or more new structs when inserted" do
+      HooksServer.new_state([%Example{id: 1, data: "test"}, %Example{id: 2, data: :test}])
+      assert [%{data: "modified test"}, %{data: "new test"}] = HooksServer.by_id(1)
+      assert [%{data: :test}] = HooksServer.by_id(2)
+    end
+  end
+
   describe "events" do
+    setup do
+      start_server(Server)
+    end
+
     test "new_state emits an event with the size" do
       Events.subscribe({:new_state, Server})
       Server.new_state([%Example{id: 1}])
@@ -194,6 +246,10 @@ defmodule State.ServerTest do
   end
 
   describe "shutdown/2" do
+    setup do
+      start_server(Server)
+    end
+
     test "deletes mnesia table" do
       :ok = :mnesia.wait_for_tables([Server], 0)
       State.Server.shutdown(Server, :testing)
