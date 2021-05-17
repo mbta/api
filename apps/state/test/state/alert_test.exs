@@ -54,6 +54,7 @@ defmodule State.AlertTest do
   }
 
   setup do
+    State.Alert.new_state([])
     State.Route.new_state([])
     State.Stop.new_state([])
     State.Schedule.new_state([])
@@ -377,6 +378,33 @@ defmodule State.AlertTest do
       insert_alerts!([alert])
       assert filter_by(%{lifecycles: ["ONGOING", "UPCOMING"]}) == [alert]
       assert filter_by(%{lifecycles: ["UPCOMING"]}) == []
+    end
+  end
+
+  describe "events" do
+    test "has a consistent state when the :new_state event is published" do
+      # Note: This guards against a bug that occurred inconsistently due to a race condition. If
+      # the bug is not present, it should never fail. If the bug is present, it will fail most of
+      # the time, but not necessarily every time.
+      test_pid = self()
+
+      spawn_link(fn ->
+        Events.subscribe({:new_state, State.Alert})
+        send(test_pid, :ready)
+
+        receive do
+          {:event, {:new_state, State.Alert}, 1, _} ->
+            assert filter_by(%{routes: [@route_id]}) == [@alert]
+        after
+          100 -> flunk("never received new_state event")
+        end
+
+        send(test_pid, :done)
+      end)
+
+      assert_receive :ready
+      insert_alerts!([@alert])
+      assert_receive :done, 200
     end
   end
 

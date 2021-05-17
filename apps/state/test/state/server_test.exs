@@ -188,6 +188,21 @@ defmodule State.ServerTest do
         recordable: State.ServerTest.Example
 
       @impl State.Server
+      def post_commit_hook do
+        case all() do
+          [%Example{data: test_pid} | _] when is_pid(test_pid) ->
+            send(test_pid, {:post_commit, self()})
+
+            receive do
+              :continue -> :ok
+            end
+
+          _ ->
+            :ok
+        end
+      end
+
+      @impl State.Server
       def post_load_hook(examples) do
         Enum.map(examples, fn
           %Example{data: data} = example when is_integer(data) -> struct!(example, data: data + 1)
@@ -205,6 +220,28 @@ defmodule State.ServerTest do
 
     setup do
       start_server(HooksServer)
+    end
+
+    test "post_commit_hook enables running code after a new state is committed" do
+      test_pid = self()
+      Events.subscribe({:new_state, HooksServer})
+
+      # use a separate process, else we are blocked on the post_commit_hook's `receive`
+      spawn_link(fn -> HooksServer.new_state([%Example{id: 1, data: test_pid}]) end)
+
+      receive do
+        {:post_commit, pid} ->
+          # post_commit_hook has not yet returned; new state should be present, but not published
+          assert [%Example{id: 1}] = HooksServer.all()
+          refute_receive {:event, {:new_state, HooksServer}, _, _}
+
+          # tell post_commit_hook to return
+          send(pid, :continue)
+
+          assert_receive {:event, {:new_state, HooksServer}, _, _}
+      after
+        1_000 -> flunk("didn't receive message from hook")
+      end
     end
 
     test "post_load_hook transforms the results when structs are retrieved" do
