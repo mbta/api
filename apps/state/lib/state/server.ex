@@ -29,9 +29,10 @@ defmodule State.Server do
 
   """
   @callback handle_new_state(binary) :: term
+  @callback post_commit_hook() :: :ok
   @callback post_load_hook([struct]) :: [struct] when struct: any
   @callback pre_insert_hook(struct) :: [struct] when struct: any
-  @optional_callbacks [post_load_hook: 1, pre_insert_hook: 1]
+  @optional_callbacks [post_commit_hook: 0, post_load_hook: 1, pre_insert_hook: 1]
 
   require Logger
 
@@ -157,6 +158,9 @@ defmodule State.Server do
       def handle_new_state(new_state), do: Server.handle_new_state(__MODULE__, new_state)
 
       @impl State.Server
+      def post_commit_hook, do: :ok
+
+      @impl State.Server
       def post_load_hook(structs), do: structs
 
       @impl State.Server
@@ -197,6 +201,7 @@ defmodule State.Server do
                      match: 3,
                      new_state: 1,
                      new_state: 2,
+                     post_commit_hook: 0,
                      post_load_hook: 1,
                      pre_insert_hook: 1,
                      select: 1,
@@ -506,6 +511,16 @@ defmodule State.Server do
         fn milliseconds ->
           # coveralls-ignore-start
           "init_table #{module} #{inspect(self())} took #{milliseconds}ms"
+          # coveralls-ignore-stop
+        end
+      )
+
+    :ok =
+      debug_time(
+        &module.post_commit_hook/0,
+        fn milliseconds ->
+          # coveralls-ignore-start
+          "post_commit #{module} #{inspect(self())} took #{milliseconds}ms"
           # coveralls-ignore-stop
         end
       )
