@@ -29,9 +29,9 @@ defmodule State.Server do
 
   """
   @callback handle_new_state(binary) :: term
-  @callback pre_insert_hook(struct) :: [struct] when struct: any
   @callback post_load_hook([struct]) :: [struct] when struct: any
-  @optional_callbacks [pre_insert_hook: 1, post_load_hook: 1]
+  @callback pre_insert_hook(struct) :: [struct] when struct: any
+  @optional_callbacks [post_load_hook: 1, pre_insert_hook: 1]
 
   require Logger
 
@@ -157,10 +157,10 @@ defmodule State.Server do
       def handle_new_state(new_state), do: Server.handle_new_state(__MODULE__, new_state)
 
       @impl State.Server
-      def pre_insert_hook(item), do: [item]
+      def post_load_hook(structs), do: structs
 
       @impl State.Server
-      def post_load_hook(structs), do: structs
+      def pre_insert_hook(item), do: [item]
 
       @impl Events.Server
       def handle_event({:fetch, unquote(opts[:fetched_filename])}, body, _, state) do
@@ -197,8 +197,8 @@ defmodule State.Server do
                      match: 3,
                      new_state: 1,
                      new_state: 2,
-                     pre_insert_hook: 1,
                      post_load_hook: 1,
+                     pre_insert_hook: 1,
                      select: 1,
                      select: 2,
                      select_limit: 2,
