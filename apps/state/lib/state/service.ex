@@ -122,13 +122,14 @@ defmodule State.Service do
         removed_dates_notes: holiday_names(calendar_dates, removed)
       }
     end
-    |> handle_new_state
+    |> super()
   end
 
-  def handle_new_state(other) do
-    ret = super(other)
+  def handle_new_state(other), do: super(other)
+
+  @impl State.Server
+  def post_commit_hook do
     State.ServiceByDate.update!()
-    ret
   end
 
   defp dates(calendar_dates, service_id, added) do
