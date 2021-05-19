@@ -1,0 +1,72 @@
+name: Deploy to Dev-green
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: dev-green
+    concurrency: dev-green
+    env:
+      AWS_REGION: us-east-1
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get commit metadata
+        run: |
+          echo SHA_SHORT=$(git rev-parse --short ${{ github.sha }}) >> $GITHUB_ENV
+          echo COMMIT_MSG=$(git log --format=%B -n 1 ${{ github.sha }} | head -n 1) >> $GITHUB_ENV
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+      - uses: mbta/actions/build-push-ecr@v1
+        id: build-push
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          docker-repo: ${{ secrets.DOCKER_REPO }}
+      - name: Create deployment package
+        id: deployment-package
+        run: |
+          mkdir -p $RUNNER_TEMP/deploy
+          OUTPUT_ZIP=$RUNNER_TEMP/deploy.zip
+          test -d rel/.ebextensions && cp -r rel/.ebextensions $RUNNER_TEMP/deploy
+          echo > $RUNNER_TEMP/deploy/Dockerrun.aws.json <<EOF
+          {
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "${{ steps.build-push.outputs.docker-tag }}",
+              "Update": "true"
+            },
+            "Ports": [
+              {
+                "ContainerPort": "4000"
+              }
+            ]
+          }
+          EOF
+          cd $RUNNER_TEMP/deploy
+          zip -r $OUTPUT_ZIP .
+          echo "::set-output name=package::$OUTPUT_ZIP"
+      - name: Deploy to EB
+        uses: mbta/beanstalk-deploy@v17
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: api
+          environment_name: api-dev-green
+          version_label: ${{ env.SHA_SHORT }}
+          version_description: ${{ env.COMMIT_MSG }}
+          region: ${{ env.AWS_REGION }}
+          deployment_package: ${{ steps.deployment-package.outputs.package }}
+      # - uses: mbta/actions/notify-slack-deploy@v1
+      #   if: ${{ !cancelled() }}
+      #   with:
+      #     webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+      #     job-status: ${{ job.status }}
