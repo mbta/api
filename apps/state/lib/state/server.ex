@@ -1,15 +1,15 @@
 defmodule State.Server do
   @moduledoc """
-  Generates an ETS-based database for structs, indexed by fields.
+  Generates an Mnesia database for structs, indexed by specified struct fields.
 
   ## Example
 
-  defmodule State.ExampleServer do
+  defmodule Example do
     use Recordable, [:id, :data, :other_key]
+  end
 
-    use State.Server,
-        indices: [:id, :other_key],
-        recordable: State.ExampleServer
+  defmodule ExampleServer do
+    use State.Server, indices: [:id, :other_key], recordable: Example
   end
 
   Then, clients can do:
@@ -20,15 +20,45 @@ defmodule State.Server do
   State.ExampleServer.by_other_key(key)
   State.ExampleServer.by_other_keys([<list of key>])
 
-  ## How it works
+  ## Metadata
 
-  When the server starts, it creates a named ETS table.  This table stores
-  the references to the main data table, as well as the table for each index.
-  When we get a new state, we create a new set of child ETS tables, update
-  the named ETS table, and delete the old child tables.
+  When a new state is loaded, the server's last-updated timestamp in `State.Metadata` is set to
+  the current datetime.
 
+  ## Parsers
+
+  Servers can specify a `parser` module that implements the `Parse` behaviour. If so, `new_state`
+  accepts a string in addition to a list of structs, and strings will be passed through the parser
+  module.
+
+  ## Events
+
+  An event is published using `Events` whenever a new state is loaded, including on startup. The
+  event name is `{:new_state, server_module}` and the data is the new count of structs.
+
+  Servers can specify a `fetched_filename` option. If so, the server subscribes to events named
+  `{:fetch, fetched_filename}`, and calls `new_state` with the event data.
+
+  ## Callbacks
+
+  Server modules can override any of these callbacks:
+
+  * `handle_new_state/1` — Called with the value passed to any `new_state` call; can be used to
+      accept state values that are not strings or struct lists. Should call `super` with a string
+      or struct list to perform the actual update.
+
+  * `pre_insert_hook/1` — Called with each struct before inserting it into the table. Must return
+      a list of structs to insert (one struct can be transformed into zero or multiple).
+
+  * `post_commit_hook/0` — Called once after a new state has been committed, but before the
+      `:new_state` event has been published. Servers can use this to e.g. update additional data
+      that needs to remain consistent with the main table.
+
+  * `post_load_hook/1` — Called with the list of structs to be returned whenever data is requested
+      from the server, e.g. using `all` or `by_*` functions. Must return the list of structs to be
+      returned to the caller. Allows filtering or transforming results on load.
   """
-  @callback handle_new_state(binary) :: term
+  @callback handle_new_state(binary | [struct]) :: :ok
   @callback post_commit_hook() :: :ok
   @callback post_load_hook([struct]) :: [struct] when struct: any
   @callback pre_insert_hook(struct) :: [struct] when struct: any
@@ -61,7 +91,7 @@ defmodule State.Server do
 
       # Client functions
 
-      @doc "Start the #__MODULE__} server"
+      @doc "Start the #{__MODULE__} server."
       def start_link, do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
       @doc "Send a new state to the server."
@@ -69,26 +99,22 @@ defmodule State.Server do
       def new_state(state, timeout \\ 300_000),
         do: GenServer.call(__MODULE__, {:new_state, state}, timeout)
 
-      @doc """
-      Returns a timestamp of when the server was last updated with new data.
-      """
+      @doc "Returns a timestamp of when the server was last updated with new data."
       @spec last_updated() :: DateTime.t() | nil
       def last_updated, do: GenServer.call(__MODULE__, :last_updated)
 
-      @doc """
-      Updates the server's metadata with when it was last updated.
-      """
+      @doc "Updates the server's metadata with when it was last updated."
       def update_metadata, do: GenServer.cast(__MODULE__, :update_metadata)
 
       @doc "Returns the number of elements in the server."
       @spec size() :: non_neg_integer
       def size, do: Server.size(__MODULE__)
 
-      @doc "Returns all the #{__MODULE__} structs"
+      @doc "Returns all the #{__MODULE__} structs."
       @spec all(opts :: Keyword.t()) :: [RECORDABLE.t()]
       def all(opts \\ []), do: Server.all(__MODULE__, opts)
 
-      @doc "Returns all the keys for #{__MODULE__}"
+      @doc "Returns all the keys for #{__MODULE__}."
       @spec all_keys() :: [term]
       def all_keys, do: Server.all_keys(__MODULE__)
 
@@ -110,8 +136,8 @@ defmodule State.Server do
       # Metadata functions
 
       @doc """
-      The _single_ filename that must be fetched to generate a new state.  If there is no file name OR there are
-      multiple file names, this will be `nil`.
+      The _single_ filename that must be fetched to generate a new state.  If there is no file
+      name OR there are multiple file names, this will be `nil`.
       """
       @spec fetched_filename :: String.t() | nil
       def fetched_filename, do: unquote(opts[:fetched_filename])
@@ -134,9 +160,7 @@ defmodule State.Server do
       @spec recordable :: module
       def recordable, do: unquote(opts[:recordable])
 
-      @doc """
-      Parser module with `parse(binary) :: struct` function.t s
-      """
+      @doc "Parser module that implements `Parse`."
       @spec parser :: module | nil
       def parser, do: unquote(opts[:parser])
 
@@ -188,8 +212,8 @@ defmodule State.Server do
 
       def maybe_hibernate(reply), do: reply
 
-      # All functions that aren't metadata or have computed names, such as from def_by_indices, should be marked
-      # overridable here
+      # All functions that aren't metadata or have computed names, such as from def_by_indices,
+      # should be marked overridable here
       defoverridable all: 0,
                      all: 1,
                      handle_call: 3,
