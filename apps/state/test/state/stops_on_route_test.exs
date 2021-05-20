@@ -75,7 +75,8 @@ defmodule State.StopsOnRouteTest do
       assert by_route_id("route") == ["other_stop", "stop"]
     end
 
-    test "does not include alternate route trips unless asked" do
+    test "includes stops from 'non-canonical' trips if requested" do
+      # trips with an `alternate_route` are ignored by default
       adjusted_trip = %Model.Trip{@other_trip | alternate_route: false}
       alternate_trip = %Model.Trip{@trip | id: "alternate_trip", alternate_route: true}
 
@@ -92,13 +93,13 @@ defmodule State.StopsOnRouteTest do
 
       assert by_route_id("route") == ["stop"]
 
-      assert Enum.sort(by_route_id("route", include_alternates?: true)) == [
+      assert Enum.sort(by_route_id("route", canonical?: false)) == [
                "alternate_stop",
                "other_stop",
                "stop"
              ]
 
-      # if we don't have regular service, try alternate service
+      # if the "canonical" stop list would be empty, acts as `canonical?: false`
       assert by_route_id("route", service_ids: ["other_service"]) == ["other_stop"]
     end
 
