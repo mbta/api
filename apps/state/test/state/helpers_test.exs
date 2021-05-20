@@ -3,38 +3,40 @@ defmodule State.HelpersTest do
   alias Model.{RoutePattern, Trip}
   import State.Helpers
 
-  describe "ignore_trip_route_pattern?/1" do
+  describe "stops_on_route?/1" do
     setup do
       State.RoutePattern.new_state([])
-
       :ok
     end
 
-    test "ignores trips with a route_type" do
-      assert ignore_trip_route_pattern?(%Trip{route_type: 3})
+    test "returns false for trips with a route_type" do
+      refute stops_on_route?(%Trip{route_type: 3})
     end
 
-    test "ignores trips that are in multi_route_trips" do
-      assert ignore_trip_route_pattern?(%Trip{alternate_route: true})
-      assert ignore_trip_route_pattern?(%Trip{alternate_route: false})
+    test "returns false for trips that are in multi_route_trips" do
+      refute stops_on_route?(%Trip{alternate_route: true})
+      refute stops_on_route?(%Trip{alternate_route: false})
     end
 
-    test "ignores trips with atypical patterns" do
+    test "returns false for trips with atypical patterns" do
       route_pattern_id = "pattern"
       State.RoutePattern.new_state([%RoutePattern{id: route_pattern_id, typicality: 4}])
-      assert ignore_trip_route_pattern?(%Trip{route_pattern_id: route_pattern_id})
+
+      refute stops_on_route?(%Trip{route_pattern_id: route_pattern_id})
     end
 
-    test "does not ignore trips with normal patterns" do
+    test "returns true for trips with normal patterns" do
       route_pattern_id = "pattern"
       State.RoutePattern.new_state([%RoutePattern{id: route_pattern_id, typicality: 1}])
-      refute ignore_trip_route_pattern?(%Trip{route_pattern_id: route_pattern_id})
+
+      assert stops_on_route?(%Trip{route_pattern_id: route_pattern_id})
     end
 
-    test "allows overriding the ignore value" do
+    test "returns the configured value if the route pattern matches an override" do
+      # has a prefix defined in `route_pattern_prefix_overrides`
       route_pattern_id = "CR-Franklin-Foxboro-extra-chars"
 
-      refute ignore_trip_route_pattern?(%Trip{
+      assert stops_on_route?(%Trip{
                route_pattern_id: route_pattern_id,
                route_type: 3,
                alternate_route: false

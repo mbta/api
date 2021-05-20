@@ -48,12 +48,12 @@ defmodule State.RoutesPatternsAtStop do
 
   def routes_by_stops_and_direction(stop_ids, opts \\ []) when is_list(stop_ids) do
     direction_id = Keyword.get(opts, :direction_id, :_)
-    ignore? = if Keyword.get(opts, :ignore?, true), do: true, else: :_
+    canonical? = if Keyword.get(opts, :canonical?, true), do: true, else: :_
 
     selectors =
       for stop_id <- Enum.uniq(stop_ids),
           service_id <- Keyword.get(opts, :service_ids, [:_]) do
-        {{stop_id, direction_id, service_id, ignore?, :_, :"$1"}, [], [:"$1"]}
+        {{stop_id, direction_id, service_id, canonical?, :_, :"$1"}, [], [:"$1"]}
       end
 
     @table
@@ -63,12 +63,12 @@ defmodule State.RoutesPatternsAtStop do
 
   def route_patterns_by_stops_and_direction(stop_ids, opts \\ []) when is_list(stop_ids) do
     direction_id = Keyword.get(opts, :direction_id, :_)
-    ignore? = if Keyword.get(opts, :ignore?, true), do: true, else: :_
+    canonical? = if Keyword.get(opts, :canonical?, true), do: true, else: :_
 
     selectors =
       for stop_id <- Enum.uniq(stop_ids),
           service_id <- Keyword.get(opts, :service_ids, [:_]) do
-        {{stop_id, direction_id, service_id, ignore?, :"$1", :_}, [], [:"$1"]}
+        {{stop_id, direction_id, service_id, canonical?, :"$1", :_}, [], [:"$1"]}
       end
 
     @table
@@ -124,8 +124,8 @@ defmodule State.RoutesPatternsAtStop do
       fn ->
         items =
           for group <- Enum.group_by(Trip.all(), & &1.route_pattern_id),
-              ignore? <- [true, false],
-              item <- do_gather_route_pattern(group, ignore?) do
+              canonical? <- [true, false],
+              item <- do_gather_route_pattern(group, canonical?) do
             item
           end
 
@@ -145,10 +145,10 @@ defmodule State.RoutesPatternsAtStop do
     state
   end
 
-  defp do_gather_route_pattern(group, ignore?)
+  defp do_gather_route_pattern(group, canonical?)
 
   defp do_gather_route_pattern({route_pattern_id, trips}, true) do
-    trips = Enum.reject(trips, &ignore_trip_for_route?/1)
+    trips = Enum.filter(trips, &stops_on_route_by_shape?/1)
 
     for {stop_id, direction_id, service_id, route_id} <- do_gather_route_pattern_trips(trips) do
       {stop_id, direction_id, service_id, true, route_pattern_id, route_id}
@@ -156,7 +156,7 @@ defmodule State.RoutesPatternsAtStop do
   end
 
   defp do_gather_route_pattern({route_pattern_id, trips}, false) do
-    trips = Stream.filter(trips, &ignore_trip_for_route?/1)
+    trips = Stream.reject(trips, &stops_on_route_by_shape?/1)
 
     for {stop_id, direction_id, service_id, route_id} <- do_gather_route_pattern_trips(trips) do
       {stop_id, direction_id, service_id, false, route_pattern_id, route_id}
