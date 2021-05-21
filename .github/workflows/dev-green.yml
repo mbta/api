@@ -13,60 +13,32 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Get commit metadata
-        run: |
-          echo SHA_SHORT=$(git rev-parse --short ${{ github.sha }}) >> $GITHUB_ENV
-          echo COMMIT_MSG=$(git log --format=%B -n 1 ${{ github.sha }} | head -n 1) >> $GITHUB_ENV
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
+      - id: metadata
+        uses: mbta/actions/commit-metadata@v1
       - uses: mbta/actions/build-push-ecr@v1
         id: build-push
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
-      - name: Create deployment package
-        id: deployment-package
-        run: |
-          mkdir -p $RUNNER_TEMP/deploy
-          OUTPUT_ZIP=$RUNNER_TEMP/deploy.zip
-          test -d rel/.ebextensions && cp -r rel/.ebextensions $RUNNER_TEMP/deploy
-          echo > $RUNNER_TEMP/deploy/Dockerrun.aws.json <<EOF
-          {
-            "AWSEBDockerrunVersion": "1",
-            "Image": {
-              "Name": "${{ steps.build-push.outputs.docker-tag }}",
-              "Update": "true"
-            },
-            "Ports": [
-              {
-                "ContainerPort": "4000"
-              }
-            ]
-          }
-          EOF
-          cd $RUNNER_TEMP/deploy
-          zip -r $OUTPUT_ZIP .
-          echo "::set-output name=package::$OUTPUT_ZIP"
-      - name: Deploy to EB
-        uses: mbta/beanstalk-deploy@v17
+      - id: deployment-package
+        uses: mbta/actions/eb-ecr-dockerrun@v1
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: api
-          environment_name: api-dev-green
-          version_label: ${{ env.SHA_SHORT }}
-          version_description: ${{ env.COMMIT_MSG }}
+          docker-tag: ${{ steps.build-push.outputs.docker-tag }}
+      - name: Deploy to EB
+        uses: mbta/beanstalk-deploy@v18
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application-name: api
+          environment-name: api-dev-green
+          version-label: ${{ steps.metadata.outputs.sha-short }}
+          version-description: ${{ steps.metadata.outputs.commit-message }}
           region: ${{ env.AWS_REGION }}
-          deployment_package: ${{ steps.deployment-package.outputs.package }}
-      # - uses: mbta/actions/notify-slack-deploy@v1
-      #   if: ${{ !cancelled() }}
-      #   with:
-      #     webhook-url: ${{ secrets.SLACK_WEBHOOK }}
-      #     job-status: ${{ job.status }}
+          deployment-package: ${{ steps.deployment-package.outputs.deployment-package }}
+          use-existing-version-if-available: true
+      - uses: mbta/actions/notify-slack-deploy@v1
+        if: ${{ !cancelled() }}
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          job-status: ${{ job.status }}
