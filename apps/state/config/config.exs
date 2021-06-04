@@ -343,6 +343,18 @@ config :state, :stops_on_route,
       "place-lech",
       "14155",
       "21458"
+    ],
+    {"CR-Needham", 0} => [
+      "place-NEC-2203",
+      "place-NEC-2173",
+      "place-NEC-2139",
+      "place-NEC-2108",
+      "place-NEC-2040",
+      "place-NEC-1969",
+      "place-NEC-1919",
+      "place-NEC-1851",
+      "place-NEC-1768",
+      "place-NEC-1659"
     ]
   }
 
