@@ -161,6 +161,8 @@ config :state, :stops_on_route,
     # Fitchburg Line shuttles to/from Alewife
     "Shuttle-AlewifeLittletonExpress-0-" => true,
     "Shuttle-AlewifeLittletonLocal-0-" => true,
+    # Fitchburg Line shuttles to/from Wachusett
+    "Shuttle-LittletonWachusett-0-" => true,
     # Newton Connection RailBus for Worcester Line
     "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
     # Providence trains stopping at Forest Hills
