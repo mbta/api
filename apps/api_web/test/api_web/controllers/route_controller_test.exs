@@ -45,6 +45,57 @@ defmodule ApiWeb.RouteControllerTest do
     direction_names: ["Outbound", "Inbound"],
     direction_destinations: ["One", "Another"]
   }
+  @route4 %Model.Route{
+    id: "4",
+    agency_id: "1",
+    type: 1,
+    sort_order: 10010,
+    description: "Rapid Transit",
+    fare_class: "Rapid Transit",
+    short_name: "",
+    long_name: "Red Line",
+    color: "DA291C",
+    text_color: "FFFFFF",
+    direction_names: ["South", "North"],
+    direction_destinations: [
+      "Ashmont/Braintree",
+      "Alewife"
+    ]
+  }
+  @route5 %Model.Route{
+    id: "5",
+    agency_id: "1",
+    type: 1,
+    sort_order: 10020,
+    description: "Rapid Transit",
+    fare_class: "Rapid Transit",
+    short_name: "",
+    long_name: "Orange Line",
+    color: "ED8B00",
+    text_color: "FFFFFF",
+    direction_names: ["South", "North"],
+    direction_destinations: [
+      "Forest Hills",
+      "Oak Grove"
+    ]
+  }
+  @route6 %Model.Route{
+    id: "6",
+    agency_id: "1",
+    type: 1,
+    sort_order: 10040,
+    description: "Rapid Transit",
+    fare_class: "Rapid Transit",
+    short_name: "",
+    long_name: "Blue Line",
+    color: "003DA5",
+    text_color: "FFFFFF",
+    direction_names: ["West", "East"],
+    direction_destinations: [
+      "Bowdoin",
+      "Wonderland"
+    ]
+  }
   @line1 %Model.Line{
     id: "line-First",
     short_name: "First Line"
@@ -61,7 +112,7 @@ defmodule ApiWeb.RouteControllerTest do
   }
 
   setup %{conn: conn} do
-    State.Route.new_state([@route, @route2, @route3])
+    State.Route.new_state([@route, @route2, @route3, @route4, @route5, @route6])
     State.Line.new_state([@line1])
     State.RoutePattern.new_state([@route_pattern1, @route_pattern2])
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -147,6 +198,43 @@ defmodule ApiWeb.RouteControllerTest do
                "type" => "stop",
                "id" => "1"
              } = List.first(response["included"])
+    end
+
+    test "filter does not include duplicates", %{conn: conn} do
+      stop = %Model.Stop{id: "1", latitude: 1, longitude: 2}
+      stop2 = %Model.Stop{id: "2"}
+      State.Stop.new_state([stop, stop2])
+      State.Trip.new_state([%Model.Trip{id: "trip", route_id: "1"}])
+
+      State.Schedule.new_state([
+        %Model.Schedule{trip_id: "trip", stop_id: "1", route_id: "1"},
+        %Model.Schedule{trip_id: "other", stop_id: "2", route_id: "2"}
+      ])
+
+      State.RoutesPatternsAtStop.update!()
+
+      # can be included
+      conn = get(conn, route_path(conn, :index, stop: "1", include: "stop"))
+      response = json_response(conn, 200)
+
+      #assert %{
+      #         "type" => "stop",
+      #         "id" => "1"
+      #       } = List.first(response["included"])
+
+      #conn = get(conn, route_path(conn, :index, %{"filter[stop]" => "1", "include" => "stop"}))
+      conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "include" => "stop"}))
+      response = json_response(conn, 200)
+
+      #IO.puts("response")
+      #IO.inspect(response)
+      IO.puts("response data")
+      IO.inspect(response["data"])
+
+      #assert %{
+      #         "type" => "stop",
+      #         "id" => "1"
+      #       } = List.first(response["included"])
     end
 
     test "can filter by stop with legacy stop ID translation", %{conn: conn} do
