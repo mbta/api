@@ -226,12 +226,6 @@ defmodule ApiWeb.RouteControllerTest do
       conn = get(conn, route_path(conn, :index, stop: "1", include: "stop"))
       response = json_response(conn, 200)
 
-      #assert %{
-      #         "type" => "stop",
-      #         "id" => "1"
-      #       } = List.first(response["included"])
-
-      #conn = get(conn, route_path(conn, :index, %{"filter[stop]" => "1", "include" => "stop"}))
       conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "include" => "stop"}))
       response = json_response(conn, 200)
 
@@ -242,28 +236,12 @@ defmodule ApiWeb.RouteControllerTest do
       data_ids = Enum.sort(Enum.map(data, fn (route) -> route["id"] end))
       IO.inspect(data_ids)
       IO.puts("id of first element")
-      #IO.inspect(List.first(data)["id"])
       IO.inspect(List.first(data_ids))
 
       expected_route_ids = [@route.id, @route2.id, @route4.id, @route5.id, @route6.id]
       num_routes = Enum.count(expected_route_ids)
 
-      #IO.puts("expected routes id of first element")
-      #IO.inspect(Enum.at(expected_routes, 0).id)
-
-      #for index <- 0..(num_routes - 1), do: (
-      #  assert Enum.at(data, index)["id"] ==
-      #    Enum.at(expected_routes, index).id
-      #)
-
       assert data_ids == expected_route_ids
-
-      #assert response["data"] == expected_routes
-
-      #assert %{
-      #         "type" => "stop",
-      #         "id" => "1"
-      #       } = List.first(response["included"])
     end
 
     test "can filter by stop with legacy stop ID translation", %{conn: conn} do
