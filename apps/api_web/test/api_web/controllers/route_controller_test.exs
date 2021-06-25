@@ -239,20 +239,24 @@ defmodule ApiWeb.RouteControllerTest do
       IO.inspect(response)
       IO.puts("response data")
       data = response["data"]
-      IO.inspect(data)
+      data_ids = Enum.sort(Enum.map(data, fn (route) -> route["id"] end))
+      IO.inspect(data_ids)
       IO.puts("id of first element")
-      IO.inspect(List.first(data)["id"])
+      #IO.inspect(List.first(data)["id"])
+      IO.inspect(List.first(data_ids))
 
-      expected_routes = [@route, @route2, @route4, @route5, @route6]
-      num_routes = Enum.count(expected_routes)
+      expected_route_ids = [@route.id, @route2.id, @route4.id, @route5.id, @route6.id]
+      num_routes = Enum.count(expected_route_ids)
 
-      IO.puts("expected routes id of first element")
-      IO.inspect(Enum.at(expected_routes, 0).id)
+      #IO.puts("expected routes id of first element")
+      #IO.inspect(Enum.at(expected_routes, 0).id)
 
-      for index <- 0..(num_routes - 1), do: (
-        assert Enum.at(data, index)["id"] ==
-          Enum.at(expected_routes, index).id
-      )
+      #for index <- 0..(num_routes - 1), do: (
+      #  assert Enum.at(data, index)["id"] ==
+      #    Enum.at(expected_routes, index).id
+      #)
+
+      assert data_ids == expected_route_ids
 
       #assert response["data"] == expected_routes
 
