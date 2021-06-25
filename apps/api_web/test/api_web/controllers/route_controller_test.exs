@@ -238,9 +238,23 @@ defmodule ApiWeb.RouteControllerTest do
       IO.puts("response")
       IO.inspect(response)
       IO.puts("response data")
-      IO.inspect(response["data"])
+      data = response["data"]
+      IO.inspect(data)
+      IO.puts("id of first element")
+      IO.inspect(List.first(data)["id"])
 
-      assert response["data"] == [@route, @route2, @route4, @route5, @route6]
+      expected_routes = [@route, @route2, @route4, @route5, @route6]
+      num_routes = Enum.count(expected_routes)
+
+      IO.puts("expected routes id of first element")
+      IO.inspect(Enum.at(expected_routes, 0).id)
+
+      for index <- 0..(num_routes - 1), do: (
+        assert Enum.at(data, index)["id"] ==
+          Enum.at(expected_routes, index).id
+      )
+
+      #assert response["data"] == expected_routes
 
       #assert %{
       #         "type" => "stop",
