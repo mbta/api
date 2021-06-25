@@ -179,6 +179,12 @@ defmodule ApiWeb.RouteControllerTest do
 
       State.RoutesPatternsAtStop.update!()
 
+      #IO.puts("conn")
+      #IO.inspect(conn)
+      #IO.puts("-----")
+      #IO.puts("index_data")
+      #IO.inspect(ApiWeb.RouteController.index_data(conn, %{"stop" => "1"}))
+
       assert ApiWeb.RouteController.index_data(conn, %{"stop" => "1"}) == [@route]
       assert ApiWeb.RouteController.index_data(conn, %{"stop" => "2"}) == []
 
@@ -193,6 +199,9 @@ defmodule ApiWeb.RouteControllerTest do
 
       conn = get(conn, route_path(conn, :index, %{"filter[stop]" => "1", "include" => "stop"}))
       response = json_response(conn, 200)
+
+      IO.puts("response")
+      IO.inspect(response)
 
       assert %{
                "type" => "stop",
@@ -226,10 +235,12 @@ defmodule ApiWeb.RouteControllerTest do
       conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "include" => "stop"}))
       response = json_response(conn, 200)
 
-      #IO.puts("response")
-      #IO.inspect(response)
+      IO.puts("response")
+      IO.inspect(response)
       IO.puts("response data")
       IO.inspect(response["data"])
+
+      assert response["data"] == [@route, @route2, @route4, @route5, @route6]
 
       #assert %{
       #         "type" => "stop",
