@@ -80,6 +80,20 @@ defmodule State.RoutesByServiceTest do
       assert for_service_ids_and_types([@service.id], ["some_other_type"]) == []
       assert for_service_ids_and_types(["some_other_service"], [@route.type]) == []
     end
+
+    test "route and other route have same type. are not duplicated" do
+      #same_type_route = %{@other_route | type: @route.type}
+      #State.Route.new_state([@route, same_type_route])
+      third_trip = %{@trip | id: "2"}
+      State.Trip.new_state([@trip, third_trip])
+      update!()
+
+      assert Enum.sort(
+               for_service_ids_and_types([@service.id], [
+                 @route.type,
+               ])
+             ) == [@route.id]
+    end
   end
 
   describe "crash" do

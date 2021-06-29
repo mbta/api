@@ -36,6 +36,7 @@ defmodule State.RoutesByService do
         Enum.map(route_types, fn type -> {{{service_id, type}, :_}, [], [:"$_"]} end)
       end)
     )
+    |> IO.inspect()
     |> do_get_routes()
   end
 

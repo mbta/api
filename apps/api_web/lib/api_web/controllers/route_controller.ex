@@ -77,6 +77,7 @@ defmodule ApiWeb.RouteController do
          {:ok, _includes} <- Params.validate_includes(params, @includes_index, conn) do
       filtered
       |> format_filters()
+      |> IO.inspect()
       |> expand_stops_filter(:stops, conn.assigns.api_version)
       |> do_filter()
       |> filter_hidden(filtered)
@@ -143,7 +144,7 @@ defmodule ApiWeb.RouteController do
   defp do_filter(%{service_ids: []}), do: []
 
   defp do_filter(%{service_ids: service_ids, type: types}),
-    do: service_ids |> RoutesByService.for_service_ids_and_types(types) |> Route.by_ids()
+    do: service_ids |> RoutesByService.for_service_ids_and_types(types) |> IO.inspect() |> Route.by_ids() |> IO.inspect()
 
   defp do_filter(%{stops: _stops} = filters) do
     filters
