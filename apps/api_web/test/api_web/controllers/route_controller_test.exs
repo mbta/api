@@ -210,6 +210,8 @@ defmodule ApiWeb.RouteControllerTest do
     end
 
     test "filter does not include duplicates", %{conn: conn} do
+      today = Parse.Time.service_date()
+      today_iso = Date.to_iso8601(today)
       stop = %Model.Stop{id: "1", latitude: 1, longitude: 2}
       stop2 = %Model.Stop{id: "2"}
       State.Stop.new_state([stop, stop2])
@@ -223,10 +225,17 @@ defmodule ApiWeb.RouteControllerTest do
       State.RoutesPatternsAtStop.update!()
 
       # can be included
-      conn = get(conn, route_path(conn, :index, stop: "1", include: "stop"))
+      conn = get(conn, route_path(conn, :index, stop: "1"))
+      #conn = get(conn, route_path(conn, :index, stop: "1", include: "stop"))
       response = json_response(conn, 200)
 
-      conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "include" => "stop"}))
+      #conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "include" => "stop"}))
+      params = %{"filter" => %{"type" => "1", "date" => today_iso}}
+      conn = get(conn, route_path(conn, :index, params))
+      #conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "filter[date]" => "2021-06-25"}))
+      #conn = get(conn, route_path(conn, :index, %{"filter[type]" => "1", "include" => "stop", "filter[date]" => "2021-06-25"}))
+      IO.puts("conn")
+      IO.inspect(conn)
       response = json_response(conn, 200)
 
       IO.puts("response")
