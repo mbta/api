@@ -30,6 +30,11 @@ defmodule State.RoutesByService do
   end
 
   def for_service_ids_and_types(service_ids, route_types) do
+    IO.puts("service_ids")
+    IO.inspect(service_ids)
+    IO.puts("route_types")
+    IO.inspect(route_types)
+    IO.puts("select flat_map map")
     @table
     |> :ets.select(
       Enum.flat_map(service_ids, fn service_id ->
@@ -41,12 +46,19 @@ defmodule State.RoutesByService do
   end
 
   defp do_get_routes(ets_items) do
+    #IO.puts("do_get_routes")
+    #IO.puts("ets_items")
+    #IO.inspect(ets_items)
     case ets_items do
       [] ->
         []
 
       items ->
-        Enum.flat_map(items, fn {_key, routes} -> routes end)
+        IO.puts("items")
+        IO.inspect(Enum.uniq(Enum.flat_map(items, fn {_key, routes} -> routes end)))
+        Enum.uniq(Enum.flat_map(items, fn {_key, routes} -> routes end))
+        #IO.inspect(Enum.flat_map(items, fn {_key, routes} -> routes end))
+        #Enum.flat_map(items, fn {_key, routes} -> routes end)
     end
   end
 
