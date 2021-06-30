@@ -35,7 +35,7 @@ defmodule State.RoutesByServiceTest do
     service_id: "other_service"
   }
 
-  setup_all do
+  setup do
     Logger.configure(level: :info)
     State.Stop.new_state([])
     State.Route.new_state([@route, @other_route])
