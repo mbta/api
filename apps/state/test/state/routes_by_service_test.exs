@@ -82,8 +82,6 @@ defmodule State.RoutesByServiceTest do
     end
 
     test "route and other route have same type. are not duplicated" do
-      #same_type_route = %{@other_route | type: @route.type}
-      #State.Route.new_state([@route, same_type_route])
       third_trip = %{@trip | id: "2"}
       State.Trip.new_state([@trip, third_trip])
       update!()
