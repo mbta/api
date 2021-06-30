@@ -88,7 +88,7 @@ defmodule State.RoutesByServiceTest do
 
       assert Enum.sort(
                for_service_ids_and_types([@service.id], [
-                 @route.type,
+                 @route.type
                ])
              ) == [@route.id]
     end
