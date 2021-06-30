@@ -18,11 +18,11 @@ jobs:
       - name: Deploy to EB
         uses: mbta/beanstalk-deploy@v18
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: api
-          environment_name: api-prod
-          version_label: ${{ steps.metadata.outputs.sha-short }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application-name: api
+          environment-name: api-prod
+          version-label: ${{ steps.metadata.outputs.sha-short }}
           region: ${{ env.AWS_REGION }}
       - uses: mbta/actions/notify-slack-deploy@v1
         if: ${{ !cancelled() }}
