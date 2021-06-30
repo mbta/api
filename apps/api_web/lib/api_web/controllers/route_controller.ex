@@ -77,7 +77,6 @@ defmodule ApiWeb.RouteController do
          {:ok, _includes} <- Params.validate_includes(params, @includes_index, conn) do
       filtered
       |> format_filters()
-      |> IO.inspect()
       |> expand_stops_filter(:stops, conn.assigns.api_version)
       |> do_filter()
       |> filter_hidden(filtered)
