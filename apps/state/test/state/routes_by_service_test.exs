@@ -34,12 +34,14 @@ defmodule State.RoutesByServiceTest do
     direction_id: 1,
     service_id: "other_service"
   }
+  @third_trip %{@trip | id: "2"}
+      #State.Trip.new_state([@trip, third_trip])
 
-  setup do
+  setup_all do
     Logger.configure(level: :info)
     State.Stop.new_state([])
     State.Route.new_state([@route, @other_route])
-    State.Trip.new_state([@trip, @other_trip])
+    State.Trip.new_state([@trip, @other_trip, @third_trip])
     State.Service.new_state([@service, @other_service])
     State.Shape.new_state([])
     update!()
@@ -81,10 +83,10 @@ defmodule State.RoutesByServiceTest do
       assert for_service_ids_and_types(["some_other_service"], [@route.type]) == []
     end
 
-    test "route and other route have same type. are not duplicated" do
-      third_trip = %{@trip | id: "2"}
-      State.Trip.new_state([@trip, third_trip])
-      update!()
+    test "returns a list with no duplicates if multiple routes have the same type" do
+      #third_trip = %{@trip | id: "2"}
+      #State.Trip.new_state([@trip, third_trip])
+      #update!()
 
       assert Enum.sort(
                for_service_ids_and_types([@service.id], [
