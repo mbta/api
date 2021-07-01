@@ -20,3 +20,7 @@ erl_crash.dump
 *.ez
 
 *.secret.exs
+
+# for the DynamoDB local instance used in testing
+bin/
+shared-local-instance.db
