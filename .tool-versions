@@ -1,4 +1,4 @@
-elixir 1.10.3-otp-23
-erlang 23.0.2
+elixir 1.12.2-otp-24
+erlang 24.0.3
 python 3.9.5
 poetry 1.1.6

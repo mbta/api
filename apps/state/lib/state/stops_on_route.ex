@@ -55,7 +55,7 @@ defmodule State.StopsOnRoute do
            {Model.Route.id(), Model.Direction.id(), Model.Shape.id(), Model.Service.id(),
             stop_id_list}
 
-  def start_link do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 

@@ -23,70 +23,60 @@ defmodule StateMediator do
     import Supervisor.Spec, warn: false
 
     [
-      worker(
+      {
         StateMediator.Mediator,
         [
-          [
-            state: State.Prediction,
-            url: source_url(State.Prediction),
-            opts: [timeout: 10_000],
-            sync_timeout: 30_000,
-            interval: 10_000
-          ]
-        ],
-        id: :prediction_mediator
-      ),
-      worker(
+          spec_id: :prediction_mediator,
+          state: State.Prediction,
+          url: source_url(State.Prediction),
+          opts: [timeout: 10_000],
+          sync_timeout: 30_000,
+          interval: 10_000
+        ]
+      },
+      {
         StateMediator.Mediator,
         [
-          [
-            state: State.Vehicle,
-            url: source_url(State.Vehicle),
-            opts: [timeout: 10_000],
-            sync_timeout: 30_000,
-            interval: 1_000
-          ]
-        ],
-        id: :vehicle_mediator
-      ),
-      worker(
+          spec_id: :vehicle_mediator,
+          state: State.Vehicle,
+          url: source_url(State.Vehicle),
+          opts: [timeout: 10_000],
+          sync_timeout: 30_000,
+          interval: 1_000
+        ]
+      },
+      {
         StateMediator.Mediator,
         [
-          [
-            state: State.Facility.Parking,
-            url: source_url(State.Facility.Parking),
-            opts: [timeout: 10_000],
-            sync_timeout: 30_000,
-            interval: 60_000
-          ]
-        ],
-        id: :parking_mediator
-      ),
-      worker(
+          spec_id: :parking_mediator,
+          state: State.Facility.Parking,
+          url: source_url(State.Facility.Parking),
+          opts: [timeout: 10_000],
+          sync_timeout: 30_000,
+          interval: 60_000
+        ]
+      },
+      {
         StateMediator.Mediator,
         [
-          [
-            state: GtfsDecompress,
-            url: app_value(:gtfs_url),
-            opts: [timeout: 60_000],
-            sync_timeout: 60_000
-          ]
-        ],
-        id: :gtfs_mediator
-      ),
-      worker(
+          spec_id: :gtfs_mediator,
+          state: GtfsDecompress,
+          url: app_value(:gtfs_url),
+          opts: [timeout: 60_000],
+          sync_timeout: 60_000
+        ]
+      },
+      {
         StateMediator.Mediator,
         [
-          [
-            state: State.Alert,
-            url: app_value(:alert_url),
-            sync_timeout: 30_000,
-            interval: 10_000,
-            opts: [timeout: 10_000]
-          ]
-        ],
-        id: :alert_mediator
-      )
+          spec_id: :alert_mediator,
+          state: State.Alert,
+          url: app_value(:alert_url),
+          sync_timeout: 30_000,
+          interval: 10_000,
+          opts: [timeout: 10_000]
+        ]
+      }
     ]
   end
 

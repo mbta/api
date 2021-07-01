@@ -9,7 +9,7 @@ defmodule State.ServiceByDate do
 
   @table __MODULE__
 
-  def start_link do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 

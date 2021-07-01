@@ -8,10 +8,8 @@ defmodule ALBMonitor do
   use Application
 
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children = [
-      worker(ALBMonitor.Monitor, [])
+      ALBMonitor.Monitor
     ]
 
     opts = [strategy: :one_for_one, name: ALBMonitor.Supervisor]

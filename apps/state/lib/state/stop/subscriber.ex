@@ -4,7 +4,7 @@ defmodule State.Stop.Subscriber do
   """
   use Events.Server
 
-  def start_link do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, nil)
   end
 

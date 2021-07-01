@@ -9,6 +9,14 @@ defmodule State.Stop.Worker do
 
   @timeout 60_000
 
+  @spec child_spec(any()) :: Supervisor.child_spec()
+  def child_spec(worker_idx) do
+    %{
+      id: {:stop_worker, worker_idx},
+      start: {__MODULE__, :start_link, [worker_idx]}
+    }
+  end
+
   def start_link(worker_id) do
     GenServer.start_link(__MODULE__, nil, name: via_tuple(worker_id))
   end

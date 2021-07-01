@@ -33,7 +33,7 @@ defmodule State.ConnectingStops do
     "place-GRB-0118" => %{add: ~w(3806)}
   }
 
-  def start_link do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 

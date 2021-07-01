@@ -27,7 +27,7 @@ defmodule State.Stop do
 
   @type stop_search :: (() -> [Stop.t()])
 
-  def start_link do
+  def start_link(_opts \\ []) do
     Supervisor.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
@@ -295,17 +295,17 @@ defmodule State.Stop do
   def init(_) do
     workers =
       for i <- worker_range() do
-        worker(State.Stop.Worker, [i], id: {:stop_worker, i})
+        {State.Stop.Worker, i}
       end
 
     children =
       [
-        worker(State.Stop.Cache, []),
+        State.Stop.Cache,
         {Registry, keys: :unique, name: State.Stop.Registry}
       ] ++
         workers ++
         [
-          worker(State.Stop.Subscriber, [])
+          State.Stop.Subscriber
         ]
 
     Supervisor.init(children, strategy: :one_for_one)

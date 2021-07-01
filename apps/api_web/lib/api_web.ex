@@ -10,18 +10,16 @@ defmodule ApiWeb do
   # for more information on OTP Applications
   # no cover
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     runtime_config!()
 
     # no cover
     children = [
       # Start the endpoint when the application starts
-      worker(ApiWeb.RateLimiter, []),
-      worker(RequestTrack, [[name: ApiWeb.RequestTrack]]),
-      supervisor(ApiWeb.EventStream.Supervisor, []),
-      supervisor(ApiWeb.Endpoint, []),
-      worker(ApiWeb.EventStream.Canary, [])
+      ApiWeb.RateLimiter,
+      {RequestTrack, [name: ApiWeb.RequestTrack]},
+      ApiWeb.EventStream.Supervisor,
+      ApiWeb.Endpoint,
+      ApiWeb.EventStream.Canary
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
