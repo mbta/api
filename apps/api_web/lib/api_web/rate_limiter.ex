@@ -16,6 +16,16 @@ defmodule ApiWeb.RateLimiter do
   @type limit_data :: {non_neg_integer, non_neg_integer, non_neg_integer}
   @type log_result :: :ok | {:ok | :rate_limited, limit_data}
 
+  # Need to define a child_spec since this module does not itself use GenServer or Supervisor,
+  # but is a simple wrapper for @limiter
+  @spec child_spec(any()) :: Supervisor.child_spec()
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]}
+    }
+  end
+
   ## Client
 
   def start_link(_opts \\ []) do

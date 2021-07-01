@@ -1,4 +1,4 @@
-FROM hexpm/elixir:1.10.3-erlang-23.0.2-alpine-3.11.6 as builder
+FROM hexpm/elixir:1.12.2-erlang-24.0.3-alpine-3.13.3 as builder
 
 WORKDIR /root
 
@@ -21,9 +21,9 @@ ADD rel/ rel/
 RUN mix release
 
 # The one the elixir image was built with
-FROM alpine:3.11.6
+FROM alpine:3.13.3
 
-RUN apk add --update libssl1.1 curl bash dumb-init \
+RUN apk add --update libssl1.1 curl bash dumb-init libstdc++ libgcc \
   && rm -rf /var/cache/apk/*
 
 WORKDIR /root
