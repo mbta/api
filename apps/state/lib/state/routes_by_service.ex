@@ -103,7 +103,6 @@ defmodule State.RoutesByService do
       |> Enum.group_by(fn x ->
         {x.service_id, Map.get(routes, x.route_id, %Model.Route{}).type}
       end)
-      |> IO.inspect()
       |> Enum.map(fn {x, y} -> {x, Enum.uniq(Enum.map(y, fn x -> x.route_id end))} end)
 
     :ets.delete_all_objects(@table)
