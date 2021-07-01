@@ -5,7 +5,7 @@ defmodule Health.Checker do
   We can return both data about the checks (current/0) as well as a boolean
   as to whether we're healthy or not (healthy?/0).
   """
-  @checkers Application.get_env(:health, :checkers)
+  @checkers Application.compile_env(:health, :checkers)
 
   def current do
     :current
