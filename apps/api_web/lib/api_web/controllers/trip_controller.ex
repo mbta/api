@@ -223,9 +223,7 @@ defmodule ApiWeb.TripController do
             wheelchair_accessible(
               %Schema{type: :integer, enum: wheelchair_accessibility_enum},
               """
-              Indicator of wheelchair accessibility: #{
-                Enum.map_join(wheelchair_accessibility_enum, ", ", &"`#{&1}`")
-              }
+              Indicator of wheelchair accessibility: #{Enum.map_join(wheelchair_accessibility_enum, ", ", &"`#{&1}`")}
 
               #{wheelchair_accessibility("*")}
               """,
@@ -235,9 +233,7 @@ defmodule ApiWeb.TripController do
             bikes_allowed(
               %Schema{type: :integer, enum: bikes_allowed_enum},
               """
-              Indicator of whether or not bikes are allowed on this trip: #{
-                Enum.map_join(bikes_allowed_enum, ", ", &"`#{&1}`")
-              }
+              Indicator of whether or not bikes are allowed on this trip: #{Enum.map_join(bikes_allowed_enum, ", ", &"`#{&1}`")}
 
               #{bikes_allowed("*")}
               """,
