@@ -4,7 +4,7 @@ defmodule ApiWeb.Plugs.VersionTest do
   import ApiWeb.Plugs.Version
 
   @api_key String.duplicate("v", 32)
-  @default_version Application.get_env(:api_web, :versions)[:default]
+  @default_version Application.compile_env(:api_web, :versions)[:default]
   @opts init([])
 
   setup %{conn: conn} do

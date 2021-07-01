@@ -3,7 +3,7 @@ defmodule ApiWeb.User do
   Struct for respresenting a user during a request.
   """
 
-  @default_version Application.get_env(:api_web, :versions)[:default]
+  @default_version Application.compile_env(:api_web, :versions)[:default]
 
   defstruct [
     :id,

@@ -47,7 +47,6 @@
         {Credo.Check.Warning.BoolOperationOnSameValues},
         {Credo.Check.Warning.IExPry},
         {Credo.Check.Warning.IoInspect},
-        {Credo.Check.Warning.LazyLogging},
         {Credo.Check.Warning.OperationOnSameValues},
         {Credo.Check.Warning.OperationWithConstantResult},
         {Credo.Check.Warning.UnusedEnumOperation},
@@ -63,7 +62,7 @@
         {Credo.Check.Refactor.ABCSize, false},
         {Credo.Check.Refactor.AppendSingleItem, false},
         {Credo.Check.Refactor.VariableRebinding, false},
-        {Credo.Check.Warning.MapGetUnsafePass, false},
+        {Credo.Check.Warning.MapGetUnsafePass, false}
       ]
     }
   ]

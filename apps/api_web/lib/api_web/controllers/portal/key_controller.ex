@@ -42,7 +42,7 @@ defmodule ApiWeb.ClientPortal.KeyController do
     end
   end
 
-  @valid_versions Application.get_env(:api_web, :versions)[:versions]
+  @valid_versions Application.compile_env(:api_web, :versions)[:versions]
 
   def update(conn, %{"id" => key_id, "key" => values}) do
     values = validate_values(values)
