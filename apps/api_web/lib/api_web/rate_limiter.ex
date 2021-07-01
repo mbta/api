@@ -42,12 +42,8 @@ defmodule ApiWeb.RateLimiter do
   | `ApiWeb.User` `type` | Requests Tracked By | `ApiWeb.User.t` `limit` | Max Requests Per Interval            |
   |-------------------|---------------------|----------------------|--------------------------------------|
   | `:anon`           | IP Address          | `nil`                | `#{@max_anon_per_interval}`          |
-  | `:registered`     | `ApiWeb.User.t` `id`   | `nil`                | `#{
-    @max_registered_per_interval
-  }`    |
-  | `:registered`     | `ApiWeb.User.t` `id`   | integer              | `user.limit / #{
-    @intervals_per_day
-  }` |
+  | `:registered`     | `ApiWeb.User.t` `id`   | `nil`                | `#{@max_registered_per_interval}`    |
+  | `:registered`     | `ApiWeb.User.t` `id`   | integer              | `user.limit / #{@intervals_per_day}` |
   """
   @spec log_request(any, String.t()) :: log_result
   def log_request(_, "/_health" <> _), do: :ok

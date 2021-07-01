@@ -25,9 +25,7 @@ defmodule ApiAccounts.Notifications do
 
   def send_limit_increase_requested(administrators, %User{} = user, %Key{} = key, url, reason) do
     splunk_url =
-      "https://mbta.splunkcloud.com/en-US/app/search/search?q=search%20index%3Dapi-*-application%20api_key%3D#{
-        key.key
-      }&display.page.search.mode=verbose&dispatch.sample_ratio=1&earliest=-24h%40h&latest=now"
+      "https://mbta.splunkcloud.com/en-US/app/search/search?q=search%20index%3Dapi-*-application%20api_key%3D#{key.key}&display.page.search.mode=verbose&dispatch.sample_ratio=1&earliest=-24h%40h&latest=now"
 
     text = """
     A user has requested a rate-limit increase.

@@ -63,9 +63,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:id, name: :trip)
 
     parameter("filter[route_pattern]", :query, :string, """
-    Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{
-      comma_separated_list()
-    }.
+    Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.
     """)
 
     consumes("application/vnd.api+json")
