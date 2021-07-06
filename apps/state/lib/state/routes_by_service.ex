@@ -29,7 +29,6 @@ defmodule State.RoutesByService do
     |> do_get_routes()
   end
 
-  @spec for_service_ids_and_types(any, any) :: list
   def for_service_ids_and_types(service_ids, route_types) do
     @table
     |> :ets.select(
@@ -103,12 +102,7 @@ defmodule State.RoutesByService do
       |> Enum.group_by(fn x ->
         {x.service_id, Map.get(routes, x.route_id, %Model.Route{}).type}
       end)
-      |> IO.inspect()
       |> Enum.map(fn {x, y} -> {x, Enum.uniq(Enum.map(y, fn x -> x.route_id end))} end)
-      #|> Enum.map(fn {x, y} -> {x, Enum.map(y, fn x -> x.route_id end)} end)
-
-    IO.puts("items")
-    IO.inspect(items)
 
     :ets.delete_all_objects(@table)
     :ets.insert(@table, items)
