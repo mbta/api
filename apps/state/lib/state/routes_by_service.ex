@@ -104,9 +104,6 @@ defmodule State.RoutesByService do
       end)
       |> Enum.map(fn {x, y} -> {x, Enum.map(y, fn x -> x.route_id end)} end)
 
-    #IO.puts("items")
-    #IO.inspect(items)
-
     :ets.delete_all_objects(@table)
     :ets.insert(@table, items)
 

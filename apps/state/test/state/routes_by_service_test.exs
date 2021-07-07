@@ -91,11 +91,10 @@ defmodule State.RoutesByServiceTest do
     end
 
     test "returns a list with no duplicates if multiple service ids have the same route" do
-      assert Enum.sort(
-               for_service_ids_and_types([@service.id, @fourth_trip.service_id], [
+      assert for_service_ids_and_types([@service.id, @fourth_trip.service_id], [
                  @route.type
                ])
-             ) == [@route.id]
+              == [@route.id]
     end
   end
 
