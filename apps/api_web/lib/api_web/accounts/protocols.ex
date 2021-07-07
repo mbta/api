@@ -69,71 +69,8 @@ defimpl Phoenix.HTML.FormData, for: ApiAccounts.Changeset do
   defp do_input_type(:naive_datetime), do: :datetime_select
   defp do_input_type(_), do: :text_input
 
-  def input_validations(%Changeset{} = changeset, _, field) do
-    [required: field in changeset.required] ++
-      for(
-        {key, validation} <- changeset.validations,
-        key == field,
-        attr <- validation_to_attrs(validation, field, changeset),
-        do: attr
-      )
-  end
-
-  defp validation_to_attrs({:length, opts}, _field, _changeset) do
-    max =
-      if val = Keyword.get(opts, :max) do
-        [maxlength: val]
-      else
-        []
-      end
-
-    min =
-      if val = Keyword.get(opts, :min) do
-        [minlength: val]
-      else
-        []
-      end
-
-    max ++ min
-  end
-
-  defp validation_to_attrs({:number, opts}, field, changeset) do
-    type = Map.get(changeset.types, field, :integer)
-    step_for(type) ++ min_for(type, opts) ++ max_for(type, opts)
-  end
-
-  defp validation_to_attrs(_validation, _field, _changeset) do
-    []
-  end
-
-  defp step_for(:integer), do: [step: 1]
-  defp step_for(_other), do: [step: "any"]
-
-  defp max_for(type, opts) do
-    cond do
-      max = type == :integer && Keyword.get(opts, :less_than) ->
-        [max: max - 1]
-
-      max = Keyword.get(opts, :less_than_or_equal_to) ->
-        [max: max]
-
-      true ->
-        []
-    end
-  end
-
-  defp min_for(type, opts) do
-    cond do
-      min = type == :integer && Keyword.get(opts, :greater_than) ->
-        [min: min + 1]
-
-      min = Keyword.get(opts, :greater_than_or_equal_to) ->
-        [min: min]
-
-      true ->
-        []
-    end
-  end
+  # Function necessary for protocol, but no validations for now.
+  def input_validations(%Changeset{} = _changeset, _, _), do: []
 
   defp form_for_errors(%{action: nil}), do: []
   defp form_for_errors(%{errors: errors}), do: errors

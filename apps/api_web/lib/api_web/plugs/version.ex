@@ -13,7 +13,7 @@ defmodule ApiWeb.Plugs.Version do
 
   @assign_key :api_version
   @header_name "mbta-version"
-  @config Application.get_env(:api_web, :versions)
+  @config Application.compile_env(:api_web, :versions)
   @valid_versions @config[:versions]
 
   @impl Plug

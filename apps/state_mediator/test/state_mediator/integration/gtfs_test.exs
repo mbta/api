@@ -170,9 +170,7 @@ defmodule StateMediator.Integration.GtfsTest do
         [last_stop | _] = stops(route_id, 1)
         # don't require an exact match
         assert primary_shape.name =~ last_stop.name,
-               "primary shape #{primary_shape.id} on route #{route_id} should end at #{
-                 last_stop.name
-               }, not #{primary_shape.name}"
+               "primary shape #{primary_shape.id} on route #{route_id} should end at #{last_stop.name}, not #{primary_shape.name}"
       end
     end
 

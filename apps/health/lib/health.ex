@@ -8,12 +8,9 @@ defmodule Health do
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     # Define workers and child supervisors to be supervised
     children = [
-      # Starts a worker by calling: Health.Worker.start_link(arg1, arg2, arg3)
-      worker(Health.Checkers.State, [])
+      Health.Checkers.State
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

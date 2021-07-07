@@ -92,7 +92,7 @@ defmodule State.Server do
       # Client functions
 
       @doc "Start the #{__MODULE__} server."
-      def start_link, do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+      def start_link(_opts \\ []), do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
       @doc "Send a new state to the server."
       @spec new_state(any) :: :ok
@@ -234,6 +234,7 @@ defmodule State.Server do
                      shutdown: 2,
                      size: 0,
                      start_link: 0,
+                     start_link: 1,
                      update_metadata: 0
     end
   end

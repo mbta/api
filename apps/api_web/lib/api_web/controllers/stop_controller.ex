@@ -62,9 +62,7 @@ defmodule ApiWeb.StopController do
     """)
 
     parameter("filter[id]", :query, :string, """
-    Filter by `/data/{index}/id` (the stop ID). Multiple `/data/{index}/id` #{
-      comma_separated_list()
-    }.
+    Filter by `/data/{index}/id` (the stop ID). Multiple `/data/{index}/id` #{comma_separated_list()}.
     """)
 
     filter_param(:route_type)
@@ -75,9 +73,7 @@ defmodule ApiWeb.StopController do
     """)
 
     parameter("filter[location_type]", :query, :string, """
-    Filter by location_type https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#stopstxt. Multiple location_type #{
-      comma_separated_list()
-    }.
+    Filter by location_type https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#stopstxt. Multiple location_type #{comma_separated_list()}.
     """)
 
     consumes("application/vnd.api+json")

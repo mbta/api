@@ -2,18 +2,20 @@ defmodule Parse.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :parse,
-     aliases: aliases(),
-     build_embedded: Mix.env == :prod,
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps: deps(),
-     deps_path: "../../deps",
-     elixir: "~> 1.2",
-     lockfile: "../../mix.lock",
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: LcovEx],
-     version: "0.0.1"]
+    [
+      app: :parse,
+      aliases: aliases(),
+      build_embedded: Mix.env() == :prod,
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps: deps(),
+      deps_path: "../../deps",
+      elixir: "~> 1.2",
+      lockfile: "../../mix.lock",
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: LcovEx],
+      version: "0.0.1"
+    ]
   end
 
   # Configuration for the OTP application
@@ -52,7 +54,7 @@ defmodule Parse.Mixfile do
       {:model, in_umbrella: true},
       {:polyline, "~> 1.0"},
       {:fast_local_datetime, "~> 1.0"},
-      {:nimble_parsec, "~> 0.5"}
+      {:nimble_parsec, "~> 1.1"}
     ]
   end
 end
