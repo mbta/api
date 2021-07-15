@@ -45,7 +45,7 @@ defmodule State.RoutesByService do
         []
 
       items ->
-        Enum.flat_map(items, fn {_key, routes} -> routes end)
+        Enum.uniq(Enum.flat_map(items, fn {_key, routes} -> routes end))
     end
   end
 
