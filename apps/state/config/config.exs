@@ -165,6 +165,8 @@ config :state, :stops_on_route,
     "Shuttle-LittletonWachusett-0-" => true,
     # Newton Connection RailBus for Worcester Line
     "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
+    # Kingston Line shuttles to/from South Weymouth
+    "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
     "CR-Providence-d01bc229-0" => true
   }
