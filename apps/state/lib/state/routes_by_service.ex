@@ -45,7 +45,7 @@ defmodule State.RoutesByService do
         []
 
       items ->
-        Enum.flat_map(items, fn {_key, routes} -> routes end)
+        Enum.uniq(Enum.flat_map(items, fn {_key, routes} -> routes end))
     end
   end
 
@@ -102,7 +102,7 @@ defmodule State.RoutesByService do
       |> Enum.group_by(fn x ->
         {x.service_id, Map.get(routes, x.route_id, %Model.Route{}).type}
       end)
-      |> Enum.map(fn {x, y} -> {x, Enum.map(y, fn x -> x.route_id end)} end)
+      |> Enum.map(fn {x, y} -> {x, Enum.uniq(Enum.map(y, fn x -> x.route_id end))} end)
 
     :ets.delete_all_objects(@table)
     :ets.insert(@table, items)
