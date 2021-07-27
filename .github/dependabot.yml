@@ -1,0 +1,47 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/api_accounts"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/api_web"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/events"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/fetch"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/health"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/model"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/state"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/state_mediator"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
