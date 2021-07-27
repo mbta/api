@@ -2,32 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :state, :route_pattern,
-  ignore_override_prefixes: %{
-    # don't ignore Foxboro via Fairmount trips
-    "CR-Franklin-Foxboro-" => false,
-    # ignore North Station Green-D patterns
-    "Green-D-1-1" => true,
-    "Green-D-3-1" => true,
-    # don't ignore Rockport Branch shuttles
-    "Shuttle-BeverlyRockport-0-0" => false,
-    "Shuttle-BeverlyRockport-0-1" => false,
-    "Shuttle-ManchesterGloucester-0-0" => false,
-    "Shuttle-ManchesterGloucester-0-1" => false,
-    "Shuttle-ManchesterRockport-0-0" => false,
-    "Shuttle-ManchesterRockport-0-1" => false,
-    "Shuttle-RockportWestGloucester-0-0" => false,
-    "Shuttle-RockportWestGloucester-0-1" => false,
-    # don't ignore Fitchburg Line shuttles to/from Alewife
-    "Shuttle-AlewifeLittletonExpress-0-0" => false,
-    "Shuttle-AlewifeLittletonExpress-0-1" => false,
-    "Shuttle-AlewifeLittletonLocal-0-0" => false,
-    "Shuttle-AlewifeLittletonLocal-0-1" => false,
-    # don't ignore Newton Connection RailBus for Worcester Line
-    "Shuttle-NewtonHighlandsWellesleyFarms-0-0" => false,
-    "Shuttle-NewtonHighlandsWellesleyFarms-0-1" => false
-  }
-
 config :state, :shape,
   prefix_overrides: %{
     # Green Line
@@ -53,6 +27,10 @@ config :state, :shape,
     "811_0011" => -1,
     # Green-B (North Station)
     "811_0012" => -1,
+    # Green-B (North Station)
+    "811_0013" => -1,
+    # Green-B (North Station)
+    "811_0014" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
@@ -164,6 +142,33 @@ config :state, :shape,
   suffix_overrides: %{
     # shuttles are all -1 priority
     "-S" => -1
+  }
+
+# Overrides whether specific trips (by route pattern prefix) should be used in determining the
+# "canonical" set of stops for a route
+config :state, :stops_on_route,
+  route_pattern_prefix_overrides: %{
+    # Green-D patterns that go to North Station
+    "Green-D-1-1" => false,
+    "Green-D-3-1" => false,
+    # Foxboro via Fairmount trips
+    "CR-Franklin-Foxboro-" => true,
+    # Rockport Branch shuttles
+    "Shuttle-BeverlyRockport-0-" => true,
+    "Shuttle-ManchesterGloucester-0-" => true,
+    "Shuttle-ManchesterRockport-0-" => true,
+    "Shuttle-RockportWestGloucester-0-" => true,
+    # Fitchburg Line shuttles to/from Alewife
+    "Shuttle-AlewifeLittletonExpress-0-" => true,
+    "Shuttle-AlewifeLittletonLocal-0-" => true,
+    # Fitchburg Line shuttles to/from Wachusett
+    "Shuttle-LittletonWachusett-0-" => true,
+    # Newton Connection RailBus for Worcester Line
+    "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
+    # Kingston Line shuttles to/from South Weymouth
+    "Shuttle-BraintreeSouthWeymouth-0-" => true,
+    # Providence trains stopping at Forest Hills
+    "CR-Providence-d01bc229-0" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
@@ -280,8 +285,18 @@ config :state, :stops_on_route,
         "place-newtn",
         "place-WML-0035"
       ]
+    ],
+    {"CR-Providence", 0} => [
+      [
+        "place-rugg",
+        "place-forhl",
+        "place-NEC-2203"
+      ]
     ]
-  },
+  }
+
+# Stops that should never be considered to be "on" a given route
+config :state, :stops_on_route,
   not_on_route: %{
     {"CR-Franklin", 0} => [
       "place-DB-2265",
@@ -336,6 +351,18 @@ config :state, :stops_on_route,
       "place-lech",
       "14155",
       "21458"
+    ],
+    {"CR-Needham", 0} => [
+      "place-NEC-2203",
+      "place-NEC-2173",
+      "place-NEC-2139",
+      "place-NEC-2108",
+      "place-NEC-2040",
+      "place-NEC-1969",
+      "place-NEC-1919",
+      "place-NEC-1851",
+      "place-NEC-1768",
+      "place-NEC-1659"
     ]
   }
 

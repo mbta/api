@@ -66,15 +66,16 @@ defmodule State.Alert do
 
   @impl Events.Server
   def handle_event(_, _, _, state) do
+    # Re-process the current state to execute hooks
     handle_new_state(all())
     {:noreply, state}
   end
 
-  def handle_new_state(items) do
-    ret = super(items)
+  @impl State.Server
+  def post_commit_hook do
     all_alerts = all()
     for table <- @subtables, do: table.update(all_alerts)
-    ret
+    :ok
   end
 
   @impl State.Server

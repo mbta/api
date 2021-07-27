@@ -6,12 +6,15 @@ defmodule State.Metadata do
   new data as well as the current feed version.
   """
 
+  use GenServer
+
   @table_name :state_metadata
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, nil, name: opts[:name] || __MODULE__)
   end
 
+  @impl GenServer
   def init(_) do
     table_opts = [:set, :named_table, :public, read_concurrency: true, write_concurrency: true]
 

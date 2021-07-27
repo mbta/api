@@ -511,15 +511,11 @@ defmodule ApiWeb.AlertController do
     If ONLY wheelchair using riders are affected, such as if a ramp, lift, or safety system for wheelchairs is \
     affected, only the `"USING_WHEELCHAIR"` activity will be set. To cover wheelchair using rider, filter on the \
     defaults and `"USING_WHEELCHAIR"`: \
-    `filter[activity]=#{
-      ["USING_WHEELCHAIR" | InformedEntityActivity.default_activities()] |> Enum.join(",")
-    }`.
+    `filter[activity]=#{["USING_WHEELCHAIR" | InformedEntityActivity.default_activities()] |> Enum.join(",")}`.
 
     Similarly for riders with limited mobility that need escalators, `"USING_ESCALATOR"` should be added to the \
     defaults: \
-    `filter[activity]=#{
-      ["USING_ESCALATOR" | InformedEntityActivity.default_activities()] |> Enum.join(",")
-    }`.
+    `filter[activity]=#{["USING_ESCALATOR" | InformedEntityActivity.default_activities()] |> Enum.join(",")}`.
     """
   end
 
@@ -544,9 +540,7 @@ defmodule ApiWeb.AlertController do
     |---------------------------------------------|---------------------------------------------------------------------------------|
     | `#{parent_pointer}/attributes/banner`       | Display as alert across application/website                                     |
     | `#{parent_pointer}/attributes/short_header` | When `#{parent_pointer}/attributes/header` is too long to display               |
-    | `#{parent_pointer}/attributes/header`       | Used before showing and prepended to `#{
-      parent_pointer
-    }/attributes/description` |
+    | `#{parent_pointer}/attributes/header`       | Used before showing and prepended to `#{parent_pointer}/attributes/description` |
     | `#{parent_pointer}/attributes/description`  | Used when user asks to expand alert.                                            |
 
     ## Effect
@@ -563,12 +557,8 @@ defmodule ApiWeb.AlertController do
     | JSON pointer                                 | Description                                                                              |
     |----------------------------------------------|------------------------------------------------------------------------------------------|
     | `#{parent_pointer}/attributes/active_period` | Exact Date/Time ranges alert is active                                                   |
-    | `#{parent_pointer}/attributes/lifecycle`     | Enumerated, machine-readable description of `#{
-      parent_pointer
-    }/attributes/active_period` |
-    | `#{parent_pointer}/attributes/timeframe`     | Human-readable description of `#{
-      parent_pointer
-    }/attributes/active_period`               |
+    | `#{parent_pointer}/attributes/lifecycle`     | Enumerated, machine-readable description of `#{parent_pointer}/attributes/active_period` |
+    | `#{parent_pointer}/attributes/timeframe`     | Human-readable description of `#{parent_pointer}/attributes/active_period`               |
     """
   end
 

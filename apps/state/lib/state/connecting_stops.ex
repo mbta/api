@@ -33,7 +33,7 @@ defmodule State.ConnectingStops do
     "place-GRB-0118" => %{add: ~w(3806)}
   }
 
-  def start_link do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
@@ -186,6 +186,6 @@ defmodule State.ConnectingStops do
 
   @spec patterns_at_stop(Stop.t()) :: MapSet.t(RoutePattern.id())
   defp patterns_at_stop(%{id: id}) do
-    [id] |> RoutesPatternsAtStop.route_patterns_by_family_stops(ignore?: false) |> MapSet.new()
+    [id] |> RoutesPatternsAtStop.route_patterns_by_family_stops(canonical?: false) |> MapSet.new()
   end
 end

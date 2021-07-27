@@ -6,42 +6,40 @@ defmodule State.StopsOnRoute do
   ## Data
 
   The lists of stops are stored as tuples:
-      {route_id, direction_id, shape_id, service_id, alternate?, stop_id_list}
+      {route_id, direction_id, shape_id, service_id, canonical?, stop_id_list}
 
-  - shape_id is either a shape ID binary, or :all for a set of stops combined from all the relevant shapes
-  - alternate? is false if we used the default ignores during stop
-    calculation (see State.Trip for more on alternate route trips)
-  - the stop IDs in stop_id_list are rolled up to parent station IDs
+  - `canonical?` is false if the trips used to determine the `stop_id_list` included "unusual"
+    trips, such as atypical or alternate-route trips
+
+  - `shape_id` is either `:all`, or a shape ID if the `canonical?` stop list was built only from
+    trips with that shape
+
+  - the stops in `stop_id_list` are always parent stations or "standalone" stops
 
   ## Calculation
 
   For each route:
 
-  1. Get all the trips on that route (both normal and alternate)
-  1. Group the trips by direction_id
-  1. Build a global stop order across all those trips
-  1. Build stop orders for each shape ID/service ID, as well as all shapes on each service ID
-
-  We ignore some trips in the default calculations:
-  - we ignore trips which are alternate route trips or have a route type override
-  - we ignore shapes which have a negative priority
-  - for service ID only, we also ignore atypical route patterns, as well as
-    some custom overrides in config (`route_pattern`/`ignore_overrides`)
+  1. Get all trips on that route
+  2. Group the trips by `direction_id`
+  3. Build a global stop order across all those trips
+  4. Build stop orders for each combination of `shape_id`, `service_id`, and `canonical?`
 
   ### Stop order
 
-  GTFS does not have the concept of a stop order, or even a list of stops on
-  a route. All we can do is look at the stops served by trips on the route,
-  and try to combine them. There are some overrides:
+  GTFS does not have the concept of a single "canonical" stop order for a route; all we can do is
+  look at the stops served by trips on the route, and try to combine them. There are some config
+  values that can tweak the logic:
 
-  - `stop_order_overrides`: these are small lists of stops in order, used to
-    order stops which are not served by the same trips
-  - `not_on_route`: these are stops to remove from the list, even if a trip
-    on that route does stop there
+  - `not_on_route`: stops to never include in the stop list for a route, even if a trip on that
+    route does stop there
 
-  Once we've dropped the stops from `not_on_route` and included the
-  `stop_order_overrides`, we're ready to merge the stop lists together: see
-  `merge_ids/2` for that logic.
+  - `route_pattern_prefix_overrides`: allows directly overriding whether certain trips are
+    considered when building the `canonical?` stop lists (see `State.Helpers.stops_on_route?`)
+
+  - `stop_order_overrides`: specifies sequences of stops that should appear in order within a
+    given route's stop list; can be used to correct the order if the default logic gets it wrong,
+    or add stops that would not have been present at all
   """
   use Events.Server
   require Logger
@@ -57,7 +55,7 @@ defmodule State.StopsOnRoute do
            {Model.Route.id(), Model.Direction.id(), Model.Shape.id(), Model.Service.id(),
             stop_id_list}
 
-  def start_link do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
@@ -72,21 +70,22 @@ defmodule State.StopsOnRoute do
 
   @spec by_route_ids([Model.Route.id()], Keyword.t()) :: stop_id_list
   def by_route_ids(route_ids, opts \\ []) do
+    canonical? = Keyword.get(opts, :canonical?, true)
+    canonical_match = if canonical?, do: true, else: :_
     direction_id = Keyword.get(opts, :direction_id, :_)
-    alternate? = if opts[:include_alternates?], do: :_, else: false
 
     matchers =
       for service_id <- Keyword.get(opts, :service_ids, [:_]),
           shape_id <- Keyword.get(opts, :shape_ids, [:all]),
           route_id <- route_ids do
-        {{route_id, direction_id, shape_id, service_id, alternate?, :"$1"}, [], [:"$1"]}
+        {{route_id, direction_id, shape_id, service_id, canonical_match, :"$1"}, [], [:"$1"]}
       end
 
     results = :ets.select(@table, matchers)
 
-    if results == [] and !opts[:include_alternates?] do
-      # we didn't get any results, try including the alternate routes
-      by_route_ids(route_ids, put_in(opts[:include_alternates?], true))
+    if results == [] and canonical? do
+      # we didn't get any results, try including stops from all trips
+      by_route_ids(route_ids, put_in(opts[:canonical?], false))
     else
       merge_ids(results)
     end
@@ -168,16 +167,15 @@ defmodule State.StopsOnRoute do
     shape_records =
       trips
       |> Enum.group_by(fn trip ->
-        ignore? = ignore_trip_for_route?(trip)
-        {ignore?, trip.shape_id, trip.service_id, trip.direction_id}
+        {stops_on_route_by_shape?(trip), trip.shape_id, trip.service_id, trip.direction_id}
       end)
       |> Enum.flat_map(&do_gather_direction_group(route, global_stop_id_order, &1))
 
-    # stops not broken down by shape or pattern
+    # stops not broken down by shape
     other_records =
       trips
       |> Enum.group_by(fn trip ->
-        {ignore_trip_route_pattern?(trip), :all, trip.service_id, trip.direction_id}
+        {stops_on_route?(trip), :all, trip.service_id, trip.direction_id}
       end)
       |> Enum.flat_map(&do_gather_direction_group(route, global_stop_id_order, &1))
 
@@ -185,7 +183,7 @@ defmodule State.StopsOnRoute do
   end
 
   defp do_gather_direction_group(route, global_order, {group_key, trip_group}) do
-    {ignore?, shape_id, service_id, direction_id} = group_key
+    {canonical?, shape_id, service_id, direction_id} = group_key
 
     stop_ids =
       trip_group
@@ -197,7 +195,7 @@ defmodule State.StopsOnRoute do
       []
     else
       [
-        {route.id, direction_id, shape_id, service_id, ignore?, stop_ids}
+        {route.id, direction_id, shape_id, service_id, canonical?, stop_ids}
       ]
     end
   end
@@ -219,7 +217,7 @@ defmodule State.StopsOnRoute do
   defp order_stop_ids_for_trips(route, direction_id, trips) do
     trip_stops =
       trips
-      |> Stream.reject(&ignore_trip_for_route?/1)
+      |> Stream.filter(&stops_on_route_by_shape?/1)
       |> stop_ids_for_trips()
       |> drop_stops_not_on_route(route.id, direction_id)
 

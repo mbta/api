@@ -29,3 +29,6 @@ cover
 
 .vscode/
 .elixir_ls/
+
+# Python artifacts (for locust)
+__pycache__

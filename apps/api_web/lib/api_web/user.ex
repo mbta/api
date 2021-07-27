@@ -3,7 +3,7 @@ defmodule ApiWeb.User do
   Struct for respresenting a user during a request.
   """
 
-  @default_version Application.get_env(:api_web, :versions)[:default]
+  @default_version Application.compile_env(:api_web, :versions)[:default]
 
   defstruct [
     :id,
@@ -59,9 +59,7 @@ defmodule ApiWeb.User do
 
   * `:id` - The API key used by the user for the API request
   * `:limit` - `nil` indicates the default, registered user limit
-      (#{
-    ApiWeb.RateLimiter.max_registered_per_interval() * ApiWeb.RateLimiter.intervals_per_day()
-  }); `integer` is increased
+      (#{ApiWeb.RateLimiter.max_registered_per_interval() * ApiWeb.RateLimiter.intervals_per_day()}); `integer` is increased
       requests per day granted after the user requested an increase.
   * `:type` - `:registered`
 

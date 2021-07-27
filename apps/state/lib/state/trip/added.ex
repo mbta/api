@@ -121,8 +121,7 @@ defmodule State.Trip.Added do
       State.StopsOnRoute.by_route_id(
         prediction.route_id,
         direction_id: prediction.direction_id,
-        shape_ids: [shape.id],
-        include_alternates?: false
+        shape_ids: [shape.id]
       )
 
     if Enum.any?(shape_stops, &(&1 in [stop.id, stop.parent_station])) do

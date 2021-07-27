@@ -2,6 +2,9 @@ defmodule RequestTrack do
   @moduledoc """
   Track the number of outstanding requests by API key.
   """
+
+  use GenServer
+
   @type key :: term
   @type server :: GenServer.server()
 
@@ -46,6 +49,7 @@ defmodule RequestTrack do
   end
 
   # Server callbacks
+  @impl GenServer
   def init(opts) do
     table_opts = [:duplicate_bag, :public, {:read_concurrency, true}, {:write_concurrency, true}]
 
@@ -59,15 +63,18 @@ defmodule RequestTrack do
     {:ok, %{table: table, monitors: %{}}}
   end
 
+  @impl GenServer
   def handle_call(:table, _from, state) do
     {:reply, state.table, state}
   end
 
+  @impl GenServer
   def handle_cast({:monitor, pid}, state) do
     monitors = Map.put_new_lazy(state.monitors, pid, fn -> Process.monitor(pid) end)
     {:noreply, %{state | monitors: monitors}}
   end
 
+  @impl GenServer
   def handle_info({:DOWN, ref, :process, pid, _reason}, state) do
     monitors =
       case state.monitors do

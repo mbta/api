@@ -56,7 +56,7 @@ defmodule State.RoutesPatternsAtStopTest do
       assert routes_by_stop_and_direction("stop", service_ids: ["other_service"]) == []
     end
 
-    test "ignores routes which are only on ignored shapes" do
+    test "ignores routes which are only on hidden shapes, unless otherwise requested" do
       shape = %Model.Shape{
         id: @trip.shape_id,
         priority: -1
@@ -68,7 +68,7 @@ defmodule State.RoutesPatternsAtStopTest do
       update!()
       assert routes_by_stop_and_direction("stop", direction_id: 1) == []
 
-      assert routes_by_stop_and_direction("stop", direction_id: 1, ignore?: false) == [
+      assert routes_by_stop_and_direction("stop", direction_id: 1, canonical?: false) == [
                @trip.route_id
              ]
     end
@@ -94,7 +94,7 @@ defmodule State.RoutesPatternsAtStopTest do
       assert route_patterns_by_stop_and_direction("stop", service_ids: ["other_service"]) == []
     end
 
-    test "ignores route patterns which are only on ignored shapes" do
+    test "ignores route patterns which are only on hidden shapes, unless otherwise requested" do
       shape = %Model.Shape{
         id: @trip.shape_id,
         priority: -1
@@ -106,7 +106,7 @@ defmodule State.RoutesPatternsAtStopTest do
       update!()
       assert route_patterns_by_stop_and_direction("stop", direction_id: 1) == []
 
-      assert route_patterns_by_stop_and_direction("stop", direction_id: 1, ignore?: false) == [
+      assert route_patterns_by_stop_and_direction("stop", direction_id: 1, canonical?: false) == [
                @trip.route_pattern_id
              ]
     end

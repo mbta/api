@@ -12,31 +12,29 @@ defmodule State do
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children = [
-      worker(State.Metadata, []),
-      worker(State.Service, []),
-      supervisor(State.Stop, []),
-      worker(State.Vehicle, []),
-      worker(State.Alert, []),
-      worker(State.Facility, []),
-      worker(State.Facility.Property, []),
-      worker(State.Facility.Parking, []),
-      worker(State.Route, []),
-      worker(State.RoutePattern, []),
-      worker(State.Line, []),
-      worker(State.Trip, []),
-      worker(State.Trip.Added, []),
-      worker(State.Schedule, []),
-      worker(State.Prediction, []),
-      worker(State.StopsOnRoute, []),
-      worker(State.RoutesPatternsAtStop, []),
-      worker(State.ConnectingStops, []),
-      worker(State.ServiceByDate, []),
-      worker(State.RoutesByService, []),
-      worker(State.Shape, []),
-      worker(State.Feed, [])
+      State.Metadata,
+      State.Service,
+      State.Stop,
+      State.Vehicle,
+      State.Alert,
+      State.Facility,
+      State.Facility.Property,
+      State.Facility.Parking,
+      State.Route,
+      State.RoutePattern,
+      State.Line,
+      State.Trip,
+      State.Trip.Added,
+      State.Schedule,
+      State.Prediction,
+      State.StopsOnRoute,
+      State.RoutesPatternsAtStop,
+      State.ConnectingStops,
+      State.ServiceByDate,
+      State.RoutesByService,
+      State.Shape,
+      State.Feed
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

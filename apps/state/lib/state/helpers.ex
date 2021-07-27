@@ -5,57 +5,55 @@ defmodule State.Helpers do
   alias Model.Trip
 
   @doc """
-  Returns true if the given Model.Trip is on a hidden (negative priority) shape.
+  Returns true if the given trip should, by default, "contribute" its stops to the set of stops
+  considered to be "on" its route or route pattern.
   """
-  def trip_on_hidden_shape?(%{shape_id: shape_id}) do
-    case State.Shape.by_primary_id(shape_id) do
-      %{priority: priority} when priority < 0 ->
-        true
+  @spec stops_on_route?(Model.Trip.t()) :: boolean
+  def stops_on_route?(trip)
 
-      _ ->
-        false
-    end
+  # Allow for overriding the return value using the `:route_pattern_prefix_overrides` config
+  for {route_pattern_id, include?} <-
+        Application.get_env(:state, :stops_on_route)[:route_pattern_prefix_overrides] do
+    def stops_on_route?(%Trip{route_pattern_id: unquote(route_pattern_id) <> _}),
+      do: unquote(include?)
   end
 
-  @doc """
-  Returns true if the given Model.Trip shouldn't be considered (by default) as having stops on the route.
+  # Ignore alternate route trips and trips with a trip-specific route type
+  def stops_on_route?(%Trip{route_type: int}) when is_integer(int), do: false
+  def stops_on_route?(%Trip{alternate_route: bool}) when is_boolean(bool), do: false
 
-  We ignore negative priority shapes, as well as alternate route trips.
-  """
-  def ignore_trip_for_route?(%Trip{route_type: type}) when is_integer(type), do: true
-  def ignore_trip_for_route?(%Trip{alternate_route: bool}) when is_boolean(bool), do: true
-  def ignore_trip_for_route?(%Trip{} = trip), do: trip_on_hidden_shape?(trip)
-
-  @doc """
-  Returns true if the given Model.Trip shouldn't be considered (by default) as being part of the route based on the pattern.
-
-  We ignore as alternate route trips, as well as very-atypical patterns. This
-  can be overridden with :ignore_overrides in the configuration.
-  """
-  @spec ignore_trip_route_pattern?(Model.Trip.t()) :: boolean
-  def ignore_trip_route_pattern?(trip)
-
-  for {route_pattern_id, ignore?} <-
-        Application.get_env(:state, :route_pattern)[:ignore_override_prefixes] do
-    def ignore_trip_route_pattern?(%Trip{route_pattern_id: unquote(route_pattern_id) <> _}),
-      do: unquote(ignore?)
-  end
-
-  def ignore_trip_route_pattern?(%Trip{route_type: int}) when is_integer(int), do: true
-  def ignore_trip_route_pattern?(%Trip{alternate_route: bool}) when is_boolean(bool), do: true
-
-  def ignore_trip_route_pattern?(%Trip{route_pattern_id: route_pattern_id})
+  # Ignore trips on atypical patterns
+  def stops_on_route?(%Trip{route_pattern_id: route_pattern_id})
       when is_binary(route_pattern_id) do
     case State.RoutePattern.by_id(route_pattern_id) do
       %{typicality: typicality} when typicality < 4 ->
+        true
+
+      _ ->
+        false
+    end
+  end
+
+  # Ignore trips with no route pattern
+  def stops_on_route?(%Trip{route_pattern_id: nil}), do: false
+
+  @doc """
+  As above, but makes the decision based on whether the trip has a "hidden" (negative priority)
+  shape.
+  """
+  @spec stops_on_route_by_shape?(Model.Trip.t()) :: boolean
+  def stops_on_route_by_shape?(%Trip{route_type: type}) when is_integer(type), do: false
+  def stops_on_route_by_shape?(%Trip{alternate_route: bool}) when is_boolean(bool), do: false
+
+  def stops_on_route_by_shape?(%{shape_id: shape_id}) do
+    case State.Shape.by_primary_id(shape_id) do
+      %{priority: priority} when priority < 0 ->
         false
 
       _ ->
         true
     end
   end
-
-  def ignore_trip_route_pattern?(%Trip{route_pattern_id: nil}), do: true
 
   @doc """
   Safely get the size of an ETS table

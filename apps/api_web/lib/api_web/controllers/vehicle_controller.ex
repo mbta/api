@@ -72,9 +72,7 @@ defmodule ApiWeb.VehicleController do
       "filter[trip]",
       :query,
       :string,
-      "Filter by `/data/{index}/relationships/trip/data/id`. Multiple `/data/{index}/relationships/trip/data/id` #{
-        comma_separated_list()
-      }. Cannot be combined with any other filter."
+      "Filter by `/data/{index}/relationships/trip/data/id`. Multiple `/data/{index}/relationships/trip/data/id` #{comma_separated_list()}. Cannot be combined with any other filter."
     )
 
     parameter("filter[label]", :query, :string, """

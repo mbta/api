@@ -5,17 +5,12 @@ defmodule ApiWeb.EventStream.Supervisor do
   - ServerRegistry - mapping controller/params pairs to a DiffServer
   - ServerSupervisor - DynamicSupervisor for managing the children
   """
+  use Supervisor
 
   alias ApiWeb.EventStream.{DiffServer, ServerRegistry, ServerSupervisor}
 
-  def start_link do
-    Supervisor.start_link(
-      [
-        {Registry, name: ServerRegistry, keys: :unique},
-        {DynamicSupervisor, name: ServerSupervisor, strategy: :one_for_one}
-      ],
-      strategy: :one_for_all
-    )
+  def start_link(_opts) do
+    Supervisor.start_link(__MODULE__, [])
   end
 
   @doc """
@@ -75,5 +70,17 @@ defmodule ApiWeb.EventStream.Supervisor do
   defp server_key(conn, module) do
     params = Map.delete(conn.query_params, "api_key")
     {module, params}
+  end
+
+  # Server callbacks
+
+  @impl Supervisor
+  def init(_init_arg) do
+    children = [
+      {Registry, name: ServerRegistry, keys: :unique},
+      {DynamicSupervisor, name: ServerSupervisor, strategy: :one_for_one}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_all)
   end
 end

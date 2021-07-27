@@ -1,6 +1,3 @@
-[![Build Status](https://semaphoreci.com/api/v1/mbta/api/branches/master/shields_badge.svg)](https://semaphoreci.com/mbta/api) [![codecov](https://codecov.io/gh/mbta/api/branch/master/graph/badge.svg?token=Ubzk57i0ia)](https://codecov.io/gh/mbta/api)
-
-
 # V3 API
 
 To start your Phoenix app:
@@ -9,6 +6,9 @@ To start your Phoenix app:
      1. Install [**asdf**](https://github.com/asdf-vm/asdf) package manager
      2. Run `asdf plugin-add erlang` to add Erlang plugin
      3. Run `asdf plugin-add elixir` to add Elixir plugin
+     4. Optionally install plugins for load testing:
+        - Run `asdf plugin-add python` to add Python plugin
+        - Run `asdf plugin-add poetry` to add Poetry plugin
      4. Run `asdf install` to install plugin versions speicifed in `.tool-versions` file
   2. Install dependencies with `mix deps.get`
   3. Setup `apps/api_accounts` following directions in `apps/api_accounts/README.md` (on [GitHub](apps/api_accounts/README.md#setting-up-dynamodb-local) or [ExDoc](api_accounts-readme.html#setting-up-dynamodb-local))

@@ -5,7 +5,7 @@ defmodule ApiAccounts do
 
   alias ApiAccounts.{Changeset, Dynamo, Key, NoResultsError, User}
 
-  @default_version Application.get_env(:api_web, :versions)[:default]
+  @default_version Application.compile_env(:api_web, :versions)[:default]
 
   @doc """
   Returns the list of users.

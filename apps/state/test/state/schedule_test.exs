@@ -516,21 +516,6 @@ defmodule State.ScheduleTest do
   end
 
   describe "filter_by_route_type/2" do
-    @schedule1 %Model.Schedule{
-      route_id: "route",
-      trip_id: "trip1",
-      stop_id: "stop",
-      direction_id: 1,
-      # 12:30pm
-      arrival_time: 45_000,
-      departure_time: 45_100,
-      drop_off_type: 1,
-      pickup_type: 1,
-      timepoint?: false,
-      service_id: "service",
-      stop_sequence: 1,
-      position: :first
-    }
     @schedule2 %Model.Schedule{
       route_id: "route2",
       trip_id: "trip2",

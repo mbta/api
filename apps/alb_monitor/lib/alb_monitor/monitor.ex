@@ -26,6 +26,16 @@ defmodule ALBMonitor.Monitor do
     end
   end
 
+  # Custom child spec so that we can call either start_link/0 to populate with a default state,
+  # or start_link/1 to provide an initial state.
+  @spec child_spec(any()) :: Supervisor.child_spec()
+  def child_spec(_opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, []}
+    }
+  end
+
   @spec start_link(%State{}) :: GenServer.on_start()
   def start_link(initial_state \\ State.default()) do
     GenServer.start_link(__MODULE__, initial_state)

@@ -13,7 +13,7 @@ defmodule ALBMonitor.Mixfile do
      elixirc_paths: elixirc_paths(Mix.env),
      lockfile: "../../mix.lock",
      start_permanent: Mix.env == :prod,
-     test_coverage: [tool: ExCoveralls],
+     test_coverage: [tool: LcovEx],
      version: "0.1.0"]
   end
 

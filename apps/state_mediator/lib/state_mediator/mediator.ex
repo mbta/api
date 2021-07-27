@@ -29,6 +29,15 @@ defmodule StateMediator.Mediator do
   use GenServer
   require Logger
 
+  def child_spec(opts) do
+    {spec_id, opts} = Keyword.pop!(opts, :spec_id)
+
+    %{
+      id: spec_id,
+      start: {__MODULE__, :start_link, [opts]}
+    }
+  end
+
   @spec start_link(Keyword.t()) :: {:ok, pid}
   def start_link(options) do
     GenServer.start_link(__MODULE__, options)

@@ -8,14 +8,12 @@ defmodule Fetch.App do
   use Application
 
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     opts = Application.fetch_env!(:fetch, Fetch)
 
     children = [
       {Registry, keys: :unique, name: Fetch.Registry},
       :hackney_pool.child_spec(:fetch_pool, []),
-      supervisor(Fetch, [opts])
+      {Fetch, opts}
     ]
 
     opts = [strategy: :one_for_one, name: Fetch.App]
