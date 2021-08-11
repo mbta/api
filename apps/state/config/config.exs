@@ -168,7 +168,10 @@ config :state, :stops_on_route,
     # Kingston Line shuttles to/from South Weymouth
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
-    "CR-Providence-d01bc229-0" => true
+    "CR-Providence-d01bc229-0" => true,
+    # Haverhill Line shuttles to/from Malden Center
+    "Shuttle-BallardvaleMaldenCenter-0-" => true,
+    "Shuttle-HaverhillMaldenCenter-0-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
