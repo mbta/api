@@ -161,8 +161,8 @@ config :state, :shape,
 config :state, :stops_on_route,
   route_pattern_prefix_overrides: %{
     # Green-D patterns that go to North Station
-    "Green-D-1-1" => false,
-    "Green-D-3-1" => false,
+    "Green-D-851-1" => false,
+    "Green-D-841-1" => false,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
