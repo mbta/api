@@ -5,6 +5,10 @@ use Mix.Config
 config :state, :shape,
   prefix_overrides: %{
     # Green Line
+    # Green-D (Union Square)
+    "8000008" => -1,
+    # Green-D (Union Square)
+    "8000009" => -1,
     # Green-B (Lechmere)
     "810_0004" => -1,
     # Green-B (Lechmere)
@@ -31,6 +35,10 @@ config :state, :shape,
     "811_0013" => -1,
     # Green-B (North Station)
     "811_0014" => -1,
+    # Green-B (North Station)
+    "811_0015" => -1,
+    # Green-B (North Station)
+    "811_0016" => -1,
     # Green-B
     "813_0003" => 2,
     # Green-B
@@ -75,6 +83,8 @@ config :state, :shape,
     "841_0005" => -1,
     # Green-D (North Station)
     "841_0006" => -1,
+    # Green-D (North Station)
+    "841_0007" => -1,
     # Green-D (Lechmere)
     "850_0006" => -1,
     # Green-D (Lechmere)
@@ -89,6 +99,8 @@ config :state, :shape,
     "851_0009" => -1,
     # Green-D (North Station)
     "851_0010" => -1,
+    # Green-D (North Station)
+    "851_0012" => -1,
     # Green-D (Newton Highlands)
     "858_0002" => -1,
     # Green-D (Newton Highlands)
@@ -149,8 +161,8 @@ config :state, :shape,
 config :state, :stops_on_route,
   route_pattern_prefix_overrides: %{
     # Green-D patterns that go to North Station
-    "Green-D-1-1" => false,
-    "Green-D-3-1" => false,
+    "Green-D-851-1" => false,
+    "Green-D-841-1" => false,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
@@ -168,7 +180,10 @@ config :state, :stops_on_route,
     # Kingston Line shuttles to/from South Weymouth
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
-    "CR-Providence-d01bc229-0" => true
+    "CR-Providence-d01bc229-0" => true,
+    # Haverhill Line shuttles to/from Malden Center
+    "Shuttle-BallardvaleMaldenCenter-0-" => true,
+    "Shuttle-HaverhillMaldenCenter-0-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
