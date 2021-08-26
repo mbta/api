@@ -61,7 +61,7 @@ defmodule ApiWeb.Mixfile do
   defp deps do
     [
       {:phoenix, "< 1.5.13"},
-      {:phoenix_html, "~> 2.11"},
+      {:phoenix_html, "~> 3.0"},
       {:ja_serializer, github: "mbta/ja_serializer", branch: "master"},
       {:timex, "~> 3.2"},
       {:corsica, "~> 1.1"},
