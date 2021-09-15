@@ -184,7 +184,7 @@ config :state, :stops_on_route,
     # Haverhill Line shuttles to/from Malden Center
     "Shuttle-BallardvaleMaldenCenter-0-" => true,
     "Shuttle-HaverhillMaldenCenter-0-" => true,
-    "Shuttle-HaverhillAndover-0-" => true
+    "Shuttle-AndoverHaverhill-0-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
