@@ -170,6 +170,13 @@ config :state, :stops_on_route,
     "Shuttle-ManchesterGloucester-0-" => true,
     "Shuttle-ManchesterRockport-0-" => true,
     "Shuttle-RockportWestGloucester-0-" => true,
+    # Newburyport/Rockport Line trunk shuttles
+    "Shuttle-ChelseaLynn-0-" => true,
+    "Shuttle-LynnNorthStationExpress-0-" => true,
+    "CR-Newburyport-adde8a7c-" => true,
+    "CR-Newburyport-76fa2c91-" => true,
+    "CR-Newburyport-173cb7ae-" => true,
+    "CR-Newburyport-ff47d622-" => true,
     # Fitchburg Line shuttles to/from Alewife
     "Shuttle-AlewifeLittletonExpress-0-" => true,
     "Shuttle-AlewifeLittletonLocal-0-" => true,
