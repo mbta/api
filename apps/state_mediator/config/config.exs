@@ -4,6 +4,14 @@ use Mix.Config
 
 config :state_mediator, start: Mix.env() != :test
 
+config :state_mediator, :commuter_rail_crowding,
+  firebase_url: {
+    :system,
+    "CR_CROWDING_BASE_URL",
+    "https://keolis-api-development.firebaseio.com/p-kcs-trms-firebase-7dayloading.json"
+  },
+  enabled: {:system, "CR_CROWDING_ENABLED", "false"}
+
 config :state_mediator, Realtime,
   gtfs_url: {:system, "MBTA_GTFS_URL", "https://cdn.mbta.com/MBTA_GTFS.zip"},
   alert_url: {:system, "ALERT_URL", "https://cdn.mbta.com/realtime/Alerts_enhanced.json"}

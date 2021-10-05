@@ -47,6 +47,17 @@ defmodule ConfigProviders.SecretsManager do
       end,
       opts
     )
+    |> update_config(
+      prefix <> "-cr-crowding-firebase-credentials",
+      fn value ->
+        [
+          state_mediator: [
+            {:commuter_rail_crowding, [firebase_credentials: value]}
+          ]
+        ]
+      end,
+      opts
+    )
   end
 
   @spec secret_string(binary, Keyword.t()) :: {:ok, binary} | :error

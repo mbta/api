@@ -32,6 +32,10 @@ defmodule ConfigProviders.SecretsManagerTest do
                     secret_key_base: "secret-key-base"
                   ]},
                  {:signing_salt, "signing-salt"}
+               ],
+               state_mediator: [
+                 {:commuter_rail_crowding,
+                  [firebase_credentials: "cr-crowding-firebase-credentials"]}
                ]
              ]
     end

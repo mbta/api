@@ -2,10 +2,14 @@ defmodule StateMediator do
   @moduledoc false
   use Application
 
+  require Logger
+
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    children = children(Application.get_env(:state_mediator, :start))
+    children =
+      children(Application.get_env(:state_mediator, :start)) ++
+        crowding_children(app_value(:commuter_rail_crowding, :enabled) == "true")
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
@@ -59,7 +63,7 @@ defmodule StateMediator do
         [
           spec_id: :gtfs_mediator,
           state: GtfsDecompress,
-          url: app_value(:gtfs_url),
+          url: app_value(Realtime, :gtfs_url),
           opts: [timeout: 60_000],
           sync_timeout: 60_000
         ]
@@ -69,7 +73,7 @@ defmodule StateMediator do
         [
           spec_id: :alert_mediator,
           state: State.Alert,
-          url: app_value(:alert_url),
+          url: app_value(Realtime, :alert_url),
           sync_timeout: 30_000,
           interval: 10_000,
           opts: [timeout: 10_000]
@@ -82,6 +86,40 @@ defmodule StateMediator do
     []
   end
 
+  defp crowding_children(true) do
+    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true")
+
+    credentials = :commuter_rail_crowding |> app_value(:firebase_credentials) |> Jason.decode!()
+
+    scopes = [
+      "https://www.googleapis.com/auth/firebase.database",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+
+    source = {:service_account, credentials, scopes: scopes}
+    base_url = app_value(:commuter_rail_crowding, :firebase_url)
+
+    [
+      {Goth, [name: StateMediator.Goth, source: source]},
+      {
+        StateMediator.Mediator,
+        [
+          spec_id: :cr_crowding_mediator,
+          state: State.CommuterRailOccupancy,
+          url: {StateMediator.Firebase, :url, [StateMediator.Goth, base_url]},
+          sync_timeout: 30_000,
+          interval: 5 * 60 * 1_000,
+          opts: [timeout: 10_000]
+        ]
+      }
+    ]
+  end
+
+  defp crowding_children(false) do
+    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=false")
+    []
+  end
+
   @doc false
   def source_url(mod) do
     case Application.get_env(:state_mediator, mod)[:source] do
@@ -90,8 +128,9 @@ defmodule StateMediator do
     end
   end
 
-  def app_value(key) do
-    case Application.get_env(:state_mediator, Realtime)[key] do
+  @doc false
+  def app_value(group, key) do
+    case Application.get_env(:state_mediator, group)[key] do
       {:system, env_var} ->
         System.get_env(env_var)
 
