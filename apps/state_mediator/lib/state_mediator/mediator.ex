@@ -16,7 +16,7 @@ defmodule StateMediator.Mediator do
 
   @opaque t :: %__MODULE__{
             module: module,
-            url: String.t(),
+            url: String.t() | {module(), atom(), [any()]},
             fetch_opts: Keyword.t(),
             sync_timeout: pos_integer,
             interval: pos_integer | nil,
@@ -86,6 +86,8 @@ defmodule StateMediator.Mediator do
   end
 
   defp fetch(%{url: url, fetch_opts: fetch_opts} = state, opts \\ []) do
+    url = expand_url(url)
+
     data =
       debug_time("fetching #{url}", fn ->
         Fetch.fetch_url(url, Keyword.merge(opts, fetch_opts))
@@ -159,4 +161,7 @@ defmodule StateMediator.Mediator do
 
   defp logger_with_level_for_error(%HTTPoison.Error{reason: :timeout}), do: &Logger.warn/1
   defp logger_with_level_for_error(_), do: &Logger.error/1
+
+  defp expand_url(url) when is_binary(url), do: url
+  defp expand_url({mod, func, args}), do: apply(mod, func, args)
 end
