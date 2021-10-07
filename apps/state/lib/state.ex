@@ -34,7 +34,8 @@ defmodule State do
       State.ServiceByDate,
       State.RoutesByService,
       State.Shape,
-      State.Feed
+      State.Feed,
+      State.CommuterRailOccupancy
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
