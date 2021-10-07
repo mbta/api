@@ -1,11 +1,11 @@
 defmodule State.CommuterRailOccupancy do
-  require Logger
+  @moduledoc """
+  Manages the expected level of crowding of Commuter Rail trains, provided
+  by the Keolis firebase feed.
+  """
 
-  def size do
-    0
-  end
-
-  def new_state(state, _timeout) do
-    Logger.info("State.Occupancy new_state #{inspect(state)}")
-  end
+  use State.Server,
+    indices: [:trip_name],
+    parser: Parse.CommuterRailOccupancies,
+    recordable: Model.CommuterRailOccupancy
 end
