@@ -35,6 +35,20 @@ defmodule ApiWeb.TripControllerTest do
                }
              ]
     end
+
+    test "rejects including occupancies without experimental header flag", %{conn: conn} do
+      conn = get(conn, trip_path(conn, :index, %{"route" => "1", "include" => "occupancies"}))
+      assert json_response(conn, 400)
+    end
+
+    test "accepts including occupancies with experimental header flag", %{conn: conn} do
+      conn =
+        conn
+        |> put_req_header("x-enable-experimental-features", "true")
+        |> get(trip_path(conn, :index, %{"route" => "1,2", "include" => "occupancies"}))
+
+      assert json_response(conn, 200)
+    end
   end
 
   describe "index_data/2" do
@@ -269,6 +283,41 @@ defmodule ApiWeb.TripControllerTest do
                  }
                }
              } = json_response(conn, 200)["data"]
+    end
+
+    test "including occupancies", %{conn: conn} do
+      trip = %Model.Trip{id: "trip", name: "trip_name"}
+
+      occupancy = %Model.CommuterRailOccupancy{
+        trip_name: "trip_name",
+        status: :full,
+        percentage: 99
+      }
+
+      State.Trip.new_state([trip])
+      State.CommuterRailOccupancy.new_state([occupancy])
+
+      conn =
+        conn
+        |> put_req_header("x-enable-experimental-features", "true")
+        |> get(trip_path(conn, :show, trip.id), include: "occupancies")
+
+      assert %{
+               "data" => %{
+                 "id" => "trip",
+                 "relationships" => %{
+                   "occupancies" => %{
+                     "data" => [%{"id" => "occupancy-trip_name", "type" => "occupancy"}]
+                   }
+                 }
+               },
+               "included" => [
+                 %{
+                   "id" => "occupancy-trip_name",
+                   "attributes" => %{"percentage" => 99, "status" => "FULL"}
+                 }
+               ]
+             } = json_response(conn, 200)
     end
 
     test "does not allow filtering", %{conn: conn} do
