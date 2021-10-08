@@ -57,6 +57,19 @@ defmodule ApiWeb.SwaggerHelpers do
     """
   end
 
+  def occupancy_status_description do
+    """
+    The degree of passenger occupancy for the vehicle. See [GTFS-realtime OccupancyStatus](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-vehiclestopstatus).
+
+    | _**Value**_                    | _**Description**_                                                                                   |
+    |--------------------------------|-----------------------------------------------------------------------------------------------------|
+    | **MANY_SEATS_AVAILABLE**       | Not crowded: the vehicle has a large percentage of seats available. |
+    | **FEW_SEATS_AVAILABLE**        | Some crowding: the vehicle has a small percentage of seats available. |
+    | **FULL**                       | Crowded: the vehicle is considered full by most measures, but may still be allowing passengers to board. |
+
+    """
+  end
+
   def direction_id_schema, do: %Schema{type: :integer, enum: [0, 1]}
 
   def include_parameters(path_object, includes, options \\ []) do

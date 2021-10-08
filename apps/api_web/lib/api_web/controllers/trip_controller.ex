@@ -68,7 +68,7 @@ defmodule ApiWeb.TripController do
 
   def index_data(conn, params) do
     with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+         {:ok, _includes} <- Params.validate_includes(params, includes(conn), conn) do
       case format_filters(filtered) do
         filters when map_size(filters) > 0 ->
           filters
@@ -168,7 +168,7 @@ defmodule ApiWeb.TripController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @includes, conn) do
+    case Params.validate_includes(params, includes(conn), conn) do
       {:ok, _includes} ->
         Trip.by_primary_id(id)
 
@@ -246,16 +246,48 @@ defmodule ApiWeb.TripController do
           relationship(:route)
           relationship(:shape)
           relationship(:route_pattern)
+          relationship(:occupancy)
         end,
       Trips: page(:TripResource),
-      Trip: single(:TripResource)
+      Trip: single(:TripResource),
+      OccupancyResource:
+        resource do
+          description("""
+          An expected or predicted level of occupancy for a given trip.
+          """)
+
+          attributes do
+            status(
+              %Schema{type: :string},
+              occupancy_status_description(),
+              example: "SOME_CROWDING"
+            )
+
+            percentage(
+              %Schema{type: :integer},
+              """
+              Percentage of seats occupied.
+              """,
+              example: 55,
+              "x-nullable": true
+            )
+          end
+        end
     }
+  end
+
+  defp includes(%{assigns: %{experimental_features_enabled?: true}}) do
+    ["occupancies" | @includes]
+  end
+
+  defp includes(_) do
+    @includes
   end
 
   defp include_parameters(schema) do
     ApiWeb.SwaggerHelpers.include_parameters(
       schema,
-      @includes,
+      @includes ++ ["occupancies"],
       description: """
       | include         | Description |
       |-----------------|-------------|
@@ -266,6 +298,7 @@ defmodule ApiWeb.TripController do
       | `route_pattern` | The route pattern for the trip. |
       | `predictions`   | Predictions of when the `vehicle` on this `trip` will arrive at or depart from each stop on the route(s) on the `trip`. |
       | `stops`         | The stops this trip goes through. |
+      | `occupancies`   | **EXPERIMENTAL:** The trip's static occupancy data. For information on experimental features, see: https://www.mbta.com/developers/v3-api/versioning.|
       """
     )
   end

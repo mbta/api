@@ -2,6 +2,7 @@ defmodule ApiWeb.TripView do
   use ApiWeb.Web, :api_view
 
   alias ApiWeb.{
+    OccupancyView,
     PredictionView,
     RoutePatternView,
     RouteView,
@@ -11,7 +12,16 @@ defmodule ApiWeb.TripView do
     VehicleView
   }
 
-  alias State.{Prediction, RoutePattern, Schedule, Service, Shape, Stop, Vehicle}
+  alias State.{
+    CommuterRailOccupancy,
+    Prediction,
+    RoutePattern,
+    Schedule,
+    Service,
+    Shape,
+    Stop,
+    Vehicle
+  }
 
   location(:trip_location)
 
@@ -63,6 +73,12 @@ defmodule ApiWeb.TripView do
     identifiers: :always
   )
 
+  has_many(
+    :occupancies,
+    type: :occupancy,
+    serializer: OccupancyView
+  )
+
   def shape(%{shape_id: shape_id}, conn) do
     optional_relationship("shape", shape_id, &Shape.by_primary_id/1, conn)
   end
@@ -89,6 +105,14 @@ defmodule ApiWeb.TripView do
       %{id: ^trip_id} -> nil
       ret -> ret
     end
+  end
+
+  def occupancies(%{name: nil}, _conn) do
+    nil
+  end
+
+  def occupancies(%{name: name}, _conn) do
+    CommuterRailOccupancy.by_trip_name(name)
   end
 
   defp optional_predictions(trip_id, conn) do
