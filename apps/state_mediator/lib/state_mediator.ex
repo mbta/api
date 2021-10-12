@@ -20,8 +20,6 @@ defmodule StateMediator do
   end
 
   defp children(true) do
-    import Supervisor.Spec, warn: false
-
     [
       {
         StateMediator.Mediator,
