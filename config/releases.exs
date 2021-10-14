@@ -15,10 +15,6 @@ config :api_accounts,
   table_prefix: System.get_env("DYNAMO_TABLE_PREFIX"),
   migrate_on_start: true
 
-config :api_web, ApiWeb.Endpoint, secret_key_base: System.get_env("SECRET_KEY_BASE")
-
-config :api_web, :signing_salt, System.get_env("SIGNING_SALT")
-
 config :api_web, RateLimiter.Memcache,
   connection_opts: [
     namespace: System.get_env("HOST"),
