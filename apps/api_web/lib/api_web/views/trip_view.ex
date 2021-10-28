@@ -107,6 +107,7 @@ defmodule ApiWeb.TripView do
     end
   end
 
+  @spec occupancies(Model.Trip.t(), Plug.Conn.t()) :: [Model.CommuterRailOccupancy.t()] | nil
   def occupancies(%{name: nil}, _conn) do
     nil
   end

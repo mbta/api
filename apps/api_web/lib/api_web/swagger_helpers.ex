@@ -57,6 +57,7 @@ defmodule ApiWeb.SwaggerHelpers do
     """
   end
 
+  @spec occupancy_status_description() :: String.t()
   def occupancy_status_description do
     """
     The degree of passenger occupancy for the vehicle. See [GTFS-realtime OccupancyStatus](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-vehiclestopstatus).

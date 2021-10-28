@@ -7,6 +7,7 @@ defmodule Parse.CommuterRailOccupancies do
 
   @behaviour Parse
 
+  @impl Parse
   def parse(binary) do
     case Jason.decode(binary) do
       {:ok, %{"data" => data}} when is_list(data) ->
