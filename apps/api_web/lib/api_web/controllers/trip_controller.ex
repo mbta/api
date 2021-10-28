@@ -276,6 +276,7 @@ defmodule ApiWeb.TripController do
     }
   end
 
+  @spec includes(Plug.Conn.t()) :: [String.t()]
   defp includes(%{assigns: %{experimental_features_enabled?: true}}) do
     ["occupancies" | @includes]
   end

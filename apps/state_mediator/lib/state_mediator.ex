@@ -86,6 +86,7 @@ defmodule StateMediator do
     []
   end
 
+  @spec crowding_children(boolean()) :: [:supervisor.child_spec() | {module(), term()} | module()]
   defp crowding_children(true) do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true")
 

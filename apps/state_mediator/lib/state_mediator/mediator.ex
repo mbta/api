@@ -162,6 +162,7 @@ defmodule StateMediator.Mediator do
   defp logger_with_level_for_error(%HTTPoison.Error{reason: :timeout}), do: &Logger.warn/1
   defp logger_with_level_for_error(_), do: &Logger.error/1
 
+  @spec expand_url(String.t() | {module(), atom(), [any()]}) :: String.t()
   defp expand_url(url) when is_binary(url), do: url
   defp expand_url({mod, func, args}), do: apply(mod, func, args)
 end
