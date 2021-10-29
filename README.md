@@ -26,7 +26,7 @@ In addition to the Elixir config files, the V3 API allows runtime configuration 
 | `PORT` | `4000` | The HTTP port the server will listen on. |
 | `HOST` | undefined | The public-facing hostname for the server, used to generate URLs. |
 | `MBTA_GTFS_URL` | `https://cdn.mbta.com/MBTA_GTFS.zip` | URL for the GTFS .zip file. |
-| `ALERTS_URL` | `https://cdn.mbta.com/realtime/Alerts_enhanced.json` | URL for the Alerts. Can be either a JSON or Protobuf file.
+| `ALERT_URL` | `https://cdn.mbta.com/realtime/Alerts_enhanced.json` | URL for the Alerts. Can be either a JSON or Protobuf file.
 | `MBTA_TRIP_SOURCE` | `https://cdn.mbta.com/realtime/TripUpdates_enhanced.json` | URL for the TripUpdates. Can be either a JSON or Protobuf file. |
 | `MBTA_VEHICLE_SOURCE ` | `https://cdn.mbta.com/realtime/VehiclePositions_enhanced.json` | URL for the VehiclePositions. Can be either a JSON or Protobuf file. |
 | `IBM_PARKING_SOURCE` | undefined | URL for parking information. |
