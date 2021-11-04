@@ -61,9 +61,9 @@ defmodule StateMediator.Integration.GtfsTest do
       assert_first_last_stop_id("CR-Haverhill", "place-north", "place-WR-0329")
       assert_first_last_stop_id("CR-Lowell", "place-north", "place-NHRML-0254")
       assert_first_last_stop_id("CR-Kingston", "place-sstat", "place-KB-0351")
-      assert_first_last_stop_id("Green-B", ["place-pktrm", "place-gover"], "place-lake")
-      assert_first_last_stop_id("Green-C", ["place-gover", "place-north"], "place-clmnl")
-      assert_first_last_stop_id("Green-D", ["place-gover", "place-north"], "place-river")
+      assert_first_last_stop_id("Green-B", "place-gover", "place-lake")
+      assert_first_last_stop_id("Green-C", "place-gover", "place-clmnl")
+      assert_first_last_stop_id("Green-D", "place-north", "place-river")
       assert_first_last_stop_id("Green-E", ["place-north", "place-unsqu"], "place-hsmnl")
     end
 
@@ -72,7 +72,7 @@ defmodule StateMediator.Integration.GtfsTest do
       # not all of the 4 lines
       order_prefixes = %{
         "Green-B" => ~w(place-gover),
-        "Green-C" => ~w(place-north place-haecl place-gover),
+        "Green-C" => ~w(place-gover),
         "Green-D" => ~w(place-north place-haecl place-gover),
         "Green-E" => ~w(place-north place-haecl place-gover)
       }
