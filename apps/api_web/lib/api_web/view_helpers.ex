@@ -12,13 +12,13 @@ defmodule ApiWeb.ViewHelpers do
   """
   def form_group(form, field, do: block) do
     if Map.get(form.source.errors, field, []) == [] do
-      ~E{
+      ~H{
         <div class="form-group">
           <%= block %>
         </div>
       }
     else
-      ~E{
+      ~H{
         <div class="form-group has-error">
           <%= block %>
         </div>
