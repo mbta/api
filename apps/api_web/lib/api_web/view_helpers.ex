@@ -3,6 +3,7 @@ defmodule ApiWeb.ViewHelpers do
   Shared functions for HTML views.
   """
   use Phoenix.HTML
+  use Phoenix.Component
 
   @doc """
   Generates a form-group div for a field.
@@ -12,17 +13,17 @@ defmodule ApiWeb.ViewHelpers do
   """
   def form_group(form, field, do: block) do
     if Map.get(form.source.errors, field, []) == [] do
-      ~H{
+      ~H"""
         <div class="form-group">
           <%= block %>
         </div>
-      }
+      """
     else
-      ~H{
+      ~H"""
         <div class="form-group has-error">
           <%= block %>
         </div>
-      }
+      """
     end
   end
 end
