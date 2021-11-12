@@ -315,6 +315,26 @@ config :state, :stops_on_route,
         "place-forhl",
         "place-NEC-2203"
       ]
+    ],
+    {"Green-B", 0} => [
+      [
+        "place-bucen",
+        "place-buwst",
+        "place-amory",
+        "place-stplb",
+        "place-babck",
+        "place-brico"
+      ]
+    ],
+    {"Green-B", 1} => [
+      [
+        "place-brico",
+        "place-babck",
+        "place-stplb",
+        "place-amory",
+        "place-buwst",
+        "place-bucen"
+      ]
     ]
   }
 
