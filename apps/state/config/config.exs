@@ -131,13 +131,16 @@ config :state, :shape,
     "7420016" => -1,
 
     # Providence
-    "9890008" => {nil, "Wickford Junction - South Station"},
-    "9890009" => {nil, "South Station - Wickford Junction"},
-    "9890003" => {nil, "Stoughton - South Station"},
+    "9890008" => {2, "Wickford Junction - South Station"},
+    "9890009" => {2, "South Station - Wickford Junction"},
+    "9890003" => {1, "Stoughton - South Station"},
+    "9890004" => {1, "South Station - Stoughton"},
 
-    # Newburyport
-    "9810006" => {nil, "Rockport - North Station"},
-    "9810001" => {nil, "Newburyport - North Station"},
+    # Newburyport Line priority
+    "9810001" => {2, "Newburyport - North Station"},
+    "9810002" => {2, "North Station - Newburyport"},
+    "9810006" => {1, "Rockport - North Station"},
+    "9810007" => {1, "North Station - Rockport"},
 
     # Alternate Routes
     # Haverhill / Lowell wildcat trip
