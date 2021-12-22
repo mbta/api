@@ -44,8 +44,8 @@ defmodule ApiWeb.LineController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       lines =
         case filtered do
           %{"id" => ids} ->
@@ -91,7 +91,7 @@ defmodule ApiWeb.LineController do
 
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, @includes, conn) do
-      {:ok, _includes} ->
+      :ok ->
         Line.by_id(id)
 
       {:error, _, _} = error ->
