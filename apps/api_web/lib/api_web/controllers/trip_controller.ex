@@ -67,8 +67,8 @@ defmodule ApiWeb.TripController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, includes(conn), conn) do
+    with :ok <- Params.validate_includes(params, includes(conn), conn),
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       case format_filters(filtered) do
         filters when map_size(filters) > 0 ->
           filters
@@ -169,7 +169,7 @@ defmodule ApiWeb.TripController do
 
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, includes(conn), conn) do
-      {:ok, _includes} ->
+      :ok ->
         Trip.by_primary_id(id)
 
       {:error, _, _} = error ->

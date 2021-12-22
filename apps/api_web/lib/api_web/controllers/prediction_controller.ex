@@ -75,8 +75,8 @@ defmodule ApiWeb.PredictionController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered_params} <- Params.filter_params(params, filters(conn), conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filtered_params} <- Params.filter_params(params, filters(conn), conn) do
       pagination_opts =
         Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
 

@@ -72,6 +72,10 @@ defmodule ApiWeb.ShapeControllerTest do
       assert json_response(conn, 404)
       assert validate_resp_schema(conn, swagger_shema, "NotFound")
     end
+
+    test "test", %{conn: conn} do
+      conn = get(conn, trip_path(conn, :show, @trip.id, %{"include" => "shape.stops"}))
+    end
   end
 
   describe "show_data/2" do
