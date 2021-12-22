@@ -295,30 +295,31 @@ defmodule ApiWeb.Params do
   end
 
   @spec validate_includes(map, [String.t()], Plug.Conn.t()) :: :ok | {:error, atom, [String.t()]}
-  def validate_includes(params, includes, conn) do
-    case Map.get(params, "include") do
-      values when is_binary(values) ->
-        split =
-          values
-          |> String.split(",", trim: true)
-          |> Enum.map(&(&1 |> String.split(".") |> List.first()))
+  def validate_includes(_params, _includes, %{assigns: %{api_version: version}})
+      when version < "2019-04-05",
+      do: :ok
 
-        includes_set = MapSet.new(includes)
-        bad_includes = Enum.filter(split, fn el -> el not in includes_set end)
+  def validate_includes(%{"include" => values}, includes, _conn) when is_binary(values) do
+    split =
+      values
+      |> String.split(",", trim: true)
+      |> Enum.map(&(&1 |> String.split(".") |> List.first()))
 
-        if conn.assigns.api_version < "2019-04-05" or bad_includes == [] do
-          :ok
-        else
-          {:error, :bad_include, bad_includes}
-        end
+    includes_set = MapSet.new(includes)
+    bad_includes = Enum.filter(split, fn el -> el not in includes_set end)
 
-      values when is_map(values) ->
-        {:error, :bad_include, Map.keys(values)}
-
-      _ ->
-        :ok
+    if bad_includes == [] do
+      :ok
+    else
+      {:error, :bad_include, bad_includes}
     end
   end
+
+  def validate_includes(%{"include" => values}, _includes, _conn) when is_map(values) do
+    {:error, :bad_include, Map.keys(values)}
+  end
+
+  def validate_includes(_params, _includes, _conn), do: :ok
 
   @spec validate_show_params(map, Plug.Conn.t()) :: :ok | {:error, atom, [String.t()]}
   def validate_show_params(params, conn)
