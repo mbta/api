@@ -88,8 +88,8 @@ defmodule ApiWeb.StopController do
     filter_opts = Params.filter_opts(params, @pagination_opts, conn)
 
     with true <- check_distance_filter?(filter_opts),
-         {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+         :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       filtered
       |> format_filters()
       |> expand_stops_filter(:ids, conn.assigns.api_version)
@@ -239,7 +239,7 @@ defmodule ApiWeb.StopController do
 
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, @show_includes, conn) do
-      {:ok, _includes} ->
+      :ok ->
         [id]
         |> LegacyStops.expand(conn.assigns.api_version, only_renames: true)
         |> Enum.find_value(&Stop.by_id/1)

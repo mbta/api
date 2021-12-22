@@ -70,8 +70,8 @@ defmodule ApiWeb.RoutePatternController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       filtered
       |> format_filters()
       |> expand_stops_filter(:stop_ids, conn.assigns.api_version)
@@ -129,7 +129,7 @@ defmodule ApiWeb.RoutePatternController do
 
   def show_data(conn, %{"id" => id} = params) do
     case Params.validate_includes(params, @includes, conn) do
-      {:ok, _includes} ->
+      :ok ->
         RoutePattern.by_id(id)
 
       {:error, _, _} = error ->

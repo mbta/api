@@ -92,8 +92,8 @@ defmodule ApiWeb.ScheduleController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, @filters, conn),
-         {:ok, _includes} <- Params.validate_includes(params, @includes, conn) do
+    with :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       # must include one additional filter besides `route_type` and `date`, is automatically included
       case format_filters(filtered, conn) do
         %{route_type: _} = filters when map_size(filters) == 2 ->

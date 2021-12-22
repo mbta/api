@@ -294,8 +294,7 @@ defmodule ApiWeb.Params do
     end
   end
 
-  @spec validate_includes(map, [String.t()], Plug.Conn.t()) ::
-          {:ok, [String.t()]} | {:error, atom, [String.t()]}
+  @spec validate_includes(map, [String.t()], Plug.Conn.t()) :: :ok | {:error, atom, [String.t()]}
   def validate_includes(params, includes, conn) do
     case Map.get(params, "include") do
       values when is_binary(values) ->
@@ -308,7 +307,7 @@ defmodule ApiWeb.Params do
         bad_includes = Enum.filter(split, fn el -> el not in includes_set end)
 
         if conn.assigns.api_version < "2019-04-05" or bad_includes == [] do
-          {:ok, split}
+          :ok
         else
           {:error, :bad_include, bad_includes}
         end
@@ -317,7 +316,7 @@ defmodule ApiWeb.Params do
         {:error, :bad_include, Map.keys(values)}
 
       _ ->
-        {:ok, nil}
+        :ok
     end
   end
 

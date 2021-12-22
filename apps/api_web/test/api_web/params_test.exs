@@ -98,7 +98,7 @@ defmodule ApiWeb.ParamsTest do
   describe "validate_includes/3" do
     test "returns ok for valid includes", %{conn: conn} do
       assert Params.validate_includes(%{"include" => "stops,trips"}, ~w(stops routes trips), conn) ==
-               {:ok, ~w(stops trips)}
+               :ok
     end
 
     test "returns error for invalid includes", %{conn: conn} do
@@ -113,12 +113,12 @@ defmodule ApiWeb.ParamsTest do
       conn = assign(conn, :api_version, "2019-02-12")
 
       assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
-               {:ok, ~w(stops routes)}
+               :ok
     end
 
     test "supports dot notation", %{conn: conn} do
       assert Params.validate_includes(%{"include" => "stops.id"}, ~w(stops routes trips), conn) ==
-               {:ok, ~w(stops)}
+               :ok
     end
 
     test "doesn't return error for duplicate includes", %{conn: conn} do
@@ -126,7 +126,7 @@ defmodule ApiWeb.ParamsTest do
                %{"include" => "representative_trip.service,representative_trip.shape"},
                ~w(route representative_trip),
                conn
-             ) == {:ok, ["representative_trip", "representative_trip"]}
+             ) == :ok
     end
   end
 
