@@ -5,7 +5,7 @@ defmodule ApiWeb.TripViewTest do
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  alias Model.{Schedule, Stop, Trip}
+  alias Model.{CommuterRailOccupancy, Schedule, Stop, Trip}
 
   @trip %Trip{
     id: "trip",
@@ -21,6 +21,12 @@ defmodule ApiWeb.TripViewTest do
     route_pattern_id: "CR-Lowell-1-0"
   }
 
+  @occupancy %CommuterRailOccupancy{
+    trip_name: "123",
+    percentage: 30,
+    status: :many_seats_available
+  }
+
   @schedule %Schedule{
     trip_id: "trip",
     route_id: "route",
@@ -33,10 +39,12 @@ defmodule ApiWeb.TripViewTest do
     drop_off_type: 3,
     timepoint?: true
   }
+
   @stop %Stop{id: "stop1"}
 
   setup do
     State.Trip.new_state([@trip])
+    State.CommuterRailOccupancy.new_state([@occupancy])
     State.Schedule.new_state([@schedule])
     State.Stop.new_state([@stop])
     :ok
@@ -90,5 +98,37 @@ defmodule ApiWeb.TripViewTest do
 
     rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
     assert %{"data" => [_ | _]} = rendered["data"]["relationships"]["stops"]
+  end
+
+  test "cannot include occupancies if experimental features are not enabled", %{conn: conn} do
+    rendered =
+      render(ApiWeb.TripView, "index.json-api",
+        data: @trip,
+        conn: conn,
+        opts: [include: "occupancies"]
+      )
+
+    assert %{"data" => []} = rendered["data"]["relationships"]["occupancies"]
+  end
+
+  test "can include occupancies if experimental features are enabled", %{conn: conn} do
+    conn = assign(conn, :experimental_features_enabled?, true)
+
+    rendered =
+      render(ApiWeb.TripView, "index.json-api",
+        data: @trip,
+        conn: conn,
+        opts: [include: "occupancies"]
+      )
+
+    assert %{"data" => [_ | _]} = rendered["data"]["relationships"]["occupancies"]
+  end
+
+  test "does not include occupancies by default", %{conn: conn} do
+    conn = assign(conn, :experimental_features_enabled?, true)
+
+    rendered = render(ApiWeb.TripView, "index.json-api", data: @trip, conn: conn)
+
+    refute rendered["data"]["relationships"]["occupancies"]
   end
 end
