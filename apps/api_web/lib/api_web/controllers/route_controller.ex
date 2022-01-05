@@ -73,8 +73,7 @@ defmodule ApiWeb.RouteController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, @includes_index, conn),
-         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       filtered
       |> format_filters()
       |> expand_stops_filter(:stops, conn.assigns.api_version)
@@ -196,14 +195,8 @@ defmodule ApiWeb.RouteController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @includes_show, conn) do
-      :ok ->
-        Route.by_id(id)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    Route.by_id(id)
   end
 
   defp pagination_opts(params, conn) do

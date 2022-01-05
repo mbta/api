@@ -12,7 +12,6 @@ defmodule ApiWeb.TripController do
 
   @filters ~w(id date direction_id route route_pattern name)s
   @pagination_opts ~w(offset limit order_by)a
-  @includes ~w(route vehicle service shape predictions route_pattern stops)
 
   def state_module, do: State.Trip.Added
 
@@ -67,8 +66,7 @@ defmodule ApiWeb.TripController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, includes(conn), conn),
-         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       case format_filters(filtered) do
         filters when map_size(filters) > 0 ->
           filters
@@ -167,14 +165,8 @@ defmodule ApiWeb.TripController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, includes(conn), conn) do
-      :ok ->
-        Trip.by_primary_id(id)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    Trip.by_primary_id(id)
   end
 
   def swagger_definitions do
@@ -276,19 +268,10 @@ defmodule ApiWeb.TripController do
     }
   end
 
-  @spec includes(Plug.Conn.t()) :: [String.t()]
-  defp includes(%{assigns: %{experimental_features_enabled?: true}}) do
-    ["occupancies" | @includes]
-  end
-
-  defp includes(_) do
-    @includes
-  end
-
   defp include_parameters(schema) do
     ApiWeb.SwaggerHelpers.include_parameters(
       schema,
-      @includes ++ ["occupancies"],
+      ~w(route vehicle service shape predictions route_pattern stops occupancies),
       description: """
       | include         | Description |
       |-----------------|-------------|

@@ -10,7 +10,6 @@ defmodule ApiWeb.VehicleController do
 
   @filters ~w(trip route direction_id id label route_type)s
   @pagination_opts ~w(offset limit order_by)a
-  @includes ~w(trip stop route)
 
   def state_module, do: State.Vehicle
 
@@ -38,14 +37,8 @@ defmodule ApiWeb.VehicleController do
   end
 
   @spec show_data(Plug.Conn.t(), %{String.t() => String.t()}) :: Model.Vehicle.t() | nil
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @includes, conn) do
-      :ok ->
-        State.Vehicle.by_id(id)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    State.Vehicle.by_id(id)
   end
 
   swagger_path :index do
@@ -100,8 +93,7 @@ defmodule ApiWeb.VehicleController do
   def index_data(conn, params) do
     params = backwards_compatible_params(conn.assigns.api_version, params)
 
-    with :ok <- Params.validate_includes(params, @includes, conn),
-         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       filtered
       |> apply_filters()
       |> State.all(Params.filter_opts(params, @pagination_opts, conn))

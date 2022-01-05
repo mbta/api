@@ -95,41 +95,6 @@ defmodule ApiWeb.ParamsTest do
     end
   end
 
-  describe "validate_includes/3" do
-    test "returns ok for valid includes", %{conn: conn} do
-      assert Params.validate_includes(%{"include" => "stops,trips"}, ~w(stops routes trips), conn) ==
-               :ok
-    end
-
-    test "returns error for invalid includes", %{conn: conn} do
-      assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
-               {:error, :bad_include, ~w(routes)}
-
-      assert Params.validate_includes(%{"include" => %{"bad" => ""}}, ~w(anything), conn) ==
-               {:error, :bad_include, ~w(bad)}
-    end
-
-    test "doesn't return error for invalid includes for older key versions", %{conn: conn} do
-      conn = assign(conn, :api_version, "2019-02-12")
-
-      assert Params.validate_includes(%{"include" => "stops,routes"}, ~w(stops trips), conn) ==
-               :ok
-    end
-
-    test "supports dot notation", %{conn: conn} do
-      assert Params.validate_includes(%{"include" => "stops.id"}, ~w(stops routes trips), conn) ==
-               :ok
-    end
-
-    test "doesn't return error for duplicate includes", %{conn: conn} do
-      assert Params.validate_includes(
-               %{"include" => "representative_trip.service,representative_trip.shape"},
-               ~w(route representative_trip),
-               conn
-             ) == :ok
-    end
-  end
-
   describe "validate_show_params/2" do
     test "returns ok for valid request", %{conn: conn} do
       assert :ok == Params.validate_show_params(%{"id" => "1"}, conn)

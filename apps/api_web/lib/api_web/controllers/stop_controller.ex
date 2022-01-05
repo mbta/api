@@ -8,9 +8,8 @@ defmodule ApiWeb.StopController do
 
   @filters ~w(id date direction_id latitude longitude radius route route_type location_type service)s
   @pagination_opts ~w(offset limit order_by distance)a
-  @includes ~w(child_stops connecting_stops facilities parent_station recommended_transfers route)
-  @show_includes ~w(child_stops connecting_stops facilities parent_station recommended_transfers)
-  @nodoc_includes ~w(recommended_transfers)
+  @includes_show ~w(child_stops connecting_stops facilities parent_station)
+  @includes_index @includes_show ++ ~w(route)
 
   def state_module, do: State.Stop.Cache
 
@@ -33,7 +32,7 @@ defmodule ApiWeb.StopController do
 
     common_index_parameters(__MODULE__, :stop, :include_distance)
 
-    include_parameters(@includes -- @nodoc_includes,
+    include_parameters(@includes_index,
       description:
         "Note that `route` can only be included if `filter[route]` is present and has exactly one `/data/{index}/relationships/route/data/id`."
     )
@@ -88,7 +87,6 @@ defmodule ApiWeb.StopController do
     filter_opts = Params.filter_opts(params, @pagination_opts, conn)
 
     with true <- check_distance_filter?(filter_opts),
-         :ok <- Params.validate_includes(params, @includes, conn),
          {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       filtered
       |> format_filters()
@@ -224,7 +222,7 @@ defmodule ApiWeb.StopController do
 
     parameter(:id, :path, :string, "Unique identifier for stop")
     common_show_parameters(:stop)
-    include_parameters(@show_includes -- @nodoc_includes)
+    include_parameters(@includes_show)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -237,16 +235,10 @@ defmodule ApiWeb.StopController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @show_includes, conn) do
-      :ok ->
-        [id]
-        |> LegacyStops.expand(conn.assigns.api_version, only_renames: true)
-        |> Enum.find_value(&Stop.by_id/1)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(conn, %{"id" => id}) do
+    [id]
+    |> LegacyStops.expand(conn.assigns.api_version, only_renames: true)
+    |> Enum.find_value(&Stop.by_id/1)
   end
 
   def swagger_definitions do

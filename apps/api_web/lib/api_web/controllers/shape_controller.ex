@@ -35,8 +35,7 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, @includes, conn),
-         {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
+    with {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
       do_filter(filtered, params, conn)
     else
       {:error, _, _} = error -> error
@@ -83,14 +82,8 @@ defmodule ApiWeb.ShapeController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @includes, conn) do
-      :ok ->
-        Shape.by_primary_id(id)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    Shape.by_primary_id(id)
   end
 
   def swagger_definitions do

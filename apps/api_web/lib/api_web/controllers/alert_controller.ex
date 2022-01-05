@@ -116,8 +116,7 @@ defmodule ApiWeb.AlertController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, @includes, conn),
-         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
+    with {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       filtered
       |> apply_filters(conn.assigns.api_version)
       |> case do
@@ -156,14 +155,8 @@ defmodule ApiWeb.AlertController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @includes, conn) do
-      :ok ->
-        Alert.by_id(id)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    Alert.by_id(id)
   end
 
   defp apply_filters(param_list, _api_version) when param_list == %{} do
