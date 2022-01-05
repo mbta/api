@@ -107,13 +107,17 @@ defmodule ApiWeb.TripView do
     end
   end
 
-  @spec occupancies(Model.Trip.t(), Plug.Conn.t()) :: [Model.CommuterRailOccupancy.t()] | nil
+  @spec occupancies(Model.Trip.t(), Plug.Conn.t()) :: [Model.CommuterRailOccupancy.t()]
   def occupancies(%{name: nil}, _conn) do
-    nil
+    []
   end
 
-  def occupancies(%{name: name}, _conn) do
+  def occupancies(%{name: name}, %{assigns: %{experimental_features_enabled?: true}}) do
     CommuterRailOccupancy.by_trip_name(name)
+  end
+
+  def occupancies(_trip, _conn) do
+    []
   end
 
   defp optional_predictions(trip_id, conn) do
