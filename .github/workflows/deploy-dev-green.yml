@@ -10,7 +10,7 @@ jobs:
     concurrency: dev-green
     env:
       ECS_CLUSTER: api
-      ECS_SERVICE: api-dev-blue
+      ECS_SERVICE: api-dev-green
 
     steps:
       - uses: actions/checkout@v2
