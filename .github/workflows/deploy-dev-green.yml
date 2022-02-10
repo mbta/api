@@ -1,4 +1,4 @@
-name: Deploy to Dev-green
+name: Deploy to Dev-green (ECS)
 
 on: workflow_dispatch
 
@@ -9,34 +9,24 @@ jobs:
     environment: dev-green
     concurrency: dev-green
     env:
-      AWS_REGION: us-east-1
+      ECS_CLUSTER: api
+      ECS_SERVICE: api-dev-blue
 
     steps:
       - uses: actions/checkout@v2
-      - id: metadata
-        uses: mbta/actions/commit-metadata@v1
       - uses: mbta/actions/build-push-ecr@v1
         id: build-push
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
-      - id: deployment-package
-        uses: mbta/actions/eb-ecr-dockerrun@v1
-        with:
-          docker-tag: ${{ steps.build-push.outputs.docker-tag }}
-      - name: Deploy to EB
-        uses: mbta/beanstalk-deploy@v18
+      - uses: mbta/actions/deploy-ecs@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application-name: api
-          environment-name: api-dev-green
-          version-label: ${{ steps.metadata.outputs.sha-short }}
-          version-description: ${{ steps.metadata.outputs.commit-message }}
-          region: ${{ env.AWS_REGION }}
-          deployment-package: ${{ steps.deployment-package.outputs.deployment-package }}
-          use-existing-version-if-available: true
+          ecs-cluster: ${{ env.ECS_CLUSTER }}
+          ecs-service: ${{ env.ECS_SERVICE }}
+          docker-tag: ${{ steps.build-push.outputs.docker-tag }}
       - uses: mbta/actions/notify-slack-deploy@v1
         if: ${{ !cancelled() }}
         with:
