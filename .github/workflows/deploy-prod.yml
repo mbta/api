@@ -14,6 +14,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: mbta/actions/build-push-ecr@v1
+        id: build-push
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          docker-repo: ${{ secrets.DOCKER_REPO }}
       - name: Deploy to ECS
         uses: mbta/actions/deploy-ecs@v1
         with:
