@@ -10,7 +10,7 @@ jobs:
     concurrency: prod
     env:
       ECS_CLUSTER: api
-      ECS_SERVICE: api
+      ECS_SERVICE: api-prod
 
     steps:
       - uses: actions/checkout@v2
