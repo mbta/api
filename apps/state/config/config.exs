@@ -365,15 +365,16 @@ config :state, :stops_on_route,
       "place-haecl"
     ],
     {"Green-D", 0} => [
+      "palce-unsqu",
       "place-lech",
       "place-spmnl"
     ],
     {"Green-D", 1} => [
+      "place-unsqu",
       "place-lech",
       "place-spmnl"
     ],
     {"Green-E", 0} => [
-      "place-lech",
       "14159",
       "21458",
       "9070206",
@@ -381,7 +382,6 @@ config :state, :stops_on_route,
       "4510"
     ],
     {"Green-E", 1} => [
-      "place-lech",
       "14155",
       "21458",
       "4510",
