@@ -177,6 +177,9 @@ config :state, :stops_on_route,
     "CR-Newburyport-76fa2c91-" => true,
     "CR-Newburyport-173cb7ae-" => true,
     "CR-Newburyport-ff47d622-" => true,
+    # Newburyport Branch shuttles
+    "Shuttle-BeverlyNewburyportExpress-0-" => true,
+    "Shuttle-BeverlyNewburyportLocal-0-" => true,
     # Fitchburg Line shuttles to/from Alewife
     "Shuttle-AlewifeLittletonExpress-0-" => true,
     "Shuttle-AlewifeLittletonLocal-0-" => true,
