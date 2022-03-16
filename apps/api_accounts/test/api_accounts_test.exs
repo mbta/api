@@ -11,6 +11,31 @@ defmodule ApiAccountsTest do
     email: "test@test.com"
   }
 
+  @valid_attrs_2 %{
+    active: true,
+    blocked: true,
+    join_date: DateTime.from_naive!(~N[2010-04-17 14:00:00], "Etc/UTC"),
+    phone: "some phone 2",
+    username: "some username 2",
+    email: "test2@test.com"
+  }
+
+  @invalid_wasscan_tenable_email_attr %{
+    active: false,
+    blocked: false,
+    join_date: DateTime.from_naive!(~N[2011-05-18 15:01:01], "Etc/UTC"),
+    phone: "some updated phone",
+    email: "wasscan43lifz81@tenable.com"
+  }
+
+  @invalid_wasscan_tenable_email_attr_2 %{
+    active: false,
+    blocked: false,
+    join_date: DateTime.from_naive!(~N[2011-05-18 15:01:01], "Etc/UTC"),
+    phone: "some updated phone",
+    email: "wasscanoyhhfip8@tenable.com;type c:windows-win.ini"
+  }
+
   describe "users" do
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -23,6 +48,34 @@ defmodule ApiAccountsTest do
 
     def setup_user(_) do
       {:ok, user: user_fixture()}
+    end
+
+    def list_of_valid_users(attrs \\ %{}) do
+      {:ok, _} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> ApiAccounts.create_user()
+
+      {:ok, _} =
+        attrs
+        |> Enum.into(@valid_attrs_2)
+        |> ApiAccounts.create_user()
+
+      ApiAccounts.list_users()
+    end
+
+    def add_invalid_users(attrs \\ %{}) do
+      {:ok, _} =
+        attrs
+        |> Enum.into(@invalid_wasscan_tenable_email_attr)
+        |> ApiAccounts.create_user()
+
+      {:ok, _} =
+        attrs
+        |> Enum.into(@invalid_wasscan_tenable_email_attr_2)
+        |> ApiAccounts.create_user()
+
+      ApiAccounts.list_users()
     end
 
     @update_attrs %{
@@ -121,6 +174,34 @@ defmodule ApiAccountsTest do
       assert ApiAccounts.delete_user(user) == :ok
       assert_raise NoResultsError, fn -> ApiAccounts.get_user!(user.id) end
       assert ApiAccounts.list_keys_for_user(user) == []
+    end
+
+    test "delete_tenable_user/1 deletes the user wasscan tenable" do
+      valid_users = list_of_valid_users()
+      valid_and_invalid_users = add_invalid_users()
+      assert ApiAccounts.list_users() == valid_and_invalid_users
+
+      for user <- valid_and_invalid_users do
+        for _ <- 1..5 do
+          {:ok, _} = ApiAccounts.create_key(user)
+        end
+      end
+
+      assert ApiAccounts.delete_tenable_users() == :ok
+      assert ApiAccounts.list_users() == valid_users
+
+      invalid_users =
+        Enum.map(valid_and_invalid_users, fn x ->
+          if x.email =~ ~r/wasscan.*@tenable.com/ do
+            x
+          end
+        end)
+
+      Enum.each(invalid_users, fn user ->
+        if user != nil do
+          assert ApiAccounts.list_keys_for_user(user) == []
+        end
+      end)
     end
 
     test "change_user/1 returns a user changeset" do

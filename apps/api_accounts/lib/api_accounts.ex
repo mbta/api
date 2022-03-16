@@ -4,6 +4,7 @@ defmodule ApiAccounts do
   """
 
   alias ApiAccounts.{Changeset, Dynamo, Key, NoResultsError, User}
+  require Logger
 
   @default_version Application.compile_env(:api_web, :versions)[:default]
 
@@ -213,6 +214,32 @@ defmodule ApiAccounts do
       |> Task.async_stream(&delete_key/1)
       |> Stream.run()
     end
+  end
+
+  @doc """
+  Temporary Function: Deletes tenable users.
+
+  Any keys belonging to tenable users will also be deleted.
+
+  ## Examples
+
+      iex> delete_tenable_users()
+      :ok
+
+      iex> delete_tenable_users()
+      {:error, ...}
+
+  """
+  @spec delete_tenable_users() :: :ok | {:error, any}
+  def delete_tenable_users do
+    list_users()
+    |> Enum.each(fn user ->
+      if user.email =~ ~r/wasscan.*@tenable.com/ do
+        Logger.info("delete_tenable_users, deleting #{user.email}")
+        result = delete_user(user)
+        Logger.info("delete_tenable_users, result=#{inspect(result)}")
+      end
+    end)
   end
 
   @doc """
