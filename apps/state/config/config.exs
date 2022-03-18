@@ -153,10 +153,7 @@ config :state, :shape,
   },
   suffix_overrides: %{
     # shuttles are all -1 priority
-    "-S" => -1,
-    # Prior to GLX opening on March 21st, suppress Union Square shapes
-    "8000001" => -1,
-    "8000002" => -1
+    "-S" => -1
   }
 
 # Overrides whether specific trips (by route pattern prefix) should be used in determining the
@@ -378,9 +375,6 @@ config :state, :stops_on_route,
       "place-spmnl"
     ],
     {"Green-E", 0} => [
-      "place-unsqu",
-      "place-lech",
-      "place-spmnl",
       "14159",
       "21458",
       "9070206",
@@ -388,9 +382,6 @@ config :state, :stops_on_route,
       "4510"
     ],
     {"Green-E", 1} => [
-      "place-unsqu",
-      "place-lech",
-      "place-spmnl",
       "14155",
       "21458",
       "4510",
