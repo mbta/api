@@ -1,6 +1,6 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
-use Mix.Config
+import Config
 
 config :state, :shape,
   prefix_overrides: %{
@@ -401,4 +401,4 @@ config :state, :stops_on_route,
     ]
   }
 
-import_config "#{Mix.env()}.exs"
+import_config "#{config_env()}.exs"

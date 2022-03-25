@@ -13,7 +13,7 @@ defmodule StateMediator.MediatorLogTest do
                 }},
                %{module: nil, retries: 0}
              )
-           end) =~ "[warn]"
+           end) =~ "[warning]"
   end
 
   test "logs an unknown error as an error" do

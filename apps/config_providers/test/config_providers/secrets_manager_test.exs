@@ -5,6 +5,12 @@ defmodule ConfigProviders.SecretsManagerTest do
 
   @opts [ex_aws: __MODULE__.FakeExAws]
 
+  describe "init/1" do
+    test "returns :ok" do
+      assert SecretsManager.init([]) == :ok
+    end
+  end
+
   describe "load/2" do
     test "won't continue if AWS_SECRET_PREFIX is unset" do
       System.delete_env("AWS_SECRET_PREFIX")
