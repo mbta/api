@@ -1,3 +1,3 @@
-use Mix.Config
+import Config
 
 config :fetch, Fetch, cache_directory: "cache/"

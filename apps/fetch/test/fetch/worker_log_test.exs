@@ -21,7 +21,7 @@ defmodule Fetch.WorkerLogTest do
 
     assert capture_log(fn ->
              Fetch.Worker.fetch_url(pid, timeout: 100)
-           end) =~ "[warn]"
+           end) =~ "[warning]"
 
     Bypass.pass(bypass)
   end

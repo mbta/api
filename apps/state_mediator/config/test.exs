@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :state_mediator, State.FakeModuleA, source: {:system, "FAKE_VAR_A", "default_a"}
 
