@@ -33,7 +33,7 @@
     <% end %>
 
     <%= if template = assigns[:pre_container_template] do
-          render @view_module, template, assigns
+          render view_module(@conn), template, assigns
         end %>
 
     <div class="container">
