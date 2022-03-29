@@ -12,6 +12,15 @@ defmodule ALBMonitor.Monitor do
 
   defmodule State do
     @moduledoc "State of the GenServer."
+
+    @type t :: %__MODULE__{
+            check_interval: integer(),
+            ecs_metadata_uri: String.t() | nil,
+            instance_ip: String.t() | nil,
+            shutdown_fn: (() -> :ok),
+            target_group_arn: String.t() | nil
+          }
+
     defstruct check_interval: 5_000,
               ecs_metadata_uri: nil,
               instance_ip: nil,
@@ -36,7 +45,7 @@ defmodule ALBMonitor.Monitor do
     }
   end
 
-  @spec start_link(%State{}) :: GenServer.on_start()
+  @spec start_link(State.t()) :: GenServer.on_start()
   def start_link(initial_state \\ State.default()) do
     GenServer.start_link(__MODULE__, initial_state)
   end

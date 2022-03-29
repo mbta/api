@@ -23,7 +23,7 @@ defmodule State.Prediction do
 
   def select_grouped(sources, matchers, index, opts \\ []) do
     sources
-    |> Stream.flat_map(&apply(&1, :select, [matchers, index]))
+    |> Stream.flat_map(& &1.select(matchers, index))
     |> Enum.uniq_by(&prediction_key/1)
     |> State.all(opts)
   end
