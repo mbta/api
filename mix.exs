@@ -25,7 +25,6 @@ defmodule ApiUmbrella.Mixfile do
           applications: [
             runtime_tools: :permanent,
             alb_monitor: :permanent,
-            config_providers: :permanent,
             api_web: :permanent,
             api_accounts: :permanent,
             events: :permanent,
@@ -36,7 +35,6 @@ defmodule ApiUmbrella.Mixfile do
             state: :permanent,
             state_mediator: :permanent
           ],
-          config_providers: [{ConfigProviders.SecretsManager, []}],
           version: "0.1.0"
         ]
       ]
