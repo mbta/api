@@ -180,6 +180,8 @@ config :state, :stops_on_route,
     # Newburyport Branch shuttles
     "Shuttle-BeverlyNewburyportExpress-0-" => true,
     "Shuttle-BeverlyNewburyportLocal-0-" => true,
+    "Shuttle-NewburyportSalemExpress-0-" => true,
+    "Shuttle-NewburyportSalemLocal-0-" => true,
     # Fitchburg Line shuttles to/from Alewife
     "Shuttle-AlewifeLittletonExpress-0-" => true,
     "Shuttle-AlewifeLittletonLocal-0-" => true,
