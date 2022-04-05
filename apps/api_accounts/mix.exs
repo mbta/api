@@ -54,7 +54,7 @@ defmodule ApiAccounts.Mixfile do
      {:ex_aws_dynamo, "~> 4.0"},
      {:jason, "~> 1.0"},
      {:comeonin, "~> 5.1"},
-     {:bcrypt_elixir, "~> 2.0"},
+     {:bcrypt_elixir, "~> 3.0"},
      {:uuid, "~> 1.1"},
      {:bamboo, "~> 1.0"},
      {:bamboo_ses, "~> 0.1.0"}]
