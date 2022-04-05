@@ -74,7 +74,7 @@ defmodule ApiWeb.Mixfile do
       {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:logster, "~> 1.0"},
       {:phoenix_swagger, github: "mbta/phoenix_swagger", branch: "master"},
-      {:ex_json_schema, "~> 0.6.2"},
+      {:ex_json_schema, "~> 0.9.1"},
       {:diskusage_logger, "~> 0.2.0", only: :prod},
       {:jason, "~> 1.0"},
       {:stream_data, "~> 0.4", only: :test},
