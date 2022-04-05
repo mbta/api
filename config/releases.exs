@@ -28,3 +28,9 @@ config :state_mediator, Realtime,
 config :state_mediator, State.Prediction, source: System.get_env("MBTA_TRIP_SOURCE")
 
 config :state_mediator, State.Vehicle, source: System.get_env("MBTA_VEHICLE_SOURCE")
+
+config :api_web, signing_salt: System.fetch_env!("SIGNING_SALT")
+
+config :api_web, ApiWeb.Endpoint, secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
+
+config :state_mediator, :commuter_rail_crowding, firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS")
