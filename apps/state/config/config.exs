@@ -170,6 +170,8 @@ config :state, :stops_on_route,
     "Shuttle-ManchesterGloucester-0-" => true,
     "Shuttle-ManchesterRockport-0-" => true,
     "Shuttle-RockportWestGloucester-0-" => true,
+    "Shuttle-RockportSalemExpress-0-" => true,
+    "Shuttle-RockportSalemLocal-0-" => true,
     # Newburyport/Rockport Line trunk shuttles
     "Shuttle-ChelseaLynn-0-" => true,
     "Shuttle-LynnNorthStationExpress-0-" => true,
