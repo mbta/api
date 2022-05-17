@@ -208,7 +208,7 @@ defmodule StateMediator.Integration.GtfsTest do
     test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
 
-      assert [%{name: "North Station - Newburyport"}, %{name: "North Station - Manchester"}] =
+      assert [%{name: "North Station - Newburyport"}, %{name: "North Station - Rockport"}] =
                shapes_0
 
       assert [%{name: "Newburyport - North Station"}, %{name: "Rockport - North Station"}] =
