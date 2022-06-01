@@ -74,7 +74,7 @@ defmodule State.Trip.AddedTest do
                  route_pattern_id: @route_pattern_id,
                  route_type: @route_type,
                  headsign: "Parent",
-                 wheelchair_accessible: 0,
+                 wheelchair_accessible: 1,
                  name: ""
                }
              ] = by_id(@trip_id)

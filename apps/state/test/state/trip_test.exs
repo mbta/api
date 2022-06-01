@@ -85,7 +85,7 @@ defmodule State.TripTest do
       direction_id: added_direction_id,
       headsign: "Stop Name",
       name: "",
-      wheelchair_accessible: 0,
+      wheelchair_accessible: 1,
       bikes_allowed: 0
     }
 
