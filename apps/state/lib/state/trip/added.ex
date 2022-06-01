@@ -62,7 +62,7 @@ defmodule State.Trip.Added do
           | id: trip_id,
             block_id: nil,
             service_id: nil,
-            wheelchair_accessible: 0,
+            wheelchair_accessible: 1,
             bikes_allowed: 0
         }
       ]
@@ -105,7 +105,7 @@ defmodule State.Trip.Added do
           route_pattern_id: prediction.route_pattern_id,
           direction_id: prediction.direction_id,
           route_type: if(route, do: route.type),
-          wheelchair_accessible: 0,
+          wheelchair_accessible: 1,
           headsign: stop.name,
           name: "",
           bikes_allowed: 0
