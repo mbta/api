@@ -178,6 +178,8 @@ config :state, :stops_on_route,
     # Newburyport/Rockport Line trunk shuttles
     "Shuttle-BeverlyOrientHeightsExpress-0-" => true,
     "Shuttle-BeverlyOrientHeightsLocal-0-" => true,
+    "Shuttle-BeverlyWellingtonExpress-0-" => true,
+    "Shuttle-BeverlyWellingtonLocal-0-" => true,
     "Shuttle-ChelseaLynn-0-" => true,
     "Shuttle-LynnNorthStationExpress-0-" => true,
     "CR-Newburyport-adde8a7c-" => true,
@@ -203,7 +205,10 @@ config :state, :stops_on_route,
     # Haverhill Line shuttles to/from Malden Center
     "Shuttle-BallardvaleMaldenCenter-0-" => true,
     "Shuttle-HaverhillMaldenCenter-0-" => true,
-    "Shuttle-AndoverHaverhill-0-" => true
+    "Shuttle-AndoverHaverhill-0-" => true,
+    # Lowell Line shuttles
+    "Shuttle-AndersonWoburnNorthStationExpress-0-" => true,
+    "Shuttle-AndersonWoburnNorthStationLocal-0-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
@@ -239,6 +244,7 @@ config :state, :stops_on_route,
       [
         "place-north",
         "place-orhte",
+        "place-welln",
         "place-ogmnl",
         "place-chels",
         "place-ER-0099",
@@ -281,6 +287,7 @@ config :state, :stops_on_route,
         "place-ER-0099",
         "place-chels",
         "place-ogmnl",
+        "place-welln",
         "place-orhte",
         "place-north"
       ]
