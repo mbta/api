@@ -75,6 +75,10 @@ config :state, :shape,
     "831_0008" => 2,
     # Green-C
     "831_0009" => 2,
+    # Green-D (Medford/Tufts)
+    "8000020" => -1,
+    # Green-D (Medford/Tufts)
+    "8000021" => -1,
     # Green-D (Lechmere)
     "840_0004" => -1,
     # Green-D (Lechmere)
@@ -171,6 +175,8 @@ config :state, :stops_on_route,
     # Green-D patterns that go to North Station
     "Green-D-851-1" => false,
     "Green-D-841-1" => false,
+    # Green-E patterns that go to/from Union Square
+    "Green-E-885-" => false,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
