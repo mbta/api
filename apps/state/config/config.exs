@@ -456,6 +456,7 @@ config :state, :stops_on_route,
       "9070150"
     ],
     {"Green-E", 0} => [
+      "place-unsqu",
       "14159",
       "21458",
       "9070206",
@@ -475,7 +476,8 @@ config :state, :stops_on_route,
       "9070090",
       "9070091",
       "9070501",
-      "9070503"
+      "9070503",
+      "place-unsqu"
     ],
     {"CR-Needham", 0} => [
       "place-NEC-2203",

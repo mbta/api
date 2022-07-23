@@ -64,12 +64,7 @@ defmodule StateMediator.Integration.GtfsTest do
       assert_first_last_stop_id("Green-B", "place-gover", "place-lake")
       assert_first_last_stop_id("Green-C", "place-gover", "place-clmnl")
       assert_first_last_stop_id("Green-D", ["place-north", "place-unsqu"], "place-river")
-
-      assert_first_last_stop_id(
-        "Green-E",
-        ["place-gover", "place-lech", "place-unsqu", "place-mdftf"],
-        "place-hsmnl"
-      )
+      assert_first_last_stop_id("Green-E", "place-mdftf", "place-hsmnl")
     end
 
     test "keeps green line core in the correct order" do
