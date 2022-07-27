@@ -176,6 +176,8 @@ config :state, :stops_on_route,
     "Shuttle-RockportSalemExpress-0-" => true,
     "Shuttle-RockportSalemLocal-0-" => true,
     # Newburyport/Rockport Line trunk shuttles
+    "Shuttle-BeverlyNorthStationExpress-0-" => true,
+    "Shuttle-BeverlyNorthStationLocal-0-" => true,
     "Shuttle-BeverlyOrientHeightsExpress-0-" => true,
     "Shuttle-BeverlyOrientHeightsLocal-0-" => true,
     "Shuttle-BeverlyWellingtonExpress-0-" => true,
