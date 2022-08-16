@@ -67,7 +67,7 @@ defmodule StateMediator.Integration.GtfsTest do
 
       assert_first_last_stop_id(
         "Green-E",
-        ["place-lech", "place-unsqu", "place-mdftf"],
+        ["place-gover", "place-lech", "place-unsqu", "place-mdftf"],
         "place-hsmnl"
       )
     end
