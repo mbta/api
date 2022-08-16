@@ -9,6 +9,10 @@ config :state, :shape,
     "8000008" => -1,
     # Green-D (Union Square)
     "8000009" => -1,
+    # Green-B (Medford/Tufts)
+    "8000014" => -1,
+    # Green-B (Medford/Tufts)
+    "8000019" => -1,
     # Green-B (Lechmere)
     "810_0004" => -1,
     # Green-B (Lechmere)
@@ -51,6 +55,10 @@ config :state, :shape,
     "803t0001" => -1,
     # Green-B (Blandford)
     "803t0003" => -1,
+    # Green-C (Medford/Tufts)
+    "8000016" => -1,
+    # Green-C (Medford/Tufts)
+    "8000017" => -1,
     # Green-C (Lechmere)
     "830_0003" => -1,
     # Green-C (Lechmere)
@@ -107,6 +115,10 @@ config :state, :shape,
     "858t0001" => -1,
     # Green-D (Newton Highlands)
     "858t0002" => -1,
+    # Green-E (Union Square)
+    "8000001" => -1,
+    # Green-E (Union Square)
+    "8000002" => -1,
     # Green-E (Prudential)
     "881_0012" => -1,
     # Green-E (Prudential)
@@ -415,13 +427,22 @@ config :state, :stops_on_route,
       "21458",
       "9070206",
       "30203",
-      "4510"
+      "4510",
+      "9070503",
+      "9070501",
+      "9070093",
+      "9170206",
+      "9070024"
     ],
     {"Green-E", 1} => [
       "14155",
       "21458",
       "4510",
-      "4511"
+      "4511",
+      "9070090",
+      "9070091",
+      "9070501",
+      "9070503"
     ],
     {"CR-Needham", 0} => [
       "place-NEC-2203",
