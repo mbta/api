@@ -10,7 +10,7 @@ defmodule ApiWeb.RoutePatternController do
 
   plug(:ensure_path_matches_version)
 
-  @filters ~w(id route direction_id stop)
+  @filters ~w(id is_canonical route direction_id stop)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
@@ -47,6 +47,7 @@ defmodule ApiWeb.RoutePatternController do
     filter_param(:id, name: :route)
     filter_param(:direction_id)
     filter_param(:stop_id, includes_children: true)
+    filter_param(:is_canonical)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -97,6 +98,9 @@ defmodule ApiWeb.RoutePatternController do
 
         {"stop", stop_ids} ->
           {:stop_ids, Params.split_on_comma(stop_ids)}
+
+        {"is_canonical", is_canonical} ->
+          {:is_canonical, Params.is_canonical(is_canonical)}
       end
     end)
   end
@@ -209,6 +213,20 @@ defmodule ApiWeb.RoutePatternController do
               Can be used to order the route patterns in a way which is ideal for presentation to customers.
               Route patterns with smaller sort_order values should be displayed before those with larger values.
               """
+            )
+
+            is_canonical(
+              :integer,
+              """
+              TODO
+
+              | Value | Description |
+              |-|-|
+              | `0` | Route does not have any canonical patterns defined. |
+              | `1` | Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern. |
+              | `2` | Route pattern should be not considered canonical for this route in this direction. |
+              """,
+              enum: [0, 1, 2]
             )
           end
 

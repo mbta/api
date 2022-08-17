@@ -204,6 +204,14 @@ defmodule ApiWeb.Params do
   def route_types(_), do: []
 
   @doc """
+  Parse is_canonical filter param into integer
+  """
+  def is_canonical("0"), do: 0
+  def is_canonical("1"), do: 1
+  def is_canonical("2"), do: 2
+  def is_canonical(_), do: nil
+
+  @doc """
   Parses and integer value from params.
 
   ## Examples

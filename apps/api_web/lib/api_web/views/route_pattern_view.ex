@@ -25,7 +25,8 @@ defmodule ApiWeb.RoutePatternView do
     :name,
     :time_desc,
     :typicality,
-    :sort_order
+    :sort_order,
+    :is_canonical
   ])
 
   def representative_trip(%{representative_trip_id: trip_id}, conn) do
