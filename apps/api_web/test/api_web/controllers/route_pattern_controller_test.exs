@@ -44,7 +44,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
-        representative_trip_id: "trip id"
+        representative_trip_id: "trip id",
+        is_canonical: 0
       }
 
       State.RoutePattern.new_state([route_pattern])
@@ -253,6 +254,34 @@ defmodule ApiWeb.RoutePatternControllerTest do
       assert [] == json_response(conn, 200)["data"]
     end
 
+    test "can filter by is_canonical", %{conn: conn} do
+      State.RoutePattern.new_state([
+        %RoutePattern{id: "rp1", route_id: "route1", direction_id: 0, is_canonical: 1},
+        %RoutePattern{id: "rp2", route_id: "route1", direction_id: 1, is_canonical: 1},
+        %RoutePattern{id: "rp3", route_id: "route2", direction_id: 0, is_canonical: 2},
+        %RoutePattern{id: "rp4", route_id: "route2", direction_id: 1, is_canonical: 2}
+      ])
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"is_canonical" => "1"}
+          })
+        )
+
+      assert [
+               %{
+                 "id" => "rp1",
+                 "attributes" => %{"direction_id" => 0, "is_canonical" => 1}
+               },
+               %{
+                 "id" => "rp2",
+                 "attributes" => %{"direction_id" => 1, "is_canonical" => 1}
+               }
+             ] = json_response(conn, 200)["data"]
+    end
+
     test "can include route and trip", %{conn: conn} do
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp", route_id: "routeid", representative_trip_id: "tripid"}
@@ -348,7 +377,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "name" => "route pattern name",
                  "time_desc" => nil,
                  "typicality" => 1,
-                 "sort_order" => 101
+                 "sort_order" => 101,
+                 "is_canonical" => nil
                },
                "links" => %{
                  "self" => "/route_patterns/route%20pattern%20id"
@@ -394,7 +424,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
-        representative_trip_id: "trip id"
+        representative_trip_id: "trip id",
+        is_canonical: 0
       }
 
       State.RoutePattern.new_state([route_pattern])
