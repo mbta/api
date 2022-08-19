@@ -210,17 +210,16 @@ defmodule ApiWeb.SwaggerHelpers do
       path_object,
       "filter[is_canonical]",
       :query,
-      :string,
+      :boolean,
       """
       Filter by is_canonical
 
-      0 or empty: Route does not have any canonical patterns defined.
-      1: Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern.
-      2: Route pattern should be not considered canonical for this route in this direction.
+      null: Route does not have any canonical patterns defined.
+      true: Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern.
+      false: Route pattern should be not considered canonical for this route in this direction.
 
       #{opts[:desc]}
-      """,
-      enum: ["0", "1", "2"]
+      """
     )
   end
 

@@ -206,9 +206,8 @@ defmodule ApiWeb.Params do
   @doc """
   Parse is_canonical filter param into integer
   """
-  def is_canonical("0"), do: 0
-  def is_canonical("1"), do: 1
-  def is_canonical("2"), do: 2
+  def is_canonical("true"), do: 1
+  def is_canonical("false"), do: 2
   def is_canonical(_), do: nil
 
   @doc """

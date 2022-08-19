@@ -216,17 +216,17 @@ defmodule ApiWeb.RoutePatternController do
             )
 
             is_canonical(
-              :integer,
+              :boolean,
               """
               TODO
 
               | Value | Description |
               |-|-|
-              | `0` | Route does not have any canonical patterns defined. |
-              | `1` | Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern. |
-              | `2` | Route pattern should be not considered canonical for this route in this direction. |
+              | `null` | Route does not have any canonical patterns defined. |
+              | `true` | Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern. |
+              | `false` | Route pattern should be not considered canonical for this route in this direction. |
               """,
-              enum: [0, 1, 2]
+              "x-nullable": true
             )
           end
 

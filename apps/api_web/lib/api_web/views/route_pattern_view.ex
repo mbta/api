@@ -32,4 +32,8 @@ defmodule ApiWeb.RoutePatternView do
   def representative_trip(%{representative_trip_id: trip_id}, conn) do
     optional_relationship("representative_trip", trip_id, &State.Trip.by_primary_id/1, conn)
   end
+
+  def is_canonical(%{is_canonical: 1}, _), do: true
+  def is_canonical(%{is_canonical: 2}, _), do: false
+  def is_canonical(%{is_canonical: _}, _), do: nil
 end

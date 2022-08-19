@@ -266,18 +266,18 @@ defmodule ApiWeb.RoutePatternControllerTest do
         get(
           conn,
           route_pattern_path(conn, :index, %{
-            "filter" => %{"is_canonical" => "1"}
+            "filter" => %{"is_canonical" => true}
           })
         )
 
       assert [
                %{
                  "id" => "rp1",
-                 "attributes" => %{"direction_id" => 0, "is_canonical" => 1}
+                 "attributes" => %{"direction_id" => 0, "is_canonical" => true}
                },
                %{
                  "id" => "rp2",
-                 "attributes" => %{"direction_id" => 1, "is_canonical" => 1}
+                 "attributes" => %{"direction_id" => 1, "is_canonical" => true}
                }
              ] = json_response(conn, 200)["data"]
     end
