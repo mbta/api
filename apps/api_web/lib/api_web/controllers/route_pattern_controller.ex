@@ -218,7 +218,8 @@ defmodule ApiWeb.RoutePatternController do
             is_canonical(
               :boolean,
               """
-              TODO
+              Indicates whether or not the route pattern can be considered canonical and the default set of stops
+              for the given route and direction.
 
               | Value | Description |
               |-|-|
