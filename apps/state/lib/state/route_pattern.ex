@@ -16,7 +16,7 @@ defmodule State.RoutePattern do
 
   @type filters :: %{
           optional(:ids) => [RoutePattern.id()],
-          optional(:is_canonical) => [0..2],
+          optional(:is_canonical) => boolean(),
           optional(:route_ids) => [Route.id()],
           optional(:stop_ids) => [Stop.id()]
         }
