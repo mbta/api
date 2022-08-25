@@ -254,15 +254,19 @@ defmodule ApiWeb.RoutePatternControllerTest do
       assert [] == json_response(conn, 200)["data"]
     end
 
-    test "can filter by is_canonical true", %{conn: conn} do
-      State.RoutePattern.new_state([
+    defp canonical_test_route_patterns do
+      [
         %RoutePattern{id: "rp1", route_id: "route1", direction_id: 0, is_canonical: 1},
         %RoutePattern{id: "rp2", route_id: "route1", direction_id: 1, is_canonical: 1},
         %RoutePattern{id: "rp3", route_id: "route2", direction_id: 0, is_canonical: 2},
         %RoutePattern{id: "rp4", route_id: "route2", direction_id: 1, is_canonical: 2},
         %RoutePattern{id: "rp5", route_id: "route3", direction_id: 0, is_canonical: 0},
         %RoutePattern{id: "rp6", route_id: "route4", direction_id: 1, is_canonical: 0}
-      ])
+      ]
+    end
+
+    test "can filter by is_canonical true", %{conn: conn} do
+      State.RoutePattern.new_state(canonical_test_route_patterns())
 
       conn =
         get(
@@ -285,14 +289,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
     end
 
     test "can filter by is_canonical false", %{conn: conn} do
-      State.RoutePattern.new_state([
-        %RoutePattern{id: "rp1", route_id: "route1", direction_id: 0, is_canonical: 1},
-        %RoutePattern{id: "rp2", route_id: "route1", direction_id: 1, is_canonical: 1},
-        %RoutePattern{id: "rp3", route_id: "route2", direction_id: 0, is_canonical: 2},
-        %RoutePattern{id: "rp4", route_id: "route2", direction_id: 1, is_canonical: 2},
-        %RoutePattern{id: "rp5", route_id: "route3", direction_id: 0, is_canonical: 0},
-        %RoutePattern{id: "rp6", route_id: "route4", direction_id: 1, is_canonical: 0}
-      ])
+      State.RoutePattern.new_state(canonical_test_route_patterns())
 
       conn =
         get(
@@ -323,14 +320,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
     end
 
     test "can filter by is_canonical null", %{conn: conn} do
-      State.RoutePattern.new_state([
-        %RoutePattern{id: "rp1", route_id: "route1", direction_id: 0, is_canonical: 1},
-        %RoutePattern{id: "rp2", route_id: "route1", direction_id: 1, is_canonical: 1},
-        %RoutePattern{id: "rp3", route_id: "route2", direction_id: 0, is_canonical: 2},
-        %RoutePattern{id: "rp4", route_id: "route2", direction_id: 1, is_canonical: 2},
-        %RoutePattern{id: "rp5", route_id: "route3", direction_id: 0, is_canonical: 0},
-        %RoutePattern{id: "rp6", route_id: "route4", direction_id: 1, is_canonical: 0}
-      ])
+      State.RoutePattern.new_state(canonical_test_route_patterns())
 
       conn =
         get(
