@@ -34,6 +34,5 @@ defmodule ApiWeb.RoutePatternView do
   end
 
   def is_canonical(%{is_canonical: 1}, _), do: true
-  def is_canonical(%{is_canonical: 2}, _), do: false
-  def is_canonical(%{is_canonical: _}, _), do: nil
+  def is_canonical(%{is_canonical: _}, _), do: false
 end

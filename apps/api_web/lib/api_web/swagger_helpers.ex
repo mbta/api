@@ -214,7 +214,6 @@ defmodule ApiWeb.SwaggerHelpers do
       """
       Filter by is_canonical
 
-      null: Route does not have any canonical patterns defined.
       true: Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern.
       false: Route pattern should be not considered canonical for this route in this direction.
 

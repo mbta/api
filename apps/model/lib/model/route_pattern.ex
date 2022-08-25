@@ -26,6 +26,6 @@ defmodule Model.RoutePattern do
           typicality: 0..5,
           sort_order: integer(),
           representative_trip_id: Model.Trip.id(),
-          is_canonical: 0..2 | nil
+          is_canonical: 0..2
         }
 end

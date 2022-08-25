@@ -13,14 +13,17 @@ defmodule Parse.RoutePatterns do
       typicality: copy_int(row["route_pattern_typicality"]),
       sort_order: copy_int(row["route_pattern_sort_order"]),
       representative_trip_id: copy_string(row["representative_trip_id"]),
-      is_canonical: copy_int(row["canonical_route_pattern"])
+      is_canonical: parse_is_canonical(row["canonical_route_pattern"])
     }
   end
 
   defp copy_string(""), do: nil
   defp copy_string(s), do: :binary.copy(s)
 
-  defp copy_int(nil), do: nil
   defp copy_int(""), do: nil
   defp copy_int(s), do: String.to_integer(s)
+
+  defp parse_is_canonical("1"), do: 1
+  defp parse_is_canonical("2"), do: 2
+  defp parse_is_canonical(_), do: 0
 end
