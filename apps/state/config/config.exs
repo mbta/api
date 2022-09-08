@@ -5,10 +5,6 @@ import Config
 config :state, :shape,
   prefix_overrides: %{
     # Green Line
-    # Green-D (Union Square)
-    "8000008" => -1,
-    # Green-D (Union Square)
-    "8000009" => -1,
     # Green-B (Medford/Tufts)
     "8000014" => -1,
     # Green-B (Medford/Tufts)
@@ -411,16 +407,6 @@ config :state, :stops_on_route,
     {"Green-C", 1} => [
       "place-north",
       "place-haecl"
-    ],
-    {"Green-D", 0} => [
-      "palce-unsqu",
-      "place-lech",
-      "place-spmnl"
-    ],
-    {"Green-D", 1} => [
-      "place-unsqu",
-      "place-lech",
-      "place-spmnl"
     ],
     {"Green-E", 0} => [
       "14159",
