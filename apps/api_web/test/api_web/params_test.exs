@@ -9,6 +9,10 @@ defmodule ApiWeb.ParamsTest do
 
     assert Params.filter_opts(%{"page" => %{"limit" => 10}}, [:limit], conn) == %{limit: 10}
 
+    assert Params.filter_opts(%{"page" => %{"limit" => 101}}, [:limit], conn) == %{limit: 101}
+
+    assert Params.filter_opts(%{"page" => %{"limit" => 500}}, [:limit], conn) == %{limit: 500}
+
     assert Params.filter_opts(
              %{"page" => %{"offset" => 1, "limit" => 10}},
              [:offset, :limit],
