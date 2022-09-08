@@ -21,7 +21,7 @@ defmodule ApiWeb.EventStream.Canary do
   end
 
   @impl true
-  def terminate(:shutdown, notify_fn), do: notify_fn.()
+  def terminate(:shutdown, notify_fn) when is_function(notify_fn), do: notify_fn.()
   def terminate({:shutdown, _reason}, notify_fn), do: notify_fn.()
   def terminate(_, _), do: :ok
 end
