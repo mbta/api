@@ -10,7 +10,7 @@ defmodule ApiWeb.EventStream.Canary do
   @default_notify_fn &ApiWeb.EventStream.Supervisor.terminate_servers/0
 
   @spec start_link(keyword()) :: GenServer.on_start()
-  def start_link(args) do
+  def start_link(args \\ []) do
     notify_fn =
       case Keyword.fetch(args, :notify_fn) do
         {:ok, fun} when is_function(fun, 0) ->
