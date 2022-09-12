@@ -9,8 +9,20 @@ defmodule ApiWeb.EventStream.Canary do
 
   @default_notify_fn &ApiWeb.EventStream.Supervisor.terminate_servers/0
 
-  @spec start_link((() -> any)) :: GenServer.on_start()
-  def start_link(notify_fn \\ @default_notify_fn) do
+  @spec start_link(keyword()) :: GenServer.on_start()
+  def start_link(args) do
+    notify_fn =
+      case Keyword.fetch(args, :notify_fn) do
+        {:ok, fun} when is_function(fun, 0) ->
+          fun
+
+        {:ok, not_fun} ->
+          raise ArgumentError, "expect function/0 for notify_fn, got #{inspect(not_fun)}"
+
+        _ ->
+          @default_notify_fn
+      end
+
     GenServer.start_link(__MODULE__, notify_fn, [])
   end
 
@@ -22,7 +34,6 @@ defmodule ApiWeb.EventStream.Canary do
 
   @impl true
   def terminate(:shutdown, notify_fn) when is_function(notify_fn), do: notify_fn.()
-  def terminate(:shutdown, _), do: @default_notify_fn.()
   def terminate({:shutdown, _reason}, notify_fn), do: notify_fn.()
   def terminate(_, _), do: :ok
 end
