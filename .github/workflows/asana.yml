@@ -1,0 +1,38 @@
+name: Asana integration for Github PRs
+on: 
+  workflow_dispatch:
+  pull_request:
+    types: [closed, edited, opened, reopened]
+
+jobs:
+  move-to-merged-asana-ticket-job:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Github-Asana action from Insurify
+        uses: insurify/github-asana-action@v1.0.3
+        with:
+          asana-pat: ${{ secrets.ASANA_PERSONAL_ACCESS_TOKEN }}
+          trigger-phrase: "\\*\\*Asana Ticket:\\*\\*"
+          targets: '[{"project": "TRC - Sprint", "section": "Merged / Not Deployed"}]'
+  move-to-in-review-asana-ticket-job:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged != true
+    steps:
+      - name: Github-Asana action from Insurify
+        uses: insurify/github-asana-action@v1.0.3
+        with:
+          asana-pat: ${{ secrets.ASANA_PERSONAL_ACCESS_TOKEN }}
+          trigger-phrase: "\\*\\*Asana Ticket:\\*\\*"
+          targets: '[{"project": "TRC - Sprint", "section": "In Review"}]'
+  create-asana-attachment-job:
+    runs-on: ubuntu-latest
+    name: Create pull request attachments on Asana tasks
+    steps:
+      - name: Create pull request attachments
+        uses: Asana/create-app-attachment-github-action@latest
+        id: postAttachment
+        with:
+          asana-secret: ${{ secrets.ASANA_GITHUB_INTEGRATION_SECRET }}
+      - name: Log output status
+        run: echo "Status is ${{ steps.postAttachment.outputs.status }}"
