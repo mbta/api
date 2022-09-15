@@ -1,4 +1,8 @@
-FROM hexpm/elixir:1.13.3-erlang-24.3.2-alpine-3.15.0 as builder
+ARG ELIXIR_VERSION=1.13.4
+ARG ERLANG_VERSION=24.3.4.5
+ARG ALPINE_VERSION=3.16.2
+
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION} as builder
 
 WORKDIR /root
 
@@ -21,7 +25,7 @@ ADD rel/ rel/
 RUN mix release
 
 # The one the elixir image was built with
-FROM alpine:3.15.0
+FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --update libssl1.1 curl bash dumb-init libstdc++ libgcc \
   && rm -rf /var/cache/apk/*
