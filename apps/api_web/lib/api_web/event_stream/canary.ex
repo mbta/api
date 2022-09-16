@@ -17,7 +17,7 @@ defmodule ApiWeb.EventStream.Canary do
           fun
 
         {:ok, not_fun} ->
-          raise ArgumentError, "expect function/0 for notify_fn, got #{inspect(not_fun)}"
+          {:stop, "expect function/0 for notify_fn, got #{inspect(not_fun)}"}
 
         _ ->
           @default_notify_fn
@@ -27,6 +27,8 @@ defmodule ApiWeb.EventStream.Canary do
   end
 
   @impl true
+  def init({:stop, _} = stop_reason), do: stop_reason
+
   def init(notify_fn) do
     Process.flag(:trap_exit, true)
     {:ok, notify_fn}
