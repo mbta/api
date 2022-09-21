@@ -11,23 +11,14 @@ defmodule ApiWeb.EventStream.Canary do
 
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(args \\ []) do
-    notify_fn =
-      case Keyword.fetch(args, :notify_fn) do
-        {:ok, fun} when is_function(fun, 0) ->
-          fun
-
-        {:ok, not_fun} ->
-          {:stop, "expect function/0 for notify_fn, got #{inspect(not_fun)}"}
-
-        _ ->
-          @default_notify_fn
-      end
+    notify_fn = Keyword.get(args, :notify_fn, @default_notify_fn)
 
     GenServer.start_link(__MODULE__, notify_fn, [])
   end
 
   @impl true
-  def init({:stop, _} = stop_reason), do: stop_reason
+  def init(notify_fn) when not is_function(notify_fn, 0),
+    do: {:stop, "expect function/0 for notify_fn, got #{inspect(notify_fn)}"}
 
   def init(notify_fn) do
     Process.flag(:trap_exit, true)
