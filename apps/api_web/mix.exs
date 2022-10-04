@@ -60,8 +60,9 @@ defmodule ApiWeb.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:phoenix, "< 1.6.3"},
-      {:phoenix_html, "~> 2.11"},
+      {:phoenix, "~> 1.6.2"},
+      {:phoenix_html, "~> 3.1"},
+      {:phoenix_live_view, "~> 0.17.5"},
       {:ja_serializer, github: "mbta/ja_serializer", branch: "master"},
       {:timex, "~> 3.2"},
       {:corsica, "~> 1.1"},

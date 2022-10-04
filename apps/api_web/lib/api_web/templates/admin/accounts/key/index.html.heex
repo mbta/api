@@ -14,7 +14,7 @@
   </thead>
   <tbody>
 <%= for {key, user} <- @key_requests do %>
-    <tr data-key-id="<%= key.key %>">
+    <tr data-key-id={key.key}>
       <td><%= link user.email, to: admin_user_path(@conn, :show, user), target: "_blank" %></td>
       <td><%= key.requested_date %></td>
     </tr>

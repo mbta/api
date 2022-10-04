@@ -7,44 +7,29 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>MBTA Client Portal</title>
+    <title>Api Admin</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
   </head>
 
   <body>
     <%= render "navigation.html", assigns %>
 
-    <%= if info = get_flash(@conn, :success) do %>
-      <div class="alert alert-success text-center" role="alert" style="border-radius: 0">
-        <div class="container"><%= info %></div>
-      </div>
-    <% end %>
     <%= if info = get_flash(@conn, :info) do %>
-      <div class="alert alert-info text-center" role="alert" style="border-radius: 0">
-        <div class="container"><%= info %></div>
-      </div>
+      <p class="alert alert-info text-center" role="alert" style="border-radius: 0"><%= info %></p>
     <% end %>
     <%= if error = get_flash(@conn, :error) do %>
-      <div class="alert alert-danger text-center" role="alert" style="border-radius: 0">
-        <div class="container"><%= error %></div>
-      </div>
+      <p class="alert alert-danger text-center" role="alert" style="border-radius: 0"><%= error %></p>
     <% end %>
 
-    <%= if template = assigns[:pre_container_template] do
-          render view_module(@conn), template, assigns
-        end %>
-
     <div class="container">
+
       <main role="main">
         <%= @inner_content %>
       </main>
-    </div>
 
-    <%= render "footer.html", assigns %>
+    </div> <!-- /container -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="<%= static_path(@conn, "/js/phoenix_html.js") %>"></script>
+    <script src={static_path(@conn, "/js/phoenix_html.js")}></script>
   </body>
 </html>
