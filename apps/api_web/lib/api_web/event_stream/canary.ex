@@ -9,19 +9,24 @@ defmodule ApiWeb.EventStream.Canary do
 
   @default_notify_fn &ApiWeb.EventStream.Supervisor.terminate_servers/0
 
-  @spec start_link((() -> any)) :: GenServer.on_start()
-  def start_link(notify_fn \\ @default_notify_fn) do
+  @spec start_link(keyword()) :: GenServer.on_start()
+  def start_link(args \\ []) do
+    notify_fn = Keyword.get(args, :notify_fn, @default_notify_fn)
+
     GenServer.start_link(__MODULE__, notify_fn, [])
   end
 
   @impl true
+  def init(notify_fn) when not is_function(notify_fn, 0),
+    do: {:stop, "expect function/0 for notify_fn, got #{inspect(notify_fn)}"}
+
   def init(notify_fn) do
     Process.flag(:trap_exit, true)
     {:ok, notify_fn}
   end
 
   @impl true
-  def terminate(:shutdown, notify_fn), do: notify_fn.()
-  def terminate({:shutdown, _reason}, notify_fn), do: notify_fn.()
+  def terminate(:shutdown, notify_fn) when is_function(notify_fn, 0), do: notify_fn.()
+  def terminate({:shutdown, _reason}, notify_fn) when is_function(notify_fn, 0), do: notify_fn.()
   def terminate(_, _), do: :ok
 end
