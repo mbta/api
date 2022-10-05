@@ -174,7 +174,8 @@ config :state, :stops_on_route,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
-    "Shuttle-BeverlyRockport-0-" => true,
+    "Shuttle-BeverlyRockportExpress-0-" => true,
+    "Shuttle-BeverlyRockportLocal-0-" => true,
     "Shuttle-ManchesterGloucester-0-" => true,
     "Shuttle-ManchesterRockport-0-" => true,
     "Shuttle-OrientHeightsRockportExpress-0-" => true,
