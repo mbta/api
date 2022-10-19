@@ -41,7 +41,8 @@ defmodule ALBMonitor.Monitor do
   def child_spec(_opts) do
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, []}
+      start: {__MODULE__, :start_link, []},
+      restart: :transient
     }
   end
 
