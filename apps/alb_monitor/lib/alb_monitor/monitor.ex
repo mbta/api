@@ -69,7 +69,7 @@ defmodule ALBMonitor.Monitor do
       "draining" ->
         log_info("shutdown")
         shutdown.()
-        {:stop, nil, state}
+        {:stop, :normal, state}
 
       _ ->
         schedule_check(state)
