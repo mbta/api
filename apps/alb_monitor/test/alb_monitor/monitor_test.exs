@@ -11,9 +11,11 @@ defmodule ALBMonitor.MonitorTest do
     mock_instance_ip("10.0.0.2")
     mock_health_response([{"10.0.0.1", "healthy"}, {"10.0.0.2", "draining"}])
 
-    start!()
+    monitor_pid = start!()
 
     assert_receive :shutdown
+
+    refute Process.alive?(monitor_pid)
   end
 
   test "does not call the shutdown function if the instance's health is not draining" do
@@ -101,6 +103,8 @@ defmodule ALBMonitor.MonitorTest do
     {:ok, monitor_pid} = Monitor.start_link(initial_state)
     allow(FakeAws, test_pid, monitor_pid)
     allow(FakeHTTP, test_pid, monitor_pid)
+
+    monitor_pid
   end
 
   defp mock_instance_ip(ip) when is_binary(ip) do
