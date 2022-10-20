@@ -2,7 +2,7 @@ defmodule ApiWeb.EventStreamTest do
   @moduledoc false
   use ApiWeb.ConnCase
   alias ApiWeb.Canary
-  alias ApiWeb.ServerSupervisor
+  alias ApiWeb.Plugs.CheckForShutdown
   import ApiWeb.EventStream
   import Plug.Conn
   import ApiWeb.Test.ProcessHelper
@@ -12,6 +12,7 @@ defmodule ApiWeb.EventStreamTest do
   @moduletag timeout: 5_000
 
   setup %{conn: conn} do
+    CheckForShutdown.reset()
     State.Prediction.new_state([])
 
     conn =
@@ -105,7 +106,7 @@ defmodule ApiWeb.EventStreamTest do
       %{pid: diff_server_pid} = state
       assert_receive_data()
 
-      :ok = DynamicSupervisor.terminate_child(ServerSupervisor, diff_server_pid)
+      :ok = :sys.terminate(diff_server_pid, :normal)
       assert {:close, conn} = receive_result(state)
       assert chunks(conn) == ""
       on_exit(fn -> assert_stopped(state.pid) end)
@@ -131,6 +132,54 @@ defmodule ApiWeb.EventStreamTest do
 
       GenServer.stop(canary, :shutdown)
       assert {:close, conn} = receive_result(state)
+      assert chunks(conn) == ""
+      on_exit(fn -> assert_stopped(state.pid) end)
+    end
+
+    test "closes the connection once CheckForShutdown.shutdown() is called (events)", %{
+      conn: conn
+    } do
+      CheckForShutdown.shutdown()
+
+      state = initialize(conn, @module)
+      assert_receive_data()
+
+      send(self(), {:events, []})
+
+      assert {:close, conn} = receive_result(state)
+
+      assert chunks(conn) == ""
+      on_exit(fn -> assert_stopped(state.pid) end)
+    end
+
+    test "closes the connection once CheckForShutdown.shutdown() is called (timeout)", %{
+      conn: conn
+    } do
+      CheckForShutdown.shutdown()
+
+      state = initialize(conn, @module)
+      assert_receive_data()
+
+      send(self(), :timeout)
+
+      assert {:close, conn} = receive_result(state)
+
+      assert chunks(conn) == ""
+      on_exit(fn -> assert_stopped(state.pid) end)
+    end
+
+    test "closes the connection once CheckForShutdown.shutdown() is called (unknown message)", %{
+      conn: conn
+    } do
+      CheckForShutdown.shutdown()
+
+      state = initialize(conn, @module)
+      assert_receive_data()
+
+      send(self(), :unknown_message)
+
+      assert {:close, conn} = receive_result(state)
+
       assert chunks(conn) == ""
       on_exit(fn -> assert_stopped(state.pid) end)
     end

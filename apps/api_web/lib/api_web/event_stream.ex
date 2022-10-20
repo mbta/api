@@ -6,6 +6,7 @@ defmodule ApiWeb.EventStream do
   """
   import Plug.Conn
   alias __MODULE__.Supervisor
+  alias ApiWeb.Plugs.CheckForShutdown
 
   @enforce_keys [:conn, :pid, :timeout]
   defstruct @enforce_keys ++ [:timer]
@@ -55,10 +56,19 @@ defmodule ApiWeb.EventStream do
     receive do
       {:events, events} ->
         chunks = for {type, item} <- events, do: ["event: ", type, "\ndata: ", item, "\n\n"]
-        continue(state, chunks)
+
+        if CheckForShutdown.running?() do
+          continue(state, chunks)
+        else
+          close(state, chunks)
+        end
 
       :timeout ->
-        continue(state, ": keep-alive\n")
+        if CheckForShutdown.running?() do
+          continue(state, ": keep-alive\n")
+        else
+          close(state)
+        end
 
       {:error, rendered} when is_list(rendered) ->
         close(state, ["event: error\ndata: ", rendered, "\n\n"])
@@ -69,7 +79,11 @@ defmodule ApiWeb.EventStream do
           else: close(state, ["event: error\ndata: ", render_server_error(conn), "\n\n"])
 
       _ ->
-        {:continue, state}
+        if CheckForShutdown.running?() do
+          {:continue, state}
+        else
+          close(state)
+        end
     end
   end
 
