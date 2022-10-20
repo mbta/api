@@ -1,7 +1,7 @@
-defmodule ApiWeb.EventStream.CanaryTest do
+defmodule ApiWeb.CanaryTest do
   use ExUnit.Case, async: true
 
-  alias ApiWeb.EventStream.Canary
+  alias ApiWeb.Canary
 
   test "calls the provided function when terminated with reason :shutdown" do
     test_pid = self()

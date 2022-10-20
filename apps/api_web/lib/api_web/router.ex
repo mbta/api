@@ -32,6 +32,7 @@ defmodule ApiWeb.Router do
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
     plug(ApiWeb.Plugs.FetchUser)
+    plug(ApiWeb.Plugs.CheckForShutdown)
   end
 
   pipeline :admin_view do
@@ -55,6 +56,7 @@ defmodule ApiWeb.Router do
     plug(:set_content_type)
     plug(ApiWeb.Plugs.Version)
     plug(:authenticated_accepts, ApiWeb.config(:api_pipeline, :authenticated_accepts))
+    plug(ApiWeb.Plugs.CheckForShutdown)
   end
 
   scope "/", ApiWeb do

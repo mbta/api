@@ -1,7 +1,8 @@
 defmodule ApiWeb.EventStreamTest do
   @moduledoc false
   use ApiWeb.ConnCase
-  alias ApiWeb.EventStream.{Canary, ServerSupervisor}
+  alias ApiWeb.Canary
+  alias ApiWeb.ServerSupervisor
   import ApiWeb.EventStream
   import Plug.Conn
   import ApiWeb.Test.ProcessHelper

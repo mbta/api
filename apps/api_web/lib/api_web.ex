@@ -19,7 +19,7 @@ defmodule ApiWeb do
       {RequestTrack, [name: ApiWeb.RequestTrack]},
       ApiWeb.EventStream.Supervisor,
       ApiWeb.Endpoint,
-      ApiWeb.EventStream.Canary
+      ApiWeb.Canary
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
