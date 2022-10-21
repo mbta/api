@@ -5,7 +5,7 @@ defmodule ApiWeb.Canary do
   that the app is shutting down so they can cleanly close their HTTP connections.
   """
 
-  use GenServer
+  use GenServer, restart: :transient
 
   require Logger
 
@@ -22,13 +22,31 @@ defmodule ApiWeb.Canary do
 
   def init(notify_fn) do
     Process.flag(:trap_exit, true)
+
+    monitor_ref = Process.monitor(ALBMonitor.Monitor)
+
     ApiWeb.Plugs.CheckForShutdown.started()
-    {:ok, notify_fn}
+    {:ok, {monitor_ref, notify_fn}}
   end
 
   @impl true
-  def terminate(:shutdown, notify_fn) when is_function(notify_fn, 0), do: notify_fn.()
-  def terminate({:shutdown, _reason}, notify_fn) when is_function(notify_fn, 0), do: notify_fn.()
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, {ref, _} = state) do
+    # The ALBMonitor has detected the draining, so start disconnecting clients
+    # by terminating ourselves.
+    {:stop, :normal, state}
+  end
+
+  def handle_info(_unknown, state) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def terminate(:normal, {_, notify_fn}) when is_function(notify_fn, 0), do: notify_fn.()
+  def terminate(:shutdown, {_, notify_fn}) when is_function(notify_fn, 0), do: notify_fn.()
+
+  def terminate({:shutdown, _reason}, {_, notify_fn}) when is_function(notify_fn, 0),
+    do: notify_fn.()
+
   def terminate(_, _), do: :ok
 
   @spec notify() :: :ok
