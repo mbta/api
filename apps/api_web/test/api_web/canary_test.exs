@@ -12,11 +12,21 @@ defmodule ApiWeb.CanaryTest do
     assert_receive :notified
   end
 
-  test "does nothing when terminated with a reason other than :shutdown" do
+  test "calls the provided function when terminated with reason :normal" do
+    test_pid = self()
+    {:ok, canary} = GenServer.start(Canary, fn -> send(test_pid, :notified) end)
+    refute_receive :notified
+
+    GenServer.stop(canary, :shutdown)
+    assert_receive :notified
+  end
+
+  @tag :capture_log
+  test "does nothing when terminated with a reason other than :shutdown or :normal" do
     test_pid = self()
     {:ok, canary} = GenServer.start(Canary, fn -> send(test_pid, :notified) end)
 
-    GenServer.stop(canary)
+    GenServer.stop(canary, :unexpected)
     refute_receive :notified
   end
 
