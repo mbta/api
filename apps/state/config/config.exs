@@ -220,7 +220,10 @@ config :state, :stops_on_route,
     "Shuttle-AndoverHaverhill-0-" => true,
     # Lowell Line shuttles
     "Shuttle-AndersonWoburnNorthStationExpress-0-" => true,
-    "Shuttle-AndersonWoburnNorthStationLocal-0-" => true
+    "Shuttle-AndersonWoburnNorthStationLocal-0-" => true,
+    # Old Colony Lines shuttles/suspension
+    "Shuttle-BraintreeSouthStationExpress-0-" => true,
+    "CR-Greenbush-BraintreeGreenbush-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
@@ -331,6 +334,22 @@ config :state, :stops_on_route,
         "place-rugg",
         "place-forhl",
         "place-NEC-2203"
+      ]
+    ],
+    {"CR-Greenbush", 0} => [
+      [
+        "place-jfk",
+        "place-qnctr",
+        "place-brntn",
+        "place-GRB-0118"
+      ]
+    ],
+    {"CR-Greenbush", 1} => [
+      [
+        "place-GRB-0118",
+        "place-brntn",
+        "place-qnctr",
+        "place-jfk"
       ]
     ]
   }
