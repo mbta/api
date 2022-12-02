@@ -436,6 +436,11 @@ config :state, :stops_on_route,
       "place-haecl"
     ],
     {"Green-D", 0} => [
+      "place-mdftf",
+      "place-balsq",
+      "place-mgngl",
+      "place-gilmn",
+      "place-esomr",
       "9070150",
       "9434",
       "1521",
@@ -459,7 +464,12 @@ config :state, :stops_on_route,
       "9070180",
       "1804",
       "1807",
-      "9070150"
+      "9070150",
+      "place-esomr",
+      "place-gilmn",
+      "place-mgngl",
+      "place-balsq",
+      "place-mdftf"
     ],
     {"Green-E", 0} => [
       "place-unsqu",
