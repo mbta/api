@@ -75,6 +75,10 @@ config :state, :shape,
     "831_0008" => 2,
     # Green-C
     "831_0009" => 2,
+    # Green-D (Medford/Tufts)
+    "8000020" => -1,
+    # Green-D (Medford/Tufts)
+    "8000021" => -1,
     # Green-D (Lechmere)
     "840_0004" => -1,
     # Green-D (Lechmere)
@@ -171,6 +175,8 @@ config :state, :stops_on_route,
     # Green-D patterns that go to North Station
     "Green-D-851-1" => false,
     "Green-D-841-1" => false,
+    # Green-E patterns that go to/from Union Square
+    "Green-E-885-" => false,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
@@ -430,6 +436,11 @@ config :state, :stops_on_route,
       "place-haecl"
     ],
     {"Green-D", 0} => [
+      "place-mdftf",
+      "place-balsq",
+      "place-mgngl",
+      "place-gilmn",
+      "place-esomr",
       "9070150",
       "9434",
       "1521",
@@ -453,9 +464,15 @@ config :state, :stops_on_route,
       "9070180",
       "1804",
       "1807",
-      "9070150"
+      "9070150",
+      "place-esomr",
+      "place-gilmn",
+      "place-mgngl",
+      "place-balsq",
+      "place-mdftf"
     ],
     {"Green-E", 0} => [
+      "place-unsqu",
       "14159",
       "21458",
       "9070206",
@@ -475,7 +492,8 @@ config :state, :stops_on_route,
       "9070090",
       "9070091",
       "9070501",
-      "9070503"
+      "9070503",
+      "place-unsqu"
     ],
     {"CR-Needham", 0} => [
       "place-NEC-2203",
