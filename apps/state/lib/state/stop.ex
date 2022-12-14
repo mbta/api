@@ -251,6 +251,10 @@ defmodule State.Stop do
   @spec do_searches([stop_search]) :: [Stop.t()]
   defp do_searches([]), do: all()
 
+  defp do_searches([operation]) do
+    operation.()
+  end
+
   defp do_searches(search_operations) when is_list(search_operations) do
     search_results =
       Stream.map(search_operations, fn search_operation ->
