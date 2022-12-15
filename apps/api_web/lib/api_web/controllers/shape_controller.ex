@@ -33,10 +33,12 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(conn, params) do
-    with {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
-      do_filter(filtered, params, conn)
-    else
-      {:error, _, _} = error -> error
+    case Params.filter_params(params, filters(conn), conn) do
+      {:ok, filtered} ->
+        do_filter(filtered, params, conn)
+
+      {:error, _, _} = error ->
+        error
     end
   end
 
