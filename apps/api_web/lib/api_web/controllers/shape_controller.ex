@@ -7,7 +7,6 @@ defmodule ApiWeb.ShapeController do
 
   @filters ~w(route)s
   @pagination_opts ~w(offset limit)a
-  @includes ~w(route stops)
 
   def state_module, do: State.Shape
 
@@ -23,7 +22,6 @@ defmodule ApiWeb.ShapeController do
     """)
 
     common_index_parameters(__MODULE__, :shape)
-    include_parameters(@includes)
     filter_param(:id, name: :route, required: true)
 
     consumes("application/vnd.api+json")
@@ -35,8 +33,7 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, @includes, conn),
-         {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
+    with {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
       do_filter(filtered, params, conn)
     else
       {:error, _, _} = error -> error
@@ -70,7 +67,6 @@ defmodule ApiWeb.ShapeController do
 
     parameter(:id, :path, :string, "Unique identifier for shape")
     common_show_parameters(:shape)
-    include_parameters(@includes)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -83,14 +79,8 @@ defmodule ApiWeb.ShapeController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @includes, conn) do
-      :ok ->
-        Shape.by_primary_id(id)
-
-      {:error, _, _} = error ->
-        error
-    end
+  def show_data(_conn, %{"id" => id}) do
+    Shape.by_primary_id(id)
   end
 
   def swagger_definitions do
