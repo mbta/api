@@ -14,6 +14,9 @@ deploy.sh
 api-build.zip
 DynamoDBLocal*
 Dockerfile
+apps/state/priv/*.db
+apps/state/priv/*.db-shm
+apps/state/priv/*.db-wal
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

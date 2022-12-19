@@ -13,6 +13,7 @@ defmodule State do
   # for more information on OTP Applications
   def start(_type, _args) do
     children = [
+      State.Sqlite,
       State.Metadata,
       State.Service,
       State.Stop,

@@ -34,6 +34,14 @@ defmodule Recordable do
         %__MODULE__{unquote_splicing(pairs)}
       end
 
+      def to_list(%__MODULE__{unquote_splicing(pairs)}) do
+        [unquote_splicing(vals)]
+      end
+
+      def from_list([unquote_splicing(vals)]) do
+        %__MODULE__{unquote_splicing(pairs)}
+      end
+
       def fields, do: unquote(keys)
 
       def filled(_) do

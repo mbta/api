@@ -2,27 +2,28 @@ defmodule State.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :state,
-     aliases: aliases(),
-     build_embedded: Mix.env == :prod,
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps: deps(),
-     deps_path: "../../deps",
-     elixir: "~> 1.2",
-     elixirc_paths: elixirc_paths(Mix.env),
-     lockfile: "../../mix.lock",
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: LcovEx],
-     version: "0.0.1"]
+    [
+      app: :state,
+      aliases: aliases(),
+      build_embedded: Mix.env() == :prod,
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps: deps(),
+      deps_path: "../../deps",
+      elixir: "~> 1.2",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      lockfile: "../../mix.lock",
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: LcovEx],
+      version: "0.0.1"
+    ]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [extra_applications: [:logger, :mnesia, :rstar],
-     mod: {State, []}]
+    [extra_applications: [:logger, :mnesia, :rstar], mod: {State, []}]
   end
 
   defp aliases do
@@ -49,6 +50,7 @@ defmodule State.Mixfile do
     [
       {:rstar, github: 'armon/erl-rstar', app: false},
       {:timex, "~> 3.7"},
+      {:exqlite, "~> 0.14"},
       {:fetch, in_umbrella: true},
       {:events, in_umbrella: true},
       {:model, in_umbrella: true},

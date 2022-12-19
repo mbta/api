@@ -70,6 +70,7 @@ defmodule State.AlertTest do
   describe "init/1" do
     setup do
       Application.stop(:state)
+      start_supervised!(State.Sqlite)
 
       on_exit(fn ->
         Application.start(:state)

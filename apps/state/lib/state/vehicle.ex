@@ -92,12 +92,16 @@ defmodule State.Vehicle do
   end
 
   defp build_filters(matchers, :effective_route_id, route_ids, filters) do
-    direction_id = filters[:direction_id] || :_
+    direction_id = filters[:direction_id]
 
     for matcher <- matchers, route_id <- route_ids do
-      matcher
-      |> Map.put(:effective_route_id, route_id)
-      |> Map.put(:direction_id, direction_id)
+      matcher = Map.put(matcher, :effective_route_id, route_id)
+
+      if direction_id do
+        Map.put(matcher, :direction_id, direction_id)
+      else
+        matcher
+      end
     end
   end
 

@@ -13,7 +13,9 @@ erl_crash.dump
 /rel/api
 *.secret.exs
 
-apps/api/priv/static/swagger.json
+/apps/state/priv/*.db
+/apps/state/priv/*.db-shm
+/apps/state/priv/*.db-wal
 
 # Elastic Beanstalk Files
 aws/

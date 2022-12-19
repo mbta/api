@@ -41,7 +41,8 @@ defmodule ApiUmbrella.Mixfile do
   end
 
   defp aliases do
-    [compile: ["compile --warnings-as-errors"]]
+    # [compile: ["compile --warnings-as-errors"]]
+    []
   end
 
   # Dependencies can be Hex packages:
