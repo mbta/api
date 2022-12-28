@@ -53,7 +53,7 @@ config :logger,
   backends: [:console]
 
 config :logger, :console,
-  format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
+  format: "$dateT$time [$level] node=$node $metadata$message\n",
   metadata: [:request_id, :api_key, :ip, :records, :api_version, :concurrent]
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
