@@ -44,7 +44,7 @@ defmodule ApiWeb.Plugs.ValidateDate do
   defp error do
     %{
       code: :no_service,
-      description: "The current rating does not describe service on that date.",
+      detail: "The current rating does not describe service on that date.",
       source: %{
         parameter: "date"
       },
@@ -52,7 +52,9 @@ defmodule ApiWeb.Plugs.ValidateDate do
     }
   end
 
+  # sobelow_skip ["XSS.SendResp"]
   defp render_error(conn, params) do
+    # We know this is not vulnerable, because JaSerializer sets the content type to `application/x-vnd-api+json`.
     body =
       params
       |> ErrorSerializer.format(conn)

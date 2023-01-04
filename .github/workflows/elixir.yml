@@ -108,6 +108,10 @@ jobs:
           mix deps.audit
       - name: Credo
         run: mix credo --strict
+      - name: Sobelow (Security)
+        run: |
+          cd apps/api_web
+          mix sobelow --skip --exit
 
   dialyzer:
     name: Dialyzer
