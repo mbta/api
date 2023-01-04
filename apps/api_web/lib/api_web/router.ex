@@ -26,11 +26,21 @@ defmodule ApiWeb.Router do
       signing_salt: {Application, :get_env, [:api_web, :signing_salt]}
     )
 
+    @content_security_policy Enum.join(
+                               [
+                                 "default-src 'none'",
+                                 "img-src 'self' cdn.mbta.com",
+                                 "style-src 'self' 'unsafe-inline' maxcdn.bootstrapcdn.com fonts.googleapis.com",
+                                 "script-src 'self' maxcdn.bootstrapcdn.com code.jquery.com",
+                                 "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com"
+                               ],
+                               "; "
+                             )
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
+    plug(:put_secure_browser_headers, %{"content-security-policy" => @content_security_policy})
     plug(ApiWeb.Plugs.FetchUser)
     plug(ApiWeb.Plugs.CheckForShutdown)
   end
