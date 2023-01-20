@@ -13,7 +13,7 @@ defmodule State.Helpers do
 
   # Allow for overriding the return value using the `:route_pattern_prefix_overrides` config
   for {route_pattern_id, include?} <-
-        Application.get_env(:state, :stops_on_route)[:route_pattern_prefix_overrides] do
+        Application.compile_env(:state, :stops_on_route)[:route_pattern_prefix_overrides] do
     def stops_on_route?(%Trip{route_pattern_id: unquote(route_pattern_id) <> _}),
       do: unquote(include?)
   end
