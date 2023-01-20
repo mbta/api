@@ -424,7 +424,6 @@ defmodule State.ShapeTest do
 
       assert [%{id: "one"}] = State.Shape.select_routes(["route 1"], nil)
       assert [%{id: "two"}] = State.Shape.select_routes(["route 2"], nil)
-      assert_
     end
 
     test "keeps the trip with the more common headsign" do
