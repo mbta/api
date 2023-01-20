@@ -413,13 +413,18 @@ defmodule State.ShapeTest do
       State.StopsOnRoute.update!()
       State.Shape.new_state(polylines)
 
-      assert [
+      routes = State.Shape.select_routes(["route 1", "route 2", "route 3"], nil)
+
+      assert Enum.member?(routes, [
                %{id: "one", route_id: "route 1"},
                %{id: "two", route_id: "route 2"}
-             ] = State.Shape.select_routes(["route 1", "route 2", "route 3"], nil)
+             ])
+
+      assert length(routes) = 2
 
       assert [%{id: "one"}] = State.Shape.select_routes(["route 1"], nil)
       assert [%{id: "two"}] = State.Shape.select_routes(["route 2"], nil)
+      assert_
     end
 
     test "keeps the trip with the more common headsign" do
