@@ -64,7 +64,7 @@ defmodule State.Service do
       {:fetch, "calendar_dates.txt"}
     ]
 
-    for sub <- subscriptions, do: subscribe(sub)
+    _subscribe_subscriptions = for sub <- subscriptions, do: subscribe(sub)
 
     state = %{data: Gather.new(subscriptions, &do_gather/1), last_updated: nil}
     {:ok, state}

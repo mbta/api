@@ -70,9 +70,10 @@ defmodule State.RoutesByService do
       {:new_state, State.Service}
     ]
 
-    for subscription <- subscriptions do
-      subscribe(subscription)
-    end
+    _subscribe_subscriptions =
+      for subscription <- subscriptions do
+        subscribe(subscription)
+      end
 
     if State.Service.size() > 0 do
       send(self(), :update)

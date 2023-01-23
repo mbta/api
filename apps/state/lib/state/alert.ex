@@ -60,7 +60,7 @@ defmodule State.Alert do
   @impl GenServer
   def init(_) do
     Enum.each(@subscriptions, &subscribe/1)
-    for table <- @subtables, do: table.new()
+    _new_tables = for table <- @subtables, do: table.new()
     super(nil)
   end
 
@@ -74,7 +74,7 @@ defmodule State.Alert do
   @impl State.Server
   def post_commit_hook do
     all_alerts = all()
-    for table <- @subtables, do: table.update(all_alerts)
+    _update_tables = for table <- @subtables, do: table.update(all_alerts)
     :ok
   end
 

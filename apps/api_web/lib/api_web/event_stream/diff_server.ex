@@ -127,9 +127,10 @@ defmodule ApiWeb.EventStream.DiffServer do
   end
 
   def respond_with_error(state, error) do
-    for parent <- Map.keys(state.refs) do
-      send(parent, {:error, render_error(error)})
-    end
+    _error_sends =
+      for parent <- Map.keys(state.refs) do
+        send(parent, {:error, render_error(error)})
+      end
 
     {:stop, :normal, state}
   end
@@ -142,9 +143,10 @@ defmodule ApiWeb.EventStream.DiffServer do
     rendered = render_data(state, data)
     events = diff_events(state.last_rendered, rendered)
 
-    for parent <- Map.keys(state.refs) do
-      send(parent, {:events, events})
-    end
+    _event_sends =
+      for parent <- Map.keys(state.refs) do
+        send(parent, {:events, events})
+      end
 
     {:noreply, %{state | last_data: data, last_rendered: rendered}}
   end

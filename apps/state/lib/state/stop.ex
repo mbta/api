@@ -38,9 +38,10 @@ defmodule State.Stop do
   def new_state(list_of_stops) do
     :ok = State.Stop.Cache.new_state(list_of_stops)
 
-    for worker_id <- worker_range() do
-      :ok = State.Stop.Worker.new_state(worker_id, list_of_stops)
-    end
+    _new_state_by_worker_id =
+      for worker_id <- worker_range() do
+        :ok = State.Stop.Worker.new_state(worker_id, list_of_stops)
+      end
 
     Events.publish({:new_state, State.Stop}, size())
     :ok
