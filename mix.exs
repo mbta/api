@@ -10,7 +10,6 @@ defmodule ApiUmbrella.Mixfile do
       dialyzer: [
         plt_add_deps: :app_tree,
         flags: [
-          :race_conditions,
           :unmatched_returns
         ],
         ignore_warnings: ".dialyzer.ignore-warnings"
