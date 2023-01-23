@@ -413,14 +413,10 @@ defmodule State.ShapeTest do
       State.StopsOnRoute.update!()
       State.Shape.new_state(polylines)
 
-      routes = State.Shape.select_routes(["route 1", "route 2", "route 3"], nil)
-
-      assert Enum.member?(routes, [
+      assert [
                %{id: "one", route_id: "route 1"},
                %{id: "two", route_id: "route 2"}
-             ])
-
-      assert length(routes) = 2
+             ] = State.Shape.select_routes(["route 1", "route 2", "route 3"], nil)
 
       assert [%{id: "one"}] = State.Shape.select_routes(["route 1"], nil)
       assert [%{id: "two"}] = State.Shape.select_routes(["route 2"], nil)
