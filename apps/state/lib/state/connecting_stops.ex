@@ -71,7 +71,7 @@ defmodule State.ConnectingStops do
   def init(_) do
     @table = :ets.new(@table, [:named_table, read_concurrency: true])
     Events.publish({:new_state, __MODULE__}, 0)
-    _subscribe_servers = for server <- @sources, do: Events.subscribe({:new_state, server})
+    for server <- @sources, do: Events.subscribe({:new_state, server})
     {:ok, maybe_update(nil), :hibernate}
   end
 

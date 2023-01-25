@@ -33,11 +33,10 @@ defmodule GtfsDecompress do
     _ = Logger.debug("Received GTFS file...")
     {:ok, handle} = :zip.zip_open(body, [:memory])
 
-    _files_publish =
-      for filename <- filenames() do
-        {:ok, body} = read_file(filename, handle)
-        Events.publish({:fetch, filename}, body)
-      end
+    for filename <- filenames() do
+      {:ok, body} = read_file(filename, handle)
+      Events.publish({:fetch, filename}, body)
+    end
 
     :ok = :zip.zip_close(handle)
 

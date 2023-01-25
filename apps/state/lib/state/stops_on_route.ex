@@ -114,10 +114,9 @@ defmodule State.StopsOnRoute do
       {:new_state, State.Schedule}
     ]
 
-    _subscribe_subscriptions =
-      for subscription <- subscriptions do
-        subscribe(subscription)
-      end
+    for subscription <- subscriptions do
+      subscribe(subscription)
+    end
 
     @table = :ets.new(@table, [:named_table, :duplicate_bag, {:read_concurrency, true}])
     {:ok, nil}

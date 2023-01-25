@@ -16,7 +16,7 @@ defmodule State.Route do
 
     subscriptions = [{:fetch, "directions.txt"}, {:fetch, "routes.txt"}]
 
-    _subscribe_subscriptions = for sub <- subscriptions, do: Events.subscribe(sub)
+    for sub <- subscriptions, do: Events.subscribe(sub)
 
     state = %{data: Gather.new(subscriptions, &do_gather/1), last_updated: nil}
     {:ok, state}
