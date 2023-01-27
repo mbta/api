@@ -13,7 +13,7 @@ defmodule ApiWeb.Router do
   """
 
   pipeline :secure do
-    if force_ssl = Application.get_env(:site, :secure_pipeline)[:force_ssl] do
+    if force_ssl = Application.compile_env(:site, :secure_pipeline)[:force_ssl] do
       plug(Plug.SSL, force_ssl)
     end
   end
@@ -23,7 +23,7 @@ defmodule ApiWeb.Router do
       Plug.Session,
       store: :cookie,
       key: "_api_key",
-      signing_salt: Application.get_env(:api_web, :signing_salt)
+      signing_salt: Application.compile_env(:api_web, :signing_salt)
     )
 
     plug(:accepts, ["html"])

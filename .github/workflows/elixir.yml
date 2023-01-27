@@ -15,7 +15,6 @@ jobs:
   asdf:
     name: ASDF
     runs-on: ubuntu-22.04
-
     steps:
       - uses: actions/checkout@v3
       # cache the ASDF directory, using the values from .tool-versions

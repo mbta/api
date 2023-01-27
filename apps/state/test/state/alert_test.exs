@@ -337,7 +337,7 @@ defmodule State.AlertTest do
 
       insert_alerts!(alerts)
 
-      assert [^alert1, ^alert2] = filter_by(%{ids: ["1", "2"]})
+      assert [^alert1, ^alert2] = Enum.sort_by(filter_by(%{ids: ["1", "2"]}), & &1.id)
     end
 
     test "filtering by banner returns alerts with/without banner" do

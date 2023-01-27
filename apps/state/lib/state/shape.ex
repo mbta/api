@@ -114,6 +114,7 @@ defmodule State.Shape do
     [trip] =
       trips
       |> sort_by_number_of_trips_with_headsign()
+      |> Enum.sort_by(& &1.alternate_route)
       |> Enum.take(1)
 
     [
