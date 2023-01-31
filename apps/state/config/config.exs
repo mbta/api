@@ -224,6 +224,8 @@ config :state, :stops_on_route,
     "Shuttle-BallardvaleMaldenCenter-0-" => true,
     "Shuttle-HaverhillMaldenCenter-0-" => true,
     "Shuttle-AndoverHaverhill-0-" => true,
+    "Shuttle-HaverhillReadingExpress-0-" => true,
+    "Shuttle-HaverhillReadingLocal-0-" => true,
     # Lowell Line shuttles
     "Shuttle-AndersonWoburnNorthStationExpress-0-" => true,
     "Shuttle-AndersonWoburnNorthStationLocal-0-" => true,
