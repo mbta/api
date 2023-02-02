@@ -25,7 +25,7 @@ defmodule ApiWeb.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    extra_applications = [:logger,:recaptcha, :phoenix_swagger | env_applications(Mix.env())]
+    extra_applications = [:logger, :recaptcha, :phoenix_swagger | env_applications(Mix.env())]
     [mod: {ApiWeb, []}, extra_applications: extra_applications]
   end
 
@@ -81,7 +81,6 @@ defmodule ApiWeb.Mixfile do
       {:stream_data, "~> 0.4", only: :test},
       {:plug_cowboy, "~> 2.1"},
       {:sobelow, "~> 0.11", only: :dev, runtime: false},
-      # TODO: Placeholder until merge, fork, or copypasta:
       {:recaptcha, git: "https://github.com/nlwstein/recaptcha.git", tag: "github-actions-support"}
     ]
   end
