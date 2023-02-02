@@ -29,7 +29,8 @@
       </.form_group>
 
       <div class="form-group">
-        <%= submit "Register", class: "btn btn-primary" %>
+        <%= raw Recaptcha.Template.display %>
+        <%= submit "Register", class: "btn btn-primary disabled" %>
       </div>
   <% end %>
     </div>

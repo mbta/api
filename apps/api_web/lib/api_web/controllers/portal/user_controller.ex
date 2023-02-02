@@ -20,18 +20,27 @@ defmodule ApiWeb.ClientPortal.UserController do
     |> render("new.html", changeset: changeset)
   end
 
-  def create(conn, %{"user" => user_params}) do
-    case ApiAccounts.register_user(user_params) do
-      {:ok, user} ->
-        conn
-        |> put_session(:user_id, user.id)
-        |> configure_session(renew: true)
-        |> redirect(to: portal_path(conn, :index))
+  def create(conn, %{"user" => user_params, "g-recaptcha-response" => recaptcha}) do
+    case Recaptcha.verify(recaptcha) do
+      {:ok, _response} ->
+        case ApiAccounts.register_user(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_session(:user_id, user.id)
+            |> configure_session(renew: true)
+            |> redirect(to: portal_path(conn, :index))
 
-      {:error, %ApiAccounts.Changeset{} = changeset} ->
+          {:error, %ApiAccounts.Changeset{} = changeset} ->
+            conn
+            |> assign(:pre_container_template, "_new.html")
+            |> render("new.html", changeset: changeset)
+        end
+
+      {:error, _errors} ->
         conn
-        |> assign(:pre_container_template, "_new.html")
-        |> render("new.html", changeset: changeset)
+        |> put_flash(:info, "Failed due to bad captcha :(")
+
+        render(conn, "new.html")
     end
   end
 

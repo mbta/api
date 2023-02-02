@@ -28,11 +28,12 @@ defmodule ApiWeb.Router do
 
     @content_security_policy Enum.join(
                                [
-                                 "default-src 'none'",
+                                 "default-src 'self'",
                                  "img-src 'self' cdn.mbta.com",
                                  "style-src 'self' 'unsafe-inline' maxcdn.bootstrapcdn.com fonts.googleapis.com",
-                                 "script-src 'self' maxcdn.bootstrapcdn.com code.jquery.com",
-                                 "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com"
+                                 "script-src 'self' maxcdn.bootstrapcdn.com code.jquery.com www.google.com www.gstatic.com",
+                                 "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com",
+                                 "frame-src www.google.com"
                                ],
                                "; "
                              )

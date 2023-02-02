@@ -62,6 +62,11 @@ config :mime, :types, %{
 
 config :ja_serializer, key_format: :underscored
 
+config :recaptcha,
+  verify_url: "https://www.google.com/recaptcha/api/siteverify",
+  public_key: {:system, "RECAPTCHA_PUBLIC_KEY"},
+  secret: {:system, "RECAPTCHA_PRIVATE_KEY"}
+
 config :api_web, :phoenix_swagger,
   swagger_files: %{
     "priv/static/swagger.json" => [router: ApiWeb.Router, endpoint: ApiWeb.Endpoint]
