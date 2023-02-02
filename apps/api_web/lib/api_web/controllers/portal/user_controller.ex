@@ -38,7 +38,7 @@ defmodule ApiWeb.ClientPortal.UserController do
 
       {:error, _errors} ->
         conn
-        |> put_flash(:error, "Failed due to bad captcha.")
+        |> put_flash(:error, "Registration failed due to incorrect or missing captcha.")
         |> redirect(to: user_path(conn, :new))
     end
   end
