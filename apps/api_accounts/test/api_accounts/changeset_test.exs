@@ -161,6 +161,14 @@ defmodule ApiAccounts.ChangesetTest do
       assert result.errors == %{}
       assert result.valid? == true
     end
+
+    test "marks as valid when supplying a real address with a plus on the mbta domain" do
+      params = %{email: "test+test@mbta.com"}
+      changeset = Changeset.cast(@data, params, :email)
+      result = Changeset.validate_email(changeset, :email)
+      assert result.errors == %{}
+      assert result.valid? == true
+    end
   end
 
   describe "validate_length/3" do
