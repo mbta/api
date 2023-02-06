@@ -21,20 +21,17 @@ defmodule ApiWeb.ClientPortal.UserController do
   end
 
   def create(conn, %{"user" => user_params, "g-recaptcha-response" => recaptcha}) do
-    case Recaptcha.verify(recaptcha) do
-      {:ok, _response} ->
-        case ApiAccounts.register_user(user_params) do
-          {:ok, user} ->
-            conn
-            |> put_session(:user_id, user.id)
-            |> configure_session(renew: true)
-            |> redirect(to: portal_path(conn, :index))
-
-          {:error, %ApiAccounts.Changeset{} = changeset} ->
-            conn
-            |> assign(:pre_container_template, "_new.html")
-            |> render("new.html", changeset: changeset)
-        end
+    with {:ok, _recaptcha} <- Recaptcha.verify(recaptcha),
+         {:ok, user} <- ApiAccounts.register_user(user_params) do
+      conn
+      |> put_session(:user_id, user.id)
+      |> configure_session(renew: true)
+      |> redirect(to: portal_path(conn, :index))
+    else
+      {:error, %ApiAccounts.Changeset{} = changeset} ->
+        conn
+        |> assign(:pre_container_template, "_new.html")
+        |> render("new.html", changeset: changeset)
 
       {:error, _errors} ->
         conn
