@@ -81,7 +81,7 @@ defmodule ApiWeb.Mixfile do
       {:stream_data, "~> 0.4", only: :test},
       {:plug_cowboy, "~> 2.1"},
       {:sobelow, "~> 0.11", only: :dev, runtime: false},
-      {:recaptcha, git: "https://github.com/nlwstein/recaptcha.git", tag: "github-actions-support"}
+      {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", tag: "71cd746"}
     ]
   end
 end
