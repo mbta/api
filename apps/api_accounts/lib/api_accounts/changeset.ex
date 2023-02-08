@@ -267,18 +267,19 @@ defmodule ApiAccounts.Changeset do
   end
 
   @doc """
-  Validates the field has a given format.
+  Validates the email using jshmrtn/email_checker
 
   ## Examples
 
-      validate_format(changeset, :email, ~r"@")
+      validate_email(changeset, :email)
 
   """
-  @spec validate_format(t, atom, Regex.t()) :: t
-  def validate_format(%Changeset{} = changeset, field, format) do
-    field_value = Map.get(changeset.changes, field, "")
+  @spec validate_email(t, atom) :: t
+  def validate_email(%Changeset{} = changeset, field) do
+    value = Map.get(changeset.changes, field, "")
+    validation = EmailChecker.valid?(value)
 
-    if field_value =~ format do
+    if validation do
       changeset
     else
       {field, ["has invalid format"]}
