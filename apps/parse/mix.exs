@@ -48,7 +48,7 @@ defmodule Parse.Mixfile do
     [
       {:ex_csv, "~> 0.1.4"},
       {:exprotobuf, "~> 1.2"},
-      {:gpb, "< 4.19.0"},
+      {:gpb, "< 4.20.0"},
       {:timex, "~> 3.2"},
       {:jason, "~> 1.0"},
       {:model, in_umbrella: true},
