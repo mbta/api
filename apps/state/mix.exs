@@ -54,7 +54,7 @@ defmodule State.Mixfile do
       {:model, in_umbrella: true},
       {:parse, in_umbrella: true},
       {:benchfella, "~> 0.0", only: [:dev, :test]},
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:stream_data, "~> 0.4", only: :test}
     ]
   end
