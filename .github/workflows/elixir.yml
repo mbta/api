@@ -103,9 +103,15 @@ jobs:
       - name: Compile (warnings as errors)
         run: mix compile --force --warnings-as-errors
       - name: Package Audits
-        run: mix hex.audit
+        run: |
+          mix hex.audit
+          mix deps.audit
       - name: Credo
         run: mix credo --strict
+      - name: Sobelow (Security)
+        run: |
+          cd apps/api_web
+          mix sobelow --skip --exit
 
   dialyzer:
     name: Dialyzer

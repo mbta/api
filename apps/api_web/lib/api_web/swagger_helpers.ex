@@ -244,7 +244,7 @@ defmodule ApiWeb.SwaggerHelpers do
       |> String.replace_suffix("Controller", "")
       |> String.downcase()
 
-    String.to_atom("#{short_name}_path")
+    String.to_existing_atom("#{short_name}_path")
   end
 
   defp attribute_to_json_pointer("id"), do: "/data/{index}/id"
