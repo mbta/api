@@ -72,7 +72,7 @@ defmodule ApiWeb.Mixfile do
       {:memcachex, "~> 0.4"},
       {:ehmon, github: "mbta/ehmon", branch: "master", only: :prod},
       {:benchwarmer, "~> 0.0", only: [:dev, :test]},
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:logster, "~> 1.0"},
       {:phoenix_swagger, github: "mbta/phoenix_swagger", branch: "master"},
       {:ex_json_schema, "~> 0.6.2"},
