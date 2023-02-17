@@ -4,8 +4,6 @@ defmodule ApiWeb.Params do
   """
 
   ## Defaults
-
-  @max_limit 100
   @default_params ~w(include sort page filter fields api_key)
 
   @doc """
@@ -56,7 +54,7 @@ defmodule ApiWeb.Params do
 
   defp filter_opt(:limit, %{"page" => %{"limit" => limit}}, _conn, acc) do
     case parse_int(limit) do
-      {:ok, limit} when limit > 0 and limit <= @max_limit ->
+      {:ok, limit} when limit > 0 ->
         Map.put(acc, :limit, limit)
 
       _ ->

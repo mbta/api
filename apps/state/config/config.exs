@@ -5,10 +5,6 @@ import Config
 config :state, :shape,
   prefix_overrides: %{
     # Green Line
-    # Green-D (Union Square)
-    "8000008" => -1,
-    # Green-D (Union Square)
-    "8000009" => -1,
     # Green-B (Medford/Tufts)
     "8000014" => -1,
     # Green-B (Medford/Tufts)
@@ -79,6 +75,10 @@ config :state, :shape,
     "831_0008" => 2,
     # Green-C
     "831_0009" => 2,
+    # Green-D (Medford/Tufts)
+    "8000020" => -1,
+    # Green-D (Medford/Tufts)
+    "8000021" => -1,
     # Green-D (Lechmere)
     "840_0004" => -1,
     # Green-D (Lechmere)
@@ -175,10 +175,13 @@ config :state, :stops_on_route,
     # Green-D patterns that go to North Station
     "Green-D-851-1" => false,
     "Green-D-841-1" => false,
+    # Green-E patterns that go to/from Union Square
+    "Green-E-885-" => false,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
-    "Shuttle-BeverlyRockport-0-" => true,
+    "Shuttle-BeverlyRockportExpress-0-" => true,
+    "Shuttle-BeverlyRockportLocal-0-" => true,
     "Shuttle-ManchesterGloucester-0-" => true,
     "Shuttle-ManchesterRockport-0-" => true,
     "Shuttle-OrientHeightsRockportExpress-0-" => true,
@@ -196,6 +199,7 @@ config :state, :stops_on_route,
     "Shuttle-BeverlyWellingtonLocal-0-" => true,
     "Shuttle-ChelseaLynn-0-" => true,
     "Shuttle-LynnNorthStationExpress-0-" => true,
+    "Shuttle-LynnSwampscott-0-" => true,
     "CR-Newburyport-adde8a7c-" => true,
     "CR-Newburyport-76fa2c91-" => true,
     "CR-Newburyport-173cb7ae-" => true,
@@ -220,9 +224,14 @@ config :state, :stops_on_route,
     "Shuttle-BallardvaleMaldenCenter-0-" => true,
     "Shuttle-HaverhillMaldenCenter-0-" => true,
     "Shuttle-AndoverHaverhill-0-" => true,
+    "Shuttle-HaverhillReadingExpress-0-" => true,
+    "Shuttle-HaverhillReadingLocal-0-" => true,
     # Lowell Line shuttles
     "Shuttle-AndersonWoburnNorthStationExpress-0-" => true,
-    "Shuttle-AndersonWoburnNorthStationLocal-0-" => true
+    "Shuttle-AndersonWoburnNorthStationLocal-0-" => true,
+    # Old Colony Lines shuttles/suspension
+    "Shuttle-BraintreeSouthStationExpress-0-" => true,
+    "CR-Greenbush-BraintreeGreenbush-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
@@ -334,6 +343,22 @@ config :state, :stops_on_route,
         "place-forhl",
         "place-NEC-2203"
       ]
+    ],
+    {"CR-Greenbush", 0} => [
+      [
+        "place-jfk",
+        "place-qnctr",
+        "place-brntn",
+        "place-GRB-0118"
+      ]
+    ],
+    {"CR-Greenbush", 1} => [
+      [
+        "place-GRB-0118",
+        "place-brntn",
+        "place-qnctr",
+        "place-jfk"
+      ]
     ]
   }
 
@@ -413,20 +438,48 @@ config :state, :stops_on_route,
       "place-haecl"
     ],
     {"Green-D", 0} => [
-      "palce-unsqu",
-      "place-lech",
-      "place-spmnl"
+      "place-mdftf",
+      "place-balsq",
+      "place-mgngl",
+      "place-gilmn",
+      "place-esomr",
+      "9070150",
+      "9434",
+      "1521",
+      "11366",
+      "9070178",
+      "1540",
+      "9070171",
+      "9170169",
+      "8206",
+      "9070165",
+      "9070162"
     ],
     {"Green-D", 1} => [
-      "place-unsqu",
-      "place-lech",
-      "place-spmnl"
+      "9070162",
+      "9070164",
+      "8153",
+      "9170168",
+      "9070170",
+      "1984",
+      "9070179",
+      "9070180",
+      "1804",
+      "1807",
+      "9070150",
+      "place-esomr",
+      "place-gilmn",
+      "place-mgngl",
+      "place-balsq",
+      "place-mdftf"
     ],
     {"Green-E", 0} => [
+      "place-unsqu",
       "14159",
       "21458",
       "9070206",
       "30203",
+      "9070026",
       "4510",
       "9070503",
       "9070501",
@@ -438,11 +491,13 @@ config :state, :stops_on_route,
       "14155",
       "21458",
       "4510",
+      "9070026",
       "4511",
       "9070090",
       "9070091",
       "9070501",
-      "9070503"
+      "9070503",
+      "place-unsqu"
     ],
     {"CR-Needham", 0} => [
       "place-NEC-2203",
@@ -464,6 +519,20 @@ config :state, :stops_on_route,
       "6565",
       "6537",
       "9070039"
+    ],
+    {"Red", 0} => [
+      "110",
+      "72",
+      "9170071",
+      "9070073",
+      "9170076"
+    ],
+    {"Red", 1} => [
+      "9170076",
+      "9070074",
+      "2231",
+      "102",
+      "110"
     ]
   }
 

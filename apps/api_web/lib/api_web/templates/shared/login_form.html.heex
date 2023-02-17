@@ -8,17 +8,17 @@
       </div>
     <% end %>
 
-    <%= form_group f, :email do %>
+    <.form_group form={f} field={:email}>
       <%= label f, :email, class: "control-label" %>
       <%= email_input f, :email, class: "form-control" %>
       <%= error_tag f, :email %>
-    <% end %>
+    </.form_group>
 
-    <%= form_group f, :password do %>
+    <.form_group form={f} field={:password}>
       <%= label f, :password, class: "control-label" %>
       <%= password_input f, :password, class: "form-control" %>
       <%= error_tag f, :password %>
-    <% end %>
+    </.form_group>
 
     <div class="form-group text-center">
       <%= submit "Login", class: "btn btn-primary" %>

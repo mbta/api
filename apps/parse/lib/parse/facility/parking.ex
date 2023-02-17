@@ -63,7 +63,7 @@ defmodule Parse.Facility.Parking do
     end
   end
 
-  for {garage_name, facility_id} <- Application.get_env(:parse, Facility.Parking)[:garages] do
+  for {garage_name, facility_id} <- Application.compile_env(:parse, Facility.Parking)[:garages] do
     defp garage_name_to_facility_id(unquote(garage_name)), do: {:ok, unquote(facility_id)}
   end
 

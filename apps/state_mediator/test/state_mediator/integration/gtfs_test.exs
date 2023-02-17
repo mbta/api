@@ -63,13 +63,8 @@ defmodule StateMediator.Integration.GtfsTest do
       assert_first_last_stop_id("CR-Kingston", "place-sstat", "place-KB-0351")
       assert_first_last_stop_id("Green-B", "place-gover", "place-lake")
       assert_first_last_stop_id("Green-C", "place-gover", "place-clmnl")
-      assert_first_last_stop_id("Green-D", ["place-north", "place-unsqu"], "place-river")
-
-      assert_first_last_stop_id(
-        "Green-E",
-        ["place-gover", "place-lech", "place-unsqu", "place-mdftf"],
-        "place-hsmnl"
-      )
+      assert_first_last_stop_id("Green-D", "place-unsqu", "place-river")
+      assert_first_last_stop_id("Green-E", ["place-lech", "place-mdftf"], "place-hsmnl")
     end
 
     test "keeps green line core in the correct order" do
@@ -210,15 +205,16 @@ defmodule StateMediator.Integration.GtfsTest do
       assert shape_1_names == ["Stoughton - South Station", "Wickford Junction - South Station"]
     end
 
-    test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
-      [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
-
-      assert [%{name: "North Station - Rockport"}, %{name: "North Station - Newburyport"}] =
-               shapes_0
-
-      assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
-               shapes_1
-    end
+    # Disable Newburyport/Rockport Line check while Rockport Branch is closed, Fall 2022
+    # test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
+    #  [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
+    #
+    #  assert [%{name: "North Station - Rockport"}, %{name: "North Station - Newburyport"}] =
+    #           shapes_0
+    #
+    #  assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
+    #           shapes_1
+    # end
 
     test "all shuttle shapes have negative priority" do
       invalid_shapes =

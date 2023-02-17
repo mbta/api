@@ -17,14 +17,12 @@ defmodule ALBMonitor.Monitor do
             check_interval: integer(),
             ecs_metadata_uri: String.t() | nil,
             instance_ip: String.t() | nil,
-            shutdown_fn: (() -> :ok),
             target_group_arn: String.t() | nil
           }
 
     defstruct check_interval: 5_000,
               ecs_metadata_uri: nil,
               instance_ip: nil,
-              shutdown_fn: &:init.stop/0,
               target_group_arn: nil
 
     def default do
@@ -41,13 +39,14 @@ defmodule ALBMonitor.Monitor do
   def child_spec(_opts) do
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, []}
+      start: {__MODULE__, :start_link, [State.default(), [name: __MODULE__]]},
+      restart: :transient
     }
   end
 
   @spec start_link(State.t()) :: GenServer.on_start()
-  def start_link(initial_state \\ State.default()) do
-    GenServer.start_link(__MODULE__, initial_state)
+  def start_link(initial_state \\ State.default(), start_link_args \\ []) do
+    GenServer.start_link(__MODULE__, initial_state, start_link_args)
   end
 
   @impl true
@@ -64,12 +63,11 @@ defmodule ALBMonitor.Monitor do
   end
 
   @impl true
-  def handle_info(:check, %State{shutdown_fn: shutdown} = state) do
+  def handle_info(:check, state) do
     case get_instance_health(state) do
       "draining" ->
         log_info("shutdown")
-        shutdown.()
-        {:stop, nil, state}
+        {:stop, :normal, state}
 
       _ ->
         schedule_check(state)

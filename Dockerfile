@@ -1,4 +1,8 @@
-FROM hexpm/elixir:1.13.3-erlang-24.3.2-alpine-3.15.0 as builder
+ARG ELIXIR_VERSION=1.14.3
+ARG ERLANG_VERSION=25.2.1
+ARG ALPINE_VERSION=3.17.0
+
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION} as builder
 
 WORKDIR /root
 
@@ -15,29 +19,30 @@ ADD config config
 ADD mix.* /root/
 
 RUN mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest
+RUN mix eval "Application.ensure_all_started(:tzdata); Tzdata.DataBuilder.load_and_save_table()"
 
 ADD rel/ rel/
 
 RUN mix release
 
 # The one the elixir image was built with
-FROM alpine:3.15.0
+FROM alpine:${ALPINE_VERSION}
 
-RUN apk add --update libssl1.1 curl bash dumb-init libstdc++ libgcc \
-  && rm -rf /var/cache/apk/*
+RUN apk add --no-cache libssl1.1 dumb-init libstdc++ libgcc ncurses-libs && \
+    mkdir /work /api && \
+    adduser -D api && chown api /work
 
-WORKDIR /root
-
-COPY --from=builder /root/_build/prod/rel/api_web /root/rel
+COPY --from=builder /root/_build/prod/rel/api_web /api
 
 # Set exposed ports
 EXPOSE 4000
-ENV PORT=4000 MIX_ENV=prod TERM=xterm LANG=C.UTF-8 REPLACE_OS_VARS=true
+ENV PORT=4000 MIX_ENV=prod TERM=xterm LANG=C.UTF-8 \
+    ERL_CRASH_DUMP_SECONDS=0 RELEASE_TMP=/work
 
-RUN mkdir /root/work
-
-WORKDIR /root/work
+USER api
+WORKDIR /work
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["/root/rel/bin/api_web", "start"]
+HEALTHCHECK CMD ["/api/bin/api_web", "rpc", "1 + 1"]
+CMD ["/api/bin/api_web", "start"]

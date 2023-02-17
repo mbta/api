@@ -19,6 +19,11 @@ config :api_web, ApiWeb.Endpoint,
       max_connections: :infinity
     ]
   ],
+  drainer: [
+    # See options in https://hexdocs.pm/plug_cowboy/Plug.Cowboy.Drainer.html
+    # We set this to 90 seconds so that it's longer than the idle timeout for the load balancer.
+    shutdown: 90_000
+  ],
   url: [scheme: "https", host: {:system, "HOST"}, port: 443],
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
@@ -48,7 +53,7 @@ config :logger,
   backends: [:console]
 
 config :logger, :console,
-  format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
+  format: "$dateT$time [$level] node=$node $metadata$message\n",
   metadata: [:request_id, :api_key, :ip, :records, :api_version, :concurrent]
 
 config :ehmon, :report_mf, {:ehmon, :info_report}

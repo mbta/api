@@ -129,21 +129,45 @@ defmodule ApiAccounts.ChangesetTest do
     assert result.constraints == [expected]
   end
 
-  describe "validate_format/3" do
-    test "marks as valid when field matches format" do
-      params = %{email: "test@test"}
+  describe "validate_email/2" do
+    test "marks as invalid when supplying an invalid format email address" do
+      params = %{email: "test"}
       changeset = Changeset.cast(@data, params, :email)
-      result = Changeset.validate_format(changeset, :email, ~r"@")
+      result = Changeset.validate_email(changeset, :email)
+      assert result.errors == %{email: ["has invalid format"]}
+      assert result.valid? == false
+    end
+
+    test "marks as invalid when supplying a valid format but server does not have MX records" do
+      params = %{email: "test@nomxrecords.mbta.com"}
+      changeset = Changeset.cast(@data, params, :email)
+      result = Changeset.validate_email(changeset, :email)
+      assert result.errors == %{email: ["has invalid format"]}
+      assert result.valid? == false
+    end
+
+    test "marks as valid when supplying a real address on a popular domain" do
+      params = %{email: "test@gmail.com"}
+      changeset = Changeset.cast(@data, params, :email)
+      result = Changeset.validate_email(changeset, :email)
       assert result.errors == %{}
       assert result.valid? == true
     end
 
-    test "marks as invalid when field doesn't match format" do
-      params = %{email: "test"}
+    test "marks as valid when supplying a real address on the mbta domain" do
+      params = %{email: "test@mbta.com"}
       changeset = Changeset.cast(@data, params, :email)
-      result = Changeset.validate_format(changeset, :email, ~r"@")
-      assert result.errors == %{email: ["has invalid format"]}
-      assert result.valid? == false
+      result = Changeset.validate_email(changeset, :email)
+      assert result.errors == %{}
+      assert result.valid? == true
+    end
+
+    test "marks as valid when supplying a real address with a plus on the mbta domain" do
+      params = %{email: "test+test@mbta.com"}
+      changeset = Changeset.cast(@data, params, :email)
+      result = Changeset.validate_email(changeset, :email)
+      assert result.errors == %{}
+      assert result.valid? == true
     end
   end
 

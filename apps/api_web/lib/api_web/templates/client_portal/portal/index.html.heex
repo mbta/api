@@ -41,7 +41,7 @@
       <td><%= key.created %></td>
       <td><%= key.allowed_domains %></td>
       <td><%= if key.locked == true do %>✔<% end %></td>
-      <td><%= link "Edit", to: key_path(@conn, :edit, key), class: "btn btn-success" %>
+      <td><%= link "Edit", to: key_path(@conn, :edit, key), class: "btn btn-success" %></td>
     </tr>
 <% end %>
   </tbody>

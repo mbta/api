@@ -1,6 +1,8 @@
 name: Elixir CI
 
 on:
+  schedule:
+    - cron: '0 5 * * *'
   push:
     branches: master
   pull_request:
@@ -10,9 +12,133 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build and test
-    runs-on: ubuntu-latest
+  asdf:
+    name: ASDF
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      # cache the ASDF directory, using the values from .tool-versions
+      - name: ASDF cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
+        id: asdf-cache
+      # only run `asdf install` if we didn't hit the cache
+      - uses: asdf-vm/actions/install@v1
+        if: steps.asdf-cache.outputs.cache-hit != 'true'
+      - run: |
+          mix local.rebar --force
+          mix local.hex --force
+        if: steps.asdf-cache.outputs.cache-hit != 'true'
+
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-22.04
+    needs: asdf
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: ASDF cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
+      - uses: mbta/actions/reshim-asdf@v1
+      - name: Check formatting
+        run: mix format --check-formatted
+
+  deps:
+    name: Get Dependencies
+    runs-on: ubuntu-22.04
+    needs: asdf
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Restore dependencies cache
+        id: deps-cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-v2-
+      - name: ASDF cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+      - uses: mbta/actions/reshim-asdf@v1
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+      - name: Install dependencies
+        run: mix deps.get
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+
+  dev:
+    name: Dev Tasks
+    runs-on: ubuntu-22.04
+    needs: deps
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: ASDF cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
+      - uses: mbta/actions/reshim-asdf@v1
+      - name: Restore dependencies cache
+        id: deps-cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-v2-
+      - name: Restore dev build cache
+        uses: actions/cache@v3
+        with:
+          path: _build/dev
+          key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-dev-
+      - name: Compile (warnings as errors)
+        run: mix compile --force --warnings-as-errors
+      - name: Package Audits
+        run: |
+          mix hex.audit
+          mix deps.audit
+      - name: Credo
+        run: mix credo --strict
+      - name: Sobelow (Security)
+        run: |
+          cd apps/api_web
+          mix sobelow --skip --exit
+
+  dialyzer:
+    name: Dialyzer
+    runs-on: ubuntu-22.04
+    needs: deps
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: ASDF cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
+      - uses: mbta/actions/reshim-asdf@v1
+      - name: Restore dependencies cache
+        id: deps-cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-v2-
+      - uses: mbta/actions/dialyzer@v1
+
+  test:
+    name: Test Tasks
+    runs-on: ubuntu-22.04
+    needs: deps
 
     services:
       dynamodb:
@@ -21,49 +147,29 @@ jobs:
           - 8000:8000
 
     steps:
-      - uses: actions/checkout@v2
-      # cache the ASDF directory, using the values from .tool-versions
+      - uses: actions/checkout@v3
       - name: ASDF cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.asdf
-          key: ${{ runner.os }}-asdf-v2-${{ hashFiles('.tool-versions') }}
-        id: asdf-cache
-      # only run `asdf install` if we didn't hit the cache
-      - uses: asdf-vm/actions/install@v1
-        if: steps.asdf-cache.outputs.cache-hit != 'true'
-      # if we did hit the cache, set up the environment
-      - name: Setup ASDF environment
-        run: |
-          echo "ASDF_DIR=$HOME/.asdf" >> $GITHUB_ENV
-          echo "ASDF_DATA_DIR=$HOME/.asdf" >> $GITHUB_ENV
-        if: steps.asdf-cache.outputs.cache-hit == 'true'
-      - name: Reshim ASDF
-        run: |
-          echo "$ASDF_DIR/bin" >> $GITHUB_PATH
-          echo "$ASDF_DIR/shims" >> $GITHUB_PATH
-          $ASDF_DIR/bin/asdf reshim
+          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
+      - uses: mbta/actions/reshim-asdf@v1
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
-      - name: Install dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
-      - name: Compile (warnings as errors)
-        run: mix compile --force --warnings-as-errors
-      - name: Check formatting
-        run: mix format --check-formatted
-      - name: Credo
-        run: mix credo --strict
+          key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-v2-
+      - name: Restore test build cache
+        uses: actions/cache@v3
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-test-
       - name: Run tests
         run: |
-          mix test --cover
+          mix lcov
           cd apps/state_mediator
           mix test --only integration
       - name: Save PR information
@@ -73,8 +179,7 @@ jobs:
           echo "${{ github.event.pull_request.head.sha }}" > cover/PR_SHA
         if: github.event.pull_request
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: elixir-lcov
           path: cover/
-      - uses: mbta/actions/dialyzer@v1
