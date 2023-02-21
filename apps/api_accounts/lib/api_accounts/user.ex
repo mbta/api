@@ -61,7 +61,7 @@ defmodule ApiAccounts.User do
     struct
     |> cast(params, fields)
     |> validate_required([:email])
-    |> validate_format(:email, ~r"@")
+    |> validate_email(:email)
     |> unique_constraint(:email)
     |> format_email()
   end
@@ -84,7 +84,7 @@ defmodule ApiAccounts.User do
     |> validate_required(fields)
     |> validate_length(:password, min: 8)
     |> validate_confirmation(:password)
-    |> validate_format(:email, ~r"@")
+    |> validate_email(:email)
     |> unique_constraint(:email)
     |> format_email()
     |> hash_password()
@@ -109,7 +109,7 @@ defmodule ApiAccounts.User do
     %__MODULE__{}
     |> cast(params, [:email])
     |> validate_required([:email])
-    |> validate_format(:email, ~r"@")
+    |> validate_email(:email)
     |> format_email()
   end
 

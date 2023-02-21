@@ -2,20 +2,22 @@ defmodule ApiAccounts.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :api_accounts,
-     aliases: aliases(),
-     build_embedded: Mix.env == :prod,
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps: deps(),
-     deps_path: "../../deps",
-     docs: docs(),
-     elixir: "~> 1.4",
-     elixirc_paths: elixirc_paths(Mix.env),
-     lockfile: "../../mix.lock",
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: LcovEx],
-     version: "0.1.0"]
+    [
+      app: :api_accounts,
+      aliases: aliases(),
+      build_embedded: Mix.env() == :prod,
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps: deps(),
+      deps_path: "../../deps",
+      docs: docs(),
+      elixir: "~> 1.4",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      lockfile: "../../mix.lock",
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: LcovEx],
+      version: "0.1.0"
+    ]
   end
 
   # Configuration for the OTP application
@@ -23,8 +25,7 @@ defmodule ApiAccounts.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger],
-     mod: {ApiAccounts.Application, []}]
+    [extra_applications: [:logger, :email_checker], mod: {ApiAccounts.Application, []}]
   end
 
   defp aliases do
@@ -49,15 +50,17 @@ defmodule ApiAccounts.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-     {:fetch, in_umbrella: true},
-     {:ex_aws, "~> 2.0"},
-     {:ex_aws_dynamo, "~> 4.0"},
-     {:jason, "~> 1.0"},
-     {:comeonin, "~> 5.1"},
-     {:bcrypt_elixir, "~> 2.0"},
-     {:uuid, "~> 1.1"},
-     {:bamboo, "~> 1.0"},
-     {:bamboo_ses, "~> 0.1.0"}]
+      {:fetch, in_umbrella: true},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_dynamo, "~> 4.0"},
+      {:jason, "~> 1.0"},
+      {:comeonin, "~> 5.1"},
+      {:bcrypt_elixir, "~> 2.0"},
+      {:uuid, "~> 1.1"},
+      {:bamboo, "~> 1.0"},
+      {:bamboo_ses, "~> 0.1.0"},
+      {:email_checker, "~> 0.2.4"}
+    ]
   end
 
   defp docs, do: [extras: extras()]
