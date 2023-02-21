@@ -41,6 +41,6 @@ defmodule Model.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:timex, "~> 3.2"}]
+    [{:timex, "~> 3.7"}]
   end
 end

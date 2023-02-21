@@ -44,12 +44,12 @@ defmodule Fetch.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, "~> 1.1"},
+      {:httpoison, "~> 2.0"},
       {:events, in_umbrella: true},
       {:model, in_umbrella: true},
-      {:timex, "~> 3.2"},
-      {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
+      {:timex, "~> 3.7"},
+      {:ex_aws, "~> 2.4"},
+      {:ex_aws_s3, "~> 2.4"},
       {:bypass, "~> 2.1", only: [:test]}
     ]
   end
