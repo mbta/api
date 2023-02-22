@@ -33,6 +33,10 @@
     form.submit();
   }
 
+  window.recaptchaCompleted = function() {
+    document.getElementById('register-btn').removeAttribute('disabled')
+  }
+
   window.addEventListener("click", function(e) {
     var element = e.target;
 
