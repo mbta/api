@@ -21,7 +21,7 @@ defmodule ApiWeb.ClientPortal.UserController do
   end
 
   def create(conn, %{"user" => user_params, "g-recaptcha-response" => recaptcha}) do
-    with {:ok, _recaptcha} <- Mix.env() != :prod or Recaptcha.verify(recaptcha),
+    with {:ok, _recaptcha} <- Application.get_env(:recaptcha, :enabled) == false or Recaptcha.verify(recaptcha),
          {:ok, user} <- ApiAccounts.register_user(user_params) do
       conn
       |> put_session(:user_id, user.id)

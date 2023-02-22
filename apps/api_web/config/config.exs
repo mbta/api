@@ -63,7 +63,8 @@ config :mime, :types, %{
 config :ja_serializer, key_format: :underscored
 
 config :recaptcha,
-  verify_url: "https://www.google.com/recaptcha/api/siteverify"
+  verify_url: "https://www.google.com/recaptcha/api/siteverify",
+  enabled: false
 
 config :api_web, :phoenix_swagger,
   swagger_files: %{

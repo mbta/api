@@ -29,7 +29,7 @@
       </.form_group>
 
       <div class="form-group">
-        <%= if Mix.env == :prod do %>
+        <%= if Application.get_env(:recaptcha, :enabled) do %>
           <%= raw Recaptcha.Template.display() %>
         <% end %>
       </div>
