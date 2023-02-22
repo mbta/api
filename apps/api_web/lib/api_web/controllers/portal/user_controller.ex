@@ -20,13 +20,13 @@ defmodule ApiWeb.ClientPortal.UserController do
     |> render("new.html", changeset: changeset)
   end
 
+  def create(conn, %{"user" => user_params, "g-recaptcha-response" => recaptcha}) do
+    _create(conn, user_params, recaptcha)
+  end
+
   # Allow missing recaptcha response
   def create(conn, %{"user" => user_params}) do
     _create(conn, user_params, nil)
-  end
-
-  def create(conn, %{"user" => user_params, "g-recaptcha-response" => recaptcha}) do
-    _create(conn, user_params, recaptcha)
   end
 
   defp _create(conn, user_params, recaptcha) do
