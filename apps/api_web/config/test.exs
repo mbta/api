@@ -18,5 +18,10 @@ config :api_web, RateLimiter.Memcache,
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
 
+config :recaptcha,
+  enabled: true,
+  public_key: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+  secret: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+
 # Print only warnings and errors during test
 config :logger, level: :warn
