@@ -35,7 +35,7 @@ defmodule ApiWeb.ClientPortal.UserController do
       if Application.get_env(:recaptcha, :enabled) do
         Recaptcha.verify(recaptcha)
       else
-        {:ok, False}
+        {:ok, false}
       end
 
     with {:ok, _recaptcha} <-
