@@ -170,7 +170,7 @@ defmodule ApiAccounts.UserTest do
     end
 
     test "trims and downcases email addresses" do
-      result = User.account_recovery(%{email: " TEST@TeSt.CoM    "})
+      result = User.account_recovery(%{email: " TEST@mBtA.CoM    "})
       assert result.changes.email == "test@mbta.com"
       assert result.valid?
     end
