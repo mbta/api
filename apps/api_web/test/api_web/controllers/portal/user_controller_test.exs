@@ -8,10 +8,11 @@ defmodule ApiWeb.Portal.UserControllerTest do
   end
 
   describe "registration" do
-
     test "shows recaptcha widget", %{conn: conn} do
       conn = get(conn, user_path(conn, :new))
-      assert html_response(conn, 200) =~ "data-sitekey=\"6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-\""
+
+      assert html_response(conn, 200) =~
+               "data-sitekey=\"6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-\""
     end
 
     test "renders register form", %{conn: conn} do
