@@ -84,7 +84,7 @@ defmodule ApiAccounts do
       iex> get_user_by_email("test@mbta.com")
       {:ok, %User{...}}
 
-      iex> get_user_by_email("bad@test.com")
+      iex> get_user_by_email("bad@mbta.com")
       {:error, :not_found}
 
       iex> get_user_by_email(%{email: "test@mbta.com"})

@@ -150,7 +150,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows error on invalid form submission", %{conn: conn} do
-      {:ok, other_user} = ApiAccounts.create_user(%{email: "existing@test"})
+      {:ok, other_user} = ApiAccounts.create_user(%{email: "existing@mbta.com"})
 
       params = %{
         action: "edit-information",
@@ -170,7 +170,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     test "updates account information when valid", %{conn: conn} do
       params = %{
         action: "edit-information",
-        user: %{email: "new@test.com", phone: "1234567"}
+        user: %{email: "new@mbta.com", phone: "1234567"}
       }
 
       conn =

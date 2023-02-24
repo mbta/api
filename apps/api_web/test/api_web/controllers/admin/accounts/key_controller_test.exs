@@ -90,7 +90,7 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
   test "shows pending key approvals", %{conn: conn} do
     key_requests =
       for i <- 1..5 do
-        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@test.com"})
+        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@mbta.com"})
         {:ok, key} = ApiAccounts.create_key(user)
         {key, user}
       end

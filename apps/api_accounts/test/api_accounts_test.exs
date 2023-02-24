@@ -325,14 +325,14 @@ defmodule ApiAccountsTest do
   test "list_key_requests/0" do
     expected =
       for i <- 1..5 do
-        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@test.com"})
+        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@mbta.com"})
         {:ok, _approved_key} = ApiAccounts.request_key(user)
         {:ok, key} = ApiAccounts.request_key(user)
         {key, user}
       end
 
     for i <- 1..2 do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}-#{i}@test.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}-#{i}@mbta.com"})
       {:ok, key} = ApiAccounts.create_key(user)
       ApiAccounts.update_key(key, %{approved: true})
     end
@@ -477,8 +477,8 @@ defmodule ApiAccountsTest do
     end
 
     test "doesn't allow duplicate emails when changing email", %{user: user} do
-      {:ok, _} = ApiAccounts.update_information(user, %{email: "existing@test"})
-      assert {:error, changeset} = ApiAccounts.update_information(user, %{email: "existing@test"})
+      {:ok, _} = ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
+      assert {:error, changeset} = ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
       refute changeset.valid?
       assert Enum.at(changeset.errors.email, 0) =~ "taken"
     end

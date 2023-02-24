@@ -150,7 +150,7 @@ defmodule ApiAccounts.DynamoTest do
       for i <- 1..5 do
         user = %User{
           id: "#{i}",
-          email: "#{i}@test.com",
+          email: "#{i}@mbta.com",
           join_date: NaiveDateTime.utc_now(),
           schema_version: 0
         }
