@@ -167,6 +167,8 @@ jobs:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-test-
+      - name: Run mix compile
+        run: mix compile
       - name: Run tests and generate coverage
         env: 
           MIX_ENV: test
