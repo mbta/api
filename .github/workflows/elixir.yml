@@ -167,8 +167,6 @@ jobs:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-test-
-      - name: debug_to_be_removed
-        run: rm -rf _build
       - name: Run tests and lcov
         run: mix test --cover
       - name: Run integration tests
