@@ -12,7 +12,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
       conn = get(conn, user_path(conn, :new))
 
       assert html_response(conn, 200) =~
-               "data-sitekey=\"6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-\""
+               "data-sitekey=\"6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI\""
     end
 
     test "renders register form", %{conn: conn} do
