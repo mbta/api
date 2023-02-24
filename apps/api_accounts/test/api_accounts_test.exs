@@ -421,7 +421,7 @@ defmodule ApiAccountsTest do
 
   describe "update_password/2" do
     setup do
-      params = %{email: "test@test", password: "password"}
+      params = %{email: "test@mbta.com", password: "password"}
       {:ok, user} = ApiAccounts.create_user(params)
       {:ok, user: user}
     end

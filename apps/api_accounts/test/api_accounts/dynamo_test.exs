@@ -193,7 +193,7 @@ defmodule ApiAccounts.DynamoTest do
 
   describe "decode/2" do
     test "decodes items" do
-      expected_user = %User{email: "test@test"}
+      expected_user = %User{email: "test@mbta.com"}
 
       attrs = %{
         "email" => %{"S" => expected_user.email},
@@ -205,7 +205,7 @@ defmodule ApiAccounts.DynamoTest do
     end
 
     test "assigns a default schema version of 0 when none present" do
-      expected_user = %User{email: "test@test", schema_version: 0}
+      expected_user = %User{email: "test@mbta.com", schema_version: 0}
       attrs = %{"email" => %{"S" => expected_user.email}}
       assert Dynamo.decode(attrs, User) == expected_user
     end

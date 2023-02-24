@@ -116,7 +116,7 @@ defmodule ApiAccounts.ChangesetTest do
   end
 
   test "unique_contraint/2" do
-    params = %{email: "test@test"}
+    params = %{email: "test@mbta.com"}
     changeset = Changeset.cast(@data, params, :email)
     result = Changeset.unique_constraint(changeset, :email)
 
