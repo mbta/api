@@ -17,7 +17,7 @@ defmodule ApiUmbrella.Mixfile do
       docs: docs(),
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/mbta/api",
-      test_coverage: [tool: LcovEx, output: "cover"],
+      test_coverage: [tool: LcovEx],
       default_release: :api_web,
       releases: [
         api_web: [
