@@ -297,7 +297,7 @@ defmodule ApiAccounts.Changeset do
 
   """
   @spec format_email(t, atom) :: t
-  defp format_email(%Changeset{} = changeset, field) do
+  def format_email(%Changeset{} = changeset, field) do
     formatted_email =
       Map.get(changeset.changes, field, "")
       |> String.downcase()
