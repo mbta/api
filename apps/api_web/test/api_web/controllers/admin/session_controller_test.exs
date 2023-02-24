@@ -3,12 +3,12 @@ defmodule ApiWeb.Admin.SessionControllerTest do
 
   @test_password "password"
   @authorized_user_attrs %{
-    email: "authorized@test.com",
+    email: "authorized@mbta.com",
     role: "administrator",
     password: @test_password
   }
   @unauthorized_user_attrs %{
-    email: "unauthorized@test.com",
+    email: "unauthorized@mbta.com",
     password: @test_password
   }
 

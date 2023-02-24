@@ -167,11 +167,10 @@ jobs:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-test-
+      - name: Run lcov
+        run: mix lcov
       - name: Run tests
-        run: |
-          mix lcov
-          cd apps/state_mediator
-          mix test --only integration
+        run: mix test
       - name: Save PR information
         run: |
           mkdir -p cover

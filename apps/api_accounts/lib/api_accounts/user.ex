@@ -61,9 +61,9 @@ defmodule ApiAccounts.User do
     struct
     |> cast(params, fields)
     |> validate_required([:email])
+    |> format_email(:email)
     |> validate_email(:email)
     |> unique_constraint(:email)
-    |> format_email()
   end
 
   @doc false
@@ -84,9 +84,9 @@ defmodule ApiAccounts.User do
     |> validate_required(fields)
     |> validate_length(:password, min: 8)
     |> validate_confirmation(:password)
+    |> format_email(:email)
     |> validate_email(:email)
     |> unique_constraint(:email)
-    |> format_email()
     |> hash_password()
     |> put_id()
     |> put_join_date()
@@ -109,19 +109,8 @@ defmodule ApiAccounts.User do
     %__MODULE__{}
     |> cast(params, [:email])
     |> validate_required([:email])
+    |> format_email(:email)
     |> validate_email(:email)
-    |> format_email()
-  end
-
-  defp format_email(%{valid?: false} = changeset), do: changeset
-
-  defp format_email(%{valid?: true, changes: changes} = changeset) do
-    formatted_email =
-      changes.email
-      |> String.downcase()
-      |> String.trim()
-
-    put_change(changeset, :email, formatted_email)
   end
 
   defp hash_password(%{valid?: false} = changeset), do: changeset

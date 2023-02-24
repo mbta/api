@@ -15,7 +15,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "creates a user and redirects on success", %{conn: conn} do
       valid_params = %{
-        email: "test@test",
+        email: "test@mbta.com",
         password: "password",
         password_confirmation: "password"
       }
@@ -31,7 +31,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "shows errors for invalid form submission", %{conn: conn} do
       params = %{
-        email: "test@test",
+        email: "test@mbta.com",
         password: "short",
         password_confirmation: ""
       }
@@ -48,7 +48,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "shows error for duplicate email addresses", %{conn: conn} do
       params = %{
-        email: "test@test",
+        email: "test@mbta.com",
         password: "password",
         password_confirmation: "password"
       }
@@ -65,7 +65,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "redirects already authenticated users", %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
 
       conn =
         conn
@@ -79,7 +79,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
   describe "update password" do
     setup %{conn: conn} do
-      params = %{email: "test@test", password: "password"}
+      params = %{email: "test@mbta.com", password: "password"}
       {:ok, user} = ApiAccounts.create_user(params)
 
       conn =
@@ -131,7 +131,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
   describe "edit account" do
     setup %{conn: conn} do
-      params = %{email: "test@test", password: "password"}
+      params = %{email: "test@mbta.com", password: "password"}
       {:ok, user} = ApiAccounts.create_user(params)
 
       conn =
@@ -150,7 +150,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows error on invalid form submission", %{conn: conn} do
-      {:ok, other_user} = ApiAccounts.create_user(%{email: "existing@test"})
+      {:ok, other_user} = ApiAccounts.create_user(%{email: "existing@mbta.com"})
 
       params = %{
         action: "edit-information",
@@ -170,7 +170,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     test "updates account information when valid", %{conn: conn} do
       params = %{
         action: "edit-information",
-        user: %{email: "new@test.com", phone: "1234567"}
+        user: %{email: "new@mbta.com", phone: "1234567"}
       }
 
       conn =
@@ -202,7 +202,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows flash and redirects to home page when a known email is submited", %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       params = %{email: user.email}
 
       conn =
@@ -215,7 +215,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows flash and redirects to home page when an unknown email is submited", %{conn: conn} do
-      params = %{email: "test@test"}
+      params = %{email: "test@mbta.com"}
 
       conn =
         conn
@@ -241,7 +241,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     setup %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       {:ok, user: user, conn: conn}
     end
 

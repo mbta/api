@@ -36,8 +36,8 @@ defmodule ApiAccounts.Changeset do
 
   ##Examples
 
-      iex> cast(%User{}, %{email: "test@test.com"}, ~w(email)a)
-      %Changeset{changes: %{email: "test@test.com"}, source: User, ...}
+      iex> cast(%User{}, %{email: "test@mbta.com"}, ~w(email)a)
+      %Changeset{changes: %{email: "test@mbta.com"}, source: User, ...}
 
   """
   @spec cast(map, %{optional(atom) => term}, [atom]) :: t
@@ -286,6 +286,26 @@ defmodule ApiAccounts.Changeset do
       |> append_error(changeset)
       |> Map.put(:valid?, false)
     end
+  end
+
+  @doc """
+  Ensure email address is downcase and trimmed.
+
+  ## Examples
+
+      format_email(changeset, :email)
+
+  """
+  @spec format_email(t, atom) :: t
+  def format_email(%Changeset{} = changeset, field) do
+    unformatted_email = Map.get(changeset.changes, field, "")
+
+    formatted_email =
+      unformatted_email
+      |> String.downcase()
+      |> String.trim()
+
+    put_change(changeset, :email, formatted_email)
   end
 
   @doc """

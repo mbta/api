@@ -315,7 +315,7 @@ defmodule ApiAccounts.Dynamo do
 
   ## Examples
 
-      iex> query(User, "email = :email", %{email: "test@test.com"})
+      iex> query(User, "email = :email", %{email: "test@mbta.com"})
       [...]
 
   """
