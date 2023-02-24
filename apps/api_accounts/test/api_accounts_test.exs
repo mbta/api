@@ -478,7 +478,10 @@ defmodule ApiAccountsTest do
 
     test "doesn't allow duplicate emails when changing email", %{user: user} do
       {:ok, _} = ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
-      assert {:error, changeset} = ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
+
+      assert {:error, changeset} =
+               ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
+
       refute changeset.valid?
       assert Enum.at(changeset.errors.email, 0) =~ "taken"
     end
