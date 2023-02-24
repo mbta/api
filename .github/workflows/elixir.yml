@@ -99,7 +99,6 @@ jobs:
         with:
           path: _build/dev
           key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-dev-
       - name: Compile (warnings as errors)
         run: mix compile --force --warnings-as-errors
       - name: Package Audits
@@ -166,7 +165,6 @@ jobs:
         with:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-test-
       - name: Run tests and lcov
         run: mix test --cover
       - name: Run integration tests
