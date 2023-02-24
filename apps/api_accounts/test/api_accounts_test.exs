@@ -8,7 +8,7 @@ defmodule ApiAccountsTest do
     join_date: DateTime.from_naive!(~N[2010-04-17 14:00:00], "Etc/UTC"),
     phone: "some phone",
     username: "some username",
-    email: "test@test.com"
+    email: "test@mbta.com"
   }
 
   describe "users" do
@@ -30,7 +30,7 @@ defmodule ApiAccountsTest do
       blocked: false,
       join_date: DateTime.from_naive!(~N[2011-05-18 15:01:01], "Etc/UTC"),
       phone: "some updated phone",
-      email: "new_test@test.com"
+      email: "new_test@mbta.com"
     }
     @invalid_attrs %{
       active: nil,
@@ -131,7 +131,7 @@ defmodule ApiAccountsTest do
 
   describe "users register_user/1" do
     @register_attrs %{
-      email: "test@test.com",
+      email: "test@mbta.com",
       password: "password",
       password_confirmation: "password"
     }
@@ -143,7 +143,7 @@ defmodule ApiAccountsTest do
 
     test "enforces password length" do
       params = %{
-        email: "test@test.com",
+        email: "test@mbta.com",
         password: "test",
         password_confirmation: "test"
       }
@@ -343,7 +343,7 @@ defmodule ApiAccountsTest do
 
   describe "can_request_key?/1" do
     test "checks by user" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       assert ApiAccounts.can_request_key?(user)
 
       {:ok, key} = ApiAccounts.create_key(user)
@@ -354,7 +354,7 @@ defmodule ApiAccountsTest do
     end
 
     test "checks by a user's keys" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       keys = ApiAccounts.list_keys_for_user(user)
       assert ApiAccounts.can_request_key?(keys)
 
@@ -370,12 +370,12 @@ defmodule ApiAccountsTest do
 
   describe "auto_approve_key?/1" do
     test "true if the user has no other keys" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       assert ApiAccounts.auto_approve_key?(user)
     end
 
     test "false if the user has other keys" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       {:ok, _} = ApiAccounts.create_key(user)
       refute ApiAccounts.auto_approve_key?(user)
     end

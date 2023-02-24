@@ -80,7 +80,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   test "update_item" do
-    user = put_user(id: "test", email: "test@test.com", phone: "1234567")
+    user = put_user(id: "test", email: "test@mbta.com", phone: "1234567")
 
     expected_user =
       user
@@ -92,7 +92,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   test "update_item doesn't persist virtual fields" do
-    user = put_user(id: "test", email: "test@test.com", phone: "1234567")
+    user = put_user(id: "test", email: "test@mbta.com", phone: "1234567")
     expected_user = Map.put(user, :phone, nil)
 
     assert {:ok, expected_user} ==
@@ -110,7 +110,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   test "delete_item" do
-    user = put_user(id: "test", email: "test@test.com")
+    user = put_user(id: "test", email: "test@mbta.com")
     {:ok, ^user} = Dynamo.fetch_item(User, %{id: "test"})
     assert Dynamo.delete_item(user) == :ok
     assert {:error, :not_found} == Dynamo.fetch_item(User, %{id: "test"})

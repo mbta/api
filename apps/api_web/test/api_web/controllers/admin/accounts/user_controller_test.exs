@@ -8,7 +8,7 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
     phone: "some phone",
     role: "some role",
     username: "some username",
-    email: "test@test.com"
+    email: "test@mbta.com"
   }
   @update_attrs %{
     active: false,
@@ -17,7 +17,7 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
     phone: "",
     role: "some updated role",
     username: "some updated username",
-    email: "new_test@test.com"
+    email: "new_test@mbta.com"
   }
   @invalid_attrs %{
     active: nil,

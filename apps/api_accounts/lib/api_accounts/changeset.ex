@@ -36,8 +36,8 @@ defmodule ApiAccounts.Changeset do
 
   ##Examples
 
-      iex> cast(%User{}, %{email: "test@test.com"}, ~w(email)a)
-      %Changeset{changes: %{email: "test@test.com"}, source: User, ...}
+      iex> cast(%User{}, %{email: "test@mbta.com"}, ~w(email)a)
+      %Changeset{changes: %{email: "test@mbta.com"}, source: User, ...}
 
   """
   @spec cast(map, %{optional(atom) => term}, [atom]) :: t

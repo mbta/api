@@ -4,7 +4,7 @@ defmodule ApiAccounts.ChangesetTest do
 
   @data %ApiAccounts.User{
     username: "test",
-    email: "test@test.com"
+    email: "test@mbta.com"
   }
 
   test "change/1" do

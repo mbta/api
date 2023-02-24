@@ -8,7 +8,7 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
 
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
 
-    {:ok, user} = ApiAccounts.create_user(%{email: "test@test.com", role: "administrator"})
+    {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com", role: "administrator"})
 
     conn =
       conn
