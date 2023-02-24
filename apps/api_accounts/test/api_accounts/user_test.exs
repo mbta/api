@@ -45,7 +45,7 @@ defmodule ApiAccounts.UserTest do
     assert Enum.at(result.errors.password, 0) =~ "required"
     refute result.valid?
 
-    params = %{email: "test@test", password: "password"}
+    params = %{email: "test@mbta.com", password: "password"}
     result = User.authenticate(%User{}, params)
     assert result.errors == %{}
     assert result.valid?
@@ -53,7 +53,7 @@ defmodule ApiAccounts.UserTest do
 
   describe "register/2" do
     @register_params %{
-      email: "test@test",
+      email: "test@mbta.com",
       password: "password",
       password_confirmation: "password"
     }
@@ -68,7 +68,7 @@ defmodule ApiAccounts.UserTest do
 
     test "enforces minimum password length" do
       params = %{
-        email: "test@test",
+        email: "test@mbta.com",
         password: "short",
         password_confirmation: "short"
       }
