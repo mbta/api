@@ -94,6 +94,12 @@ jobs:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-v2-
+      - name: Restore dev build cache
+        uses: actions/cache@v3
+        with:
+          path: _build/dev
+          key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-dev-
       - name: Compile (warnings as errors)
         run: mix compile --force --warnings-as-errors
       - name: Package Audits
@@ -155,15 +161,21 @@ jobs:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-v2-
-      - name: Run tests and lcov
-        run: mix test --cover
+      - name: Restore test build cache
+        uses: actions/cache@v3
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-test-
+      - name: Run tests and generate coverage
+        env: 
+          MIX_ENV: test
+        run: mix coveralls.lcov
       - name: Run integration tests
         working-directory: apps/state_mediator
         run: mix test --only integration
       - name: Save PR information
         run: |
-          pwd
-          ls -lah cover
           mkdir -p cover
           echo "${{ github.event.pull_request.number }}" > cover/PR_NUMBER
           echo "${{ github.event.pull_request.head.sha }}" > cover/PR_SHA
