@@ -162,6 +162,8 @@ jobs:
         run: mix test --only integration
       - name: Save PR information
         run: |
+          pwd
+          ls -lah cover
           mkdir -p cover
           echo "${{ github.event.pull_request.number }}" > cover/PR_NUMBER
           echo "${{ github.event.pull_request.head.sha }}" > cover/PR_SHA
