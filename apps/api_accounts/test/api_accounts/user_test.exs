@@ -4,7 +4,7 @@ defmodule ApiAccounts.UserTest do
 
   test "changeset/2" do
     changes = %{
-      email: "test@test.com",
+      email: "test@mbta.com",
       role: "test",
       username: "test",
       phone: "test",
@@ -18,13 +18,13 @@ defmodule ApiAccounts.UserTest do
   end
 
   test "new/3 generates a unique ID for a user" do
-    changes = %{email: "test@test.com", password: "password"}
+    changes = %{email: "test@mbta.com", password: "password"}
     changeset = User.new(%User{}, changes)
     assert changeset.changes[:id] != nil
   end
 
   test "new/3 hashes an applied password" do
-    changes = %{email: "test@test.com", password: "password"}
+    changes = %{email: "test@mbta.com", password: "password"}
 
     changeset = User.new(%User{}, changes)
     refute changeset.changes.password == changes.password
@@ -93,9 +93,9 @@ defmodule ApiAccounts.UserTest do
     end
 
     test "trims and downcases email addresses" do
-      params = Map.put(@register_params, :email, " TEST@TeSt.CoM    ")
+      params = Map.put(@register_params, :email, " TEST@mBtA.CoM    ")
       result = User.register(%User{}, params)
-      assert result.changes.email == "test@test.com"
+      assert result.changes.email == "test@mbta.com"
       assert result.valid?
     end
 
@@ -171,7 +171,7 @@ defmodule ApiAccounts.UserTest do
 
     test "trims and downcases email addresses" do
       result = User.account_recovery(%{email: " TEST@TeSt.CoM    "})
-      assert result.changes.email == "test@test.com"
+      assert result.changes.email == "test@mbta.com"
       assert result.valid?
     end
   end
