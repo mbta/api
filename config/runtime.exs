@@ -41,4 +41,9 @@ if is_prod? and is_release? do
 
   config :state_mediator, :commuter_rail_crowding,
     firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS")
+
+  config :recaptcha,
+    enabled: true,
+    public_key: System.fetch_env!("RECAPTCHA_PUBLIC_KEY"),
+    secret: System.fetch_env!("RECAPTCHA_PRIVATE_KEY")
 end

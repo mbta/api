@@ -20,16 +20,45 @@ defmodule ApiWeb.ClientPortal.UserController do
     |> render("new.html", changeset: changeset)
   end
 
-  def create(conn, %{"user" => user_params}) do
-    case ApiAccounts.register_user(user_params) do
-      {:ok, user} ->
-        conn
-        |> put_session(:user_id, user.id)
-        |> configure_session(renew: true)
-        |> redirect(to: portal_path(conn, :index))
+  def create(conn, %{"user" => user_params, "g-recaptcha-response" => recaptcha}) do
+    _create(conn, user_params, recaptcha)
+  end
 
+  # Allow missing recaptcha response
+  def create(conn, %{"user" => user_params}) do
+    _create(conn, user_params, nil)
+  end
+
+  defp _create(conn, user_params, recaptcha) do
+    # Only test recaptcha if the feature is enabled (prod):
+    recaptcha_verified =
+      if Application.get_env(:recaptcha, :enabled) do
+        Recaptcha.verify(recaptcha)
+      else
+        {:ok, false}
+      end
+
+    with {:ok, _recaptcha} <-
+           recaptcha_verified,
+         {:ok, user} <-
+           ApiAccounts.register_user(user_params) do
+      conn
+      |> put_session(:user_id, user.id)
+      |> configure_session(renew: true)
+      |> redirect(to: portal_path(conn, :index))
+    else
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         conn
+        |> assign(:pre_container_template, "_new.html")
+        |> render("new.html", changeset: changeset)
+
+      {:error, _errors} ->
+        # Retain form values:
+        changeset =
+          ApiAccounts.User.changeset(struct(%ApiAccounts.User{}, user_params), user_params)
+
+        conn
+        |> put_flash(:error, "Registration failed due to incorrect or missing captcha.")
         |> assign(:pre_container_template, "_new.html")
         |> render("new.html", changeset: changeset)
     end
