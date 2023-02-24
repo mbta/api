@@ -22,14 +22,14 @@ defmodule ApiAccounts.NotificationsTest do
   end
 
   test "send_key_requested/3" do
-    admins = [%User{email: "admin1@test"}, %User{email: "admin2@test"}]
+    admins = [%User{email: "admin1@mbta.com"}, %User{email: "admin2@mbta.com"}]
     user = %User{email: "test@mbta.com"}
     url = "http://localhost/"
     assert_delivered_email(Notifications.send_key_requested(admins, user, url))
   end
 
   test "send_limit_increase_requested/4" do
-    admins = [%User{email: "admin1@test"}, %User{email: "admin2@test"}]
+    admins = [%User{email: "admin1@mbta.com"}, %User{email: "admin2@mbta.com"}]
     user = %User{email: "test@mbta.com"}
     key = %Key{user_id: user.id}
     url = "http://localhost/"

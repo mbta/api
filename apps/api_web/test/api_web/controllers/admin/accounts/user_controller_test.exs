@@ -39,7 +39,7 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
 
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
 
-    params = %{email: "admin@test", role: "administrator"}
+    params = %{email: "admin@mbta.com", role: "administrator"}
     {:ok, user} = ApiAccounts.create_user(params)
 
     conn =

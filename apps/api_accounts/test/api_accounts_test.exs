@@ -501,9 +501,9 @@ defmodule ApiAccountsTest do
 
   test "list_administators" do
     {:ok, admin} =
-      ApiAccounts.create_user(%{id: "admin", email: "admin@test", role: "administrator"})
+      ApiAccounts.create_user(%{id: "admin", email: "admin@mbta.com", role: "administrator"})
 
-    ApiAccounts.create_user(%{id: "user", email: "user@test"})
+    ApiAccounts.create_user(%{id: "user", email: "user@mbta.com"})
 
     assert [admin] == ApiAccounts.list_administrators()
   end
