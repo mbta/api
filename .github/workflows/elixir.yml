@@ -170,7 +170,8 @@ jobs:
       - name: Run lcov
         run: mix lcov
       - name: Run tests
-        run: mix test
+        working-directory: apps/state_mediator
+        run: mix test --only integration
       - name: Save PR information
         run: |
           mkdir -p cover
