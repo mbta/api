@@ -289,6 +289,24 @@ defmodule ApiAccounts.Changeset do
   end
 
   @doc """
+  Ensure email address is downcase and trimmed.
+
+  ## Examples
+
+      format_email(changeset, :email)
+
+  """
+  @spec format_email(t, atom) :: t
+  defp format_email(%Changeset{} = changeset, field) do
+    formatted_email =
+      Map.get(changeset.changes, field, "")
+      |> String.downcase()
+      |> String.trim()
+
+    put_change(changeset, :email, formatted_email)
+  end
+
+  @doc """
   Validates the length of a field.
 
   Only Strings are supported.
