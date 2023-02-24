@@ -134,7 +134,7 @@ defmodule ApiAccounts.UserTest do
 
     test "enforces matching passwords" do
       params = %{
-        password: "password",
+        password: "other_password",
         password_confirmation: "other_password"
       }
 
