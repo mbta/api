@@ -168,7 +168,7 @@ jobs:
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-test-
       - name: Run tests and lcov
-        run: mix test --cover
+        run: mix do deps.get, test --cover
       - name: Run integration tests
         working-directory: apps/state_mediator
         run: mix test --only integration
