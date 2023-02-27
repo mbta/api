@@ -167,10 +167,13 @@ jobs:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-test-
-      - name: Run lcov
-        run: mix lcov
-      - name: Run tests
-        run: mix test
+      - name: Run lcov and tests
+        run: mix lcov | tee lcov_output.txt
+      - name: Fail if any tests failed
+        run: if [ "$(grep -A 1 failures lcov_output.txt | tail -n 2 | tr -d "\n" | awk -F', ' '{print $4}')" = "0 failures" ]; then exit 0; else exit 1; fi
+      - name: Run integration tests
+        working-directory: apps/state_mediator
+        run: mix test --only integration
       - name: Save PR information
         run: |
           mkdir -p cover
