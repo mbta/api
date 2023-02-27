@@ -17,7 +17,7 @@ defmodule ApiUmbrella.Mixfile do
       docs: docs(),
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/mbta/api",
-      test_coverage: [tool: ExCoveralls],
+      test_coverage: [tool: LcovEx],
       default_release: :api_web,
       releases: [
         api_web: [
@@ -60,7 +60,7 @@ defmodule ApiUmbrella.Mixfile do
     # Static analysis and style checking
     [
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.15.3"},
+      {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.0", only: [:dev], runtime: false},
       # Generate docs with `mix docs`
       {:ex_doc, "~> 0.20", only: [:dev, :test], runtime: false}
