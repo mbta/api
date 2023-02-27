@@ -13,7 +13,7 @@ defmodule ApiWeb.LegacyStopsTest do
     test "only applies mappings with versions ahead of the given version" do
       mappings = %{
         "2019-01-01" => %{"one" => {"two", []}},
-        "2020-01-01" => %{"threepig" => {"four", []}}
+        "2020-01-01" => %{"three" => {"four", []}}
       }
 
       assert expand(~w(one three), "2019-07-01", mappings: mappings) == ~w(one three four)
