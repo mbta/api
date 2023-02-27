@@ -13,7 +13,7 @@ defmodule Parse.Mixfile do
       elixir: "~> 1.2",
       lockfile: "../../mix.lock",
       start_permanent: Mix.env() == :prod,
-      test_coverage: [tool: LcovEx],
+      test_coverage: [tool: ExCoveralls],
       version: "0.0.1"
     ]
   end
