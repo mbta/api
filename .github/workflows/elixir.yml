@@ -172,7 +172,7 @@ jobs:
       - name: Run tests and generate coverage
         env: 
           MIX_ENV: test
-        run: mix coveralls.lcov
+        run: mix coveralls.lcov --umbrella
       - name: Run integration tests
         working-directory: apps/state_mediator
         run: mix test --only integration
