@@ -170,6 +170,7 @@ jobs:
       - name: Run lcov and tests
         run: mix lcov | tee lcov_output.txt
       - name: Fail if any tests failed
+        # Find the last instance of "failures" in the mix lcov output, clean it up, pull the failures segment and ensure it equals '0 failures': 
         run: if [ "$(grep -A 1 failures lcov_output.txt | tail -n 2 | tr -d "\n" | awk -F', ' '{print $4}')" = "0 failures" ]; then exit 0; else exit 1; fi
       - name: Run integration tests
         working-directory: apps/state_mediator
