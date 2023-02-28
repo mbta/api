@@ -305,7 +305,7 @@ defmodule ApiAccounts.Changeset do
       |> String.downcase()
       |> String.trim()
 
-    put_change(changeset, :email, formatted_email)
+    put_change(changeset, field, formatted_email)
   end
 
   @doc """
