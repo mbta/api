@@ -289,7 +289,7 @@ defmodule ApiAccounts.Changeset do
   end
 
   @doc """
-  Ensure email address is downcase and trimmed.
+  Ensure email address is downcased and trimmed.
 
   ## Examples
 
