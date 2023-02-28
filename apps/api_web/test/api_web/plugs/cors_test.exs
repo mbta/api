@@ -37,7 +37,7 @@ defmodule ApiWeb.Plugs.CorsTest do
     end
 
     test "returns matching access-control-allow-origin", %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@test.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
       {:ok, new_key} = ApiAccounts.create_key(user)
 
       conn = assign(conn, :api_key, new_key.key)
