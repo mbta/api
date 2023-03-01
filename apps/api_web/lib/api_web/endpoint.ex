@@ -1,4 +1,5 @@
 defmodule ApiWeb.Endpoint do
+  use Sentry.PlugCapture
   use Phoenix.Endpoint, otp_app: :api_web
 
   # You should set gzip to true if you are running phoenix.digest
@@ -20,6 +21,9 @@ defmodule ApiWeb.Endpoint do
     parsers: [:urlencoded],
     pass: ["application/json", "application/vnd.api+json", "application/x-www-form-urlencoded"]
   )
+
+  # Sentry must be invoked after Plug.Parsers:
+  plug(Sentry.PlugContext)
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)

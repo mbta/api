@@ -6,6 +6,20 @@ is_release? = not is_nil(System.get_env("RELEASE_MODE"))
 if is_prod? and is_release? do
   config :tzdata, :autoupdate, :disabled
 
+  config :sentry,
+    dsn: System.fetch_env!("SENTRY_DSN"),
+    environment_name: :prod,
+    enable_source_code_context: true,
+    root_source_code_path: File.cwd!(),
+    tags: %{
+      env: "production"
+    },
+    included_environments: [:prod]
+
+  config :logger, Sentry.LoggerBackend,
+    level: :warn,
+    capture_log_messages: true
+
   config :ex_aws,
     dynamodb: [
       port: "DYNAMO_PORT" |> System.get_env("443") |> String.to_integer(),

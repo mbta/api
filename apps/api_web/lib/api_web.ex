@@ -11,6 +11,7 @@ defmodule ApiWeb do
   # no cover
   def start(_type, _args) do
     runtime_config!()
+    Logger.add_backend(Sentry.LoggerBackend)
 
     # no cover
     children = [
