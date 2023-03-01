@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev-blue
     concurrency: dev-blue
+    if: github.repository_owner == 'mbta'
     env:
       ECS_CLUSTER: api
       ECS_SERVICE: api-dev-blue
