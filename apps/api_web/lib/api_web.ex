@@ -12,6 +12,9 @@ defmodule ApiWeb do
   def start(_type, _args) do
     runtime_config!()
 
+    # Invoke Sentry logger:
+    _ = Logger.add_backend(Sentry.LoggerBackend)
+
     # no cover
     children = [
       # Start the endpoint when the application starts
