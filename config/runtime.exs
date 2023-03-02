@@ -7,7 +7,7 @@ if is_prod? and is_release? do
   config :tzdata, :autoupdate, :disabled
 
   sentry_env = System.fetch_env!("SENTRY_ENV")
-  config :sentry,
+  config :sentry, filter: ApiWeb.SentryEventFilter,
     dsn: System.fetch_env!("SENTRY_DSN"),
     environment_name: sentry_env,
     enable_source_code_context: true,
