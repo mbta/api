@@ -18,7 +18,7 @@ if is_prod? and is_release? do
     included_environments: [sentry_env]
 
   config :logger, Sentry.LoggerBackend,
-    level: :warn,
+    level: :error,
     capture_log_messages: true
 
   config :ex_aws,
