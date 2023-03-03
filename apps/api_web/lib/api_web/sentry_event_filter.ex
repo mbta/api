@@ -6,5 +6,8 @@ defmodule ApiWeb.SentryEventFilter do
 
   def exclude_exception?(%Phoenix.Router.NoRouteError{}, :plug), do: true
 
+  def exclude_exception?(%Sentry.CrashError{} = error, :logger),
+    do: String.contains?(error.message, "{{{%Phoenix.Router.NoRouteError")
+
   def exclude_exception?(_exception, _source), do: false
 end

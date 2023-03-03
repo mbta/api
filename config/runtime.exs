@@ -22,6 +22,8 @@ if is_prod? and is_release? do
     config :logger, Sentry.LoggerBackend,
       level: :error
 
+  end
+
   config :ex_aws,
     dynamodb: [
       port: "DYNAMO_PORT" |> System.get_env("443") |> String.to_integer(),
