@@ -25,7 +25,7 @@ defmodule ApiWeb.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    extra_applications = [:logger, :phoenix_swagger | env_applications(Mix.env())]
+    extra_applications = [:logger, :recaptcha, :phoenix_swagger | env_applications(Mix.env())]
     [mod: {ApiWeb, []}, extra_applications: extra_applications]
   end
 
@@ -60,27 +60,29 @@ defmodule ApiWeb.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:phoenix, "~> 1.6.14"},
-      {:phoenix_html, "~> 3.1"},
-      {:phoenix_live_view, "~> 0.17.5"},
+      {:phoenix, "~> 1.6"},
+      {:phoenix_html, "~> 3.3"},
+      {:phoenix_live_view, "~> 0.18"},
       {:ja_serializer, github: "mbta/ja_serializer", branch: "master"},
-      {:timex, "~> 3.2"},
-      {:corsica, "~> 1.1"},
+      {:timex, "~> 3.7"},
+      {:corsica, "~> 1.3"},
       {:state_mediator, in_umbrella: true},
       {:health, in_umbrella: true},
       {:api_accounts, in_umbrella: true},
-      {:memcachex, "~> 0.4"},
+      {:memcachex, "~> 0.5"},
       {:ehmon, github: "mbta/ehmon", branch: "master", only: :prod},
       {:benchwarmer, "~> 0.0", only: [:dev, :test]},
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
-      {:logster, "~> 1.0"},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:logster, "~> 1.1"},
       {:phoenix_swagger, github: "mbta/phoenix_swagger", branch: "master"},
       {:ex_json_schema, "~> 0.6.2"},
-      {:diskusage_logger, "~> 0.2.0", only: :prod},
-      {:jason, "~> 1.0"},
-      {:stream_data, "~> 0.4", only: :test},
-      {:plug_cowboy, "~> 2.1"},
-      {:sobelow, "~> 0.11", only: :dev, runtime: false}
+      {:diskusage_logger, "~> 0.2", only: :prod},
+      {:jason, "~> 1.4"},
+      {:stream_data, "~> 0.5", only: :test},
+      {:plug_cowboy, "~> 2.6"},
+      {:sobelow, "~> 0.11", only: :dev, runtime: false},
+      {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", tag: "71cd746"},
+      {:sentry, "~> 8.0"}
     ]
   end
 end

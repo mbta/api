@@ -47,9 +47,9 @@ defmodule StateMediator.Mixfile do
       {:events, in_umbrella: true},
       {:state, in_umbrella: true},
       {:fetch, in_umbrella: true},
-      {:goth, "~> 1.3-rc"},
-      {:hackney, "~> 1.17"},
-      {:timex, "~> 3.2"}
+      {:goth, "~> 1.3"},
+      {:hackney, "~> 1.18"},
+      {:timex, "~> 3.7"}
     ]
   end
 end

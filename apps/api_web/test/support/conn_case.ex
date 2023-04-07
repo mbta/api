@@ -89,9 +89,9 @@ defmodule ApiWeb.ConnCase do
     ApiAccounts.Dynamo.create_table(ApiAccounts.User)
     ApiAccounts.Dynamo.create_table(ApiAccounts.Key)
 
-    {:ok, user} = ApiAccounts.create_user(%{email: "test@test"})
+    {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
     # MUST be setup to receive email about key requests
-    {:ok, _} = ApiAccounts.create_user(%{email: "admin@test", role: "administrator"})
+    {:ok, _} = ApiAccounts.create_user(%{email: "admin@mbta.com", role: "administrator"})
 
     conn =
       conn

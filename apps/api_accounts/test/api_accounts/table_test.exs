@@ -9,13 +9,13 @@ defmodule ApiAccounts.TableTest do
   end
 
   test "generates function on module to retrieve pkey for module structs" do
-    model = %Model{email: "test@test.com"}
-    assert Model.pkey(model) == "test@test.com"
+    model = %Model{email: "test@mbta.com"}
+    assert Model.pkey(model) == "test@mbta.com"
   end
 
   test "generates function on module to create matcher for module structs" do
-    model = %Model{email: "test@test.com"}
-    assert Model.pkey_matcher(model) == %{email: "test@test.com"}
+    model = %Model{email: "test@mbta.com"}
+    assert Model.pkey_matcher(model) == %{email: "test@mbta.com"}
   end
 
   test "generates function on module to get table information" do

@@ -48,14 +48,14 @@ defmodule State.Mixfile do
   defp deps do
     [
       {:rstar, github: 'armon/erl-rstar', app: false},
-      {:timex, "~> 3.2"},
+      {:timex, "~> 3.7"},
       {:fetch, in_umbrella: true},
       {:events, in_umbrella: true},
       {:model, in_umbrella: true},
       {:parse, in_umbrella: true},
-      {:benchfella, "~> 0.0", only: [:dev, :test]},
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
-      {:stream_data, "~> 0.4", only: :test}
+      {:benchfella, "~> 0.3", only: [:dev, :test]},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:stream_data, "~> 0.5", only: :test}
     ]
   end
 end

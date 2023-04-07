@@ -46,15 +46,15 @@ defmodule Parse.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ex_csv, "~> 0.1.4"},
+      {:ex_csv, "~> 0.1.5"},
       {:exprotobuf, "~> 1.2"},
-      {:gpb, "< 4.19.0"},
-      {:timex, "~> 3.2"},
-      {:jason, "~> 1.0"},
+      {:gpb, "~> 4.19"},
+      {:timex, "~> 3.7"},
+      {:jason, "~> 1.4"},
       {:model, in_umbrella: true},
-      {:polyline, "~> 1.0"},
+      {:polyline, "~> 1.3"},
       {:fast_local_datetime, "~> 1.0"},
-      {:nimble_parsec, "~> 1.1"}
+      {:nimble_parsec, "~> 1.2"}
     ]
   end
 end

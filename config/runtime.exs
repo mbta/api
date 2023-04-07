@@ -6,6 +6,24 @@ is_release? = not is_nil(System.get_env("RELEASE_MODE"))
 if is_prod? and is_release? do
   config :tzdata, :autoupdate, :disabled
 
+  sentry_env = System.get_env("SENTRY_ENV")
+
+  if not is_nil(sentry_env) do
+    config :sentry, filter: ApiWeb.SentryEventFilter,
+      dsn: System.fetch_env!("SENTRY_DSN"),
+      environment_name: sentry_env,
+      enable_source_code_context: true,
+      root_source_code_path: File.cwd!(),
+      tags: %{
+        env: sentry_env
+      },
+      included_environments: [sentry_env]
+
+    config :logger, Sentry.LoggerBackend,
+      level: :error
+
+  end
+
   config :ex_aws,
     dynamodb: [
       port: "DYNAMO_PORT" |> System.get_env("443") |> String.to_integer(),
@@ -41,4 +59,9 @@ if is_prod? and is_release? do
 
   config :state_mediator, :commuter_rail_crowding,
     firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS")
+
+  config :recaptcha,
+    enabled: true,
+    public_key: System.fetch_env!("RECAPTCHA_PUBLIC_KEY"),
+    secret: System.fetch_env!("RECAPTCHA_PRIVATE_KEY")
 end
