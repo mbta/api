@@ -203,8 +203,9 @@ defmodule ApiWeb.RoutePatternController do
               | `2` | Pattern is a deviation from the regular route. |
               | `3` | Pattern represents a highly atypical pattern for the route, such as a special routing which only runs a handful of times per day. |
               | `4` | Diversions from normal service, such as planned detours, bus shuttles, or snow routes. |
+              | `5` | Canonical trip patterns. |
               """,
-              enum: [0, 1, 2, 3, 4]
+              enum: [0, 1, 2, 3, 4, 5]
             )
 
             sort_order(
