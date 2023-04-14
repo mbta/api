@@ -16,7 +16,7 @@ defmodule State.RoutePattern do
 
   @type filters :: %{
           optional(:ids) => [RoutePattern.id()],
-          optional(:is_canonical) => boolean(),
+          optional(:canonical) => boolean(),
           optional(:route_ids) => [Route.id()],
           optional(:stop_ids) => [Stop.id()]
         }
@@ -34,12 +34,12 @@ defmodule State.RoutePattern do
     by_ids(ids)
   end
 
-  def filter_by(%{is_canonical: is_canonical} = filters) do
+  def filter_by(%{canonical: canonical} = filters) do
     filters
-    |> Map.delete(:is_canonical)
+    |> Map.delete(:canonical)
     |> filter_by()
-    |> Enum.filter(fn %RoutePattern{is_canonical: is_c} ->
-      canonical_comparison(is_c, is_canonical)
+    |> Enum.filter(fn %RoutePattern{canonical: is_c} ->
+      canonical_comparison(is_c, canonical)
     end)
   end
 
@@ -90,6 +90,6 @@ defmodule State.RoutePattern do
   end
 
   defp canonical_comparison(_, nil), do: true
-  defp canonical_comparison(1, bool), do: bool
-  defp canonical_comparison(_, bool), do: !bool
+  defp canonical_comparison(true, bool), do: bool
+  defp canonical_comparison(false, bool), do: !bool
 end

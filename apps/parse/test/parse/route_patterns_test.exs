@@ -19,7 +19,7 @@ Red-1-0,Red,0,Ashmont,,1,10010051,38899721-21:00-KL,1
                  typicality: 1,
                  sort_order: 10_010_051,
                  representative_trip_id: "38899721-21:00-KL",
-                 is_canonical: 1
+                 canonical: true
                }
              ]
     end

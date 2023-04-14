@@ -205,14 +205,14 @@ defmodule ApiWeb.SwaggerHelpers do
     )
   end
 
-  def filter_param(path_object, :is_canonical, opts) do
+  def filter_param(path_object, :canonical, opts) do
     Path.parameter(
       path_object,
-      "filter[is_canonical]",
+      "filter[canonical]",
       :query,
       :boolean,
       """
-      Filter by is_canonical
+      Filter by canonical
 
       true: Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern.
       false: Route pattern should be not considered canonical for this route in this direction.

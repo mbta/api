@@ -1,9 +1,11 @@
 defmodule Parse.RoutePatterns do
   @moduledoc false
   use Parse.Simple
+  require Logger
 
   @spec parse_row(%{optional(String.t()) => term()}) :: Model.RoutePattern.t()
   def parse_row(row) do
+    Logger.warn(inspect(row["canonical_route_pattern"]))
     %Model.RoutePattern{
       id: copy_string(row["route_pattern_id"]),
       route_id: copy_string(row["route_id"]),
@@ -13,7 +15,7 @@ defmodule Parse.RoutePatterns do
       typicality: copy_int(row["route_pattern_typicality"]),
       sort_order: copy_int(row["route_pattern_sort_order"]),
       representative_trip_id: copy_string(row["representative_trip_id"]),
-      is_canonical: parse_is_canonical(row["canonical_route_pattern"])
+      canonical: parse_canonical(row["canonical_route_pattern"])
     }
   end
 
@@ -23,7 +25,6 @@ defmodule Parse.RoutePatterns do
   defp copy_int(""), do: nil
   defp copy_int(s), do: String.to_integer(s)
 
-  defp parse_is_canonical("1"), do: 1
-  defp parse_is_canonical("2"), do: 2
-  defp parse_is_canonical(_), do: 0
+  defp parse_canonical("1"), do: true
+  defp parse_canonical(_), do: false
 end

@@ -26,13 +26,10 @@ defmodule ApiWeb.RoutePatternView do
     :time_desc,
     :typicality,
     :sort_order,
-    :is_canonical
+    :canonical
   ])
 
   def representative_trip(%{representative_trip_id: trip_id}, conn) do
     optional_relationship("representative_trip", trip_id, &State.Trip.by_primary_id/1, conn)
   end
-
-  def is_canonical(%{is_canonical: 1}, _), do: true
-  def is_canonical(%{is_canonical: _}, _), do: false
 end
