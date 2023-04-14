@@ -313,9 +313,9 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "attributes" => %{"direction_id" => 0, "canonical" => false}
                },
                %{
-                "id" => "rp6",
-                "attributes" => %{"direction_id" => 1, "canonical" => false}
-              }
+                 "id" => "rp6",
+                 "attributes" => %{"direction_id" => 1, "canonical" => false}
+               }
              ] = json_response(conn, 200)["data"]
     end
 
@@ -340,21 +340,21 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "attributes" => %{"direction_id" => 0, "canonical" => false}
                },
                %{
-                "id" => "rp1",
-                "attributes" => %{"direction_id" => 0, "canonical" => true}
-              },
+                 "id" => "rp1",
+                 "attributes" => %{"direction_id" => 0, "canonical" => true}
+               },
                %{
                  "id" => "rp3",
                  "attributes" => %{"direction_id" => 0, "canonical" => false}
                },
                %{
-                "id" => "rp6",
-                "attributes" => %{"direction_id" => 1, "canonical" => false}
-              },
-              %{
-                "id" => "rp2",
-                "attributes" => %{"direction_id" => 1, "canonical" => true}
-              }
+                 "id" => "rp6",
+                 "attributes" => %{"direction_id" => 1, "canonical" => false}
+               },
+               %{
+                 "id" => "rp2",
+                 "attributes" => %{"direction_id" => 1, "canonical" => true}
+               }
              ] = json_response(conn, 200)["data"]
     end
 

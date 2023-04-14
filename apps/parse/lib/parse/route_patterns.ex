@@ -1,11 +1,9 @@
 defmodule Parse.RoutePatterns do
   @moduledoc false
   use Parse.Simple
-  require Logger
 
   @spec parse_row(%{optional(String.t()) => term()}) :: Model.RoutePattern.t()
   def parse_row(row) do
-    Logger.warn(inspect(row["canonical_route_pattern"]))
     %Model.RoutePattern{
       id: copy_string(row["route_pattern_id"]),
       route_id: copy_string(row["route_id"]),
