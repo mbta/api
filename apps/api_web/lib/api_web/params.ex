@@ -292,7 +292,7 @@ defmodule ApiWeb.Params do
           valid_filters =
             filter
             |> Map.take(keys)
-            |> Enum.reject(fn {k, v} -> k == :canonical and is_nil(v) end)
+            |> Enum.reject(fn {k, v} -> k == "canonical" and v == "" end)
             |> Map.new()
 
           {:ok, valid_filters}
