@@ -49,7 +49,6 @@ defmodule State.RoutePatternTest do
       assert filter_by(%{route_ids: ["not_route"], stop_ids: ["stop"]}) == []
       assert filter_by(%{canonical: true}) == [route_pattern]
       assert filter_by(%{canonical: false}) == []
-      assert filter_by(%{canonical: nil}) == [route_pattern]
       assert filter_by(%{stop_ids: ["stop"], canonical: true}) == [route_pattern]
       assert filter_by(%{stop_ids: ["not_stop"], canonical: true}) == []
     end

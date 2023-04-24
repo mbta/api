@@ -38,9 +38,7 @@ defmodule State.RoutePattern do
     filters
     |> Map.delete(:canonical)
     |> filter_by()
-    |> Enum.filter(fn %RoutePattern{canonical: is_c} ->
-      canonical_comparison(is_c, canonical)
-    end)
+    |> Enum.filter(fn %RoutePattern{canonical: is_c} -> canonical == is_c end)
   end
 
   def filter_by(%{route_ids: _route_ids, stop_ids: _stop_ids} = filters) do
@@ -88,8 +86,4 @@ defmodule State.RoutePattern do
     |> Enum.map(& &1.route_pattern_id)
     |> Enum.uniq()
   end
-
-  defp canonical_comparison(_, nil), do: true
-  defp canonical_comparison(true, bool), do: bool
-  defp canonical_comparison(false, bool), do: !bool
 end

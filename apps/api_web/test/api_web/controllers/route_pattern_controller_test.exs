@@ -319,7 +319,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
              ] = json_response(conn, 200)["data"]
     end
 
-    test "can filter by canonical null", %{conn: conn} do
+    test "filtering by canonical null is treated the same as it not being included", %{conn: conn} do
       State.RoutePattern.new_state(canonical_test_route_patterns())
 
       conn =

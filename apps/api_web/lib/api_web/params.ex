@@ -289,7 +289,12 @@ defmodule ApiWeb.Params do
         bad_filters = Map.keys(filter) -- keys
 
         if conn.assigns.api_version < "2019-04-05" or bad_filters == [] do
-          {:ok, Map.take(filter, keys)}
+          valid_filters =
+            filter
+            |> Map.take(keys)
+            |> Enum.reject(fn {k, v} -> k == :canonical and is_nil(v) end)
+            |> Map.new()
+          {:ok, valid_filters}
         else
           {:error, :bad_filter, bad_filters}
         end
