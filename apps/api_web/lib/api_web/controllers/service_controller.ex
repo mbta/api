@@ -160,8 +160,9 @@ defmodule ApiWeb.ServiceController do
               | `3`   | Reduced holiday service is provided by typical Saturday or Sunday schedule  |
               | `4`   | Major changes in service due to a planned disruption, such as construction  |
               | `5`   | Major reductions in service for weather events or other atypical situations |
+              | `6`   | Canonical service contains default stopping patterns for selected routes, including temporarily closed stops; not active on any dates |
               """,
-              enum: Enum.to_list(0..5),
+              enum: Enum.to_list(0..6),
               example: 1
             )
 
