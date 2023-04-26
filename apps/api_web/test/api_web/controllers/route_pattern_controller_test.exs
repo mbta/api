@@ -256,12 +256,48 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
     defp canonical_test_route_patterns do
       [
-        %RoutePattern{id: "rp1", route_id: "route1", direction_id: 0, canonical: true},
-        %RoutePattern{id: "rp2", route_id: "route1", direction_id: 1, canonical: true},
-        %RoutePattern{id: "rp3", route_id: "route2", direction_id: 0, canonical: false},
-        %RoutePattern{id: "rp4", route_id: "route2", direction_id: 1, canonical: false},
-        %RoutePattern{id: "rp5", route_id: "route3", direction_id: 0, canonical: false},
-        %RoutePattern{id: "rp6", route_id: "route3", direction_id: 1, canonical: false}
+        %RoutePattern{
+          id: "rp1",
+          route_id: "route1",
+          direction_id: 0,
+          canonical: true,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp2",
+          route_id: "route1",
+          direction_id: 1,
+          canonical: true,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp3",
+          route_id: "route2",
+          direction_id: 0,
+          canonical: false,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp4",
+          route_id: "route2",
+          direction_id: 1,
+          canonical: false,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp5",
+          route_id: "route3",
+          direction_id: 0,
+          canonical: false,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp6",
+          route_id: "route3",
+          direction_id: 1,
+          canonical: false,
+          typicality: 5
+        }
       ]
     end
 

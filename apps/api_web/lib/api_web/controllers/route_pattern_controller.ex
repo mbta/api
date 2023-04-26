@@ -76,12 +76,20 @@ defmodule ApiWeb.RoutePatternController do
       filtered
       |> format_filters()
       |> expand_stops_filter(:stop_ids, conn.assigns.api_version)
+      |> reject_invalid_canonical_filter()
       |> RoutePattern.filter_by()
       |> State.all(pagination_opts(params, conn))
     else
       {:error, _, _} = error -> error
     end
   end
+
+  defp reject_invalid_canonical_filter(filters)
+
+  defp reject_invalid_canonical_filter(%{canonical: nil} = filters),
+    do: Map.delete(filters, :canonical)
+
+  defp reject_invalid_canonical_filter(filters), do: filters
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
   defp format_filters(filters) do
