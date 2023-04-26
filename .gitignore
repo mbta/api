@@ -32,3 +32,7 @@ cover
 
 # Python artifacts (for locust)
 __pycache__
+
+# local db 
+shared-local-instance.db
+/bin
