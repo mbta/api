@@ -18,9 +18,9 @@ defmodule State.RoutePatternTest do
       assert Enum.sort(filter_by(%{})) == [other_pattern, route_pattern]
     end
 
-    test "filters by route, stop and direction" do
+    test "filters by route, stop, direction and canonical" do
       route = %Model.Route{id: "route"}
-      route_pattern = %RoutePattern{id: "pattern", route_id: route.id}
+      route_pattern = %RoutePattern{id: "pattern", route_id: route.id, canonical: true}
 
       trip = %Model.Trip{
         id: "trip",
@@ -47,6 +47,10 @@ defmodule State.RoutePatternTest do
       assert filter_by(%{route_ids: ["route"], direction_id: 1}) == []
       assert filter_by(%{route_ids: ["route"], stop_ids: ["stop"]}) == [route_pattern]
       assert filter_by(%{route_ids: ["not_route"], stop_ids: ["stop"]}) == []
+      assert filter_by(%{canonical: true}) == [route_pattern]
+      assert filter_by(%{canonical: false}) == []
+      assert filter_by(%{stop_ids: ["stop"], canonical: true}) == [route_pattern]
+      assert filter_by(%{stop_ids: ["not_stop"], canonical: true}) == []
     end
 
     test "includes child stops" do

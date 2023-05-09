@@ -12,7 +12,8 @@ defmodule Parse.RoutePatterns do
       time_desc: copy_string(row["route_pattern_time_desc"]),
       typicality: copy_int(row["route_pattern_typicality"]),
       sort_order: copy_int(row["route_pattern_sort_order"]),
-      representative_trip_id: copy_string(row["representative_trip_id"])
+      representative_trip_id: copy_string(row["representative_trip_id"]),
+      canonical: parse_canonical(row["canonical_route_pattern"])
     }
   end
 
@@ -21,4 +22,7 @@ defmodule Parse.RoutePatterns do
 
   defp copy_int(""), do: nil
   defp copy_int(s), do: String.to_integer(s)
+
+  defp parse_canonical("1"), do: true
+  defp parse_canonical(_), do: false
 end

@@ -12,7 +12,8 @@ defmodule Model.RoutePattern do
     :time_desc,
     :typicality,
     :sort_order,
-    :representative_trip_id
+    :representative_trip_id,
+    :canonical
   ]
 
   @type id :: String.t()
@@ -22,8 +23,9 @@ defmodule Model.RoutePattern do
           direction_id: Model.Direction.id(),
           name: String.t(),
           time_desc: String.t() | nil,
-          typicality: 0..4,
+          typicality: 0..5,
           sort_order: integer(),
-          representative_trip_id: Model.Trip.id()
+          representative_trip_id: Model.Trip.id(),
+          canonical: boolean()
         }
 end

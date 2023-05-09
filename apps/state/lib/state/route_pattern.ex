@@ -16,6 +16,7 @@ defmodule State.RoutePattern do
 
   @type filters :: %{
           optional(:ids) => [RoutePattern.id()],
+          optional(:canonical) => boolean(),
           optional(:route_ids) => [Route.id()],
           optional(:stop_ids) => [Stop.id()]
         }
@@ -31,6 +32,13 @@ defmodule State.RoutePattern do
   @spec filter_by(filters()) :: [RoutePattern.t()]
   def filter_by(%{ids: ids}) do
     by_ids(ids)
+  end
+
+  def filter_by(%{canonical: canonical} = filters) do
+    filters
+    |> Map.delete(:canonical)
+    |> filter_by()
+    |> Enum.filter(fn %RoutePattern{canonical: is_c} -> canonical == is_c end)
   end
 
   def filter_by(%{route_ids: _route_ids, stop_ids: _stop_ids} = filters) do

@@ -44,7 +44,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
-        representative_trip_id: "trip id"
+        representative_trip_id: "trip id",
+        canonical: false
       }
 
       State.RoutePattern.new_state([route_pattern])
@@ -253,6 +254,146 @@ defmodule ApiWeb.RoutePatternControllerTest do
       assert [] == json_response(conn, 200)["data"]
     end
 
+    defp canonical_test_route_patterns do
+      [
+        %RoutePattern{
+          id: "rp1",
+          route_id: "route1",
+          direction_id: 0,
+          canonical: true,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp2",
+          route_id: "route1",
+          direction_id: 1,
+          canonical: true,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp3",
+          route_id: "route2",
+          direction_id: 0,
+          canonical: false,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp4",
+          route_id: "route2",
+          direction_id: 1,
+          canonical: false,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp5",
+          route_id: "route3",
+          direction_id: 0,
+          canonical: false,
+          typicality: 5
+        },
+        %RoutePattern{
+          id: "rp6",
+          route_id: "route3",
+          direction_id: 1,
+          canonical: false,
+          typicality: 5
+        }
+      ]
+    end
+
+    test "can filter by canonical true", %{conn: conn} do
+      State.RoutePattern.new_state(canonical_test_route_patterns())
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"canonical" => true}
+          })
+        )
+
+      assert [
+               %{
+                 "id" => "rp1",
+                 "attributes" => %{"direction_id" => 0, "canonical" => true}
+               },
+               %{
+                 "id" => "rp2",
+                 "attributes" => %{"direction_id" => 1, "canonical" => true}
+               }
+             ] = json_response(conn, 200)["data"]
+    end
+
+    test "can filter by canonical false", %{conn: conn} do
+      State.RoutePattern.new_state(canonical_test_route_patterns())
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"canonical" => false}
+          })
+        )
+
+      assert [
+               %{
+                 "id" => "rp4",
+                 "attributes" => %{"direction_id" => 1, "canonical" => false}
+               },
+               %{
+                 "id" => "rp5",
+                 "attributes" => %{"direction_id" => 0, "canonical" => false}
+               },
+               %{
+                 "id" => "rp3",
+                 "attributes" => %{"direction_id" => 0, "canonical" => false}
+               },
+               %{
+                 "id" => "rp6",
+                 "attributes" => %{"direction_id" => 1, "canonical" => false}
+               }
+             ] = json_response(conn, 200)["data"]
+    end
+
+    test "filtering by canonical null is treated the same as it not being included", %{conn: conn} do
+      State.RoutePattern.new_state(canonical_test_route_patterns())
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :index, %{
+            "filter" => %{"canonical" => nil}
+          })
+        )
+
+      assert [
+               %{
+                 "id" => "rp4",
+                 "attributes" => %{"direction_id" => 1, "canonical" => false}
+               },
+               %{
+                 "id" => "rp5",
+                 "attributes" => %{"direction_id" => 0, "canonical" => false}
+               },
+               %{
+                 "id" => "rp1",
+                 "attributes" => %{"direction_id" => 0, "canonical" => true}
+               },
+               %{
+                 "id" => "rp3",
+                 "attributes" => %{"direction_id" => 0, "canonical" => false}
+               },
+               %{
+                 "id" => "rp6",
+                 "attributes" => %{"direction_id" => 1, "canonical" => false}
+               },
+               %{
+                 "id" => "rp2",
+                 "attributes" => %{"direction_id" => 1, "canonical" => true}
+               }
+             ] = json_response(conn, 200)["data"]
+    end
+
     test "can include route and trip", %{conn: conn} do
       State.RoutePattern.new_state([
         %RoutePattern{id: "rp", route_id: "routeid", representative_trip_id: "tripid"}
@@ -334,7 +475,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
-        representative_trip_id: "trip id"
+        representative_trip_id: "trip id",
+        canonical: false
       }
 
       State.RoutePattern.new_state([route_pattern])
@@ -348,7 +490,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "name" => "route pattern name",
                  "time_desc" => nil,
                  "typicality" => 1,
-                 "sort_order" => 101
+                 "sort_order" => 101,
+                 "canonical" => false
                },
                "links" => %{
                  "self" => "/route_patterns/route%20pattern%20id"
@@ -394,7 +537,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
         time_desc: nil,
         typicality: 1,
         sort_order: 101,
-        representative_trip_id: "trip id"
+        representative_trip_id: "trip id",
+        canonical: false
       }
 
       State.RoutePattern.new_state([route_pattern])

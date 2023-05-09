@@ -10,7 +10,7 @@ defmodule ApiWeb.RoutePatternController do
 
   plug(:ensure_path_matches_version)
 
-  @filters ~w(id route direction_id stop)
+  @filters ~w(id canonical route direction_id stop)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
@@ -47,6 +47,7 @@ defmodule ApiWeb.RoutePatternController do
     filter_param(:id, name: :route)
     filter_param(:direction_id)
     filter_param(:stop_id, includes_children: true)
+    filter_param(:canonical)
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -75,12 +76,20 @@ defmodule ApiWeb.RoutePatternController do
       filtered
       |> format_filters()
       |> expand_stops_filter(:stop_ids, conn.assigns.api_version)
+      |> reject_invalid_canonical_filter()
       |> RoutePattern.filter_by()
       |> State.all(pagination_opts(params, conn))
     else
       {:error, _, _} = error -> error
     end
   end
+
+  defp reject_invalid_canonical_filter(filters)
+
+  defp reject_invalid_canonical_filter(%{canonical: nil} = filters),
+    do: Map.delete(filters, :canonical)
+
+  defp reject_invalid_canonical_filter(filters), do: filters
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
   defp format_filters(filters) do
@@ -97,6 +106,9 @@ defmodule ApiWeb.RoutePatternController do
 
         {"stop", stop_ids} ->
           {:stop_ids, Params.split_on_comma(stop_ids)}
+
+        {"canonical", canonical} ->
+          {:canonical, Params.canonical(canonical)}
       end
     end)
   end
@@ -199,8 +211,9 @@ defmodule ApiWeb.RoutePatternController do
               | `2` | Pattern is a deviation from the regular route. |
               | `3` | Pattern represents a highly atypical pattern for the route, such as a special routing which only runs a handful of times per day. |
               | `4` | Diversions from normal service, such as planned detours, bus shuttles, or snow routes. |
+              | `5` | Canonical trip patterns. |
               """,
-              enum: [0, 1, 2, 3, 4]
+              enum: [0, 1, 2, 3, 4, 5]
             )
 
             sort_order(
@@ -208,6 +221,19 @@ defmodule ApiWeb.RoutePatternController do
               """
               Can be used to order the route patterns in a way which is ideal for presentation to customers.
               Route patterns with smaller sort_order values should be displayed before those with larger values.
+              """
+            )
+
+            canonical(
+              :boolean,
+              """
+              Indicates whether or not the route pattern can be considered canonical and the default set of stops
+              for the given route and direction.
+
+              | Value | Description |
+              |-|-|
+              | `true` | Route pattern should be considered canonical for this route in this direction. If branching regularly occurs, this route-direction may have more than one canonical pattern. |
+              | `false` | Route pattern should be not considered canonical for this route in this direction. |
               """
             )
           end
