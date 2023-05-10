@@ -232,7 +232,10 @@ config :state, :stops_on_route,
     "Shuttle-AndersonWoburnNorthStationLocal-0-" => true,
     # Old Colony Lines shuttles/suspension
     "Shuttle-BraintreeSouthStationExpress-0-" => true,
-    "CR-Greenbush-BraintreeGreenbush-" => true
+    "Shuttle-BridgewaterMiddleboroughLakeville-0-" => true,
+    "CR-Greenbush-BraintreeGreenbush-" => true,
+    "CR-Middleborough-2507c3b4-0_MM-0277-S_MM-0356-S_0" => true,
+    "CR-Middleborough-cd96ff97-1_MM-0356-S_MM-0277-S_2" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
