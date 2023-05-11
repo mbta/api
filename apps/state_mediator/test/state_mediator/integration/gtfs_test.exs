@@ -197,24 +197,19 @@ defmodule StateMediator.Integration.GtfsTest do
 
     test "Providence/Stoughton has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Providence")
-
-      shape_0_names = shapes_0 |> Enum.map(& &1.name) |> Enum.sort()
-      assert shape_0_names == ["South Station - Stoughton", "South Station - Wickford Junction"]
-
-      shape_1_names = shapes_1 |> Enum.map(& &1.name) |> Enum.sort()
-      assert shape_1_names == ["Stoughton - South Station", "Wickford Junction - South Station"]
+      assert [%{name: "South Station - Stoughton"}, %{name: "South Station - Wickford Junction"}] = shapes_0
+      assert [%{name: "Stoughton - South Station"}, %{name: "Wickford Junction - South Station"}] = shapes_1
     end
 
-    # Disable Newburyport/Rockport Line check while Rockport Branch is closed, Fall 2022
-    # test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
-    #  [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
-    #
-    #  assert [%{name: "North Station - Rockport"}, %{name: "North Station - Newburyport"}] =
-    #           shapes_0
-    #
-    #  assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
-    #           shapes_1
-    # end
+    test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
+     [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
+    
+     assert [%{name: "North Station - Rockport"}, %{name: "North Station - Newburyport"}] =
+              shapes_0
+    
+     assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
+              shapes_1
+    end
 
     test "all shuttle shapes have negative priority" do
       invalid_shapes =
