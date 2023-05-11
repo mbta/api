@@ -191,8 +191,8 @@ defmodule StateMediator.Integration.GtfsTest do
 
     test "Red Line has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("Red")
-      assert [%{name: "Alewife - Ashmont"}, %{name: "Alewife - Braintree"}] = shapes_0
-      assert [%{name: "Ashmont - Alewife"}, %{name: "Braintree - Alewife"}] = shapes_1
+      assert [%{name: "Alewife - Braintree"}, %{name: "Alewife - Ashmont"}] = shapes_0
+      assert [%{name: "Braintree - Alewife"}, %{name: "Ashmont - Alewife"}] = shapes_1
     end
 
     test "Providence/Stoughton has 2 non-ignored shapes each direction" do
