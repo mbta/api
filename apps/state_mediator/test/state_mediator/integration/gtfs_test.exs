@@ -197,18 +197,22 @@ defmodule StateMediator.Integration.GtfsTest do
 
     test "Providence/Stoughton has 2 non-ignored shapes each direction" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Providence")
-      assert [%{name: "South Station - Stoughton"}, %{name: "South Station - Wickford Junction"}] = shapes_0
-      assert [%{name: "Stoughton - South Station"}, %{name: "Wickford Junction - South Station"}] = shapes_1
+
+      assert [%{name: "South Station - Wickford Junction"}, %{name: "South Station - Stoughton"}] =
+               shapes_0
+
+      assert [%{name: "Wickford Junction - South Station"}, %{name: "Stoughton - South Station"}] =
+               shapes_1
     end
 
     test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
-     [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
-    
-     assert [%{name: "North Station - Rockport"}, %{name: "North Station - Newburyport"}] =
-              shapes_0
-    
-     assert [%{name: "Rockport - North Station"}, %{name: "Newburyport - North Station"}] =
-              shapes_1
+      [shapes_0, shapes_1] = shapes_in_both_directions("CR-Newburyport")
+
+      assert [%{name: "North Station - Newburyport"}, %{name: "North Station - Rockport"}] =
+               shapes_0
+
+      assert [%{name: "Newburyport - North Station"}, %{name: "Rockport - North Station"}] =
+               shapes_1
     end
 
     test "all shuttle shapes have negative priority" do
