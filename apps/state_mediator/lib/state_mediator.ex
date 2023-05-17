@@ -50,17 +50,6 @@ defmodule StateMediator do
       {
         StateMediator.Mediator,
         [
-          spec_id: :parking_mediator,
-          state: State.Facility.Parking,
-          url: source_url(State.Facility.Parking),
-          opts: [timeout: 10_000],
-          sync_timeout: 30_000,
-          interval: 60_000
-        ]
-      },
-      {
-        StateMediator.Mediator,
-        [
           spec_id: :gtfs_mediator,
           state: GtfsDecompress,
           url: app_value(Realtime, :gtfs_url),
