@@ -127,13 +127,6 @@ config :state, :shape,
     "6020021" => -1,
     "6020022" => -1,
 
-    # Order the Red Line Ashmont first, and change the northbound names to
-    # the names of the branch.
-    "931_0009" => 2,
-    "931_0010" => 2,
-    "933_0009" => 1,
-    "933_0010" => 1,
-
     # Silver Line
     # SL1: last trip, goes right by South Station
     "7410023" => -1,
