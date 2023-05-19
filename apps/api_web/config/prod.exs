@@ -13,18 +13,12 @@ import Config
 # which you typically run after static files are built.
 config :api_web, ApiWeb.Endpoint,
   http: [
-    port: {:system, "PORT"},
-    transport_options: [
+    thousand_island_options: [
       num_acceptors: 500,
-      max_connections: :infinity
+      shutdown_timeout: 90_000
     ]
   ],
-  drainer: [
-    # See options in https://hexdocs.pm/plug_cowboy/Plug.Cowboy.Drainer.html
-    # We set this to 90 seconds so that it's longer than the idle timeout for the load balancer.
-    shutdown: 90_000
-  ],
-  url: [scheme: "https", host: {:system, "HOST"}, port: 443],
+  url: [scheme: "https", port: 443],
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
