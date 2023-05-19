@@ -2,18 +2,20 @@ defmodule Fetch.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :fetch,
-     aliases: aliases(),
-     build_embedded: Mix.env == :prod,
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps: deps(),
-     deps_path: "../../deps",
-     elixir: "~> 1.2",
-     lockfile: "../../mix.lock",
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: LcovEx],
-     version: "0.0.1"]
+    [
+      app: :fetch,
+      aliases: aliases(),
+      build_embedded: Mix.env() == :prod,
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps: deps(),
+      deps_path: "../../deps",
+      elixir: "~> 1.2",
+      lockfile: "../../mix.lock",
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: LcovEx],
+      version: "0.0.1"
+    ]
   end
 
   # Configuration for the OTP application

@@ -9,7 +9,8 @@ if is_prod? and is_release? do
   sentry_env = System.get_env("SENTRY_ENV")
 
   if not is_nil(sentry_env) do
-    config :sentry, filter: ApiWeb.SentryEventFilter,
+    config :sentry,
+      filter: ApiWeb.SentryEventFilter,
       dsn: System.fetch_env!("SENTRY_DSN"),
       environment_name: sentry_env,
       enable_source_code_context: true,
@@ -19,9 +20,7 @@ if is_prod? and is_release? do
       },
       included_environments: [sentry_env]
 
-    config :logger, Sentry.LoggerBackend,
-      level: :error
-
+    config :logger, Sentry.LoggerBackend, level: :error
   end
 
   config :ex_aws,
@@ -55,7 +54,14 @@ if is_prod? and is_release? do
 
   config :api_web, signing_salt: System.fetch_env!("SIGNING_SALT")
 
-  config :api_web, ApiWeb.Endpoint, secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
+  config :api_web, ApiWeb.Endpoint,
+    http: [
+      port: System.fetch_env!("PORT")
+    ],
+    url: [
+      host: System.fetch_env!("HOST")
+    ],
+    secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
 
   config :state_mediator, :commuter_rail_crowding,
     firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS")
