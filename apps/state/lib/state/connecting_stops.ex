@@ -90,9 +90,10 @@ defmodule State.ConnectingStops do
 
   @spec update_state(state, overrides) :: state
   defp update_state(state, overrides \\ @overrides) do
+    stops = State.Stop.by_location_type([1]) ++ State.Stop.by_vehicle_types([4])
+
     items =
-      [1]
-      |> State.Stop.by_location_type()
+      stops
       |> Stream.filter(&Stop.located?/1)
       |> Stream.map(fn stop -> [stop | connecting_stops(stop, overrides)] end)
       |> Stream.flat_map(&rotations/1)

@@ -86,6 +86,10 @@ defmodule State.Stop do
     State.Stop.Cache.match(%{location_type: type, parent_station: id}, :parent_station)
   end
 
+  def by_vehicle_types(vehicle_types) do
+    State.Stop.Cache.by_vehicle_types(vehicle_types)
+  end
+
   def siblings(id) when is_binary(id) do
     case by_id(id) do
       %{parent_station: station_id} ->
