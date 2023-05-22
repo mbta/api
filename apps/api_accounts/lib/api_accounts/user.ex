@@ -22,6 +22,11 @@ defmodule ApiAccounts.User do
     field(:join_date, :datetime)
     field(:active, :boolean, default: true)
     field(:blocked, :boolean, default: false)
+    field(:totp_secret, :string)
+    field(:totp_secret_bin, :binary, virtual: true)
+    field(:totp_enabled, :boolean, default: false)
+    field(:totp_since, :datetime)
+    field(:totp_code, :string, virtual: true)
     schema_version(1)
   end
 
@@ -102,6 +107,33 @@ defmodule ApiAccounts.User do
     |> validate_length(:password, min: 8)
     |> validate_confirmation(:password)
     |> hash_password()
+  end
+
+  @doc false
+  def register_totp(%__MODULE__{} = struct, params \\ %{}) do
+    fields = ~w(totp_secret)a
+
+    struct
+    |> cast(params, fields)
+    |> validate_required(fields)
+  end
+
+  @doc false
+  def change_totp_enabled(%__MODULE__{} = struct, params \\ %{}) do
+    fields = ~w(totp_enabled totp_since totp_secret)a
+
+    struct
+    |> cast(params, fields)
+    |> validate_required(~w(totp_enabled totp_since)a)
+  end
+
+  @doc false
+  def change_totp_code(%__MODULE__{} = struct, params \\ %{}) do
+    fields = ~w(totp_code)a
+
+    struct
+    |> cast(params, fields)
+    |> validate_required(fields)
   end
 
   @doc false

@@ -308,4 +308,123 @@ defmodule ApiWeb.Portal.UserControllerTest do
       assert html_response(conn, 200) =~ ~r"invalid"
     end
   end
+
+  describe "setting up 2fa" do
+    setup %{conn: conn} do
+      {:ok, user_disabled} = ApiAccounts.create_user(%{email: "nofa@mbta.com"})
+
+      {:ok, conn: conn |> conn_with_session |> conn_with_user(user_disabled)}
+    end
+
+    test "configure 2fa with user with no 2fa", %{conn: conn} do
+      conn = get(conn, user_path(conn, :configure_2fa))
+      page = html_response(conn, 200)
+      assert page =~ "Enable 2-Factor"
+    end
+
+    test "registers when no code is provided", %{conn: conn} do
+      conn =
+        conn
+        |> form_header()
+        |> post(user_path(conn, :register_2fa), user: %{})
+
+      user = ApiAccounts.get_user!(conn.assigns[:user].id)
+
+      page = html_response(conn, 200)
+      assert page =~ "required"
+      assert page =~ user.totp_secret
+    end
+
+    test "enables totp and redirects to accounts page when correct code is provided", %{
+      conn: conn
+    } do
+      user = conn.assigns[:user]
+      {:ok, user} = ApiAccounts.register_totp(user)
+
+      conn =
+        conn
+        |> form_header()
+        |> post(user_path(conn, :register_2fa),
+          user: %{totp_code: NimbleTOTP.verification_code(user.totp_secret_bin)}
+        )
+
+      _page = html_response(conn, 302)
+
+      user = ApiAccounts.get_user!(conn.assigns[:user].id)
+      assert user.totp_enabled
+    end
+
+    test "rejects invalid codes and does not enable totp", %{conn: conn} do
+      user = conn.assigns[:user]
+      {:ok, user} = ApiAccounts.register_totp(user)
+
+      conn =
+        conn
+        |> form_header()
+        |> post(user_path(conn, :register_2fa),
+          user: %{totp_code: "1234"}
+        )
+
+      page = html_response(conn, 200)
+      assert page =~ "Invalid"
+      assert page =~ user.totp_secret
+      refute user.totp_enabled
+    end
+  end
+
+  describe "disabling 2fa" do
+    setup %{conn: conn} do
+      time = DateTime.utc_now() |> DateTime.add(-35, :second)
+      {:ok, user_enabled} = ApiAccounts.create_user(%{email: "2fa@mbta.com"})
+      {:ok, user_enabled} = ApiAccounts.register_totp(user_enabled)
+
+      {:ok, user_enabled} =
+        ApiAccounts.enable_totp(
+          user_enabled,
+          NimbleTOTP.verification_code(user_enabled.totp_secret_bin, time: time),
+          time: time
+        )
+
+      {:ok, conn: conn |> conn_with_session |> conn_with_user(user_enabled)}
+    end
+
+    test "configure 2fa with user with 2fa", %{conn: conn} do
+      conn = get(conn, user_path(conn, :configure_2fa))
+      page = html_response(conn, 200)
+      assert page =~ "Disable 2-Factor"
+    end
+
+    test "disables totp and redirects to accounts page when correct code is provided", %{
+      conn: conn
+    } do
+      user = conn.assigns[:user]
+
+      conn =
+        conn
+        |> form_header()
+        |> post(user_path(conn, :disable_2fa),
+          user: %{totp_code: NimbleTOTP.verification_code(user.totp_secret_bin)}
+        )
+
+      _page = html_response(conn, 302)
+
+      user = ApiAccounts.get_user!(conn.assigns[:user].id)
+      refute user.totp_enabled
+    end
+
+    test "rejects invalid codes and does not disable totp", %{conn: conn} do
+      user = conn.assigns[:user]
+
+      conn =
+        conn
+        |> form_header()
+        |> post(user_path(conn, :disable_2fa),
+          user: %{totp_code: "1234"}
+        )
+
+      page = html_response(conn, 200)
+      assert page =~ "Invalid"
+      assert user.totp_enabled
+    end
+  end
 end

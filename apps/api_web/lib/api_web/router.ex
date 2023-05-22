@@ -177,6 +177,10 @@ defmodule ApiWeb.Router do
     )
 
     get("/account/edit-password", UserController, :edit_password)
+    get("/2fa", UserController, :configure_2fa)
+    post("/2fa/register", UserController, :register_2fa)
+    get("/2fa/disable", UserController, :unenroll_2fa)
+    post("/2fa/disable", UserController, :disable_2fa)
   end
 
   if Mix.env() == :dev do

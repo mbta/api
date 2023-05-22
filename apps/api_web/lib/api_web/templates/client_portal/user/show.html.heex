@@ -14,4 +14,8 @@
   <p class="text-center">
     <%= link "Update Password", to: user_path(@conn, :edit_password) %>
   </p>
+
+  <p class="text-center">
+    <%= link "Configure 2-Factor authentication", to: user_path(@conn, :configure_2fa) %>
+  </p>
 </div>

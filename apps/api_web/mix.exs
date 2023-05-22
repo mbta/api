@@ -82,7 +82,9 @@ defmodule ApiWeb.Mixfile do
       {:plug_cowboy, "~> 2.6"},
       {:sobelow, "~> 0.11", only: :dev, runtime: false},
       {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", tag: "71cd746"},
-      {:sentry, "~> 8.0"}
+      {:sentry, "~> 8.0"},
+      {:qr_code, "~> 3.0"},
+      {:nimble_totp, "~> 1.0", only: :test}
     ]
   end
 end

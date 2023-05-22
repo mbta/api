@@ -11,6 +11,8 @@ defmodule ApiAccountsTest do
     email: "test@mbta.com"
   }
 
+  @fixed_now ~U[2019-03-31 02:30:00Z]
+
   describe "users" do
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -506,5 +508,117 @@ defmodule ApiAccountsTest do
     ApiAccounts.create_user(%{id: "user", email: "user@mbta.com"})
 
     assert [admin] == ApiAccounts.list_administrators()
+  end
+
+  test "register_totp/1" do
+    {:ok, user} = ApiAccounts.create_user(@valid_attrs)
+
+    {:ok, user} = ApiAccounts.register_totp(user)
+    assert user.totp_secret
+    refute user.totp_enabled
+  end
+
+  describe "enable_totp/3" do
+    setup do
+      {:ok, user} = ApiAccounts.create_user(@valid_attrs)
+      {:ok, user} = ApiAccounts.register_totp(user)
+      {:ok, user: user}
+    end
+
+    test "enables totp if code is valid", %{user: user} do
+      code = NimbleTOTP.verification_code(user.totp_secret_bin, time: @fixed_now)
+
+      {:ok, user} = ApiAccounts.enable_totp(user, code, time: @fixed_now)
+
+      assert user.totp_enabled
+      assert user.totp_since === @fixed_now
+    end
+
+    test "rejects invalid totp code and does not enable totp", %{user: user} do
+      {:error, %ApiAccounts.Changeset{errors: %{totp_code: _}}} =
+        ApiAccounts.enable_totp(user, "123456", time: @fixed_now)
+
+      user = ApiAccounts.get_user!(user.id)
+
+      refute user.totp_enabled
+      refute user.totp_since
+    end
+  end
+
+  def totp_user_fixture do
+    {:ok, user} = ApiAccounts.create_user(@valid_attrs)
+    {:ok, user} = ApiAccounts.register_totp(user)
+
+    # Codes are not allowed to be reused, and are valid for 30 seconds
+    # setup a user such that a new valid code can be run for @fixed_now
+    now = DateTime.add(@fixed_now, -35, :second)
+
+    code = NimbleTOTP.verification_code(user.totp_secret_bin, time: now)
+    {:ok, user} = ApiAccounts.enable_totp(user, code, time: now)
+
+    user
+  end
+
+  describe "disable_totp/3" do
+    setup do
+      {:ok, user: totp_user_fixture()}
+    end
+
+    test "disables totp if code is valid", %{user: user} do
+      code = NimbleTOTP.verification_code(user.totp_secret_bin, time: @fixed_now)
+
+      {:ok, user} = ApiAccounts.disable_totp(user, code, time: @fixed_now)
+
+      refute user.totp_enabled
+      refute user.totp_since
+      refute user.totp_secret
+    end
+
+    test "rejects invalid totp code and does not disable totp", %{user: user} do
+      {:error, %ApiAccounts.Changeset{errors: %{totp_code: _}}} =
+        ApiAccounts.disable_totp(user, "123456", time: @fixed_now)
+
+      user = ApiAccounts.get_user!(user.id)
+
+      assert user.totp_enabled
+      assert user.totp_since
+      assert user.totp_secret
+    end
+  end
+
+  test "admin_disable_totp/1" do
+    user = totp_user_fixture()
+
+    {:ok, user} = ApiAccounts.admin_disable_totp(user)
+
+    refute user.totp_enabled
+    refute user.totp_since
+    refute user.totp_secret
+  end
+
+  describe "validate_totp/1" do
+    setup do
+      {:ok, user: totp_user_fixture}
+    end
+
+    test "returns true if totp is valid", %{user: user} do
+      code = NimbleTOTP.verification_code(user.totp_secret_bin, time: @fixed_now)
+
+      assert {:ok, _} = ApiAccounts.validate_totp(user, code, time: @fixed_now)
+    end
+
+    test "returns error changeset with invalid code", %{user: user} do
+      {:error, %ApiAccounts.Changeset{errors: %{totp_code: _}}} =
+        ApiAccounts.validate_totp(user, "123456", time: @fixed_now)
+    end
+
+    test "does not allow for the same code to be used twice", %{user: user} do
+      code = NimbleTOTP.verification_code(user.totp_secret_bin, time: @fixed_now)
+
+      assert {:ok, user} = ApiAccounts.validate_totp(user, code, time: @fixed_now)
+
+      {:error, %ApiAccounts.Changeset{errors: %{totp_code: _}}} =
+        ApiAccounts.validate_totp(user, code, time: @fixed_now)
+    end
   end
 end

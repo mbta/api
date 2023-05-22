@@ -145,6 +145,64 @@ defmodule ApiWeb.ClientPortal.UserController do
     end
   end
 
+  def configure_2fa(conn, _) do
+    user = conn.assigns[:user]
+    render(conn, "configure_2fa.html", enabled: user.totp_enabled)
+  end
+
+  def register_2fa(conn, params) do
+    code = get_in(params, ["user", "totp_code"])
+
+    if code do
+      user = conn.assigns[:user]
+
+      case ApiAccounts.enable_totp(user, code) do
+        {:ok, _user} ->
+          conn
+          |> put_flash(:success, "2FA enabled successfully.")
+          |> redirect(to: user_path(conn, :show))
+
+        {:error, changeset} ->
+          uri = ApiAccounts.totp_uri(user)
+          {:ok, qr_code} = QRCode.create(uri) |> QRCode.render(:svg) |> QRCode.to_base64()
+
+          render(conn, "register_2fa.html",
+            secret: user.totp_secret,
+            qr_code: "data:image/svg+xml;base64, #{qr_code}",
+            changeset: changeset
+          )
+      end
+    else
+      {:ok, user} = ApiAccounts.register_totp(conn.assigns[:user])
+      uri = ApiAccounts.totp_uri(user)
+      {:ok, qr_code} = QRCode.create(uri) |> QRCode.render(:svg) |> QRCode.to_base64()
+
+      render(conn, "register_2fa.html",
+        secret: user.totp_secret,
+        qr_code: "data:image/svg+xml;base64, #{qr_code}",
+        changeset: ApiAccounts.change_totp_code(user)
+      )
+    end
+  end
+
+  def unenroll_2fa(conn, _params) do
+    render(conn, "unenroll_2fa.html", changeset: ApiAccounts.change_totp_code(conn.assigns[:user]))
+  end
+
+  def disable_2fa(conn, params) do
+    code = get_in(params, ["user", "totp_code"])
+
+    case ApiAccounts.disable_totp(conn.assigns[:user], code) do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:success, "2FA disabled successfully.")
+        |> redirect(to: user_path(conn, :show))
+
+      {:error, changeset} ->
+        render(conn, "unenroll_2fa.html", changeset: changeset)
+    end
+  end
+
   def reset_password_submit(conn, params) do
     with {:ok, user_id} <- user_for_token(params),
          {:ok, user} <- ApiAccounts.get_user(user_id),

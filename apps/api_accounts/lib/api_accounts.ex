@@ -572,4 +572,98 @@ defmodule ApiAccounts do
       changeset -> {:error, changeset}
     end
   end
+
+  @doc """
+  Generate and register a totp_secret with an account. TOTP will not be enforced until enable_totp/2 is called.
+  """
+  @spec register_totp(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def register_totp(%User{} = user) do
+    secret = NimbleTOTP.secret() |> Base.encode32()
+
+    case User.register_totp(user, %{totp_secret: secret}) do
+      %Changeset{valid?: true} = changeset -> Dynamo.update_item(changeset)
+      changeset -> {:error, changeset}
+    end
+  end
+
+  @spec validate_totp(User.t(), String.t(), keyword) :: {:error, Changeset.t()} | {:ok, User.t()}
+  @doc """
+  Validate TOTP code for a given user, returning {:ok, updated_user} if valid, or {:error, changeset} if invalid.
+  """
+  def validate_totp(%User{} = user, totp_code, opts \\ []) do
+    opts = Keyword.put(opts, :since, user.totp_since)
+    opts = Keyword.put_new(opts, :time, DateTime.utc_now())
+
+    if NimbleTOTP.valid?(user.totp_secret_bin, totp_code, opts) do
+      Dynamo.update_item(user, %{totp_since: Keyword.get(opts, :time)})
+    else
+      changeset = change_totp_code(user)
+      {:error, %Changeset{changeset | errors: %{totp_code: ["Invalid TOTP code"]}}}
+    end
+  end
+
+  @doc """
+  Enable TOTP for a user. This will require TOTP for all future logins. A correct TOTP code must be provided.
+  Must be called after register_totp/1 has generated a secret.
+  """
+  @spec enable_totp(User.t(), String.t(), keyword()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def enable_totp(%User{} = user, totp_code, opts \\ []) do
+    case validate_totp(user, totp_code, opts) do
+      {:ok, user} ->
+        change =
+          User.change_totp_enabled(user, %{
+            totp_enabled: true,
+            totp_since: Keyword.get(opts, :time, DateTime.utc_now())
+          })
+
+        Dynamo.update_item(change)
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Disable TOTP for a user. This will no longer require TOTP for future logins.
+  """
+  @spec disable_totp(User.t(), String.t(), keyword()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def disable_totp(%User{} = user, totp_code, opts \\ []) do
+    case validate_totp(user, totp_code, opts) do
+      {:ok, user} ->
+        change =
+          User.change_totp_enabled(user, %{
+            totp_enabled: false,
+            totp_since: nil,
+            totp_secret: nil
+          })
+
+        Dynamo.update_item(change)
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Disable TOTP for a user without authenticating a code. For admin use only.
+  """
+  @spec admin_disable_totp(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def admin_disable_totp(%User{} = user) do
+    change =
+      User.change_totp_enabled(user, %{
+        totp_enabled: false,
+        totp_since: nil,
+        totp_secret: nil
+      })
+
+    Dynamo.update_item(change)
+  end
+
+  def totp_uri(%User{} = user) do
+    NimbleTOTP.otpauth_uri("MBTA:#{user.email}", user.totp_secret_bin, issuer: "MBTA")
+  end
+
+  def change_totp_code(user) do
+    User.change_totp_code(user, %{})
+  end
 end
