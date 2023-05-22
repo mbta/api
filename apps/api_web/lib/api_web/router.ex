@@ -153,6 +153,9 @@ defmodule ApiWeb.Router do
     get("/register", UserController, :new)
     post("/register", UserController, :create)
 
+    get("/2fa", SessionController, :new_2fa)
+    post("/2fa", SessionController, :create_2fa)
+
     get("/forgot-password", UserController, :forgot_password)
     post("/forgot-password", UserController, :forgot_password_submit)
 

@@ -1,0 +1,10 @@
+<div class="account-edit">
+    <%= form_for @changeset, session_path(@conn, :create_2fa), [method: :post], fn f -> %>
+        <.form_group form={f} field={:totp_code}>
+            <%= label f, :totp_code, class: "control-label" %>
+            <%= text_input f, :totp_code, placeholder: "Code", class: "form-control" %>
+            <%= error_tag f, :totp_code %>
+        </.form_group>
+        <%= submit "Login" %>
+    <% end %>
+</div>

@@ -530,13 +530,20 @@ defmodule ApiAccounts do
 
   """
   @spec authenticate(map) ::
-          {:ok, User.t()} | {:error, Changeset.t()} | {:error, :invalid_credentials}
+          {:ok, User.t()}
+          | {:continue, :totp, User.t()}
+          | {:error, Changeset.t()}
+          | {:error, :invalid_credentials}
   def authenticate(credentials) when is_map(credentials) do
     with %Changeset{valid?: true} = changeset <- User.authenticate(%User{}, credentials),
          %{email: email, password: password} = changeset.changes,
          {:ok, user} <- get_user_by_email(email),
          true <- Bcrypt.verify_pass(password, user.password) do
-      {:ok, user}
+      if user.totp_enabled do
+        {:continue, :totp, user}
+      else
+        {:ok, user}
+      end
     else
       %Changeset{valid?: false} = changeset ->
         {:error, changeset}

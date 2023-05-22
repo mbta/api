@@ -419,6 +419,16 @@ defmodule ApiAccountsTest do
       assert {:error, %ApiAccounts.Changeset{valid?: false}} =
                ApiAccounts.authenticate(%{email: "", password: ""})
     end
+
+    test "returns continue when user needs to validate 2-factor", %{user: user} do
+      {:ok, user} = ApiAccounts.register_totp(user)
+
+      {:ok, _user} =
+        ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))
+
+      assert {:continue, :totp, _} =
+               ApiAccounts.authenticate(%{email: user.email, password: @test_password})
+    end
   end
 
   describe "update_password/2" do
