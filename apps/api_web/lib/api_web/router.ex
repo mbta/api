@@ -46,6 +46,10 @@ defmodule ApiWeb.Router do
     plug(ApiWeb.Plugs.CheckForShutdown)
   end
 
+  pipeline :secure_headers do
+    plug(:put_secure_browser_headers, %{"x-frame-options" => "deny"})
+  end
+
   pipeline :admin_view do
     plug(:put_layout, {ApiWeb.Admin.LayoutView, :app})
   end
@@ -98,7 +102,7 @@ defmodule ApiWeb.Router do
   end
 
   scope "/docs/swagger" do
-    pipe_through(:secure)
+    pipe_through([:secure, :secure_headers])
     forward("/", PhoenixSwagger.Plug.SwaggerUI, otp_app: :api_web, swagger_file: "swagger.json")
   end
 
