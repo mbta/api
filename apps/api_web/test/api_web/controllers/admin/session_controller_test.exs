@@ -12,6 +12,21 @@ defmodule ApiWeb.Admin.SessionControllerTest do
     password: @test_password
   }
 
+  def fixture(:totp_user) do
+    time = DateTime.utc_now() |> DateTime.add(-35, :second)
+    {:ok, user} = ApiAccounts.create_user(@authorized_user_attrs)
+    {:ok, user} = ApiAccounts.register_totp(user)
+
+    {:ok, user} =
+      ApiAccounts.enable_totp(
+        user,
+        NimbleTOTP.verification_code(user.totp_secret_bin, time: time),
+        time: time
+      )
+
+    user
+  end
+
   setup %{conn: conn} do
     ApiAccounts.Dynamo.create_table(ApiAccounts.User)
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
@@ -84,5 +99,45 @@ defmodule ApiWeb.Admin.SessionControllerTest do
     conn = delete(conn, admin_session_path(conn, :delete))
     refute Plug.Conn.get_session(conn, :user_id)
     assert redirected_to(conn) == admin_session_path(conn, :new)
+  end
+
+  test "redirects to 2fa page when user has 2fa enabled", %{conn: conn} do
+    _user = fixture(:totp_user)
+
+    conn =
+      post(form_header(conn), admin_session_path(conn, :create), user: @authorized_user_attrs)
+
+    assert redirected_to(conn) == admin_session_path(conn, :new_2fa)
+  end
+
+  test "2fa redirects user on success", %{conn: conn} do
+    user = fixture(:totp_user)
+
+    conn = conn |> conn_with_session() |> put_session(:inc_user_id, user.id)
+
+    conn =
+      post(
+        form_header(conn),
+        admin_session_path(conn, :create_2fa),
+        user: %{totp_code: NimbleTOTP.verification_code(user.totp_secret_bin)}
+      )
+
+    assert redirected_to(conn) == admin_user_path(conn, :index)
+  end
+
+  test "2fa does not accept invalid codes", %{conn: conn} do
+    user = fixture(:totp_user)
+
+    conn = conn |> conn_with_session() |> put_session(:inc_user_id, user.id)
+
+    conn =
+      post(
+        form_header(conn),
+        admin_session_path(conn, :create_2fa),
+        user: %{totp_code: "1234"}
+      )
+
+    assert html_response(conn, 200) =~ "TOTP"
+    assert get_flash(conn, :error) != nil
   end
 end

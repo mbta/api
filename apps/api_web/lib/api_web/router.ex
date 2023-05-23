@@ -117,6 +117,8 @@ defmodule ApiWeb.Router do
 
     get("/login", SessionController, :new)
     post("/login", SessionController, :create)
+    get("/2fa", SessionController, :new_2fa)
+    post("/2fa", SessionController, :create_2fa)
     delete("/logout", SessionController, :delete)
   end
 

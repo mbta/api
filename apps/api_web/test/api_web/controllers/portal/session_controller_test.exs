@@ -116,7 +116,7 @@ defmodule ApiWeb.Portal.SessionControllerTest do
         user: %{totp_code: "1234"}
       )
 
-    assert html_response(conn, 200) =~ "Totp"
+    assert html_response(conn, 200) =~ "TOTP"
     assert get_flash(conn, :error) != nil
   end
 end

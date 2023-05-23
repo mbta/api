@@ -1,0 +1,7 @@
+<div class="hero-background">
+    <div class="hero-body">
+        <%= render ApiWeb.SharedView, "totp_form.html",
+            action: admin_session_path(@conn, :create_2fa),
+            changeset: @changeset %>
+    </div>
+</div>

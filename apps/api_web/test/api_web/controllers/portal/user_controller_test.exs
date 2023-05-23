@@ -331,7 +331,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
       user = ApiAccounts.get_user!(conn.assigns[:user].id)
 
       page = html_response(conn, 200)
-      assert page =~ "required"
+      assert page =~ "Validate"
       assert page =~ user.totp_secret
     end
 
