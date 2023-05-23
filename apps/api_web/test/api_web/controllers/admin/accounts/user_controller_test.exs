@@ -33,6 +33,16 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
     user
   end
 
+  def fixture(:mfa_user) do
+    user = fixture(:user)
+    {:ok, user} = ApiAccounts.register_totp(user)
+
+    {:ok, user} =
+      ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))
+
+    user
+  end
+
   setup %{conn: conn} do
     ApiAccounts.Dynamo.create_table(ApiAccounts.User)
     ApiAccounts.Dynamo.create_table(ApiAccounts.Key)
@@ -130,5 +140,25 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
     assert_error_sent(:not_found, fn ->
       get(base_conn, admin_user_path(base_conn, :show, user))
     end)
+  end
+
+  test "displays button to disable mfa", %{conn: conn} do
+    user = fixture(:mfa_user)
+    conn = get(conn, admin_user_path(conn, :show, user))
+
+    assert page = html_response(conn, 200)
+    assert page =~ "Disable MFA"
+  end
+
+  test "disables MFA for user", %{conn: conn} do
+    user = fixture(:mfa_user)
+    conn = post(conn, admin_user_path(conn, :disable_2fa, user), %{})
+
+    assert redirected_to(conn) == admin_user_path(conn, :show, user)
+
+    conn = get(conn, admin_user_path(conn, :show, user))
+
+    assert page = html_response(conn, 200)
+    refute page =~ "Disable MFA"
   end
 end

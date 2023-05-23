@@ -125,6 +125,7 @@ defmodule ApiWeb.Router do
   scope "/admin/users", ApiWeb.Admin.Accounts, as: :admin do
     pipe_through([:secure, :secure_csp, :browser, :admin_view, :admin])
     resources("/", UserController)
+    post("/disable_2fa/:id", UserController, :disable_2fa)
   end
 
   scope "/admin/users/:user_id/keys", ApiWeb.Admin.Accounts, as: :admin do
