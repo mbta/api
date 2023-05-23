@@ -128,15 +128,6 @@ defmodule ApiAccounts.User do
   end
 
   @doc false
-  def change_totp_code(%__MODULE__{} = struct, params \\ %{}) do
-    fields = ~w(totp_code)a
-
-    struct
-    |> cast(params, fields)
-    |> validate_required(fields)
-  end
-
-  @doc false
   def account_recovery(params \\ %{}) do
     %__MODULE__{}
     |> cast(params, [:email])

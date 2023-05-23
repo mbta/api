@@ -22,9 +22,9 @@ defmodule ApiWeb.ErrorHelpers do
   @doc """
   Generates tag for inlined form input errors.
   """
-  def error_tag(form, field) do
+  def error_tag(form, field, humanized \\ nil) do
     Enum.map(Map.get(form.source.errors, field, []), fn error ->
-      humanized_field = Phoenix.Naming.humanize(field)
+      humanized_field = humanized || Phoenix.Naming.humanize(field)
       translated_error = translate_error({error, []})
       error_message = "#{humanized_field} #{translated_error}."
       content_tag(:span, error_message, class: "help-block")

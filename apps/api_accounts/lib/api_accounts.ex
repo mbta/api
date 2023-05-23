@@ -604,7 +604,7 @@ defmodule ApiAccounts do
     if NimbleTOTP.valid?(user.totp_secret_bin, totp_code, opts) do
       Dynamo.update_item(user, %{totp_since: Keyword.get(opts, :time)})
     else
-      changeset = change_totp_code(user)
+      changeset = change_user(user)
       {:error, %Changeset{changeset | errors: %{totp_code: ["Invalid TOTP code"]}}}
     end
   end
@@ -668,9 +668,5 @@ defmodule ApiAccounts do
 
   def totp_uri(%User{} = user) do
     NimbleTOTP.otpauth_uri("MBTA:#{user.email}", user.totp_secret_bin, issuer: "MBTA")
-  end
-
-  def change_totp_code(user) do
-    User.change_totp_code(user, %{})
   end
 end

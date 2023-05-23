@@ -180,13 +180,13 @@ defmodule ApiWeb.ClientPortal.UserController do
       render(conn, "register_2fa.html",
         secret: user.totp_secret,
         qr_code: "data:image/svg+xml;base64, #{qr_code}",
-        changeset: ApiAccounts.change_totp_code(user)
+        changeset: ApiAccounts.change_user(user)
       )
     end
   end
 
   def unenroll_2fa(conn, _params) do
-    render(conn, "unenroll_2fa.html", changeset: ApiAccounts.change_totp_code(conn.assigns[:user]))
+    render(conn, "unenroll_2fa.html", changeset: ApiAccounts.change_user(conn.assigns[:user]))
   end
 
   def disable_2fa(conn, params) do

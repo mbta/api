@@ -5,9 +5,7 @@
     <%= @secret %></p>
 
     <p>Enter the code from your authenticator app below to confirm</p>
-    <%= form_for @changeset, user_path(@conn, :register_2fa), [method: :post], fn f -> %>
-        <%= text_input f, :totp_code, placeholder: "Code" %>
-        <%= error_tag f, :totp_code %>
-        <%= submit "Confirm" %>
-    <% end %>
+    <%= render ApiWeb.SharedView, "totp_form.html",
+        action: user_path(@conn, :register_2fa),
+        changeset: @changeset %>
 </div>
