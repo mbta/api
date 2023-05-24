@@ -42,7 +42,7 @@ defmodule ApiWeb.ClientPortal.SessionController do
   end
 
   def new_2fa(conn, _params) do
-    user = get_session(conn, :inc_user_id) |> ApiAccounts.get_user!()
+    user = conn |> get_session(:inc_user_id) |> ApiAccounts.get_user!()
     change = ApiAccounts.change_user(user)
 
     conn
@@ -50,7 +50,7 @@ defmodule ApiWeb.ClientPortal.SessionController do
   end
 
   def create_2fa(conn, params) do
-    user = get_session(conn, :inc_user_id) |> ApiAccounts.get_user!()
+    user = conn |> get_session(:inc_user_id) |> ApiAccounts.get_user!()
 
     case ApiAccounts.validate_totp(user, params["user"]["totp_code"]) do
       {:ok, user} ->
