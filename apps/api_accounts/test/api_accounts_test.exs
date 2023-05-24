@@ -608,7 +608,7 @@ defmodule ApiAccountsTest do
 
   describe "validate_totp/1" do
     setup do
-      {:ok, user: totp_user_fixture}
+      {:ok, user: totp_user_fixture()}
     end
 
     test "returns true if totp is valid", %{user: user} do

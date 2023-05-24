@@ -590,16 +590,13 @@ defmodule ApiAccounts do
   def register_totp(%User{} = user) do
     secret = NimbleTOTP.secret() |> Base.encode32()
 
-    case User.register_totp(user, %{totp_secret: secret}) do
-      %Changeset{valid?: true} = changeset -> Dynamo.update_item(changeset)
-      changeset -> {:error, changeset}
-    end
+    Dynamo.update_item(user, %{totp_secret: secret})
   end
 
-  @spec validate_totp(User.t(), String.t(), keyword) :: {:error, Changeset.t()} | {:ok, User.t()}
   @doc """
   Validate TOTP code for a given user, returning {:ok, updated_user} if valid, or {:error, changeset} if invalid.
   """
+  @spec validate_totp(User.t(), String.t(), keyword) :: {:error, Changeset.t()} | {:ok, User.t()}
   def validate_totp(%User{} = user, totp_code, opts \\ []) do
     opts = Keyword.put(opts, :since, user.totp_since)
     opts = Keyword.put_new(opts, :time, DateTime.utc_now())
@@ -620,13 +617,10 @@ defmodule ApiAccounts do
   def enable_totp(%User{} = user, totp_code, opts \\ []) do
     case validate_totp(user, totp_code, opts) do
       {:ok, user} ->
-        change =
-          User.change_totp_enabled(user, %{
-            totp_enabled: true,
-            totp_since: Keyword.get(opts, :time, DateTime.utc_now())
-          })
-
-        Dynamo.update_item(change)
+        Dynamo.update_item(user, %{
+          totp_enabled: true,
+          totp_since: Keyword.get(opts, :time, DateTime.utc_now())
+        })
 
       {:error, changeset} ->
         {:error, changeset}
@@ -640,14 +634,11 @@ defmodule ApiAccounts do
   def disable_totp(%User{} = user, totp_code, opts \\ []) do
     case validate_totp(user, totp_code, opts) do
       {:ok, user} ->
-        change =
-          User.change_totp_enabled(user, %{
-            totp_enabled: false,
-            totp_since: nil,
-            totp_secret: nil
-          })
-
-        Dynamo.update_item(change)
+        Dynamo.update_item(user, %{
+          totp_enabled: false,
+          totp_since: nil,
+          totp_secret: nil
+        })
 
       {:error, changeset} ->
         {:error, changeset}
@@ -659,14 +650,11 @@ defmodule ApiAccounts do
   """
   @spec admin_disable_totp(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def admin_disable_totp(%User{} = user) do
-    change =
-      User.change_totp_enabled(user, %{
-        totp_enabled: false,
-        totp_since: nil,
-        totp_secret: nil
-      })
-
-    Dynamo.update_item(change)
+    Dynamo.update_item(user, %{
+      totp_enabled: false,
+      totp_since: nil,
+      totp_secret: nil
+    })
   end
 
   def totp_uri(%User{} = user) do
