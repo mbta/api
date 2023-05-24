@@ -117,8 +117,6 @@ defmodule ApiWeb.Router do
 
     get("/login", SessionController, :new)
     post("/login", SessionController, :create)
-    get("/2fa", SessionController, :new_2fa)
-    post("/2fa", SessionController, :create_2fa)
     delete("/logout", SessionController, :delete)
   end
 
@@ -156,14 +154,18 @@ defmodule ApiWeb.Router do
     get("/register", UserController, :new)
     post("/register", UserController, :create)
 
-    get("/2fa", SessionController, :new_2fa)
-    post("/2fa", SessionController, :create_2fa)
-
     get("/forgot-password", UserController, :forgot_password)
     post("/forgot-password", UserController, :forgot_password_submit)
 
     get("/reset-password", UserController, :reset_password)
     post("/reset-password", UserController, :reset_password_submit)
+  end
+
+  scope "/", ApiWeb do
+    pipe_through([:secure, :browser, :portal_view])
+
+    get("/2fa", ApiWeb.MFAController, :new, alias: false)
+    post("/2fa", ApiWeb.MFAController, :create, alias: false)
   end
 
   scope "/portal", ApiWeb.ClientPortal do

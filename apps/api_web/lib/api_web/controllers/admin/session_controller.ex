@@ -21,8 +21,9 @@ defmodule ApiWeb.Admin.SessionController do
       {:continue, :totp, user = %ApiAccounts.User{role: "administrator"}} ->
         conn
         |> put_session(:inc_user_id, user.id)
+        |> put_session(:destination, admin_user_path(conn, :index))
         |> configure_session(renew: true)
-        |> redirect(to: admin_session_path(conn, :new_2fa))
+        |> redirect(to: mfa_path(conn, :new))
 
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         render(conn, "login.html", changeset: changeset)
@@ -40,32 +41,6 @@ defmodule ApiWeb.Admin.SessionController do
         conn
         |> put_flash(:error, "You are not authorized to continue.")
         |> render("login.html", changeset: changeset)
-    end
-  end
-
-  def new_2fa(conn, _params) do
-    user = conn |> get_session(:inc_user_id) |> ApiAccounts.get_user!()
-    change = ApiAccounts.change_user(user)
-
-    conn
-    |> render("new_2fa.html", changeset: change)
-  end
-
-  def create_2fa(conn, params) do
-    user = conn |> get_session(:inc_user_id) |> ApiAccounts.get_user!()
-
-    case ApiAccounts.validate_totp(user, params["user"]["totp_code"]) do
-      {:ok, user} ->
-        conn
-        |> delete_session(:inc_user_id)
-        |> put_session(:user_id, user.id)
-        |> configure_session(renew: true)
-        |> redirect(to: admin_user_path(conn, :index))
-
-      {:error, changeset} ->
-        conn
-        |> put_flash(:error, "Invalid code. Please try again.")
-        |> render("new_2fa.html", changeset: changeset)
     end
   end
 

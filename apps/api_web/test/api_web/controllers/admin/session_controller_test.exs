@@ -1,6 +1,8 @@
 defmodule ApiWeb.Admin.SessionControllerTest do
   use ApiWeb.ConnCase, async: false
 
+  alias ApiWeb.Fixtures
+
   @test_password "password"
   @authorized_user_attrs %{
     email: "authorized@mbta.com",
@@ -11,21 +13,6 @@ defmodule ApiWeb.Admin.SessionControllerTest do
     email: "unauthorized@mbta.com",
     password: @test_password
   }
-
-  def fixture(:totp_user) do
-    time = DateTime.utc_now() |> DateTime.add(-35, :second)
-    {:ok, user} = ApiAccounts.create_user(@authorized_user_attrs)
-    {:ok, user} = ApiAccounts.register_totp(user)
-
-    {:ok, user} =
-      ApiAccounts.enable_totp(
-        user,
-        NimbleTOTP.verification_code(user.totp_secret_bin, time: time),
-        time: time
-      )
-
-    user
-  end
 
   setup %{conn: conn} do
     ApiAccounts.Dynamo.create_table(ApiAccounts.User)
@@ -102,42 +89,12 @@ defmodule ApiWeb.Admin.SessionControllerTest do
   end
 
   test "redirects to 2fa page when user has 2fa enabled", %{conn: conn} do
-    _user = fixture(:totp_user)
+    user = Fixtures.fixture(:totp_user)
+    {:ok, _user} = ApiAccounts.update_user(user, %{role: "administrator"})
 
     conn =
       post(form_header(conn), admin_session_path(conn, :create), user: @authorized_user_attrs)
 
-    assert redirected_to(conn) == admin_session_path(conn, :new_2fa)
-  end
-
-  test "2fa redirects user on success", %{conn: conn} do
-    user = fixture(:totp_user)
-
-    conn = conn |> conn_with_session() |> put_session(:inc_user_id, user.id)
-
-    conn =
-      post(
-        form_header(conn),
-        admin_session_path(conn, :create_2fa),
-        user: %{totp_code: NimbleTOTP.verification_code(user.totp_secret_bin)}
-      )
-
-    assert redirected_to(conn) == admin_user_path(conn, :index)
-  end
-
-  test "2fa does not accept invalid codes", %{conn: conn} do
-    user = fixture(:totp_user)
-
-    conn = conn |> conn_with_session() |> put_session(:inc_user_id, user.id)
-
-    conn =
-      post(
-        form_header(conn),
-        admin_session_path(conn, :create_2fa),
-        user: %{totp_code: "1234"}
-      )
-
-    assert html_response(conn, 200) =~ "TOTP"
-    assert get_flash(conn, :error) != nil
+    assert redirected_to(conn) == mfa_path(conn, :new)
   end
 end
