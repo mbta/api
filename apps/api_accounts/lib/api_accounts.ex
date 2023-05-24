@@ -519,6 +519,9 @@ defmodule ApiAccounts do
       iex> authenticate(%{email: "test@mbta.com", password: "password"})
       {:ok, %User{...}}
 
+      iex> authenticate(%{email: "test@mbta.com", password: "password"})
+      {:continue, :totp, %User{...}}
+
       iex> authenticate(%{email: "test@mbta.com", password: "wrong_password"})
       {:error, :invalid_credentials}
 
