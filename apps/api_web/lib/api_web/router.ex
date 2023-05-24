@@ -13,17 +13,17 @@ defmodule ApiWeb.Router do
   """
 
   @content_security_policy Enum.join(
-                               [
-                                 "default-src 'none'",
-                                 "connect-src 'self'",
-                                 "img-src 'self' data: https: cdn.mbta.com",
-                                 "style-src 'self' 'unsafe-inline' maxcdn.bootstrapcdn.com fonts.googleapis.com",
-                                 "script-src 'self' 'sha256-PHdjYO/G57UL6H09AnD8myMQe3yTozBkFGeX741pWgs=' maxcdn.bootstrapcdn.com code.jquery.com www.google.com www.gstatic.com",
-                                 "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com",
-                                 "frame-src www.google.com"
-                               ],
-                               "; "
-                             )
+                             [
+                               "default-src 'none'",
+                               "connect-src 'self'",
+                               "img-src 'self' data: https: cdn.mbta.com",
+                               "style-src 'self' 'unsafe-inline' maxcdn.bootstrapcdn.com fonts.googleapis.com",
+                               "script-src 'self' 'sha256-PHdjYO/G57UL6H09AnD8myMQe3yTozBkFGeX741pWgs=' maxcdn.bootstrapcdn.com code.jquery.com www.google.com www.gstatic.com",
+                               "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com",
+                               "frame-src www.google.com"
+                             ],
+                             "; "
+                           )
 
   pipeline :secure do
     if force_ssl = Application.compile_env(:site, :secure_pipeline)[:force_ssl] do
@@ -48,7 +48,10 @@ defmodule ApiWeb.Router do
   end
 
   pipeline :secure_csp do
-    plug(:put_secure_browser_headers, %{"content-security-policy" => @content_security_policy, "x-frame-options" => "deny"})
+    plug(:put_secure_browser_headers, %{
+      "content-security-policy" => @content_security_policy,
+      "x-frame-options" => "deny"
+    })
   end
 
   pipeline :admin_view do
