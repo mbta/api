@@ -6,6 +6,6 @@
 
     <p>Enter the code from your authenticator app below to confirm</p>
     <%= render ApiWeb.SharedView, "totp_form.html",
-        action: user_path(@conn, :register_2fa),
+        action: user_path(@conn, :enable_2fa),
         changeset: @changeset %>
 </div>

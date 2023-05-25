@@ -154,14 +154,14 @@ defmodule ApiWeb.ClientPortal.UserController do
     uri = ApiAccounts.totp_uri(user)
     {:ok, qr_code} = uri |> QRCode.create() |> QRCode.render(:svg) |> QRCode.to_base64()
 
-    render(conn, "register_2fa.html",
+    render(conn, "enable_2fa.html",
       secret: user.totp_secret,
       qr_code: "data:image/svg+xml;base64, #{qr_code}",
       changeset: changeset
     )
   end
 
-  def register_2fa(conn, %{"user" => %{"totp_code" => code}}) do
+  def enable_2fa(conn, %{"user" => %{"totp_code" => code}}) do
     user = conn.assigns[:user]
 
     case ApiAccounts.enable_totp(user, code) do
@@ -175,7 +175,7 @@ defmodule ApiWeb.ClientPortal.UserController do
     end
   end
 
-  def register_2fa(conn, _params) do
+  def enable_2fa(conn, _params) do
     {:ok, user} = ApiAccounts.generate_totp_secret(conn.assigns[:user])
     render_qr_code(conn, user, ApiAccounts.change_user(user))
   end

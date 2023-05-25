@@ -326,7 +326,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
       conn =
         conn
         |> form_header()
-        |> post(user_path(conn, :register_2fa), user: %{})
+        |> post(user_path(conn, :enable_2fa), user: %{})
 
       user = ApiAccounts.get_user!(conn.assigns[:user].id)
 
@@ -344,7 +344,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
       conn =
         conn
         |> form_header()
-        |> post(user_path(conn, :register_2fa),
+        |> post(user_path(conn, :enable_2fa),
           user: %{totp_code: NimbleTOTP.verification_code(user.totp_secret_bin)}
         )
 
@@ -361,7 +361,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
       conn =
         conn
         |> form_header()
-        |> post(user_path(conn, :register_2fa),
+        |> post(user_path(conn, :enable_2fa),
           user: %{totp_code: "1234"}
         )
 

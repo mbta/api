@@ -7,7 +7,7 @@
   <% else %>
     <p>2-Factor is not enabled for your account.</p>
 
-    <%= form_for %{}, user_path(@conn, :register_2fa), [method: :post], fn _f -> %>
+    <%= form_for %{}, user_path(@conn, :enable_2fa), [method: :post], fn _f -> %>
         <%= submit "Enable 2-Factor", class: "btn btn-primary" %>
     <% end %>
   <% end %>
