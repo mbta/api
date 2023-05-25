@@ -39,10 +39,17 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def index(module, conn, params) do
-    conn
-    |> get_format()
-    |> index_for_format()
-    |> apply(:call, [conn, module, params])
+    import ExProf.Macro
+
+    {_, result} =
+      profile do
+        conn
+        |> get_format()
+        |> index_for_format()
+        |> apply(:call, [conn, module, params])
+      end
+
+    result
   end
 
   def call(conn, module, params) do

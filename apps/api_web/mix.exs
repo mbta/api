@@ -25,7 +25,7 @@ defmodule ApiWeb.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    extra_applications = [:logger, :recaptcha, :phoenix_swagger | env_applications(Mix.env())]
+    extra_applications = [:logger, :recaptcha, :phoenix_swagger, :runtime_tools | env_applications(Mix.env())]
     [mod: {ApiWeb, []}, extra_applications: extra_applications]
   end
 
@@ -60,6 +60,9 @@ defmodule ApiWeb.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:rustler, "~> 0.27.0"},
+      {:jsonrs, "~> 0.3.0"},
+      {:exprof, "~> 0.2.0"},
       {:phoenix, "~> 1.6"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_view, "~> 0.18"},

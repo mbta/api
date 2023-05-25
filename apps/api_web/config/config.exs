@@ -44,16 +44,16 @@ config :api_web, :versions,
   ],
   default: "2021-01-09"
 
-config :logger, :console,
-  format: "$date $time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  config :logger, :console,
+  format: "$dateT$time [$level] node=$node $metadata$message\n",
+  metadata: [:request_id, :api_key, :ip, :records, :api_version, :concurrent]
 
 # JSON-API configuration
-config :phoenix, json_library: Jason
+config :phoenix, json_library: Jsonrs
 
 config :phoenix, :format_encoders,
-  "json-api": Jason,
-  json: Jason
+  "json-api": Jsonrs,
+  json: Jsonrs
 
 config :mime, :types, %{
   "application/vnd.api+json" => ["json-api"],
