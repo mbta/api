@@ -99,7 +99,6 @@ defmodule ApiWeb.ScheduleView do
       %{date: date} -> date
     end
     |> DateHelpers.add_seconds_to_date(seconds)
-    |> DateTime.to_iso8601()
   end
 
   defp format_time(nil, _) do

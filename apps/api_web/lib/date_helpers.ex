@@ -46,7 +46,7 @@ defmodule DateHelpers do
 
   def add_seconds_to_date(unix_seconds, seconds)
       when is_integer(unix_seconds) and is_integer(seconds) do
-    Parse.Timezone.unix_to_local(unix_seconds + seconds)
+    RustDateTime.unix_to_local(unix_seconds + seconds)
   end
 
   def add_seconds_to_date(%Date{} = date, seconds) do

@@ -1,0 +1,14 @@
+[package]
+name = "rustdatetime"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "rustdatetime"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+chrono = "0.4.24"
+rustler = "0.27.0"
