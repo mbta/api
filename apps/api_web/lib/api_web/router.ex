@@ -12,6 +12,19 @@ defmodule ApiWeb.Router do
   | `x-ratelimit-reset` | The time at which the current rate limit time window ends in UTC epoch seconds. |
   """
 
+  @content_security_policy Enum.join(
+                             [
+                               "default-src 'none'",
+                               "connect-src 'self'",
+                               "img-src 'self' data: https: cdn.mbta.com",
+                               "style-src 'self' 'unsafe-inline' maxcdn.bootstrapcdn.com fonts.googleapis.com",
+                               "script-src 'self' 'sha256-PHdjYO/G57UL6H09AnD8myMQe3yTozBkFGeX741pWgs=' maxcdn.bootstrapcdn.com code.jquery.com www.google.com www.gstatic.com",
+                               "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com",
+                               "frame-src www.google.com"
+                             ],
+                             "; "
+                           )
+
   pipeline :secure do
     if force_ssl = Application.compile_env(:site, :secure_pipeline)[:force_ssl] do
       plug(Plug.SSL, force_ssl)
@@ -26,24 +39,19 @@ defmodule ApiWeb.Router do
       signing_salt: {Application, :get_env, [:api_web, :signing_salt]}
     )
 
-    @content_security_policy Enum.join(
-                               [
-                                 "default-src 'none'",
-                                 "img-src 'self' cdn.mbta.com",
-                                 "style-src 'self' 'unsafe-inline' maxcdn.bootstrapcdn.com fonts.googleapis.com",
-                                 "script-src 'self' maxcdn.bootstrapcdn.com code.jquery.com www.google.com www.gstatic.com",
-                                 "font-src fonts.gstatic.com maxcdn.bootstrapcdn.com",
-                                 "frame-src www.google.com"
-                               ],
-                               "; "
-                             )
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers, %{"content-security-policy" => @content_security_policy})
     plug(ApiWeb.Plugs.FetchUser)
     plug(ApiWeb.Plugs.CheckForShutdown)
+  end
+
+  pipeline :secure_csp do
+    plug(:put_secure_browser_headers, %{
+      "content-security-policy" => @content_security_policy,
+      "x-frame-options" => "deny"
+    })
   end
 
   pipeline :admin_view do
@@ -98,14 +106,14 @@ defmodule ApiWeb.Router do
   end
 
   scope "/docs/swagger" do
-    pipe_through(:secure)
+    pipe_through([:secure, :secure_csp])
     forward("/", PhoenixSwagger.Plug.SwaggerUI, otp_app: :api_web, swagger_file: "swagger.json")
   end
 
   # Admin Portal routes
 
   scope "/admin", ApiWeb.Admin, as: :admin do
-    pipe_through([:secure, :browser, :admin_view])
+    pipe_through([:secure, :secure_csp, :browser, :admin_view])
 
     get("/login", SessionController, :new)
     post("/login", SessionController, :create)
@@ -113,19 +121,19 @@ defmodule ApiWeb.Router do
   end
 
   scope "/admin/users", ApiWeb.Admin.Accounts, as: :admin do
-    pipe_through([:secure, :browser, :admin_view, :admin])
+    pipe_through([:secure, :secure_csp, :browser, :admin_view, :admin])
     resources("/", UserController)
   end
 
   scope "/admin/users/:user_id/keys", ApiWeb.Admin.Accounts, as: :admin do
-    pipe_through([:secure, :browser, :admin_view, :admin])
+    pipe_through([:secure, :secure_csp, :browser, :admin_view, :admin])
     resources("/", KeyController, only: [:create, :edit, :update, :delete])
     put("/:id/clone", KeyController, :clone)
     put("/:id/approve", KeyController, :approve)
   end
 
   scope "/admin/keys", ApiWeb.Admin.Accounts, as: :admin do
-    pipe_through([:secure, :browser, :admin_view, :admin])
+    pipe_through([:secure, :secure_csp, :browser, :admin_view, :admin])
 
     get("/", KeyController, :index)
     get("/:key", KeyController, :redirect_to_user_by_id)
@@ -135,7 +143,7 @@ defmodule ApiWeb.Router do
   # Client Portal routes
 
   scope "/", ApiWeb.ClientPortal do
-    pipe_through([:secure, :browser, :portal_view])
+    pipe_through([:secure, :secure_csp, :browser, :portal_view])
 
     get("/", PortalController, :landing)
 
@@ -153,7 +161,7 @@ defmodule ApiWeb.Router do
   end
 
   scope "/portal", ApiWeb.ClientPortal do
-    pipe_through([:secure, :browser, :portal_view, :portal])
+    pipe_through([:secure, :secure_csp, :browser, :portal_view, :portal])
 
     get("/", PortalController, :index)
     resources("/keys", KeyController, only: [:create, :edit, :update])

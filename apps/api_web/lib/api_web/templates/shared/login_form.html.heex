@@ -16,7 +16,7 @@
 
     <.form_group form={f} field={:password}>
       <%= label f, :password, class: "control-label" %>
-      <%= password_input f, :password, class: "form-control" %>
+      <%= password_input f, :password, class: "form-control", autocomplete: "off" %>
       <%= error_tag f, :password %>
     </.form_group>
 
