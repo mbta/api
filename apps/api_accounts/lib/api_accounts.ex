@@ -586,8 +586,8 @@ defmodule ApiAccounts do
   @doc """
   Generate and register a totp_secret with an account. TOTP will not be enforced until enable_totp/2 is called.
   """
-  @spec register_totp(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def register_totp(%User{} = user) do
+  @spec generate_totp_secret(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def generate_totp_secret(%User{} = user) do
     secret = NimbleTOTP.secret() |> Base.encode32()
 
     Dynamo.update_item(user, %{totp_secret: secret})
@@ -611,7 +611,7 @@ defmodule ApiAccounts do
 
   @doc """
   Enable TOTP for a user. This will require TOTP for all future logins. A correct TOTP code must be provided.
-  Must be called after register_totp/1 has generated a secret.
+  Must be called after generate_totp_secret/1 has generated a secret.
   """
   @spec enable_totp(User.t(), String.t(), keyword()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def enable_totp(%User{} = user, totp_code, opts \\ []) do

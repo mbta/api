@@ -35,7 +35,7 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
 
   def fixture(:mfa_user) do
     user = fixture(:user)
-    {:ok, user} = ApiAccounts.register_totp(user)
+    {:ok, user} = ApiAccounts.generate_totp_secret(user)
 
     {:ok, user} =
       ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))

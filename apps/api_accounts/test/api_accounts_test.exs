@@ -421,7 +421,7 @@ defmodule ApiAccountsTest do
     end
 
     test "returns continue when user needs to validate 2-factor", %{user: user} do
-      {:ok, user} = ApiAccounts.register_totp(user)
+      {:ok, user} = ApiAccounts.generate_totp_secret(user)
 
       {:ok, _user} =
         ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))
@@ -520,10 +520,10 @@ defmodule ApiAccountsTest do
     assert [admin] == ApiAccounts.list_administrators()
   end
 
-  test "register_totp/1" do
+  test "generate_totp_secret/1" do
     {:ok, user} = ApiAccounts.create_user(@valid_attrs)
 
-    {:ok, user} = ApiAccounts.register_totp(user)
+    {:ok, user} = ApiAccounts.generate_totp_secret(user)
     assert user.totp_secret
     refute user.totp_enabled
   end
@@ -531,7 +531,7 @@ defmodule ApiAccountsTest do
   describe "enable_totp/3" do
     setup do
       {:ok, user} = ApiAccounts.create_user(@valid_attrs)
-      {:ok, user} = ApiAccounts.register_totp(user)
+      {:ok, user} = ApiAccounts.generate_totp_secret(user)
       {:ok, user: user}
     end
 
@@ -557,7 +557,7 @@ defmodule ApiAccountsTest do
 
   def totp_user_fixture do
     {:ok, user} = ApiAccounts.create_user(@valid_attrs)
-    {:ok, user} = ApiAccounts.register_totp(user)
+    {:ok, user} = ApiAccounts.generate_totp_secret(user)
 
     # Codes are not allowed to be reused, and are valid for 30 seconds
     # setup a user such that a new valid code can be run for @fixed_now

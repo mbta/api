@@ -10,7 +10,7 @@ defmodule ApiWeb.Fixtures do
   def fixture(:totp_user) do
     time = DateTime.utc_now() |> DateTime.add(-35, :second)
     {:ok, user} = ApiAccounts.create_user(@valid_user_attrs)
-    {:ok, user} = ApiAccounts.register_totp(user)
+    {:ok, user} = ApiAccounts.generate_totp_secret(user)
 
     {:ok, user} =
       ApiAccounts.enable_totp(

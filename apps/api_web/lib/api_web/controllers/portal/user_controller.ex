@@ -150,39 +150,34 @@ defmodule ApiWeb.ClientPortal.UserController do
     render(conn, "configure_2fa.html", enabled: user.totp_enabled)
   end
 
-  def register_2fa(conn, params) do
-    code = get_in(params, ["user", "totp_code"])
+  defp render_qr_code(conn, user, changeset) do
+    uri = ApiAccounts.totp_uri(user)
+    {:ok, qr_code} = uri |> QRCode.create() |> QRCode.render(:svg) |> QRCode.to_base64()
 
-    if code do
-      user = conn.assigns[:user]
+    render(conn, "register_2fa.html",
+      secret: user.totp_secret,
+      qr_code: "data:image/svg+xml;base64, #{qr_code}",
+      changeset: changeset
+    )
+  end
 
-      case ApiAccounts.enable_totp(user, code) do
-        {:ok, _user} ->
-          conn
-          |> put_flash(:success, "2FA enabled successfully.")
-          |> redirect(to: user_path(conn, :show))
+  def register_2fa(conn, %{"user" => %{"totp_code" => code}}) do
+    user = conn.assigns[:user]
 
-        {:error, changeset} ->
-          uri = ApiAccounts.totp_uri(user)
-          {:ok, qr_code} = uri |> QRCode.create() |> QRCode.render(:svg) |> QRCode.to_base64()
+    case ApiAccounts.enable_totp(user, code) do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:success, "2FA enabled successfully.")
+        |> redirect(to: user_path(conn, :show))
 
-          render(conn, "register_2fa.html",
-            secret: user.totp_secret,
-            qr_code: "data:image/svg+xml;base64, #{qr_code}",
-            changeset: changeset
-          )
-      end
-    else
-      {:ok, user} = ApiAccounts.register_totp(conn.assigns[:user])
-      uri = ApiAccounts.totp_uri(user)
-      {:ok, qr_code} = uri |> QRCode.create() |> QRCode.render(:svg) |> QRCode.to_base64()
-
-      render(conn, "register_2fa.html",
-        secret: user.totp_secret,
-        qr_code: "data:image/svg+xml;base64, #{qr_code}",
-        changeset: ApiAccounts.change_user(user)
-      )
+      {:error, changeset} ->
+        render_qr_code(conn, user, changeset)
     end
+  end
+
+  def register_2fa(conn, _params) do
+    {:ok, user} = ApiAccounts.generate_totp_secret(conn.assigns[:user])
+    render_qr_code(conn, user, ApiAccounts.change_user(user))
   end
 
   def unenroll_2fa(conn, _params) do

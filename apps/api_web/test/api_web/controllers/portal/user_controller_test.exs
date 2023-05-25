@@ -339,7 +339,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
       conn: conn
     } do
       user = conn.assigns[:user]
-      {:ok, user} = ApiAccounts.register_totp(user)
+      {:ok, user} = ApiAccounts.generate_totp_secret(user)
 
       conn =
         conn
@@ -356,7 +356,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "rejects invalid codes and does not enable totp", %{conn: conn} do
       user = conn.assigns[:user]
-      {:ok, user} = ApiAccounts.register_totp(user)
+      {:ok, user} = ApiAccounts.generate_totp_secret(user)
 
       conn =
         conn
@@ -376,7 +376,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     setup %{conn: conn} do
       time = DateTime.utc_now() |> DateTime.add(-35, :second)
       {:ok, user_enabled} = ApiAccounts.create_user(%{email: "2fa@mbta.com"})
-      {:ok, user_enabled} = ApiAccounts.register_totp(user_enabled)
+      {:ok, user_enabled} = ApiAccounts.generate_totp_secret(user_enabled)
 
       {:ok, user_enabled} =
         ApiAccounts.enable_totp(
