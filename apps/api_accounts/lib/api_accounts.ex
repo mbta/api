@@ -658,8 +658,8 @@ defmodule ApiAccounts do
   end
 
   def totp_uri(%User{} = user) do
-    NimbleTOTP.otpauth_uri("MBTA-API: api-v3.mbta.com/#{user.email}", user.totp_secret_bin,
-      issuer: "MBTA"
-    )
+    host = System.get_env("HOST")
+
+    NimbleTOTP.otpauth_uri("MBTA-API: #{host}/#{user.email}", user.totp_secret_bin, issuer: "MBTA")
   end
 end
