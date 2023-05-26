@@ -50,6 +50,15 @@ defmodule ApiWeb.Admin.Accounts.UserController do
     end
   end
 
+  def disable_2fa(conn, %{"id" => id}) do
+    user = ApiAccounts.get_user!(id)
+    {:ok, user} = ApiAccounts.admin_disable_totp(user)
+
+    conn
+    |> put_flash(:info, "2FA disabled successfully.")
+    |> redirect(to: admin_user_path(conn, :show, user))
+  end
+
   def delete(conn, %{"id" => id}) do
     user = ApiAccounts.get_user!(id)
     :ok = ApiAccounts.delete_user(user)

@@ -1,6 +1,8 @@
 defmodule ApiWeb.Admin.SessionControllerTest do
   use ApiWeb.ConnCase, async: false
 
+  alias ApiWeb.Fixtures
+
   @test_password "password"
   @authorized_user_attrs %{
     email: "authorized@mbta.com",
@@ -84,5 +86,15 @@ defmodule ApiWeb.Admin.SessionControllerTest do
     conn = delete(conn, admin_session_path(conn, :delete))
     refute Plug.Conn.get_session(conn, :user_id)
     assert redirected_to(conn) == admin_session_path(conn, :new)
+  end
+
+  test "redirects to 2fa page when user has 2fa enabled", %{conn: conn} do
+    user = Fixtures.fixture(:totp_user)
+    {:ok, _user} = ApiAccounts.update_user(user, %{role: "administrator"})
+
+    conn =
+      post(form_header(conn), admin_session_path(conn, :create), user: @authorized_user_attrs)
+
+    assert redirected_to(conn) == mfa_path(conn, :new)
   end
 end

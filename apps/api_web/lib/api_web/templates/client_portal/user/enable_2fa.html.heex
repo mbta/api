@@ -1,0 +1,11 @@
+<div class="account-edit">
+    <p>Scan the QR code below with your authenticator app.</p>
+    <img src={@qr_code} alt="QR code" />
+    <p>Alternatively you can use the following secret: <br>
+    <%= @secret %></p>
+
+    <p>Enter the code from your authenticator app below to confirm</p>
+    <%= render ApiWeb.SharedView, "totp_form.html",
+        action: user_path(@conn, :enable_2fa),
+        changeset: @changeset %>
+</div>

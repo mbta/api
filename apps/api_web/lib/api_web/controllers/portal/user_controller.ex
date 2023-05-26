@@ -145,6 +145,59 @@ defmodule ApiWeb.ClientPortal.UserController do
     end
   end
 
+  def configure_2fa(conn, _) do
+    user = conn.assigns[:user]
+    render(conn, "configure_2fa.html", enabled: user.totp_enabled)
+  end
+
+  defp render_qr_code(conn, user, changeset) do
+    uri = ApiAccounts.totp_uri(user)
+    {:ok, qr_code} = uri |> QRCode.create() |> QRCode.render(:svg) |> QRCode.to_base64()
+
+    render(conn, "enable_2fa.html",
+      secret: user.totp_secret,
+      qr_code: "data:image/svg+xml;base64, #{qr_code}",
+      changeset: changeset
+    )
+  end
+
+  def enable_2fa(conn, %{"user" => %{"totp_code" => code}}) do
+    user = conn.assigns[:user]
+
+    case ApiAccounts.enable_totp(user, code) do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:success, "2FA enabled successfully.")
+        |> redirect(to: user_path(conn, :show))
+
+      {:error, changeset} ->
+        render_qr_code(conn, user, changeset)
+    end
+  end
+
+  def enable_2fa(conn, _params) do
+    {:ok, user} = ApiAccounts.generate_totp_secret(conn.assigns[:user])
+    render_qr_code(conn, user, ApiAccounts.change_user(user))
+  end
+
+  def unenroll_2fa(conn, _params) do
+    render(conn, "unenroll_2fa.html", changeset: ApiAccounts.change_user(conn.assigns[:user]))
+  end
+
+  def disable_2fa(conn, params) do
+    code = get_in(params, ["user", "totp_code"])
+
+    case ApiAccounts.disable_totp(conn.assigns[:user], code) do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:success, "2FA disabled successfully.")
+        |> redirect(to: user_path(conn, :show))
+
+      {:error, changeset} ->
+        render(conn, "unenroll_2fa.html", changeset: changeset)
+    end
+  end
+
   def reset_password_submit(conn, params) do
     with {:ok, user_id} <- user_for_token(params),
          {:ok, user} <- ApiAccounts.get_user(user_id),

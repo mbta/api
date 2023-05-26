@@ -10,6 +10,7 @@
       <th>Join date</th>
       <th>Active</th>
       <th>Blocked</th>
+      <th>MFA Enabled</th>
       <th></th>
     </tr>
   </thead>
@@ -23,6 +24,7 @@
       <td><%= user.join_date %></td>
       <td><%= if user.active == true do %>✔<% end %></td>
       <td><%= if user.blocked == true do %>✔<% end %></td>
+      <td><%= if user.totp_enabled == true do %>✔<% end %></td>
 
       <td class="text-right">
         <span><%= link "Show", to: admin_user_path(@conn, :show, user), class: "btn btn-default btn-xs" %></span>

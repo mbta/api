@@ -519,6 +519,9 @@ defmodule ApiAccounts do
       iex> authenticate(%{email: "test@mbta.com", password: "password"})
       {:ok, %User{...}}
 
+      iex> authenticate(%{email: "test@mbta.com", password: "password"})
+      {:continue, :totp, %User{...}}
+
       iex> authenticate(%{email: "test@mbta.com", password: "wrong_password"})
       {:error, :invalid_credentials}
 
@@ -530,13 +533,20 @@ defmodule ApiAccounts do
 
   """
   @spec authenticate(map) ::
-          {:ok, User.t()} | {:error, Changeset.t()} | {:error, :invalid_credentials}
+          {:ok, User.t()}
+          | {:continue, :totp, User.t()}
+          | {:error, Changeset.t()}
+          | {:error, :invalid_credentials}
   def authenticate(credentials) when is_map(credentials) do
     with %Changeset{valid?: true} = changeset <- User.authenticate(%User{}, credentials),
          %{email: email, password: password} = changeset.changes,
          {:ok, user} <- get_user_by_email(email),
          true <- Bcrypt.verify_pass(password, user.password) do
-      {:ok, user}
+      if user.totp_enabled do
+        {:continue, :totp, user}
+      else
+        {:ok, user}
+      end
     else
       %Changeset{valid?: false} = changeset ->
         {:error, changeset}
@@ -571,5 +581,85 @@ defmodule ApiAccounts do
       %Changeset{valid?: true} = changeset -> Dynamo.update_item(changeset)
       changeset -> {:error, changeset}
     end
+  end
+
+  @doc """
+  Generate and register a totp_secret with an account. TOTP will not be enforced until enable_totp/2 is called.
+  """
+  @spec generate_totp_secret(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def generate_totp_secret(%User{} = user) do
+    secret = NimbleTOTP.secret() |> Base.encode32()
+
+    Dynamo.update_item(user, %{totp_secret: secret})
+  end
+
+  @doc """
+  Validate TOTP code for a given user, returning {:ok, updated_user} if valid, or {:error, changeset} if invalid.
+  """
+  @spec validate_totp(User.t(), String.t(), keyword) :: {:error, Changeset.t()} | {:ok, User.t()}
+  def validate_totp(%User{} = user, totp_code, opts \\ []) do
+    opts = Keyword.put(opts, :since, user.totp_since)
+    opts = Keyword.put_new(opts, :time, DateTime.utc_now())
+
+    if NimbleTOTP.valid?(user.totp_secret_bin, totp_code, opts) do
+      Dynamo.update_item(user, %{totp_since: Keyword.get(opts, :time)})
+    else
+      changeset = change_user(user)
+      {:error, %Changeset{changeset | errors: %{totp_code: ["Invalid TOTP code"]}}}
+    end
+  end
+
+  @doc """
+  Enable TOTP for a user. This will require TOTP for all future logins. A correct TOTP code must be provided.
+  Must be called after generate_totp_secret/1 has generated a secret.
+  """
+  @spec enable_totp(User.t(), String.t(), keyword()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def enable_totp(%User{} = user, totp_code, opts \\ []) do
+    case validate_totp(user, totp_code, opts) do
+      {:ok, user} ->
+        Dynamo.update_item(user, %{
+          totp_enabled: true,
+          totp_since: Keyword.get(opts, :time, DateTime.utc_now())
+        })
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Disable TOTP for a user. This will no longer require TOTP for future logins.
+  """
+  @spec disable_totp(User.t(), String.t(), keyword()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def disable_totp(%User{} = user, totp_code, opts \\ []) do
+    case validate_totp(user, totp_code, opts) do
+      {:ok, user} ->
+        Dynamo.update_item(user, %{
+          totp_enabled: false,
+          totp_since: nil,
+          totp_secret: nil
+        })
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Disable TOTP for a user without authenticating a code. For admin use only.
+  """
+  @spec admin_disable_totp(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def admin_disable_totp(%User{} = user) do
+    Dynamo.update_item(user, %{
+      totp_enabled: false,
+      totp_since: nil,
+      totp_secret: nil
+    })
+  end
+
+  def totp_uri(%User{} = user) do
+    host = System.get_env("HOST")
+
+    NimbleTOTP.otpauth_uri("MBTA-API: #{host}/#{user.email}", user.totp_secret_bin, issuer: "MBTA")
   end
 end

@@ -38,12 +38,25 @@
         <strong>Blocked:</strong>
         <%= @user.blocked %>
       </li>
+
+      <li>
+        <strong>MFA Enabled:</strong>
+        <%= @user.totp_enabled %>
+      </li>
     </ul>
 
     <span>
       <%= link "Edit", to: admin_user_path(@conn, :edit, @user),
                        class: "btn btn-primary" %>
     </span>
+    <%= if @user.totp_enabled do %>
+      <span>
+        <%= link "Disable MFA", to: admin_user_path(@conn, :disable_2fa, @user),
+                                 method: :post,
+                                 data: [confirm: "This will significantly reduce the security of the account. Are you sure?"],
+                                 class: "btn btn-danger" %>
+      </span>
+    <% end %>
     <span>
       <%= link "Back", to: admin_user_path(@conn, :index),
                        class: "btn btn-link" %>

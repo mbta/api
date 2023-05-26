@@ -18,6 +18,13 @@ defmodule ApiWeb.Admin.SessionController do
       |> configure_session(renew: true)
       |> redirect(to: admin_user_path(conn, :index))
     else
+      {:continue, :totp, user = %ApiAccounts.User{role: "administrator"}} ->
+        conn
+        |> put_session(:inc_user_id, user.id)
+        |> put_session(:destination, admin_user_path(conn, :index))
+        |> configure_session(renew: true)
+        |> redirect(to: mfa_path(conn, :new))
+
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         render(conn, "login.html", changeset: changeset)
 

@@ -123,6 +123,7 @@ defmodule ApiWeb.Router do
   scope "/admin/users", ApiWeb.Admin.Accounts, as: :admin do
     pipe_through([:secure, :secure_csp, :browser, :admin_view, :admin])
     resources("/", UserController)
+    post("/disable_2fa/:id", UserController, :disable_2fa)
   end
 
   scope "/admin/users/:user_id/keys", ApiWeb.Admin.Accounts, as: :admin do
@@ -160,6 +161,13 @@ defmodule ApiWeb.Router do
     post("/reset-password", UserController, :reset_password_submit)
   end
 
+  scope "/", ApiWeb do
+    pipe_through([:secure, :browser, :portal_view])
+
+    get("/2fa", ApiWeb.MFAController, :new, alias: false)
+    post("/2fa", ApiWeb.MFAController, :create, alias: false)
+  end
+
   scope "/portal", ApiWeb.ClientPortal do
     pipe_through([:secure, :secure_csp, :browser, :portal_view, :portal])
 
@@ -177,6 +185,10 @@ defmodule ApiWeb.Router do
     )
 
     get("/account/edit-password", UserController, :edit_password)
+    get("/2fa", UserController, :configure_2fa)
+    post("/2fa/enable", UserController, :enable_2fa)
+    get("/2fa/disable", UserController, :unenroll_2fa)
+    post("/2fa/disable", UserController, :disable_2fa)
   end
 
   if Mix.env() == :dev do

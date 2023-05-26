@@ -22,6 +22,11 @@ defmodule ApiAccounts.User do
     field(:join_date, :datetime)
     field(:active, :boolean, default: true)
     field(:blocked, :boolean, default: false)
+    field(:totp_secret, :string)
+    field(:totp_secret_bin, :binary, virtual: true)
+    field(:totp_enabled, :boolean, default: false)
+    field(:totp_since, :datetime)
+    field(:totp_code, :string, virtual: true)
     schema_version(1)
   end
 

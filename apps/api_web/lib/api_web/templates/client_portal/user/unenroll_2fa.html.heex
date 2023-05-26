@@ -1,0 +1,6 @@
+<div class="account-edit">
+    <p>Validate your TOTP code to unenroll from 2FA.</p>
+    <%= render ApiWeb.SharedView, "totp_form.html",
+        action: user_path(@conn, :disable_2fa),
+        changeset: @changeset %>
+</div>

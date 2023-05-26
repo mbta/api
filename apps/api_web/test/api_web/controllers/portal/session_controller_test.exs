@@ -1,6 +1,8 @@
 defmodule ApiWeb.Portal.SessionControllerTest do
   use ApiWeb.ConnCase, async: false
 
+  alias ApiWeb.Fixtures
+
   @test_password "password"
   @valid_user_attrs %{
     email: "authorized@mbta.com",
@@ -64,5 +66,13 @@ defmodule ApiWeb.Portal.SessionControllerTest do
     refute get_session(conn, :user)
     assert redirected_to(conn) == session_path(conn, :new)
     assert get_flash(conn, :info) =~ ~r"logged out"i
+  end
+
+  test "redirects to 2fa page when user has 2fa enabled", %{conn: conn} do
+    _user = Fixtures.fixture(:totp_user)
+
+    conn = post(form_header(conn), session_path(conn, :create), user: @valid_user_attrs)
+
+    assert redirected_to(conn) == mfa_path(conn, :new)
   end
 end

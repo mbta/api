@@ -20,6 +20,13 @@ defmodule ApiWeb.ClientPortal.SessionController do
         |> configure_session(renew: true)
         |> redirect(to: portal_path(conn, :index))
 
+      {:continue, :totp, user} ->
+        conn
+        |> put_session(:inc_user_id, user.id)
+        |> put_session(:destination, portal_path(conn, :index))
+        |> configure_session(renew: true)
+        |> redirect(to: mfa_path(conn, :new))
+
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         conn
         |> assign(:pre_container_template, "_new.html")
