@@ -223,6 +223,7 @@ config :state, :stops_on_route,
     # Lowell Line shuttles
     "Shuttle-AndersonWoburnNorthStationExpress-0-" => true,
     "Shuttle-AndersonWoburnNorthStationLocal-0-" => true,
+    "Shuttle-LowellWilmington-0-" => true,
     # Old Colony Lines shuttles/suspension
     "Shuttle-BraintreeSouthStationExpress-0-" => true,
     "Shuttle-BridgewaterMiddleboroughLakeville-0-" => true,
