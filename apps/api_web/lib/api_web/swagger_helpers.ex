@@ -181,8 +181,7 @@ defmodule ApiWeb.SwaggerHelpers do
       else
         desc
       end
-
-    clean_opts = Keyword.delete(opts, :includes_children)
+    clean_opts = Keyword.take(opts, [:type, :required, :name, :in, :desc, :description])
     filter_param(path_object, :id, Keyword.merge(clean_opts, desc: desc, name: :stop))
   end
 
