@@ -357,6 +357,24 @@ config :state, :stops_on_route,
         "place-qnctr",
         "place-jfk"
       ]
+    ],
+    {"Boat-F6", 0} => [
+      [
+        "Boat-Aquarium",
+        "Boat-Fan",
+        "Boat-Logan",
+        "Boat-Quincy",
+        "Boat-Winthrop"
+      ]
+    ],
+    {"Boat-F6", 1} => [
+      [
+        "Boat-Winthrop",
+        "Boat-Quincy",
+        "Boat-Logan",
+        "Boat-Fan",
+        "Boat-Aquarium"
+      ]
     ]
   }
 
