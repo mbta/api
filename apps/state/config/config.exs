@@ -366,7 +366,6 @@ config :state, :stops_on_route,
       [
         "Boat-Aquarium",
         "Boat-Fan",
-        "Boat-Logan",
         "Boat-Quincy",
         "Boat-Winthrop"
       ]
