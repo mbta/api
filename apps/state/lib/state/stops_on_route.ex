@@ -186,15 +186,15 @@ defmodule State.StopsOnRoute do
     |> Enum.concat(explicit_override_records)
   end
 
-  defp gather_explicit_overrides(%{id: "Boat-F6"}, 0),
-    do: [
-      {"Boat-F6", 0, :all, "Boat-F6-Wdy-Smr-23", true,
-       ["Boat-Winthrop", "Boat-Quincy", "Boat-Logan", "Boat-Fan", "Boat-Aquarium"]}
-    ]
-
   defp gather_explicit_overrides(%{id: "Boat-F6"}, 1),
     do: [
       {"Boat-F6", 1, :all, "Boat-F6-Wdy-Smr-23", true,
+       ["Boat-Winthrop", "Boat-Quincy", "Boat-Logan", "Boat-Fan", "Boat-Aquarium"]}
+    ]
+
+  defp gather_explicit_overrides(%{id: "Boat-F6"}, 0),
+    do: [
+      {"Boat-F6", 0, :all, "Boat-F6-Wdy-Smr-23", true,
        ["Boat-Aquarium", "Boat-Fan", "Boat-Logan", "Boat-Quincy", "Boat-Winthrop"]}
     ]
 
