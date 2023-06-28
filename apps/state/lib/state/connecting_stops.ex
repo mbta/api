@@ -32,7 +32,7 @@ defmodule State.ConnectingStops do
     "place-FR-0064" => %{add: ~w(2137)},
     "place-GRB-0118" => %{add: ~w(3806)},
     "place-harsq" => %{add: ~w(110)},
-    "place-aqucl" => %{add: ~w(Boat-Long Boat-Long-4 Boat-Aquarium)},
+    "place-aqucl" => %{add: ~w(Boat-Long Boat-Long-South-4 Boat-Aquarium)},
     "Boat-Charlestown" => %{add: ~w(12859 12856)}
   }
 
