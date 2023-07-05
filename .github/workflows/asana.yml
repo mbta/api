@@ -28,6 +28,7 @@ jobs:
   create-asana-attachment-job:
     runs-on: ubuntu-latest
     name: Create pull request attachments on Asana tasks
+    if: github.repository_owner == 'mbta'
     steps:
       - name: Create pull request attachments
         uses: Asana/create-app-attachment-github-action@latest
