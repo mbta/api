@@ -254,7 +254,7 @@ defmodule ApiWeb.VehicleController do
             carriages(
               carriages_schema(),
               carriages_description(),
-              "x-nullable": false,
+              "x-nullable": true,
               example: [
                 %{
                   "label" => "some-carriage",
