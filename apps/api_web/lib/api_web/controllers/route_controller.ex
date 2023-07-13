@@ -143,7 +143,7 @@ defmodule ApiWeb.RouteController do
   defp do_filter(%{service_ids: []}), do: []
 
   defp do_filter(%{service_ids: service_ids, type: types}),
-    do: service_ids |> RoutesByService.for_service_ids_and_types(types) |> Route.by_ids()
+    do: ["canonical" | service_ids] |> RoutesByService.for_service_ids_and_types(types) |> Route.by_ids()
 
   defp do_filter(%{stops: _stops} = filters) do
     filters
@@ -169,7 +169,7 @@ defmodule ApiWeb.RouteController do
       |> Map.take([:direction_id, :service_ids])
       |> Enum.into([])
 
-    RoutesPatternsAtStop.routes_by_family_stops(stops, [{:canonical?, false} | opts])
+    RoutesPatternsAtStop.routes_by_family_stops(stops, [opts])
   end
 
   swagger_path :show do
