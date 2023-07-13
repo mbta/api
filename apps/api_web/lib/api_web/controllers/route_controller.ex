@@ -102,7 +102,7 @@ defmodule ApiWeb.RouteController do
 
   defp do_format_filter({"date", date_str}) do
     case Date.from_iso8601(date_str) do
-      {:ok, date} -> %{service_ids: ServiceByDate.by_date(date)}
+      {:ok, date} -> %{service_ids: ["canonical" | ServiceByDate.by_date(date)]}
       {:error, _} -> []
     end
   end
