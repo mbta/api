@@ -15,7 +15,8 @@ defmodule ApiWeb.VehicleView do
     :current_status,
     :current_stop_sequence,
     :updated_at,
-    :occupancy_status
+    :occupancy_status,
+    :carriages
   ])
 
   has_one(

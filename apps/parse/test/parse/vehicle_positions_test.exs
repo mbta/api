@@ -10,6 +10,14 @@ defmodule Parse.VehiclePositionsTest do
       "current_status" => "IN_TRANSIT_TO",
       "occupancy_status" => "FULL",
       "current_stop_sequence" => 19,
+      "multi_carriage_details" => [
+        %{
+          "label" => "some-carriage",
+          "occupancy_status" => "MANY_SEATS_AVAILABLE",
+          "occupancy_percentage" => 80,
+          "carriage_sequence" => 1
+        }
+      ],
       "position" => %{
         "bearing" => 45,
         "latitude" => 42.342471209,
@@ -41,6 +49,14 @@ defmodule Parse.VehiclePositionsTest do
           current_status: :in_transit_to,
           occupancy_status: :full,
           current_stop_sequence: 19,
+          carriages: [
+            %Model.Vehicle.Carriage{
+              label: "some-carriage",
+              carriage_sequence: 1,
+              occupancy_status: :many_seats_available,
+              occupancy_percentage: 80
+            }
+          ],
           direction_id: 1,
           id: "y1796",
           label: "1796",
@@ -68,6 +84,14 @@ defmodule Parse.VehiclePositionsTest do
           current_status: :in_transit_to,
           occupancy_status: nil,
           current_stop_sequence: 19,
+          carriages: [
+            %Model.Vehicle.Carriage{
+              label: "some-carriage",
+              carriage_sequence: 1,
+              occupancy_status: :many_seats_available,
+              occupancy_percentage: 80
+            }
+          ],
           direction_id: 1,
           id: "y1796",
           label: "1796",

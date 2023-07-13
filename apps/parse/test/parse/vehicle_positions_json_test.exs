@@ -9,6 +9,14 @@ defmodule Parse.VehiclePositionsJsonTest do
       "current_status" => "IN_TRANSIT_TO",
       "occupancy_status" => "FEW_SEATS_AVAILABLE",
       "current_stop_sequence" => 1,
+      "multi_carriage_details" => [
+        %{
+          "label" => "some-carriage",
+          "occupancy_status" => "MANY_SEATS_AVAILABLE",
+          "occupancy_percentage" => 80,
+          "carriage_sequence" => 1
+        }
+      ],
       "position" => %{
         "bearing" => 225,
         "latitude" => 42.3378024,
@@ -56,7 +64,15 @@ defmodule Parse.VehiclePositionsJsonTest do
           stop_id: "11802",
           trip_id: "41820413",
           updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"]),
-          consist: nil
+          consist: nil,
+          carriages: [
+            %Model.Vehicle.Carriage{
+              label: "some-carriage",
+              carriage_sequence: 1,
+              occupancy_status: :many_seats_available,
+              occupancy_percentage: 80
+            }
+          ]
         }
       ]
 
@@ -83,7 +99,15 @@ defmodule Parse.VehiclePositionsJsonTest do
           stop_id: "11802",
           trip_id: "41820413",
           updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"]),
-          consist: nil
+          consist: nil,
+          carriages: [
+            %Model.Vehicle.Carriage{
+              label: "some-carriage",
+              carriage_sequence: 1,
+              occupancy_status: :many_seats_available,
+              occupancy_percentage: 80
+            }
+          ]
         }
       ]
 

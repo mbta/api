@@ -254,7 +254,8 @@ defmodule ApiWeb.VehicleControllerTest do
                  "current_status" => nil,
                  "current_stop_sequence" => nil,
                  "updated_at" => nil,
-                 "occupancy_status" => nil
+                 "occupancy_status" => nil,
+                 "carriages" => nil
                }
              }
     end
