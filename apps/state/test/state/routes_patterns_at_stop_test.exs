@@ -66,7 +66,7 @@ defmodule State.RoutesPatternsAtStopTest do
       State.Trip.new_state([trip, @other_trip])
       State.Shape.new_state([shape])
       update!()
-      assert routes_by_stop_and_direction("stop", direction_id: 1) == []
+      assert routes_by_stop_and_direction("stop", direction_id: 1, canonical?: true) == []
 
       assert routes_by_stop_and_direction("stop", direction_id: 1, canonical?: false) == [
                @trip.route_id
