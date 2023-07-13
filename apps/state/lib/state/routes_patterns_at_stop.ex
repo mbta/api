@@ -48,7 +48,7 @@ defmodule State.RoutesPatternsAtStop do
 
   def routes_by_stops_and_direction(stop_ids, opts \\ []) when is_list(stop_ids) do
     direction_id = Keyword.get(opts, :direction_id, :_)
-    canonical? = if Keyword.get(opts, :canonical?, true), do: true, else: :_
+    canonical? = if Keyword.get(opts, :canonical?), do: true, else: :_
 
     selectors =
       for stop_id <- Enum.uniq(stop_ids),
