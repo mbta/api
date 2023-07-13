@@ -169,7 +169,7 @@ defmodule ApiWeb.RouteController do
       |> Map.take([:direction_id, :service_ids])
       |> Enum.into([])
 
-    RoutesPatternsAtStop.routes_by_family_stops(stops, [opts])
+    RoutesPatternsAtStop.routes_by_family_stops(stops, opts)
   end
 
   swagger_path :show do
