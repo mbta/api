@@ -143,10 +143,7 @@ defmodule ApiWeb.RouteController do
   defp do_filter(%{service_ids: []}), do: []
 
   defp do_filter(%{service_ids: service_ids, type: types}),
-    do:
-      service_ids
-      |> RoutesByService.for_service_ids_and_types(types)
-      |> Route.by_ids()
+    do: service_ids |> RoutesByService.for_service_ids_and_types(types) |> Route.by_ids()
 
   defp do_filter(%{stops: _stops} = filters) do
     filters
