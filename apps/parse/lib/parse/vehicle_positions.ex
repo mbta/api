@@ -67,7 +67,7 @@ defmodule Parse.VehiclePositions do
 
   defp carriages(nil), do: []
 
-  defp carriages([_ | _] = multi_carriage_details) do
+  defp carriages(multi_carriage_details) do
     for carriage_details <- multi_carriage_details,
         do: %Model.Vehicle.Carriage{
           label: carriage_details.label,
@@ -76,8 +76,6 @@ defmodule Parse.VehiclePositions do
           occupancy_percentage: carriage_details.occupancy_percentage
         }
   end
-
-  defp carriages([]), do: []
 
   defp occupancy_status(nil), do: nil
 
