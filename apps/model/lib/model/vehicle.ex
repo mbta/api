@@ -19,7 +19,8 @@ defmodule Model.Vehicle do
     :updated_at,
     :effective_route_id,
     :consist,
-    :occupancy_status
+    :occupancy_status,
+    :carriages
   ]
 
   alias Model.WGS84
@@ -85,6 +86,7 @@ defmodule Model.Vehicle do
       [GTFS-realtime Position speed](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-position).
   * `:stop_id` - The `Model.Stop.id` of the `Model.Stop.t` that the vehicle is `:current_status` relative to.
   * `:trip_id` - The `Model.Trip.id` of the `Model.Trip.t` that the vehicle is on.
+  * `:carriages` - A list of `Model.Vehicle.Carriage` that provide occupancy on a more granular basis
   """
   @type t :: %__MODULE__{
           id: id | nil,
@@ -102,7 +104,8 @@ defmodule Model.Vehicle do
           stop_id: Model.Stop.id() | nil,
           trip_id: Model.Trip.id() | nil,
           consist: [String.t()] | nil,
-          occupancy_status: occupancy_status() | nil
+          occupancy_status: occupancy_status() | nil,
+          carriages: [Model.Vehicle.Carriage] | []
         }
 
   def primary?(%__MODULE__{route_id: id, effective_route_id: id}), do: true

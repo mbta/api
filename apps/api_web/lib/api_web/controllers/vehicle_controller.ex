@@ -250,6 +250,20 @@ defmodule ApiWeb.VehicleController do
               "x-nullable": true,
               example: "FEW_SEATS_AVAILABLE"
             )
+
+            carriages(
+              carriages_schema(),
+              carriages_description(),
+              "x-nullable": true,
+              example: [
+                %{
+                  "label" => "some-carriage",
+                  "occupancy_status" => "MANY_SEATS_AVAILABLE",
+                  "occupancy_percentage" => 80,
+                  "carriage_sequence" => 1
+                }
+              ]
+            )
           end
 
           direction_id_attribute()

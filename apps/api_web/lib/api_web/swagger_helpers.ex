@@ -57,6 +57,8 @@ defmodule ApiWeb.SwaggerHelpers do
     """
   end
 
+  def direction_id_schema, do: %Schema{type: :integer, enum: [0, 1]}
+
   @spec occupancy_status_description() :: String.t()
   def occupancy_status_description do
     """
@@ -71,7 +73,50 @@ defmodule ApiWeb.SwaggerHelpers do
     """
   end
 
-  def direction_id_schema, do: %Schema{type: :integer, enum: [0, 1]}
+  @spec carriages_description() :: String.t()
+  def carriages_description do
+    """
+    Carriage-level crowding details. See [GTFS-realtime multi_carriage_details](https://gtfs.org/realtime/reference/#message-CarriageDetails).
+    """
+  end
+
+  def carriages_schema,
+    do: %Schema{
+      type: :array,
+      minLength: 0,
+      items: %{
+        type: :object,
+        properties: %{
+          label: %Schema{
+            type: :string,
+            description: "Carriage-specific label, used as an identifier"
+          },
+          carriage_sequence: %Schema{
+            type: :integer,
+            description: "Provides a reliable order"
+          },
+          occupancy_status: %Schema{
+            type: :string,
+            description: occupancy_status_description(),
+            enum: [
+              "EMPTY",
+              "MANY_SEATS_AVAILABLE",
+              "FEW_SEATS_AVAILABLE",
+              "STANDING_ROOM_ONLY",
+              "CRUSHED_STANDING_ROOM_ONLY",
+              "FULL",
+              "NOT_ACCEPTING_PASSENGERS",
+              "NO_DATA_AVAILABLE",
+              "NOT_BOARDABLE"
+            ]
+          },
+          occupancy_percentage: %Schema{
+            type: :integer,
+            description: "Percentage of vehicle occupied, calculated via weight average"
+          }
+        }
+      }
+    }
 
   def include_parameters(path_object, includes, options \\ []) do
     Path.parameter(path_object, :include, :query, :string, """

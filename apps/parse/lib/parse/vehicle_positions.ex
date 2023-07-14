@@ -36,7 +36,8 @@ defmodule Parse.VehiclePositions do
       current_status: current_status(update.current_status),
       current_stop_sequence: update.current_stop_sequence,
       updated_at: unix_to_local(update.timestamp),
-      occupancy_status: occupancy_status(update.occupancy_status)
+      occupancy_status: occupancy_status(update.occupancy_status),
+      carriages: carriages(update.multi_carriage_details)
     }
   end
 
@@ -62,6 +63,18 @@ defmodule Parse.VehiclePositions do
 
   defp current_status(:STOPPED_AT) do
     :stopped_at
+  end
+
+  defp carriages(nil), do: []
+
+  defp carriages(multi_carriage_details) do
+    for carriage_details <- multi_carriage_details,
+        do: %Model.Vehicle.Carriage{
+          label: carriage_details.label,
+          carriage_sequence: carriage_details.carriage_sequence,
+          occupancy_status: carriage_details.occupancy_status,
+          occupancy_percentage: carriage_details.occupancy_percentage
+        }
   end
 
   defp occupancy_status(nil), do: nil

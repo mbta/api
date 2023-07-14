@@ -40,7 +40,8 @@ defmodule Parse.VehiclePositionsJson do
         current_stop_sequence: Map.get(data, "current_stop_sequence"),
         updated_at: unix_to_local(Map.get(data, "timestamp")),
         consist: parse_consist(Map.get(vehicle, "consist")),
-        occupancy_status: parse_occupancy_status(Map.get(data, "occupancy_status"))
+        occupancy_status: parse_occupancy_status(Map.get(data, "occupancy_status")),
+        carriages: carriages(Map.get(data, "multi_carriage_details"))
       }
     ]
   end
@@ -70,6 +71,18 @@ defmodule Parse.VehiclePositionsJson do
 
   defp parse_status("STOPPED_AT") do
     :stopped_at
+  end
+
+  defp carriages(nil), do: []
+
+  defp carriages(multi_carriage_details) do
+    for carriage_details <- multi_carriage_details,
+        do: %Model.Vehicle.Carriage{
+          label: carriage_details["label"],
+          carriage_sequence: carriage_details["carriage_sequence"],
+          occupancy_status: parse_occupancy_status(carriage_details["occupancy_status"]),
+          occupancy_percentage: carriage_details["occupancy_percentage"]
+        }
   end
 
   defp parse_occupancy_status(nil), do: nil
