@@ -57,6 +57,8 @@ defmodule ApiWeb.SwaggerHelpers do
     """
   end
 
+  def direction_id_schema, do: %Schema{type: :integer, enum: [0, 1]}
+
   @spec occupancy_status_description() :: String.t()
   def occupancy_status_description do
     """
@@ -77,8 +79,6 @@ defmodule ApiWeb.SwaggerHelpers do
     Carriage-level crowding details. See [GTFS-realtime multi_carriage_details](https://gtfs.org/realtime/reference/#message-CarriageDetails).
     """
   end
-
-  def direction_id_schema, do: %Schema{type: :integer, enum: [0, 1]}
 
   def carriages_schema,
     do: %Schema{
