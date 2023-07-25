@@ -198,6 +198,82 @@ defmodule State.StopsOnRoute do
        ["Boat-Aquarium", "Boat-Fan", "Boat-Logan", "Boat-Quincy", "Boat-Winthrop"]}
     ]
 
+  defp gather_explicit_overrides(%{id: "Green-D"}, 0),
+    do: [
+      {"Green-D", 0, :all,
+       [
+         "Green-SmrGLXNorthSta-Std",
+         "Green-SmrGLXNorthSta-Snd",
+         "Green-SmrGLXNorthSta-WkdHmt",
+         "Green-SmrGLXNorthSta-WkdNrh"
+       ], true,
+       [
+         "place-unsqu",
+         "place-lech",
+         "place-spmnl",
+         "place-north",
+         "place-haecl",
+         "place-gover",
+         "place-pktrm",
+         "place-boyls",
+         "place-armnl",
+         "place-coecl",
+         "place-hymnl",
+         "place-kencl",
+         "place-fenwy",
+         "place-longw",
+         "place-bvmnl",
+         "place-brkhl",
+         "place-bcnfd",
+         "place-rsmnl",
+         "place-chhil",
+         "place-newto",
+         "place-newtn",
+         "place-eliot",
+         "place-waban",
+         "place-woodl",
+         "place-river"
+       ]}
+    ]
+
+  defp gather_explicit_overrides(%{id: "Green-E"}, 0),
+    do: [
+      {"Green-E", 0, :all,
+       [
+         "Green-SmrGLXNorthSta-Std",
+         "Green-SmrGLXNorthSta-Snd",
+         "Green-SmrGLXNorthSta-WkdHmt",
+         "Green-SmrGLXNorthSta-WkdNrh"
+       ], true,
+       [
+         "place-mdftf",
+         "place-balsq",
+         "place-mgngl",
+         "place-gilmn",
+         "place-esomr",
+         "place-lech",
+         "place-spmnl",
+         "place-north",
+         "place-haecl",
+         "place-gover",
+         "place-pktrm",
+         "place-boyls",
+         "place-armnl",
+         "place-coecl",
+         "place-prmnl",
+         "place-symcl",
+         "place-nuniv",
+         "place-mfa",
+         "place-lngmd",
+         "place-brmnl",
+         "place-fenwd",
+         "place-mispk",
+         "place-rvrwy",
+         "place-bckhl",
+         "place-hsmnl"
+       ]}
+    ]
+
   defp gather_explicit_overrides(_, _), do: []
 
   defp do_gather_direction_group(route, global_order, {group_key, trip_group}) do
