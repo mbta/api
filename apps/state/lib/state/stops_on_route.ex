@@ -200,13 +200,7 @@ defmodule State.StopsOnRoute do
 
   defp gather_explicit_overrides(%{id: "Green-D"}, 0),
     do: [
-      {"Green-D", 0, :all,
-       [
-         "Green-SmrGLXNorthSta-Std",
-         "Green-SmrGLXNorthSta-Snd",
-         "Green-SmrGLXNorthSta-WkdHmt",
-         "Green-SmrGLXNorthSta-WkdNrh"
-       ], true,
+      {"Green-D", 0, :all, :_, true,
        [
          "place-unsqu",
          "place-lech",
@@ -238,13 +232,7 @@ defmodule State.StopsOnRoute do
 
   defp gather_explicit_overrides(%{id: "Green-E"}, 0),
     do: [
-      {"Green-E", 0, :all,
-       [
-         "Green-SmrGLXNorthSta-Std",
-         "Green-SmrGLXNorthSta-Snd",
-         "Green-SmrGLXNorthSta-WkdHmt",
-         "Green-SmrGLXNorthSta-WkdNrh"
-       ], true,
+      {"Green-E", 0, :all, :_, true,
        [
          "place-mdftf",
          "place-balsq",
