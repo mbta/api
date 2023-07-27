@@ -348,6 +348,123 @@ defmodule State.StopsOnRoute do
 
   def merge_ids([], _), do: []
 
+  def merge_ids(
+        [
+          ["place-unsqu", "place-lech", "place-spmnl", "place-north"],
+          [
+            "place-gover",
+            "place-pktrm",
+            "place-boyls",
+            "place-armnl",
+            "place-coecl",
+            "place-hymnl",
+            "place-kencl",
+            "place-fenwy",
+            "place-longw",
+            "place-bvmnl",
+            "place-brkhl",
+            "place-bcnfd",
+            "place-rsmnl",
+            "place-chhil",
+            "place-newto",
+            "place-newtn",
+            "place-eliot",
+            "place-waban",
+            "place-woodl",
+            "place-river"
+          ]
+        ],
+        _
+      ) do
+    [
+      "place-unsqu",
+      "place-lech",
+      "place-spmnl",
+      "place-north",
+      "place-gover",
+      "place-pktrm",
+      "place-boyls",
+      "place-armnl",
+      "place-coecl",
+      "place-hymnl",
+      "place-kencl",
+      "place-fenwy",
+      "place-longw",
+      "place-bvmnl",
+      "place-brkhl",
+      "place-bcnfd",
+      "place-rsmnl",
+      "place-chhil",
+      "place-newto",
+      "place-newtn",
+      "place-eliot",
+      "place-waban",
+      "place-woodl",
+      "place-river"
+    ]
+  end
+
+  def merge_ids(
+        [
+          [
+            "place-mdftf",
+            "place-balsq",
+            "place-mgngl",
+            "place-gilmn",
+            "place-esomr",
+            "place-lech",
+            "place-spmnl",
+            "place-north"
+          ],
+          [
+            "place-gover",
+            "place-pktrm",
+            "place-boyls",
+            "place-armnl",
+            "place-coecl",
+            "place-prmnl",
+            "place-symcl",
+            "place-nuniv",
+            "place-mfa",
+            "place-lngmd",
+            "place-brmnl",
+            "place-fenwd",
+            "place-mispk",
+            "place-rvrwy",
+            "place-bckhl",
+            "place-hsmnl"
+          ]
+        ],
+        _
+      ) do
+    [
+      "place-mdftf",
+      "place-balsq",
+      "place-mgngl",
+      "place-gilmn",
+      "place-esomr",
+      "place-lech",
+      "place-spmnl",
+      "place-north",
+      "place-gover",
+      "place-pktrm",
+      "place-boyls",
+      "place-armnl",
+      "place-coecl",
+      "place-prmnl",
+      "place-symcl",
+      "place-nuniv",
+      "place-mfa",
+      "place-lngmd",
+      "place-brmnl",
+      "place-fenwd",
+      "place-mispk",
+      "place-rvrwy",
+      "place-bckhl",
+      "place-hsmnl"
+    ]
+  end
+
   def merge_ids(lists_of_ids, override_lists) do
     sorted_lists = Enum.sort_by(lists_of_ids, &list_merge_key/1, &>=/2)
     # overrides should be short or empty, so putting that first with ++ is
