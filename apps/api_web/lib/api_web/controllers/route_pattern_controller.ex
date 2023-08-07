@@ -32,7 +32,7 @@ defmodule ApiWeb.RoutePatternController do
     #{@description}
     """)
 
-    common_index_parameters(__MODULE__)
+    common_index_parameters(__MODULE__, :route_pattern)
 
     include_parameters()
 

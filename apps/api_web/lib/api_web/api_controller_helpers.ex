@@ -197,7 +197,8 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   defp view_module_for_type(type) do
-    view_name = String.capitalize(type) <> "View"
+    view_name = Macro.camelize(type) <> "View"
+
     Module.safe_concat([ApiWeb, view_name])
   end
 
