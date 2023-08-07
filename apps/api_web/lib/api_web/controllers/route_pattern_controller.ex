@@ -126,6 +126,8 @@ defmodule ApiWeb.RoutePatternController do
     #{@description}
     """)
 
+    common_show_parameters(:route_pattern)
+
     parameter(:id, :path, :string, "Unique identifier for route_pattern")
     include_parameters()
 
