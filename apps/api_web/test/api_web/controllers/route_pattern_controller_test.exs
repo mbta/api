@@ -463,6 +463,22 @@ defmodule ApiWeb.RoutePatternControllerTest do
       assert json_response(response, 404)
       assert validate_resp_schema(response, schema, "NotFound")
     end
+
+    test "can limit returned fields", %{conn: conn} do
+      State.RoutePattern.new_state([
+        %RoutePattern{id: "rp1", sort_order: 1},
+        %RoutePattern{id: "rp2", sort_order: 2},
+        %RoutePattern{id: "rp3", sort_order: 3}
+      ])
+
+      params = %{"fields" => %{"route_pattern" => "sort_order"}}
+      conn = get(conn, route_pattern_path(conn, :index, params))
+
+      response = json_response(conn, 200)
+      attrs = Enum.map(response["data"], fn rp -> rp["attributes"] end)
+
+      assert [%{"sort_order" => 1}, %{"sort_order" => 2}, %{"sort_order" => 3}] = attrs
+    end
   end
 
   describe "show" do

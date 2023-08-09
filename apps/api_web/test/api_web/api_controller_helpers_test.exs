@@ -86,6 +86,14 @@ defmodule ApiWeb.ApiControllerHelpersTest do
              }
     end
 
+    test "works with types with multiple words" do
+      params = %{"route_pattern" => "name,typicality,canonical"}
+
+      assert ApiWeb.ApiControllerHelpers.filter_valid_field_params(%Plug.Conn{}, params) == %{
+               "route_pattern" => [:name, :typicality, :canonical]
+             }
+    end
+
     test "rejects invalid types" do
       params = %{
         "bad_type" => "name",
