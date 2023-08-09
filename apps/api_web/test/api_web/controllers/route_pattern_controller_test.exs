@@ -581,6 +581,32 @@ defmodule ApiWeb.RoutePatternControllerTest do
       assert json_response(response, 404)
       assert validate_resp_schema(response, schema, "NotFound")
     end
+
+    test "allows limiting returned fields", %{conn: conn} do
+      route_pattern = %RoutePattern{
+        id: "route pattern id",
+        route_id: "route id",
+        direction_id: 0,
+        name: "route pattern name",
+        time_desc: nil,
+        typicality: 1,
+        sort_order: 101,
+        representative_trip_id: "trip id",
+        canonical: false
+      }
+
+      State.RoutePattern.new_state([route_pattern])
+
+      conn =
+        get(
+          conn,
+          route_pattern_path(conn, :show, route_pattern, %{
+            "fields[route_pattern]" => "sort_order"
+          })
+        )
+
+      assert json_response(conn, 200)["data"]["attributes"] == %{"sort_order" => 101}
+    end
   end
 
   describe "swagger_path" do
