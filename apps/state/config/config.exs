@@ -229,7 +229,13 @@ config :state, :stops_on_route,
     "Shuttle-BridgewaterMiddleboroughLakeville-0-" => true,
     "CR-Greenbush-BraintreeGreenbush-" => true,
     "CR-Middleborough-2507c3b4-0_MM-0277-S_MM-0356-S_0" => true,
-    "CR-Middleborough-cd96ff97-1_MM-0356-S_MM-0277-S_2" => true
+    "CR-Middleborough-cd96ff97-1_MM-0356-S_MM-0277-S_2" => true,
+    # Franklin/Foxboro Line shuttles
+    "Shuttle-ForgeParkWalpole-0-" => true,
+    "CR-Franklin-3badde55-" => true,
+    "CR-Franklin-02118599-" => true,
+    # Worcester Line shuttles
+    "Shuttle-AshlandFramingham-0-" => true
   }
 
 # Overrides for the stop ordering on routes where the trips themselves aren't enough
