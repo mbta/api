@@ -101,6 +101,8 @@ defmodule Parse.VehiclePositionsJson do
 
   defp parse_occupancy_status("NOT_ACCEPTING_PASSENGERS"), do: :not_accepting_passengers
 
+  defp parse_occupancy_status("NO_DATA_AVAILABLE"), do: :no_data_available
+
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)
   end
