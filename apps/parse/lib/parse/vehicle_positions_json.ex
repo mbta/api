@@ -103,6 +103,8 @@ defmodule Parse.VehiclePositionsJson do
 
   defp parse_occupancy_status("NO_DATA_AVAILABLE"), do: :no_data_available
 
+  defp parse_occupancy_status("NOT_BOARDABLE"), do: :not_boardable
+
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)
   end

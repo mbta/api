@@ -44,6 +44,7 @@ defmodule ApiWeb.VehicleView do
     vehicle
     |> super(conn)
     |> backwards_compatible_attributes(vehicle, conn.assigns.api_version)
+    |> encode_carriages()
   end
 
   for status <- ~w(in_transit_to incoming_at stopped_at)a do
@@ -83,5 +84,18 @@ defmodule ApiWeb.VehicleView do
 
   defp backwards_compatible_attributes(attributes, _, _) do
     attributes
+  end
+
+  defp encode_carriages(vehicle) do
+    Map.put(vehicle, :carriages, vehicle.carriages |> Enum.map(&encode_carriage/1))
+  end
+
+  defp encode_carriage(carraige) do
+    %{
+      label: carraige.label,
+      carriage_sequence: carraige.carriage_sequence,
+      occupancy_status: carraige.occupancy_status,
+      occupancy_percentage: carraige.occupancy_percentage
+    }
   end
 end
