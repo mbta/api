@@ -63,7 +63,7 @@ defmodule ApiWeb.VehicleView do
   end
 
   for status <-
-        ~w(empty many_seats_available few_seats_available standing_room_only crushed_standing_room_only full not_accepting_passengers)a do
+        ~w(empty many_seats_available few_seats_available standing_room_only crushed_standing_room_only full not_accepting_passengers no_data_available not_boardable)a do
     status_binary =
       status
       |> Atom.to_string()
@@ -86,15 +86,19 @@ defmodule ApiWeb.VehicleView do
     attributes
   end
 
+  defp encode_carriages(%{carriages: nil} = vehicle) do
+    vehicle
+  end
+
   defp encode_carriages(vehicle) do
-    Map.put(vehicle, :carriages, vehicle.carriages |> Enum.map(&encode_carriage/1))
+    Map.put(vehicle, :carriages, Enum.map(vehicle.carriages, &encode_carriage/1))
   end
 
   defp encode_carriage(carraige) do
     %{
       label: carraige.label,
       carriage_sequence: carraige.carriage_sequence,
-      occupancy_status: carraige.occupancy_status,
+      occupancy_status: occupancy_status(carraige, nil),
       occupancy_percentage: carraige.occupancy_percentage
     }
   end

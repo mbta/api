@@ -43,7 +43,22 @@ defmodule ApiWeb.VehicleControllerTest do
                   latitude: 42.01,
                   longitude: -71.15,
                   speed: 75,
-                  stop_id: "current_stop"
+                  stop_id: "current_stop",
+                  occupancy_status: :empty,
+                  carriages: [
+                    %Vehicle.Carriage{
+                      label: "carriage_1",
+                      occupancy_status: :empty,
+                      occupancy_percentage: 0,
+                      carriage_sequence: 1
+                    },
+                    %Vehicle.Carriage{
+                      label: "carriage_2",
+                      occupancy_status: :empty,
+                      occupancy_percentage: 0,
+                      carriage_sequence: 2
+                    }
+                  ]
                 }
   @stop %Model.Stop{id: "current_stop"}
   @vehicle hd(@vehicles)
@@ -333,7 +348,22 @@ defmodule ApiWeb.VehicleControllerTest do
         latitude: 42.01,
         longitude: -71.15,
         speed: 75,
-        stop_id: "current_stop"
+        stop_id: "current_stop",
+        occupancy_status: :many_seats_available,
+        carriages: [
+          %Vehicle.Carriage{
+            label: "carriage_1",
+            occupancy_status: :empty,
+            occupancy_percentage: 0,
+            carriage_sequence: 1
+          },
+          %Vehicle.Carriage{
+            label: "carriage_2",
+            occupancy_status: :empty,
+            occupancy_percentage: 0,
+            carriage_sequence: 2
+          }
+        ]
       }
 
       State.Vehicle.new_state([vehicle])
