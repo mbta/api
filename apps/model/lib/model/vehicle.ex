@@ -50,6 +50,8 @@ defmodule Model.Vehicle do
           | :crushed_standing_room_only
           | :full
           | :not_accepting_passengers
+          | :no_data_available
+          | :not_boardable
 
   @typedoc """
   Meters per second
