@@ -69,13 +69,17 @@ defmodule ApiWeb.VehicleView do
       |> Atom.to_string()
       |> String.upcase()
 
-    def occupancy_status(%{occupancy_status: unquote(status)}, _conn) do
+    def occupancy_status(%{occupancy_status: unquote(status)}) do
       unquote(status_binary)
     end
   end
 
-  def occupancy_status(_, _) do
+  def occupancy_status(_) do
     nil
+  end
+
+  def occupancy_status(conveyance, _conn) do
+    occupancy_status(conveyance)
   end
 
   defp backwards_compatible_attributes(attributes, vehicle, "2017-11-28") do
@@ -86,12 +90,8 @@ defmodule ApiWeb.VehicleView do
     attributes
   end
 
-  defp encode_carriages(%{carriages: nil} = vehicle) do
-    vehicle
-  end
-
   defp encode_carriages(vehicle) do
-    Map.put(vehicle, :carriages, Enum.map(vehicle.carriages, &encode_carriage/1))
+    Map.put(vehicle, :carriages, Enum.map(vehicle.carriages || [], &encode_carriage/1))
   end
 
   defp encode_carriage(carraige) do
