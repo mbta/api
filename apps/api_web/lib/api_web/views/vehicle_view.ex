@@ -94,12 +94,12 @@ defmodule ApiWeb.VehicleView do
     Map.put(vehicle, :carriages, Enum.map(vehicle.carriages || [], &encode_carriage/1))
   end
 
-  defp encode_carriage(carraige) do
+  defp encode_carriage(carriage) do
     %{
-      label: carraige.label,
-      carriage_sequence: carraige.carriage_sequence,
-      occupancy_status: occupancy_status(carraige, nil),
-      occupancy_percentage: carraige.occupancy_percentage
+      label: carriage.label,
+      carriage_sequence: carriage.carriage_sequence,
+      occupancy_status: occupancy_status(carriage, nil),
+      occupancy_percentage: carriage.occupancy_percentage
     }
   end
 end
