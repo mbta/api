@@ -91,10 +91,6 @@ defmodule ApiWeb.SwaggerHelpers do
             type: :string,
             description: "Carriage-specific label, used as an identifier"
           },
-          carriage_sequence: %Schema{
-            type: :integer,
-            description: "Provides a reliable order"
-          },
           occupancy_status: %Schema{
             type: :string,
             description: occupancy_status_description(),

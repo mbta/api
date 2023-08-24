@@ -97,7 +97,6 @@ defmodule ApiWeb.VehicleView do
   defp encode_carriage(carriage) do
     %{
       label: carriage.label,
-      carriage_sequence: carriage.carriage_sequence,
       occupancy_status: occupancy_status(carriage, nil),
       occupancy_percentage: carriage.occupancy_percentage
     }
