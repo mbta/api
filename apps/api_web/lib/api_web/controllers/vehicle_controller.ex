@@ -259,8 +259,7 @@ defmodule ApiWeb.VehicleController do
                 %{
                   "label" => "some-carriage",
                   "occupancy_status" => "MANY_SEATS_AVAILABLE",
-                  "occupancy_percentage" => 80,
-                  "carriage_sequence" => 1
+                  "occupancy_percentage" => 80
                 }
               ]
             )
