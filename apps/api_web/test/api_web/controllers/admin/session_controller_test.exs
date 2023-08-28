@@ -7,6 +7,7 @@ defmodule ApiWeb.Admin.SessionControllerTest do
   @authorized_user_attrs %{
     email: "authorized@mbta.com",
     role: "administrator",
+    totp_enabled: true,
     password: @test_password
   }
   @unauthorized_user_attrs %{

@@ -3,7 +3,6 @@ defmodule ApiWeb.Plugs.Require2Factor do
   Plug enforcing a user to have 2fa enabled
   """
 
-  # , only: [render: 3, put_view: 2]
   import Phoenix.Controller
 
   def init(opts), do: opts
