@@ -9,19 +9,29 @@ if is_prod? and is_release? do
   sentry_env = System.get_env("SENTRY_ENV")
 
   if not is_nil(sentry_env) do
-    config :sentry, filter: ApiWeb.SentryEventFilter,
+    config :sentry,
+      filter: ApiWeb.SentryEventFilter,
       dsn: System.fetch_env!("SENTRY_DSN"),
       environment_name: sentry_env,
       enable_source_code_context: true,
-      root_source_code_path: File.cwd!(),
+      root_source_code_paths: [
+        "#{File.cwd!()}/apps/alb_monitor",
+        "#{File.cwd!()}/apps/api_accounts",
+        "#{File.cwd!()}/apps/api_web",
+        "#{File.cwd!()}/apps/events",
+        "#{File.cwd!()}/apps/fetch",
+        "#{File.cwd!()}/apps/health",
+        "#{File.cwd!()}/apps/model",
+        "#{File.cwd!()}/apps/parse",
+        "#{File.cwd!()}/apps/state",
+        "#{File.cwd!()}/apps/state_mediator"
+      ],
       tags: %{
         env: sentry_env
       },
       included_environments: [sentry_env]
 
-    config :logger, Sentry.LoggerBackend,
-      level: :error
-
+    config :logger, Sentry.LoggerBackend, level: :error
   end
 
   config :ex_aws,
