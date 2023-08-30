@@ -60,6 +60,7 @@ defmodule ApiWeb.Router do
 
   pipeline :admin do
     plug(ApiWeb.Plugs.RequireAdmin)
+    plug(ApiWeb.Plugs.Require2Factor)
   end
 
   pipeline :portal_view do

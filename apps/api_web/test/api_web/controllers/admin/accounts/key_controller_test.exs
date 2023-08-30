@@ -8,7 +8,11 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
 
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
 
-    {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com", role: "administrator"})
+    {:ok, user} =
+      ApiAccounts.create_user(%{email: "test@mbta.com", role: "administrator", totp_enabled: true})
+
+    {:ok, user} = ApiAccounts.generate_totp_secret(user)
+    ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))
 
     conn =
       conn

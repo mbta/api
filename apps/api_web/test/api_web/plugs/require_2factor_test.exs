@@ -1,4 +1,4 @@
-defmodule ApiWeb.Plugs.RequireAdminTest do
+defmodule ApiWeb.Plugs.Require2FactorTest do
   use ApiWeb.ConnCase, async: true
 
   setup %{conn: conn} do
@@ -11,10 +11,10 @@ defmodule ApiWeb.Plugs.RequireAdminTest do
   end
 
   test "opts" do
-    assert ApiWeb.Plugs.RequireAdmin.init([]) == []
+    assert ApiWeb.Plugs.Require2Factor.init([]) == []
   end
 
-  describe ":require_admin plug" do
+  describe ":require_2factor plug" do
     test "gives 404 with no authenicated user", %{conn: conn} do
       conn = get(conn, "/")
       assert conn.status == 404
@@ -24,23 +24,32 @@ defmodule ApiWeb.Plugs.RequireAdminTest do
     test "gives 404 for user without administrator role", %{conn: conn} do
       conn =
         conn
-        |> user_with_role(nil)
+        |> user_with_role(nil, true)
         |> get("/")
 
       assert html_response(conn, 404) =~ "not found"
     end
 
-    test "allows user with administrator role to proceed", %{conn: conn} do
+    test "redirects on missing 2fa, but valid admin account", %{conn: conn} do
       conn =
         conn
-        |> user_with_role("administrator")
+        |> user_with_role("administrator", false)
+        |> get("/")
+
+      assert html_response(conn, 302)
+    end
+
+    test "allows user with administrator role and 2fa to proceed", %{conn: conn} do
+      conn =
+        conn
+        |> user_with_role("administrator", true)
         |> get("/")
 
       refute conn.status
     end
   end
 
-  defp user_with_role(conn, role) do
-    Plug.Conn.assign(conn, :user, %ApiAccounts.User{role: role, totp_enabled: true})
+  defp user_with_role(conn, role, totp_enabled) do
+    Plug.Conn.assign(conn, :user, %ApiAccounts.User{role: role, totp_enabled: totp_enabled})
   end
 end
