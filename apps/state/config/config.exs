@@ -214,12 +214,16 @@ config :state, :stops_on_route,
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
     "CR-Providence-d01bc229-0" => true,
-    # Haverhill Line shuttles to/from Malden Center
+    # Haverhill Line shuttles
     "Shuttle-BallardvaleMaldenCenter-0-" => true,
     "Shuttle-HaverhillMaldenCenter-0-" => true,
     "Shuttle-AndoverHaverhill-0-" => true,
     "Shuttle-HaverhillReadingExpress-0-" => true,
     "Shuttle-HaverhillReadingLocal-0-" => true,
+    "Shuttle-AndersonWoburnReading-0-" => true,
+    "Shuttle-OakGroveReading-0-" => true,
+    "CR-Haverhill-fc94d3b2-" => true,
+    "CR-Haverhill-9a2b8f60-" => true,
     # Lowell Line shuttles
     "Shuttle-AndersonWoburnNorthStationExpress-0-" => true,
     "Shuttle-AndersonWoburnNorthStationLocal-0-" => true,
@@ -362,6 +366,24 @@ config :state, :stops_on_route,
         "place-brntn",
         "place-qnctr",
         "place-jfk"
+      ]
+    ],
+    {"CR-Haverhill", 0} => [
+      [
+        "place-north",
+        "place-ogmnl",
+        "place-WR-0062",
+        "place-WR-0067",
+        "place-WR-0075",
+        "place-WR-0085",
+        "place-WR-0099",
+        "place-NHRML-0127",
+        "place-WR-0120",
+        "place-WR-0205",
+        "place-WR-0228",
+        "place-WR-0264",
+        "place-WR-0325",
+        "place-WR-0329"
       ]
     ]
   }
