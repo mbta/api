@@ -423,6 +423,20 @@ config :state, :stops_on_route,
       "place-FB-0125",
       "place-FB-0109"
     ],
+    {"CR-Lowell", 0} => [
+      "place-WR-0205",
+      "place-WR-0228",
+      "place-WR-0264",
+      "place-WR-0325",
+      "place-WR-0329"
+    ],
+    {"CR-Lowell", 1} => [
+      "place-WR-0329",
+      "place-WR-0325",
+      "place-WR-0264",
+      "place-WR-0228",
+      "place-WR-0205"
+    ],
     {"Green-B", 0} => [
       "9070150",
       "951",
