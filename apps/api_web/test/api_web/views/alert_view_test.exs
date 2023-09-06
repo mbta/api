@@ -20,7 +20,9 @@ defmodule ApiWeb.AlertViewTest do
     informed_entity: [%{route_type: 0, route: "1"}],
     service_effect: "service effect",
     timeframe: "timeframe",
-    lifecycle: "lifecycle"
+    lifecycle: "lifecycle",
+    image: "image",
+    image_alternative_text: "image alternative text"
   }
 
   test "can do a basic rendering (does not include relationships)", %{conn: conn} do
@@ -39,6 +41,8 @@ defmodule ApiWeb.AlertViewTest do
              "created_at" => @alert.created_at,
              "updated_at" => @alert.updated_at,
              "severity" => @alert.severity,
+             "image" => @alert.image,
+             "image_alternative_text" => @alert.image_alternative_text,
              "active_period" => [
                %{
                  "start" => @alert.active_period |> List.first() |> elem(0),
