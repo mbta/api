@@ -436,7 +436,7 @@ defmodule Parse.AlertsTest do
       assert [%Alert{description: "Good morning"}] = parse_json(map)
     end
 
-    test "returns english image url over unspecified language" do
+    test "returns english image url over other language" do
       url =
         "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
 
@@ -462,6 +462,10 @@ defmodule Parse.AlertsTest do
                   "language" => "fr"
                 },
                 %{
+                  "url" => "some_other_url",
+                  "media_type" => "image/png"
+                },
+                %{
                   "url" => url,
                   "media_type" => "image/png",
                   "language" => "en"
@@ -482,7 +486,7 @@ defmodule Parse.AlertsTest do
       assert [%Alert{image: ^url}] = parse_json(map)
     end
 
-    test "returns english image url over other language" do
+    test "returns english image url over unspecified language" do
       url =
         "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
 
@@ -510,6 +514,51 @@ defmodule Parse.AlertsTest do
                   "url" => url,
                   "media_type" => "image/png",
                   "language" => "en"
+                }
+              ]
+            },
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{image: ^url}] = parse_json(map)
+    end
+
+    test "returns unspecified url over non-english language if english is not present" do
+      url =
+        "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
+
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "image" => %{
+              "localized_image" => [
+                %{
+                  "url" => "some_other_url",
+                  "media_type" => "image/png",
+                  "language" => "fr"
+                },
+                %{
+                  "url" => url,
+                  "media_type" => "image/png"
                 }
               ]
             },

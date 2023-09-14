@@ -137,9 +137,14 @@ defmodule Parse.Alerts do
   end
 
   defp do_localized_image(%{"localized_image" => [_ | _] = translations}, %{default: default}) do
-    case Enum.find(translations, &(&1["language"] == "en")) do
-      %{"language" => "en", "url" => url} -> url
-      _ -> default
+    translations =
+      translations
+      |> Enum.filter(&(&1["language"] == "en" or &1["language"] == nil))
+      |> Enum.sort(:desc)
+
+    case length(translations) >= 1 do
+      true -> hd(translations)["url"]
+      false -> default
     end
   end
 
