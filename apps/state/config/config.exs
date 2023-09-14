@@ -412,6 +412,26 @@ config :state, :stops_on_route,
       "place-DB-2222",
       "place-DB-2205"
     ],
+    {"CR-Providence", 0} => [
+      "place-DB-2265",
+      "place-DB-2258",
+      "place-DB-2249",
+      "place-DB-2240",
+      "place-DB-2230",
+      "place-DB-2222",
+      "place-DB-2205",
+      "place-DB-0095"
+    ],
+    {"CR-Providence", 1} => [
+      "place-DB-2265",
+      "place-DB-2258",
+      "place-DB-2249",
+      "place-DB-2240",
+      "place-DB-2230",
+      "place-DB-2222",
+      "place-DB-2205",
+      "place-DB-0095"
+    ],
     {"CR-Fairmount", 0} => [
       "place-FB-0166",
       "place-FB-0148",
