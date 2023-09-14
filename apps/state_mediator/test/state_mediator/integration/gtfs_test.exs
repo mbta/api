@@ -200,7 +200,8 @@ defmodule StateMediator.Integration.GtfsTest do
 
       assert [
                %{name: "South Station - Wickford Junction"},
-               %{id: "9890004"}
+               %{id: "9890004"},
+               %{id: "SouthStationToStoughtonViaFairmount"}
              ] = shapes_0
 
       assert [%{name: "Wickford Junction - South Station"}, %{id: "9890003"}] = shapes_1
