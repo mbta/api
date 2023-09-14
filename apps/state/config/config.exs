@@ -208,6 +208,9 @@ config :state, :stops_on_route,
     "Shuttle-AlewifeLittletonLocal-0-" => true,
     # Fitchburg Line shuttles to/from Wachusett
     "Shuttle-LittletonWachusett-0-" => true,
+    "Shuttle-ShirleyWachusett-0-" => true,
+    "CR-Fitchburg-2a5f6366-" => true,
+    "CR-Fitchburg-d82ea33a-" => true,
     # Newton Connection RailBus for Worcester Line
     "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
     # Kingston Line shuttles to/from South Weymouth
