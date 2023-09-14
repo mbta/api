@@ -90,6 +90,14 @@ defmodule Parse.AlertsTest do
               }
             }
           ],
+          "image_alternative_text": [
+            {
+              "translation": {
+                "language": "en",
+                "text": "that's an alert image"
+              }
+            }
+          ],
           "url": [
             {
               "translation": {
@@ -126,6 +134,7 @@ defmodule Parse.AlertsTest do
                  "New Commuter Rail schedules become effective today, Monday, May 23rd. To view updated schedules, go to mbta.com.",
                timeframe: "starting Monday",
                updated_at: Timex.to_datetime({{2016, 5, 23}, {5, 27, 6}}, "America/New_York"),
+               image_alternative_text: "that's an alert image",
                url: "http://www.mbta.com/about_the_mbta/news_events/?id=6442456143&month=&year="
              }
            ]
@@ -247,6 +256,23 @@ defmodule Parse.AlertsTest do
             "effect_detail" => "STATION_CLOSURE",
             "header_text" => [%{"translation" => %{"language" => "en", "text" => "Salem closed"}}],
             "id" => "113791",
+            "image" => %{
+              "localized_image" => [
+                %{
+                  "url" => "https://example.com/alert_image.png",
+                  "media_type" => "image/png",
+                  "language" => "en"
+                }
+              ]
+            },
+            "image_alternative_text" => [
+              %{
+                "translation" => %{
+                  "language" => "en",
+                  "text" => "alert image showing things"
+                }
+              }
+            ],
             "informed_entity" => [
               %{
                 "agency_id" => "1",
@@ -298,6 +324,8 @@ defmodule Parse.AlertsTest do
                  active_period: [
                    {iso_date("2017-06-01T04:30:00-04:00"), iso_date("2017-06-09T02:30:00-04:00")}
                  ],
+                 image: "https://example.com/alert_image.png",
+                 image_alternative_text: "alert image showing things",
                  informed_entity: [
                    %{
                      stop: "Salem",
@@ -406,6 +434,186 @@ defmodule Parse.AlertsTest do
       }
 
       assert [%Alert{description: "Good morning"}] = parse_json(map)
+    end
+
+    test "returns english image url over other language" do
+      url =
+        "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
+
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "image" => %{
+              "localized_image" => [
+                %{
+                  "url" => "some_other_url",
+                  "media_type" => "image/png",
+                  "language" => "fr"
+                },
+                %{
+                  "url" => "some_other_url",
+                  "media_type" => "image/png"
+                },
+                %{
+                  "url" => url,
+                  "media_type" => "image/png",
+                  "language" => "en"
+                }
+              ]
+            },
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{image: ^url}] = parse_json(map)
+    end
+
+    test "returns english image url over unspecified language" do
+      url =
+        "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
+
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "image" => %{
+              "localized_image" => [
+                %{
+                  "url" => "some_other_url",
+                  "media_type" => "image/png"
+                },
+                %{
+                  "url" => url,
+                  "media_type" => "image/png",
+                  "language" => "en"
+                }
+              ]
+            },
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{image: ^url}] = parse_json(map)
+    end
+
+    test "returns unspecified url over non-english language if english is not present" do
+      url =
+        "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
+
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "image" => %{
+              "localized_image" => [
+                %{
+                  "url" => "some_other_url",
+                  "media_type" => "image/png",
+                  "language" => "fr"
+                },
+                %{
+                  "url" => url,
+                  "media_type" => "image/png"
+                }
+              ]
+            },
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{image: ^url}] = parse_json(map)
+    end
+
+    test "still returns image url even if no language specified" do
+      url =
+        "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"
+
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "image" => %{
+              "localized_image" => [
+                %{
+                  "url" => url,
+                  "media_type" => "image/png"
+                }
+              ]
+            },
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{image: ^url}] = parse_json(map)
     end
 
     test "does not require all fields in informed entity" do

@@ -25,7 +25,9 @@ defmodule ApiWeb.AlertView do
     :timeframe,
     :lifecycle,
     :banner,
-    :url
+    :url,
+    :image,
+    :image_alternative_text
   ])
 
   def active_period(%{active_period: periods}, _conn) do

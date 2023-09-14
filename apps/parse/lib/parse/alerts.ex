@@ -60,7 +60,10 @@ defmodule Parse.Alerts do
       service_effect: alert |> Map.get("service_effect_text") |> translated_text,
       timeframe: alert |> Map.get("timeframe_text") |> translated_text(default: nil),
       lifecycle: alert |> Map.get("alert_lifecycle") |> lifecycle,
-      url: alert |> Map.get("url") |> translated_text(default: nil)
+      url: alert |> Map.get("url") |> translated_text(default: nil),
+      image: alert |> Map.get("image") |> translated_image(default: nil),
+      image_alternative_text:
+        alert |> Map.get("image_alternative_text") |> translated_text(default: nil)
     }
   end
 
@@ -110,6 +113,39 @@ defmodule Parse.Alerts do
 
   defp do_translated_text([_wrong_language | rest], opts) do
     do_translated_text(rest, opts)
+  end
+
+  defp translated_image(localizations, opts) do
+    opts =
+      opts
+      |> Map.new()
+      |> Map.put_new(:default, "")
+
+    do_localized_image(localizations, opts)
+  end
+
+  defp do_localized_image([], %{default: default}) do
+    default
+  end
+
+  defp do_localized_image(nil, %{default: default}) do
+    default
+  end
+
+  defp do_localized_image(%{"localized_image" => [%{"url" => url}]}, _) do
+    copy(url)
+  end
+
+  defp do_localized_image(%{"localized_image" => [_ | _] = translations}, %{default: default}) do
+    translations =
+      translations
+      |> Enum.filter(&(&1["language"] == "en" or &1["language"] == nil))
+      |> Enum.sort(:desc)
+
+    case length(translations) >= 1 do
+      true -> hd(translations)["url"]
+      false -> default
+    end
   end
 
   defp active_period(%{"start" => start, "end" => stop}) do

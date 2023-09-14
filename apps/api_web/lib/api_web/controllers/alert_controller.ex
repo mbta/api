@@ -445,6 +445,18 @@ defmodule ApiWeb.AlertController do
               """
             )
 
+            image(
+              nullable(%Schema{type: :string}, true),
+              "URL of an image to be displayed alongside alert.",
+              example: "http://example.com/alert_image.png"
+            )
+
+            image_alternative_text(
+              nullable(%Schema{type: :string}, true),
+              "Text describing the appearance of the linked image in the image field.",
+              example: "Shuttle service beginning at North Quincy and ending at Braintree"
+            )
+
             informed_entity(
               %Schema{
                 items: Schema.ref(:InformedEntity),
@@ -525,8 +537,10 @@ defmodule ApiWeb.AlertController do
     `#{parent_pointer}/attributes/service_effect`) on a provided service (facility, route, route type, stop and/or \
     trip in `/#{parent_pointer}/attributes/informed_entity`) described by a banner \
     (`#{parent_pointer}/attributes/banner`), short header (`#{parent_pointer}/attributes/short_header`), header \
-    `#{parent_pointer}/attributes/header`, and description (`#{parent_pointer}/attributes/description`) that is active \
-    for one or more periods (`#{parent_pointer}/attributes/active_period`) caused by a cause \
+    `#{parent_pointer}/attributes/header`, description (`#{parent_pointer}/attributes/description`), \
+    image (`#{parent_pointer}/attributes/image`), and image alternative text \
+    (`#{parent_pointer}/attributes/image_alternative_text`) that is active for one or more periods\
+    (`#{parent_pointer}/attributes/active_period`) caused by a cause \
     (`#{parent_pointer}/attribute/cause`) that somewhere in its lifecycle (enumerated in \
     `#{parent_pointer}/attributes/lifecycle` and human-readable in `#{parent_pointer}/attributes/timeframe`).
 
@@ -534,7 +548,7 @@ defmodule ApiWeb.AlertController do
 
     ## Descriptions
 
-    There are 5 descriptive attributes.
+    There are 7 descriptive attributes.
 
     | JSON pointer                                | Usage                                                                           |
     |---------------------------------------------|---------------------------------------------------------------------------------|
@@ -542,6 +556,8 @@ defmodule ApiWeb.AlertController do
     | `#{parent_pointer}/attributes/short_header` | When `#{parent_pointer}/attributes/header` is too long to display               |
     | `#{parent_pointer}/attributes/header`       | Used before showing and prepended to `#{parent_pointer}/attributes/description` |
     | `#{parent_pointer}/attributes/description`  | Used when user asks to expand alert.                                            |
+    | `#{parent_pointer}/attributes/image`        | URL to descriptive image.                                                       |
+    | `#{parent_pointer}/attributes/image_alternative_text`  | Text that describes image linked in url                              |
 
     ## Effect
 

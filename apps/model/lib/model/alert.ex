@@ -22,6 +22,8 @@ defmodule Model.Alert do
     :timeframe,
     :lifecycle,
     :banner,
+    :image,
+    :image_alternative_text,
     active_period: [],
     informed_entity: []
   ]
@@ -232,6 +234,10 @@ defmodule Model.Alert do
       [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `effect`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
   * `:header` - This plain-text string will be highlighted, for example in boldface. See
       [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `header_text`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
+  * `:image` - A link to an image to be displayed along with the alert text. See
+      [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `image`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
+  * `:image_alternative_text` - Text to be displayed along with the image. See
+      [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `image_alternative_text`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
   * `:informed_entity` - Entities whose users we should notify of this alert.  See
       [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `informed_entity`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
   * `:lifecycle` - Enumeration of where the alert is in its lifecycle.  See `t:lifecycle/0`.
@@ -251,6 +257,8 @@ defmodule Model.Alert do
           description: String.t(),
           effect: effect,
           header: String.t(),
+          image: String.t() | nil,
+          image_alternative_text: String.t() | nil,
           informed_entity: [informed_entity],
           lifecycle: lifecycle,
           service_effect: String.t(),
