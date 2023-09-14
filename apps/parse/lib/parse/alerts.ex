@@ -136,8 +136,11 @@ defmodule Parse.Alerts do
     copy(url)
   end
 
-  defp do_localized_image(%{"localized_image" => [%{"language" => "en", "url" => url} | _]}, _) do
-    copy(url)
+  defp do_localized_image(%{"localized_image" => [_ | _] = translations}, %{default: default}) do
+    case Enum.find(translations, &(&1["language"] == "en")) do
+      %{"language" => "en", "url" => url} -> url
+      _ -> default
+    end
   end
 
   defp active_period(%{"start" => start, "end" => stop}) do
