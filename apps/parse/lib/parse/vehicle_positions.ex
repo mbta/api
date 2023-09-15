@@ -9,16 +9,30 @@ defmodule Parse.VehiclePositions do
   alias Parse.Realtime.FeedMessage
   import Parse.Helpers
 
+  def parse(<<31, 139, _::binary>> = blob) do
+    # gzip encoded
+    blob
+    |> :zlib.gunzip()
+    |> parse
+  end
+
   def parse("{" <> _ = blob) do
     Parse.VehiclePositionsJson.parse(blob)
   end
 
   def parse(blob) do
-    blob
-    |> FeedMessage.decode()
-    |> (fn message -> message.entity end).()
-    |> Stream.map(fn entity -> entity.vehicle end)
-    |> Stream.map(&parse_vehicle_update/1)
+    decoded = FeedMessage.decode(blob)
+
+    entities =
+      decoded.entity
+      |> Stream.map(fn entity -> entity.vehicle end)
+      |> Stream.map(&parse_vehicle_update/1)
+
+    if decoded.header.incrementality == :DIFFERENTIAL do
+      {:partial, entities}
+    else
+      entities
+    end
   end
 
   def parse_vehicle_update(update) do

@@ -108,6 +108,12 @@ defmodule Parse.VehiclePositionsTest do
       actual = parse(body)
       assert actual == expected
     end
+
+    test "can parse gzip-encoded JSON" do
+      body = :zlib.gzip(Jason.encode!(%{entity: [@vehicle]}))
+      actual = parse(body)
+      assert [_] = actual
+    end
   end
 
   describe "parse_vehicle_update/1" do

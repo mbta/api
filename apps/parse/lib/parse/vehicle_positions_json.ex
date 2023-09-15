@@ -7,10 +7,18 @@ defmodule Parse.VehiclePositionsJson do
   alias Model.Vehicle
 
   def parse(body) do
-    body
-    |> Jason.decode!(strings: :copy)
-    |> Map.get("entity")
-    |> Enum.flat_map(&parse_entity/1)
+    decoded = Jason.decode!(body, strings: :copy)
+
+    entities =
+      decoded
+      |> Map.get("entity")
+      |> Enum.flat_map(&parse_entity/1)
+
+    if decoded["header"]["incrementality"] in ["DIFFERENTIAL", 1] do
+      {:partial, entities}
+    else
+      entities
+    end
   end
 
   def parse_entity(
@@ -107,6 +115,10 @@ defmodule Parse.VehiclePositionsJson do
 
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)
+  end
+
+  defp unix_to_local(timestamp) when is_float(timestamp) do
+    Parse.Timezone.unix_to_local(trunc(timestamp))
   end
 
   defp unix_to_local(nil) do
