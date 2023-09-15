@@ -88,6 +88,23 @@ defmodule State.VehicleTest do
     assert [_, _] = all()
   end
 
+  test "it can accept a partial update which only modifies some vehicles" do
+    new_state([
+      %Vehicle{id: "one", trip_id: "1", route_id: "1"},
+      %Vehicle{id: "two", trip_id: "2", route_id: "1"}
+    ])
+
+    new_state(
+      {:partial,
+       [
+         %Vehicle{id: "one", trip_id: "3", route_id: "1"}
+       ]}
+    )
+
+    assert %Vehicle{id: "one", trip_id: "3"} = by_id("one")
+    assert %Vehicle{id: "two", trip_id: "2"} = by_id("two")
+  end
+
   @tag :capture_log
   test "an invalid state doesn't crash the server" do
     vehicle = %Vehicle{id: "1", trip_id: "2"}
