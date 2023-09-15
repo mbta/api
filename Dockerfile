@@ -12,7 +12,7 @@ RUN mix local.hex --force && \
 
 RUN apk add --update git make build-base erlang-dev
 
-ENV MIX_ENV=prod
+ENV MIX_ENV=prod BUILD_WITHOUT_QUIC=1
 
 ADD apps apps
 ADD config config

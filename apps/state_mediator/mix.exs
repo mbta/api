@@ -49,7 +49,8 @@ defmodule StateMediator.Mixfile do
       {:fetch, in_umbrella: true},
       {:goth, "~> 1.3"},
       {:hackney, "~> 1.18"},
-      {:timex, "~> 3.7"}
+      {:timex, "~> 3.7"},
+      {:emqtt_failover, git: "https://gitlab.com/paulswartz/emqtt_failover.git", tag: "v0.2"}
     ]
   end
 end

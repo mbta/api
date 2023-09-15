@@ -36,17 +36,7 @@ defmodule StateMediator do
           interval: 10_000
         ]
       },
-      {
-        StateMediator.Mediator,
-        [
-          spec_id: :vehicle_mediator,
-          state: State.Vehicle,
-          url: source_url(State.Vehicle),
-          opts: [timeout: 10_000],
-          sync_timeout: 30_000,
-          interval: 1_000
-        ]
-      },
+      vehicle_mediator_child(source_url(State.Vehicle)),
       {
         StateMediator.Mediator,
         [
@@ -73,6 +63,46 @@ defmodule StateMediator do
 
   defp children(false) do
     []
+  end
+
+  defp vehicle_mediator_child("mqtt" <> _ = url) do
+    {
+      StateMediator.MqttMediator,
+      [
+        spec_id: :vehicle_mediator,
+        state: State.Vehicle,
+        url: url,
+        username: app_value(State.Vehicle, :username),
+        password: app_value(State.Vehicle, :password),
+        sync_timeout: 30_000
+      ]
+    }
+  end
+
+  defp vehicle_mediator_child(["mqtt" <> _ | _] = url) do
+    {
+      StateMediator.MqttMediator,
+      [
+        spec_id: :vehicle_mediator,
+        state: State.Vehicle,
+        url: url,
+        sync_timeout: 30_000
+      ]
+    }
+  end
+
+  defp vehicle_mediator_child(url) do
+    {
+      StateMediator.Mediator,
+      [
+        spec_id: :vehicle_mediator,
+        state: State.Vehicle,
+        url: url,
+        opts: [timeout: 10_000],
+        sync_timeout: 30_000,
+        interval: 1_000
+      ]
+    }
   end
 
   @spec crowding_children(boolean()) :: [:supervisor.child_spec() | {module(), term()} | module()]
