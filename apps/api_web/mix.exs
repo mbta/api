@@ -84,7 +84,9 @@ defmodule ApiWeb.Mixfile do
       {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", tag: "71cd746"},
       {:sentry, "~> 8.0"},
       {:qr_code, "~> 3.0"},
-      {:nimble_totp, "~> 1.0"}
+      {:nimble_totp, "~> 1.0"},
+      # address discrepency between cowboy (in api_web) and gun (in state_mediator)
+      {:cowlib, "~> 2.11", override: true}
     ]
   end
 end
