@@ -28,7 +28,8 @@ defmodule StateMediator.MqttMediatorTest do
 
   # @moduletag capture_log: true
   @opts [
-    url: "mqtt://test.mosquitto.org/#{URI.encode_www_form("home/#")}",
+    url: "mqtt://test.mosquitto.org",
+    topic: "home/#",
     state: __MODULE__.StateModule
   ]
 

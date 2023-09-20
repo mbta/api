@@ -36,7 +36,7 @@ defmodule StateMediator do
           interval: 10_000
         ]
       },
-      vehicle_mediator_child(source_url(State.Vehicle)),
+      vehicle_mediator_child(app_value(State.Vehicle, :broker), source_url(State.Vehicle)),
       {
         StateMediator.Mediator,
         [
@@ -65,33 +65,7 @@ defmodule StateMediator do
     []
   end
 
-  defp vehicle_mediator_child("mqtt" <> _ = url) do
-    {
-      StateMediator.MqttMediator,
-      [
-        spec_id: :vehicle_mediator,
-        state: State.Vehicle,
-        url: url,
-        username: app_value(State.Vehicle, :username),
-        password: app_value(State.Vehicle, :password),
-        sync_timeout: 30_000
-      ]
-    }
-  end
-
-  defp vehicle_mediator_child(["mqtt" <> _ | _] = url) do
-    {
-      StateMediator.MqttMediator,
-      [
-        spec_id: :vehicle_mediator,
-        state: State.Vehicle,
-        url: url,
-        sync_timeout: 30_000
-      ]
-    }
-  end
-
-  defp vehicle_mediator_child(url) do
+  defp vehicle_mediator_child(no_broker, url) when no_broker in ["", nil] do
     {
       StateMediator.Mediator,
       [
@@ -101,6 +75,21 @@ defmodule StateMediator do
         opts: [timeout: 10_000],
         sync_timeout: 30_000,
         interval: 1_000
+      ]
+    }
+  end
+
+  defp vehicle_mediator_child(broker, _url) do
+    {
+      StateMediator.MqttMediator,
+      [
+        spec_id: :vehicle_mediator,
+        state: State.Vehicle,
+        url: broker,
+        topic: app_value(State.Vehicle, :topic),
+        username: app_value(State.Vehicle, :username),
+        password: app_value(State.Vehicle, :password),
+        sync_timeout: 30_000
       ]
     }
   end
