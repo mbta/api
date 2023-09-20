@@ -62,8 +62,8 @@ defmodule State.PredictionTest do
     test "returns all predictions if no filters set" do
       new_state([@prediction, @prediction2])
       by_stops = by_stop_id("stop")
-      assert filter_by_route_type(by_stops, nil) == [@prediction, @prediction2]
-      assert filter_by_route_type(by_stops, []) == [@prediction, @prediction2]
+      assert Enum.sort(filter_by_route_type(by_stops, nil)) == [@prediction, @prediction2]
+      assert Enum.sort(filter_by_route_type(by_stops, [])) == [@prediction, @prediction2]
     end
 
     test "filters by route_type" do
@@ -76,7 +76,7 @@ defmodule State.PredictionTest do
 
       assert filter_by_route_type(by_stops, [0]) == [@prediction]
       assert filter_by_route_type(by_stops, [1]) == [@prediction2]
-      assert filter_by_route_type(by_stops, [0, 1]) == [@prediction, @prediction2]
+      assert Enum.sort(filter_by_route_type(by_stops, [0, 1])) == [@prediction, @prediction2]
       assert filter_by_route_type(by_stops, [2]) == []
     end
   end

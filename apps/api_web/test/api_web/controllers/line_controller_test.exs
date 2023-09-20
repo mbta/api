@@ -29,13 +29,15 @@ defmodule ApiWeb.LineControllerTest do
         id: "1-1",
         agency_id: "1",
         type: 1,
-        line_id: "1"
+        line_id: "1",
+        sort_order: 1
       },
       %Route{
         id: "1-2",
         agency_id: "1",
         type: 1,
-        line_id: "1"
+        line_id: "1",
+        sort_order: 2
       }
     ])
 

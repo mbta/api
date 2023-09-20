@@ -24,7 +24,9 @@ defmodule State.Vehicle do
 
   @impl State.Server
   def post_load_hook(structs) do
-    Enum.uniq_by(structs, & &1.trip_id)
+    structs
+    |> Enum.sort_by(&{&1.id, !Vehicle.primary?(&1)})
+    |> Enum.uniq_by(& &1.trip_id)
   end
 
   @spec by_id(Vehicle.id()) :: Vehicle.t() | nil

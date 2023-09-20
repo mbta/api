@@ -52,12 +52,14 @@ defmodule ApiWeb.RouteControllerTest do
   @route_pattern1 %Model.RoutePattern{
     id: "1",
     route_id: "1",
-    name: "1-0-1"
+    name: "1-0-1",
+    sort_order: 1
   }
   @route_pattern2 %Model.RoutePattern{
     id: "2",
     route_id: "1",
-    name: "1-1-1"
+    name: "1-1-1",
+    sort_order: 2
   }
 
   setup %{conn: conn} do

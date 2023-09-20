@@ -180,7 +180,7 @@ defmodule State.TripTest do
                  route_id: "Logan-23",
                  service_id: "Logan-Weekday"
                }
-             ] = all()
+             ] = Enum.sort(all())
     end
   end
 

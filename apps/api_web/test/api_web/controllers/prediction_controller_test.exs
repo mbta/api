@@ -138,7 +138,7 @@ defmodule ApiWeb.PredictionControllerTest do
           {%{"stop" => "1", "route_type" => "1,2"}, [prediction1, prediction2]}
         ] do
       conn = get(conn, "/predictions", params)
-      assert conn.assigns.data == expected
+      assert Enum.sort(conn.assigns.data) == Enum.sort(expected)
     end
   end
 
@@ -160,7 +160,9 @@ defmodule ApiWeb.PredictionControllerTest do
     State.Prediction.new_state(predictions)
 
     conn = assign(conn, :api_version, "2020-05-01")
-    assert index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}}) == predictions
+
+    assert Enum.sort(index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}})) ==
+             Enum.sort(predictions)
 
     conn = assign(conn, :api_version, "2021-01-09")
     assert index_data(conn, %{"filter" => %{"stop" => "place-dudly,other"}}) == [other_predict]

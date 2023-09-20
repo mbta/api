@@ -91,8 +91,11 @@ defmodule ApiWeb.VehicleControllerTest do
 
     test "can filter by trip", %{conn: conn} do
       for vehicle <- @vehicles do
-        assert index_data(conn, %{"trip" => vehicle.trip_id}) == [vehicle]
-        assert index_data(conn, %{"trip" => "#{vehicle.trip_id},not_a_trip"}) == [vehicle]
+        vehicle_id = vehicle.id
+        assert [%Vehicle{id: ^vehicle_id}] = index_data(conn, %{"trip" => vehicle.trip_id})
+
+        assert [%Vehicle{id: ^vehicle_id}] =
+                 index_data(conn, %{"trip" => "#{vehicle.trip_id},not_a_trip"})
       end
 
       assert index_data(conn, %{"trip" => "not_a_trip"}) == []

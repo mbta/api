@@ -21,6 +21,11 @@ defmodule State.RoutePattern do
           optional(:stop_ids) => [Stop.id()]
         }
 
+  @impl State.Server
+  def post_load_hook(route_patterns) do
+    Enum.sort_by(route_patterns, & &1.sort_order)
+  end
+
   @spec by_id(String.t()) :: RoutePattern.t() | nil
   def by_id(id) do
     case super(id) do

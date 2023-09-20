@@ -219,13 +219,13 @@ defmodule ApiWeb.SchedulerControllerTest do
       State.Schedule.new_state([schedule1, schedule2])
 
       conn = get(conn, "/schedules", %{"stop" => "stop"})
-      assert conn.assigns.data == [schedule1, schedule2]
+      assert Enum.sort(conn.assigns.data) == [schedule1, schedule2]
 
       conn = get(conn, "/schedules", %{"stop" => "stop", "route_type" => "2"})
       assert conn.assigns.data == [schedule2]
 
       conn = get(conn, "/schedules", %{"stop" => "stop", "route_type" => "1,2"})
-      assert conn.assigns.data == [schedule1, schedule2]
+      assert Enum.sort(conn.assigns.data) == [schedule1, schedule2]
     end
 
     test "versions before 2019-02-12 include new Kenmore stops", %{conn: conn} do

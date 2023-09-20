@@ -28,6 +28,11 @@ defmodule State.Route do
     {:noreply, state, :hibernate}
   end
 
+  @impl State.Server
+  def post_load_hook(routes) do
+    Enum.sort_by(routes, & &1.sort_order)
+  end
+
   def do_gather(%{
         {:fetch, "directions.txt"} => directions_blob,
         {:fetch, "routes.txt"} => routes_blob
@@ -81,12 +86,6 @@ defmodule State.Route do
       [] -> nil
       [stop] -> stop
     end
-  end
-
-  def by_ids(ids) do
-    ids
-    |> super()
-    |> Enum.sort_by(& &1.sort_order)
   end
 
   def match(matcher, index, opts \\ []) do
