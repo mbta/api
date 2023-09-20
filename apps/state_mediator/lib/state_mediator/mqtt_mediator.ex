@@ -50,7 +50,7 @@ defmodule StateMediator.MqttMediator do
     url = Keyword.fetch!(options, :url)
     configs = configs_from_url(url, options)
 
-    "/" <> topic = URI.decode_www_form(URI.parse(url).path)
+    topic = Keyword.fetch!(options, :topic)
 
     sync_timeout = options |> Keyword.get(:sync_timeout, 5000)
 
