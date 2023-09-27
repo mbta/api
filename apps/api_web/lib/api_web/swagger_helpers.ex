@@ -68,7 +68,11 @@ defmodule ApiWeb.SwaggerHelpers do
     |--------------------------------|-----------------------------------------------------------------------------------------------------|
     | **MANY_SEATS_AVAILABLE**       | Not crowded: the vehicle has a large percentage of seats available. |
     | **FEW_SEATS_AVAILABLE**        | Some crowding: the vehicle has a small percentage of seats available. |
+    | **STANDING_ROOM_ONLY**         | Standing room only: the vehicle can currently accommodate only standing passengers. |
+    | **CRUSHED_STANDING_ROOM_ONLY** | Crushed standing room: the vehicle can currently accommodate only standing passengers and has limited space for them. |
     | **FULL**                       | Crowded: the vehicle is considered full by most measures, but may still be allowing passengers to board. |
+    | **NOT_ACCEPTING_PASSENGERS**   | Not accepting passengers: the vehicle is not accepting passengers, the vehicle or carriage usually accepts passengers for boarding. |
+    | **NO_DATA_AVAILABLE**          | No data available: the vehicle doesn't have any occupancy data available at that time. |
 
     """
   end
