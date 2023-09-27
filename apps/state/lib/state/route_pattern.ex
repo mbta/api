@@ -71,6 +71,8 @@ defmodule State.RoutePattern do
         _ -> []
       end
 
+    opts = Keyword.put(opts, :canonical?, false)
+
     RoutesPatternsAtStop.route_patterns_by_family_stops(stop_ids, opts)
   end
 

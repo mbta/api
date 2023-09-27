@@ -126,5 +126,48 @@ defmodule State.RoutePatternTest do
       assert filter_by(%{route_ids: ["route"]}) == [route_pattern, other_pattern]
       assert filter_by(%{route_ids: ["other_route"]}) == [other_pattern]
     end
+
+    test "includes alternate route when filtering by stop_ids" do
+      route = %Model.Route{id: "route"}
+      other_route = %Model.Route{id: "other_route"}
+      route_pattern = %Model.RoutePattern{id: "1", route_id: route.id}
+      other_pattern = %Model.RoutePattern{id: "2", route_id: other_route.id}
+
+      normal_trip = %Model.Trip{id: "t1", route_id: route.id, route_pattern_id: route_pattern.id}
+
+      primary_trip = %Model.Trip{
+        id: "t2",
+        route_id: other_route.id,
+        route_pattern_id: other_pattern.id,
+        alternate_route: false
+      }
+
+      alternate_trip = %Model.Trip{
+        id: "t2",
+        route_id: route.id,
+        route_pattern_id: route_pattern.id,
+        alternate_route: true
+      }
+
+      stop = %Model.Stop{id: "stop"}
+      schedule = %Model.Schedule{trip_id: alternate_trip.id, stop_id: stop.id, route_id: route.id}
+
+      State.Route.new_state([route, other_route])
+      State.RoutePattern.new_state([route_pattern, other_pattern])
+      State.Trip.new_state([normal_trip, primary_trip, alternate_trip])
+      State.Stop.new_state([stop])
+      State.Schedule.new_state([schedule])
+      State.RoutesPatternsAtStop.update!()
+
+      assert filter_by(%{stop_ids: ["stop"]}) == [route_pattern, other_pattern]
+      # normal trip uses route_pattern and alternate trip uses other_pattern
+      assert filter_by(%{stop_ids: ["stop"], route_ids: ["route"]}) == [
+               route_pattern,
+               other_pattern
+             ]
+
+      # only primary_trip uses other_pattern
+      assert filter_by(%{stop_ids: ["stop"], route_ids: ["other_route"]}) == [other_pattern]
+    end
   end
 end
