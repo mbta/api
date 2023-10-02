@@ -10,4 +10,4 @@ config :health,
     Health.Checkers.Ports
   ]
 
-config :health, Health.Checkers.Ports, max_ports: 1000
+config :health, Health.Checkers.Ports, max_ports: 13_000
