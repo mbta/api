@@ -42,6 +42,6 @@ defmodule ApiWeb.MfaControllerTest do
       )
 
     assert html_response(conn, 200) =~ "TOTP"
-    assert get_flash(conn, :error) != nil
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) != nil
   end
 end

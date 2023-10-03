@@ -59,11 +59,19 @@ defmodule ApiWeb.RouteView do
   # Override attribute version of type to give the resource type
   def type(_, _), do: "route"
 
-  def relationships(route, %Plug.Conn{private: %{phoenix_view: __MODULE__}} = conn) do
-    # only do this include if we're the top-level view, not if we're included
-    # elsewhere
+  def relationships(route, conn) do
     relationships = super(route, conn)
 
+    # only do this include if we're the top-level view, not if we're included
+    # elsewhere
+    if Phoenix.Controller.view_module(conn) == __MODULE__ do
+      include_top_level_relationships(relationships, conn)
+    else
+      relationships
+    end
+  end
+
+  defp include_top_level_relationships(relationships, conn) do
     if split_included?("stop", conn) do
       stop_id =
         case conn.params do
@@ -90,9 +98,5 @@ defmodule ApiWeb.RouteView do
     else
       relationships
     end
-  end
-
-  def relationships(route, conn) do
-    super(route, conn)
   end
 end

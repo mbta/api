@@ -18,7 +18,10 @@ defmodule ApiWeb.Web do
 
   def api_controller do
     quote location: :keep do
-      use Phoenix.Controller, namespace: ApiWeb
+      use Phoenix.Controller,
+        formats: [{:json, "View"}, {:"json-api", "View"}, {:"event-stream", "View"}],
+        namespace: ApiWeb
+
       use ApiWeb.ApiControllerHelpers
       import ApiWeb.ControllerHelpers
       alias ApiWeb.Params
@@ -29,7 +32,10 @@ defmodule ApiWeb.Web do
 
   def controller do
     quote location: :keep do
-      use Phoenix.Controller, namespace: ApiWeb
+      use Phoenix.Controller,
+        layouts: [html: {ApiWeb.ClientPortal.LayoutView, :app}],
+        namespace: ApiWeb
+
       import ApiWeb.Router.Helpers
     end
   end
@@ -48,7 +54,7 @@ defmodule ApiWeb.Web do
         root: "lib/api_web/templates",
         namespace: ApiWeb
 
-      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
+      import Phoenix.Controller, only: [get_csrf_token: 0, view_module: 1]
       use Phoenix.HTML
       import ApiWeb.Router.Helpers
       import ApiWeb.ErrorHelpers

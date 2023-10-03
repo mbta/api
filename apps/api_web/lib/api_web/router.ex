@@ -55,16 +55,12 @@ defmodule ApiWeb.Router do
   end
 
   pipeline :admin_view do
-    plug(:put_layout, {ApiWeb.Admin.LayoutView, :app})
+    plug(:put_layout, html: {ApiWeb.Admin.LayoutView, :app})
   end
 
   pipeline :admin do
     plug(ApiWeb.Plugs.RequireAdmin)
     plug(ApiWeb.Plugs.Require2Factor)
-  end
-
-  pipeline :portal_view do
-    plug(:put_layout, {ApiWeb.ClientPortal.LayoutView, :app})
   end
 
   pipeline :portal do
@@ -145,7 +141,7 @@ defmodule ApiWeb.Router do
   # Client Portal routes
 
   scope "/", ApiWeb.ClientPortal do
-    pipe_through([:secure, :secure_csp, :browser, :portal_view])
+    pipe_through([:secure, :secure_csp, :browser])
 
     get("/", PortalController, :landing)
 
@@ -163,14 +159,14 @@ defmodule ApiWeb.Router do
   end
 
   scope "/", ApiWeb do
-    pipe_through([:secure, :browser, :portal_view])
+    pipe_through([:secure, :browser])
 
     get("/2fa", ApiWeb.MFAController, :new, alias: false)
     post("/2fa", ApiWeb.MFAController, :create, alias: false)
   end
 
   scope "/portal", ApiWeb.ClientPortal do
-    pipe_through([:secure, :secure_csp, :browser, :portal_view, :portal])
+    pipe_through([:secure, :secure_csp, :browser, :portal])
 
     get("/", PortalController, :index)
     resources("/keys", KeyController, only: [:create, :edit, :update])

@@ -32,7 +32,7 @@ defmodule ApiWeb.Portal.SessionControllerTest do
   test "shows error for invalid credentials", %{conn: conn} do
     conn = post(form_header(conn), session_path(conn, :create), user: @invalid_user_attrs)
     assert html_response(conn, 200) =~ "Login"
-    assert get_flash(conn, :error) != nil
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) != nil
     assert html_response(conn, 200) =~ "Invalid credentials"
   end
 
@@ -65,7 +65,7 @@ defmodule ApiWeb.Portal.SessionControllerTest do
     conn = delete(conn, session_path(conn, :delete))
     refute get_session(conn, :user)
     assert redirected_to(conn) == session_path(conn, :new)
-    assert get_flash(conn, :info) =~ ~r"logged out"i
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ ~r"logged out"i
   end
 
   test "redirects to 2fa page when user has 2fa enabled", %{conn: conn} do

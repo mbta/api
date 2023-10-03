@@ -105,12 +105,13 @@ defmodule ApiWeb.StopView do
 
   defdelegate recommended_transfers(stop, conn), to: __MODULE__, as: :connecting_stops
 
-  def relationships(stop, %Plug.Conn{private: %{phoenix_view: __MODULE__}} = conn) do
-    # only do this include if we're the top-level view, not if we're included
-    # somewhere else
+  def relationships(stop, conn) do
     relationships = super(stop, conn)
 
-    with true <- split_included?("route", conn),
+    # only do this include if we're the top-level view, not if we're included
+    # somewhere else
+    with __MODULE__ <- Phoenix.Controller.view_module(conn),
+         true <- split_included?("route", conn),
          {:ok, filtered} <- Params.filter_params(conn.params, filters(), conn),
          {:ok, route_id} <- Map.fetch(filtered, "route") do
       route = State.Route.by_id(route_id)
@@ -126,10 +127,6 @@ defmodule ApiWeb.StopView do
     else
       _ -> relationships
     end
-  end
-
-  def relationships(stop, conn) do
-    super(stop, conn)
   end
 
   def facilities(%{facilities: facilities}, _conn) do

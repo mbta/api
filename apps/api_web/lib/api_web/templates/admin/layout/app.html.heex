@@ -19,12 +19,12 @@
   <body>
     <%= render("navigation.html", assigns) %>
 
-    <%= if info = get_flash(@conn, :info) do %>
+    <%= if info = Phoenix.Flash.get(@flash, :info) do %>
       <p class="alert alert-info text-center" role="alert" style="border-radius: 0">
         <%= info %>
       </p>
     <% end %>
-    <%= if error = get_flash(@conn, :error) do %>
+    <%= if error = Phoenix.Flash.get(@flash, :error) do %>
       <p class="alert alert-danger text-center" role="alert" style="border-radius: 0">
         <%= error %>
       </p>

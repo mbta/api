@@ -42,12 +42,13 @@ defmodule ApiWeb.TripViewTest do
 
   @stop %Stop{id: "stop1"}
 
-  setup do
+  setup %{conn: conn} do
     State.Trip.new_state([@trip])
     State.CommuterRailOccupancy.new_state([@occupancy])
     State.Schedule.new_state([@schedule])
     State.Stop.new_state([@stop])
-    :ok
+    conn = Phoenix.Controller.put_view(conn, ApiWeb.TripView)
+    {:ok, %{conn: conn}}
   end
 
   test "render returns JSONAPI", %{conn: conn} do

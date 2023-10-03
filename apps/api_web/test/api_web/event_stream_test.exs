@@ -17,7 +17,7 @@ defmodule ApiWeb.EventStreamTest do
 
     conn =
       conn
-      |> put_private(:phoenix_view, ApiWeb.PredictionView)
+      |> Phoenix.Controller.put_view(ApiWeb.PredictionView)
       |> Map.put(:params, %{"route" => "1"})
 
     {:ok, %{conn: conn}}

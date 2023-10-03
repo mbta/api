@@ -18,6 +18,11 @@ defmodule ApiWeb.StopViewTest do
     vehicle_type: 3
   }
 
+  setup %{conn: conn} do
+    conn = Phoenix.Controller.put_view(conn, StopView)
+    {:ok, %{conn: conn}}
+  end
+
   test "can do a basic rendering", %{conn: conn} do
     rendered = render("index.json-api", data: @stop, conn: conn)["data"]
     assert rendered["type"] == "stop"

@@ -117,7 +117,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
       page = html_response(conn, 200)
       assert page =~ "match"
-      refute get_flash(conn, :success)
+      refute Phoenix.Flash.get(conn.assigns.flash, :success)
     end
 
     test "updates a users password when valid", %{conn: conn} do
@@ -132,7 +132,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
         |> put(user_path(conn, :update), params)
 
       assert redirected_to(conn) == user_path(conn, :show)
-      assert get_flash(conn, :success) =~ ~r"password updated"i
+      assert Phoenix.Flash.get(conn.assigns.flash, :success) =~ ~r"password updated"i
     end
   end
 
@@ -171,7 +171,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
       page = html_response(conn, 200)
       assert page =~ "already been taken"
-      refute get_flash(conn, :success)
+      refute Phoenix.Flash.get(conn.assigns.flash, :success)
     end
 
     test "updates account information when valid", %{conn: conn} do
@@ -186,7 +186,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
         |> put(user_path(conn, :update), params)
 
       assert redirected_to(conn) == user_path(conn, :show)
-      assert get_flash(conn, :success) =~ ~r"account updated"i
+      assert Phoenix.Flash.get(conn.assigns.flash, :success) =~ ~r"account updated"i
     end
   end
 
@@ -217,7 +217,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
         |> form_header()
         |> post(user_path(conn, :forgot_password_submit), user: params)
 
-      assert get_flash(conn, :info) =~ ~r"check your email"i
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ ~r"check your email"i
       assert redirected_to(conn) == portal_path(conn, :landing)
     end
 
@@ -229,7 +229,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
         |> form_header()
         |> post(user_path(conn, :forgot_password_submit), user: params)
 
-      assert get_flash(conn, :info) =~ ~r"check your email"i
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ ~r"check your email"i
       assert redirected_to(conn) == portal_path(conn, :landing)
     end
   end
@@ -293,7 +293,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
         |> post(user_path(conn, :reset_password_submit, token: token), user: params)
 
       assert redirected_to(conn) == session_path(conn, :new)
-      assert get_flash(conn, :success) =~ "success"
+      assert Phoenix.Flash.get(conn.assigns.flash, :success) =~ "success"
       assert {:ok, _} = ApiAccounts.authenticate(%{email: user.email, password: params.password})
     end
 
