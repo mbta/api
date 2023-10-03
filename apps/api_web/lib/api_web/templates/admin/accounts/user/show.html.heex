@@ -46,50 +46,63 @@
     </ul>
 
     <span>
-      <%= link "Edit", to: admin_user_path(@conn, :edit, @user),
-                       class: "btn btn-primary" %>
+      <%= link("Edit",
+        to: admin_user_path(@conn, :edit, @user),
+        class: "btn btn-primary"
+      ) %>
     </span>
     <%= if @user.totp_enabled do %>
       <span>
-        <%= link "Disable MFA", to: admin_user_path(@conn, :disable_2fa, @user),
-                                 method: :post,
-                                 data: [confirm: "This will significantly reduce the security of the account. Are you sure?"],
-                                 class: "btn btn-danger" %>
+        <%= link("Disable MFA",
+          to: admin_user_path(@conn, :disable_2fa, @user),
+          method: :post,
+          data: [
+            confirm: "This will significantly reduce the security of the account. Are you sure?"
+          ],
+          class: "btn btn-danger"
+        ) %>
       </span>
     <% end %>
     <span>
-      <%= link "Back", to: admin_user_path(@conn, :index),
-                       class: "btn btn-link" %>
+      <%= link("Back",
+        to: admin_user_path(@conn, :index),
+        class: "btn btn-link"
+      ) %>
     </span>
-
   </div>
 </div>
 
 <div class="panel panel-primary">
   <div class="panel-heading">API Keys</div>
   <div class="panel-body">
-<%= if key = key_request(@keys) do %>
-    <div class="text-center" style="margin-bottom: 25px">
-      <p>User requested a new key on <%= key.requested_date %>.</p>
-      <div class="text-center">
-        <%= link "Reject", to: admin_key_path(@conn, :delete, @user, key, action: "reject"),
-                           method: :delete,
-                           style: "display: inline-block",
-                           class: "btn btn-default" %>
+    <%= if key = key_request(@keys) do %>
+      <div class="text-center" style="margin-bottom: 25px">
+        <p>User requested a new key on <%= key.requested_date %>.</p>
+        <div class="text-center">
+          <%= link("Reject",
+            to: admin_key_path(@conn, :delete, @user, key, action: "reject"),
+            method: :delete,
+            style: "display: inline-block",
+            class: "btn btn-default"
+          ) %>
 
-        <%= link "Approve", to: admin_key_path(@conn, :approve, @user, key),
-                            method: :put,
-                            style: "display: inline-block",
-                            class: "btn btn-primary" %>
+          <%= link("Approve",
+            to: admin_key_path(@conn, :approve, @user, key),
+            method: :put,
+            style: "display: inline-block",
+            class: "btn btn-primary"
+          ) %>
+        </div>
       </div>
-    </div>
-<% end %>
+    <% end %>
 
     <span>
-      <%= link "New", to: admin_key_path(@conn, :create, @user),
-                      method: :post,
-                      style: "display: inline-block",
-                      class: "btn btn-success" %>
+      <%= link("New",
+        to: admin_key_path(@conn, :create, @user),
+        method: :post,
+        style: "display: inline-block",
+        class: "btn btn-success"
+      ) %>
     </span>
     <table class="table" style="">
       <thead>
@@ -105,34 +118,48 @@
         </tr>
       </thead>
       <tbody>
-<%= for key <- @keys, key.approved do %>
-        <tr>
-          <td>
-            <div style="font-family: monospace"><%= key.key %></div>
-            <div><%= key.description %></div>
-          </td>
-          <td><%= key.api_version %></td>
-          <td><%= ApiWeb.ApiViewHelpers.limit(key) %></td>
-          <td><%= key.created %></td>
-          <td><%= key.requested_date %></td>
-          <td><%= if key.approved == true do %>✔<% end %></td>
-          <td><%= if key.locked == true do %>✔<% end %></td>
-          <td>
-            <%= link "Edit", to: admin_key_path(@conn, :edit, @user, key), class: "btn btn-default btn-s" %>
-            <%= link "Clone", to: admin_key_path(@conn, :clone, @user, key),
+        <%= for key <- @keys, key.approved do %>
+          <tr>
+            <td>
+              <div style="font-family: monospace"><%= key.key %></div>
+              <div><%= key.description %></div>
+            </td>
+            <td><%= key.api_version %></td>
+            <td><%= ApiWeb.ApiViewHelpers.limit(key) %></td>
+            <td><%= key.created %></td>
+            <td><%= key.requested_date %></td>
+            <td>
+              <%= if key.approved == true do %>
+                ✔
+              <% end %>
+            </td>
+            <td>
+              <%= if key.locked == true do %>
+                ✔
+              <% end %>
+            </td>
+            <td>
+              <%= link("Edit",
+                to: admin_key_path(@conn, :edit, @user, key),
+                class: "btn btn-default btn-s"
+              ) %>
+              <%= link("Clone",
+                to: admin_key_path(@conn, :clone, @user, key),
                 class: "btn btn-default btn-xs",
                 method: :put,
                 style: "display: inline-block",
-                data: [confirm: "Are you sure?"] %>
-            <%= link "Delete", to: admin_key_path(@conn, :delete, @user, key),
-                               method: :delete,
-                               style: "display: inline-block",
-                               data: [confirm: "Are you sure?"],
-                               class: "btn btn-danger btn-xs" %>
-          </td>
-
-        </tr>
-<% end %>
+                data: [confirm: "Are you sure?"]
+              ) %>
+              <%= link("Delete",
+                to: admin_key_path(@conn, :delete, @user, key),
+                method: :delete,
+                style: "display: inline-block",
+                data: [confirm: "Are you sure?"],
+                class: "btn btn-danger btn-xs"
+              ) %>
+            </td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
   </div>

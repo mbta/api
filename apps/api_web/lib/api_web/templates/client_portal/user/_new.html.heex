@@ -4,43 +4,47 @@
 
     <div>
       <%= form_for @changeset, user_path(@conn, :create), [], fn f -> %>
-      <%= unless @changeset.valid? do %>
-        <div class="alert alert-danger">
-          <p>Oops, something went wrong! Please check the errors below.</p>
+        <%= unless @changeset.valid? do %>
+          <div class="alert alert-danger">
+            <p>Oops, something went wrong! Please check the errors below.</p>
+          </div>
+        <% end %>
+
+        <.form_group form={f} field={:email}>
+          <%= label(f, :email, class: "control-label") %>
+          <%= email_input(f, :email, class: "form-control") %>
+          <%= error_tag(f, :email) %>
+        </.form_group>
+
+        <.form_group form={f} field={:password}>
+          <%= label(f, :password, class: "control-label") %>
+          <%= password_input(f, :password, class: "form-control", autocomplete: "off") %>
+          <%= error_tag(f, :password) %>
+        </.form_group>
+
+        <.form_group form={f} field={:password_confirmation}>
+          <%= label(f, :password_confirmation, class: "control-label") %>
+          <%= password_input(f, :password_confirmation, class: "form-control", autocomplete: "off") %>
+          <%= error_tag(f, :password_confirmation) %>
+        </.form_group>
+
+        <div class="form-group">
+          <%= if Application.get_env(:recaptcha, :enabled) do %>
+            <%= raw(Recaptcha.Template.display(callback: "recaptchaCompleted")) %>
+          <% end %>
+        </div>
+        <div class="form-group">
+          <%= submit("Register",
+            id: "register-btn",
+            class: "btn btn-primary",
+            disabled: Application.get_env(:recaptcha, :enabled)
+          ) %>
         </div>
       <% end %>
-
-      <.form_group form={f} field={:email}>
-        <%= label f, :email, class: "control-label" %>
-        <%= email_input f, :email, class: "form-control" %>
-        <%= error_tag f, :email %>
-      </.form_group>
-
-      <.form_group form={f} field={:password}>
-        <%= label f, :password, class: "control-label" %>
-        <%= password_input f, :password, class: "form-control", autocomplete: "off" %>
-        <%= error_tag f, :password %>
-      </.form_group>
-
-      <.form_group form={f} field={:password_confirmation}>
-        <%= label f, :password_confirmation, class: "control-label" %>
-        <%= password_input f, :password_confirmation, class: "form-control", autocomplete: "off" %>
-        <%= error_tag f, :password_confirmation %>
-      </.form_group>
-
-      <div class="form-group">
-        <%= if Application.get_env(:recaptcha, :enabled) do %>
-          <%= raw Recaptcha.Template.display(callback: "recaptchaCompleted") %>
-        <% end %>
-      </div>
-      <div class="form-group">
-        <%= submit "Register", id: "register-btn", class: "btn btn-primary", disabled: Application.get_env(:recaptcha, :enabled) %>
-      </div>
-  <% end %>
     </div>
 
     <p class="text-center" style="margin-top: 3em">
-      Already have an account? <%= link "Log in", to: session_path(@conn, :new) %>.
+      Already have an account? <%= link("Log in", to: session_path(@conn, :new)) %>.
     </p>
   </div>
 </div>

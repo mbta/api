@@ -10,19 +10,19 @@
 </div>
 
 <div>
-Can you tell us more about your app, and why you're looking for an increase?
+  Can you tell us more about your app, and why you're looking for an increase?
 </div>
-<br>
+<br />
 
 <%= form_for @conn, key_path(@conn, :do_request_increase, @key), [as: :reason, method: assigns[:method] || :post], fn f -> %>
   <div class="form-group">
-    <%= label f, :reason, class: "control-label" %>
-    <%= textarea f, :reason, class: "form-control", required: "" %>
+    <%= label(f, :reason, class: "control-label") %>
+    <%= textarea(f, :reason, class: "form-control", required: "") %>
   </div>
 
   <div class="form-group">
-    <%= submit "Request Increase", class: "btn btn-primary" %>
+    <%= submit("Request Increase", class: "btn btn-primary") %>
   </div>
 <% end %>
 
-<span><%= link "Back", to: portal_path(@conn, :index) %></span>
+<span><%= link("Back", to: portal_path(@conn, :index)) %></span>

@@ -9,9 +9,11 @@
   </div>
 </div>
 
-<%= render "form.html", changeset: @changeset,
-    action: admin_key_path(@conn, :update, @user, @key),
-    method: :put,
-    api_versions: @api_versions %>
+<%= render("form.html",
+  changeset: @changeset,
+  action: admin_key_path(@conn, :update, @user, @key),
+  method: :put,
+  api_versions: @api_versions
+) %>
 
-<span><%= link "Back", to: admin_user_path(@conn, :show, @user) %></span>
+<span><%= link("Back", to: admin_user_path(@conn, :show, @user)) %></span>
