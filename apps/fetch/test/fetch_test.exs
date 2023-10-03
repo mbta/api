@@ -3,13 +3,13 @@ defmodule FetchTest do
   import Plug.Conn
 
   setup do
-    bypass = Bypass.open()
-    url = "http://localhost:#{bypass.port}"
-    {:ok, %{bypass: bypass, url: url}}
+    lasso = Lasso.open()
+    url = "http://localhost:#{lasso.port}"
+    {:ok, %{lasso: lasso, url: url}}
   end
 
-  test "can fetch a URL", %{bypass: bypass, url: url} do
-    Bypass.expect(bypass, fn conn ->
+  test "can fetch a URL", %{lasso: lasso, url: url} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       etag = "etag"
 
       case get_req_header(conn, "if-none-match") do

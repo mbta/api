@@ -14,7 +14,7 @@ defmodule StateMediator.Integration.GtfsTest do
 
   setup_all do
     Logger.configure(level: :info)
-    maybe_start_bypass!(System.get_env("MBTA_GTFS_FILE"))
+    maybe_start_lasso!(System.get_env("MBTA_GTFS_FILE"))
     :ok = Events.subscribe({:new_state, State.Shape})
     :ok = Events.subscribe({:new_state, State.RoutesPatternsAtStop})
     :ok = Events.subscribe({:new_state, State.StopsOnRoute})
@@ -34,21 +34,21 @@ defmodule StateMediator.Integration.GtfsTest do
     Logger.configure(level: :warn)
   end
 
-  defp maybe_start_bypass!(nil) do
+  defp maybe_start_lasso!(nil) do
     :ok
   end
 
-  defp maybe_start_bypass!(filename) do
+  defp maybe_start_lasso!(filename) do
     # if a filename was provided, run a fake webserver to provide it
     filename = Path.expand(filename, Application.get_env(:state_mediator, :cwd))
-    bypass = Bypass.open()
+    lasso = Lasso.open()
 
-    Bypass.expect(bypass, fn conn ->
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       Plug.Conn.send_file(conn, 200, filename)
     end)
 
     realtime_config = Application.get_env(:state_mediator, Realtime)
-    realtime_config = put_in(realtime_config[:gtfs_url], "http://127.0.0.1:#{bypass.port}")
+    realtime_config = put_in(realtime_config[:gtfs_url], "http://127.0.0.1:#{lasso.port}")
     Application.put_env(:state_mediator, Realtime, realtime_config)
   end
 

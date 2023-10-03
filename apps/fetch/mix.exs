@@ -52,7 +52,7 @@ defmodule Fetch.Mixfile do
       {:timex, "~> 3.7"},
       {:ex_aws, "~> 2.4"},
       {:ex_aws_s3, "~> 2.4"},
-      {:bypass, "~> 2.1", only: [:test]}
+      {:lasso, "~> 0.1.1-pre", only: :test}
     ]
   end
 end
