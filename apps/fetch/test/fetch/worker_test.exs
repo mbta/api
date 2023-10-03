@@ -6,22 +6,22 @@ defmodule Fetch.WorkerTest do
   @moduletag capture_log: true
 
   setup do
-    bypass = Bypass.open()
-    url = "http://localhost:#{bypass.port}"
+    lasso = Lasso.open()
+    url = "http://localhost:#{lasso.port}"
     {:ok, pid} = Fetch.Worker.start_link(url)
-    {:ok, %{bypass: bypass, pid: pid, url: url}}
+    {:ok, %{lasso: lasso, pid: pid, url: url}}
   end
 
-  test "can fetch a URL", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "can fetch a URL", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       resp(conn, 200, "body")
     end)
 
     assert {:ok, "body"} = Fetch.Worker.fetch_url(pid, [])
   end
 
-  test "fetching with a 304 returns returns :unmodified", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "fetching with a 304 returns returns :unmodified", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       resp(conn, 304, "")
     end)
 
@@ -29,8 +29,8 @@ defmodule Fetch.WorkerTest do
   end
 
   test "304 and a cache file with required_body: true returns the cache file" do
-    bypass = Bypass.open()
-    url = "http://localhost:#{bypass.port}/servername"
+    lasso = Lasso.open()
+    url = "http://localhost:#{lasso.port}/servername"
 
     {:ok, pid} =
       Fetch.Worker.start_link(
@@ -38,17 +38,15 @@ defmodule Fetch.WorkerTest do
         url
       )
 
-    Bypass.expect(bypass, fn conn ->
+    Lasso.expect(lasso, "GET", "/servername", fn conn ->
       resp(conn, 304, "")
     end)
 
     assert {:ok, "\"cache file\"\n"} == Fetch.Worker.fetch_url(pid, require_body: true)
-
-    Bypass.pass(bypass)
   end
 
-  test "fetching that returns the same content returns :unmodified", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "fetching that returns the same content returns :unmodified", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       resp(conn, 200, "body")
     end)
 
@@ -58,13 +56,13 @@ defmodule Fetch.WorkerTest do
   end
 
   test "after a 200 response, stores the etag/last modified and uses them in the next request", %{
-    bypass: bypass,
+    lasso: lasso,
     pid: pid
   } do
     etag = "12345"
     last_modified = "Tue, 28 Jun 2016 19:03:30 GMT"
 
-    Bypass.expect(bypass, fn conn ->
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       case get_req_header(conn, "if-none-match") do
         [^etag] ->
           assert get_req_header(conn, "if-modified-since") == [last_modified]
@@ -84,8 +82,8 @@ defmodule Fetch.WorkerTest do
     assert Fetch.Worker.fetch_url(pid, []) == :unmodified
   end
 
-  test "decodes a 200 response if it's gzip encoded", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "decodes a 200 response if it's gzip encoded", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       assert get_req_header(conn, "accept-encoding") == ["gzip"]
       body = :zlib.gzip("body")
 
@@ -97,39 +95,35 @@ defmodule Fetch.WorkerTest do
     assert {:ok, "body"} = Fetch.Worker.fetch_url(pid, [])
   end
 
-  test "returns error tuple if there's a 500 response", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "returns error tuple if there's a 500 response", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       Plug.Conn.resp(conn, 500, "")
     end)
 
     assert {:error, _} = Fetch.Worker.fetch_url(pid, [])
   end
 
-  test "turns a fetch timeout into an error", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "turns a fetch timeout into an error", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       Process.sleep(1000)
       resp(conn, 200, "body")
     end)
 
     assert {:error, %{reason: :timeout}} = Fetch.Worker.fetch_url(pid, timeout: 100)
-
-    Bypass.pass(bypass)
   end
 
-  test "turns a GenServer timeout into an error", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "turns a GenServer timeout into an error", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       Process.sleep(1000)
       resp(conn, 200, "body")
     end)
 
-    assert {:error, :timeout} = Fetch.Worker.fetch_url(pid, call_timeout: 10)
-
-    Bypass.pass(bypass)
+    assert {:error, :timeout} = Fetch.Worker.fetch_url(pid, call_timeout: 100)
   end
 
   test "returns :unmodified if times out, but cache file exists" do
-    bypass = Bypass.open()
-    url = "http://localhost:#{bypass.port}/servername"
+    lasso = Lasso.open()
+    url = "http://localhost:#{lasso.port}/servername"
 
     {:ok, pid} =
       Fetch.Worker.start_link(
@@ -137,7 +131,7 @@ defmodule Fetch.WorkerTest do
         url
       )
 
-    Bypass.expect(bypass, fn conn ->
+    Lasso.expect(lasso, "GET", "/servername", fn conn ->
       Process.sleep(1000)
 
       conn
@@ -145,13 +139,11 @@ defmodule Fetch.WorkerTest do
     end)
 
     assert :unmodified == Fetch.Worker.fetch_url(pid, timeout: 100)
-
-    Bypass.pass(bypass)
   end
 
   test "returns the cache file on error with :require_body option" do
-    bypass = Bypass.open()
-    url = "http://localhost:#{bypass.port}/servername"
+    lasso = Lasso.open()
+    url = "http://localhost:#{lasso.port}/servername"
 
     {:ok, pid} =
       Fetch.Worker.start_link(
@@ -159,7 +151,7 @@ defmodule Fetch.WorkerTest do
         url
       )
 
-    Bypass.expect(bypass, fn conn ->
+    Lasso.expect(lasso, "GET", "/servername", fn conn ->
       Process.sleep(1000)
 
       conn
@@ -168,12 +160,10 @@ defmodule Fetch.WorkerTest do
 
     assert {:ok, "\"cache file\"\n"} ==
              Fetch.Worker.fetch_url(pid, timeout: 100, require_body: true)
-
-    Bypass.pass(bypass)
   end
 
-  test "turns a fetch timeout into an error (long)", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "turns a fetch timeout into an error (long)", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       Process.sleep(30_000)
 
       conn
@@ -181,20 +171,19 @@ defmodule Fetch.WorkerTest do
     end)
 
     assert {:error, %{reason: :timeout}} = Fetch.Worker.fetch_url(pid, [])
-
-    Bypass.pass(bypass)
   end
 
-  test "can reconnect if the URL is down for a time", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
-      resp(conn, 200, "body")
-    end)
+  test "can reconnect if the URL is down for a time", %{lasso: lasso, pid: pid} do
+    {:ok, agent_pid} = Agent.start_link(fn -> {500, ""} end)
 
-    Bypass.down(bypass)
+    Lasso.expect(lasso, "GET", "/", fn conn ->
+      {status, payload} = Agent.get(agent_pid, & &1)
+      resp(conn, status, payload)
+    end)
 
     assert {:error, _} = Fetch.Worker.fetch_url(pid, [])
 
-    Bypass.up(bypass)
+    Agent.update(agent_pid, fn _ -> {200, "body"} end)
 
     assert {:ok, "body"} == Fetch.Worker.fetch_url(pid, [])
   end

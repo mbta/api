@@ -5,14 +5,14 @@ defmodule Fetch.WorkerLogTest do
   import Plug.Conn
 
   setup do
-    bypass = Bypass.open()
-    url = "http://localhost:#{bypass.port}"
+    lasso = Lasso.open()
+    url = "http://localhost:#{lasso.port}"
     {:ok, pid} = Fetch.Worker.start_link(url)
-    {:ok, %{bypass: bypass, pid: pid, url: url}}
+    {:ok, %{lasso: lasso, pid: pid, url: url}}
   end
 
-  test "logs a fetch timeout as a warning", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn conn ->
+  test "logs a fetch timeout as a warning", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
       Process.sleep(1000)
 
       conn
@@ -22,19 +22,16 @@ defmodule Fetch.WorkerLogTest do
     assert capture_log(fn ->
              Fetch.Worker.fetch_url(pid, timeout: 100)
            end) =~ "[warning]"
-
-    Bypass.pass(bypass)
   end
 
-  test "logs an unknown error as an error", %{bypass: bypass, pid: pid} do
-    Bypass.expect(bypass, fn _conn ->
-      raise "Oops"
+  test "logs an unknown error as an error", %{lasso: lasso, pid: pid} do
+    Lasso.expect(lasso, "GET", "/", fn conn ->
+      conn
+      |> resp(500, "")
     end)
 
     assert capture_log(fn ->
              Fetch.Worker.fetch_url(pid, timeout: 100)
            end) =~ "[error]"
-
-    Bypass.pass(bypass)
   end
 end
