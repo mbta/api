@@ -1,15 +1,16 @@
 <div class="hero-background">
   <div class="hero-body">
-    <%= render ApiWeb.SharedView, "login_form.html",
-        action: session_path(@conn, :create),
-        changeset: @changeset %>
+    <%= render(ApiWeb.SharedView, "login_form.html",
+      action: session_path(@conn, :create),
+      changeset: @changeset
+    ) %>
 
     <p class="text-center mt-3">
-      Don't have an account? <%= link "Create an account", to: user_path(@conn, :new) %>.
+      Don't have an account? <%= link("Create an account", to: user_path(@conn, :new)) %>.
     </p>
 
     <p class="text-center">
-      <%= link "Forgot your password?", to: user_path(@conn, :forgot_password) %>
+      <%= link("Forgot your password?", to: user_path(@conn, :forgot_password)) %>
     </p>
   </div>
 </div>

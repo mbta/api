@@ -5,17 +5,23 @@
   <p><%= @user.email %></p>
 
   <label>Phone</label>
-  <p><%= if @user.phone do %><%= @user.phone %><% else %><em>Not set</em><% end %></p>
-
-  <p class="text-center">
-    <%= link "Edit Information", to: user_path(@conn, :edit) %>
+  <p>
+    <%= if @user.phone do %>
+      <%= @user.phone %>
+    <% else %>
+      <em>Not set</em>
+    <% end %>
   </p>
 
   <p class="text-center">
-    <%= link "Update Password", to: user_path(@conn, :edit_password) %>
+    <%= link("Edit Information", to: user_path(@conn, :edit)) %>
   </p>
 
   <p class="text-center">
-    <%= link "Configure 2-Factor authentication", to: user_path(@conn, :configure_2fa) %>
+    <%= link("Update Password", to: user_path(@conn, :edit_password)) %>
+  </p>
+
+  <p class="text-center">
+    <%= link("Configure 2-Factor authentication", to: user_path(@conn, :configure_2fa)) %>
   </p>
 </div>

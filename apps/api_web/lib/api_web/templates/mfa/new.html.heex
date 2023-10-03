@@ -1,7 +1,8 @@
 <div class="hero-background">
-    <div class="hero-body">
-        <%= render ApiWeb.SharedView, "totp_form.html",
-            action: mfa_path(@conn, :create),
-            changeset: @changeset %>
-    </div>
+  <div class="hero-body">
+    <%= render(ApiWeb.SharedView, "totp_form.html",
+      action: mfa_path(@conn, :create),
+      changeset: @changeset
+    ) %>
+  </div>
 </div>

@@ -1,35 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
 
     <title>Api Admin</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+      crossorigin="anonymous"
+    />
   </head>
 
   <body>
-    <%= render "navigation.html", assigns %>
+    <%= render("navigation.html", assigns) %>
 
     <%= if info = get_flash(@conn, :info) do %>
-      <p class="alert alert-info text-center" role="alert" style="border-radius: 0"><%= info %></p>
+      <p class="alert alert-info text-center" role="alert" style="border-radius: 0">
+        <%= info %>
+      </p>
     <% end %>
     <%= if error = get_flash(@conn, :error) do %>
-      <p class="alert alert-danger text-center" role="alert" style="border-radius: 0"><%= error %></p>
+      <p class="alert alert-danger text-center" role="alert" style="border-radius: 0">
+        <%= error %>
+      </p>
     <% end %>
 
     <div class="container">
-
       <main role="main">
         <%= @inner_content %>
       </main>
-
-    </div> <!-- /container -->
-<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-    <script src={static_path(@conn, "/js/phoenix_html.js")}></script>
+    </div>
+    <!-- /container -->
+    <script
+      src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
+      integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
+      crossorigin="anonymous"
+    >
+    </script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+      integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+      crossorigin="anonymous"
+    >
+    </script>
+    <script src={static_path(@conn, "/js/phoenix_html.js")}>
+    </script>
   </body>
 </html>

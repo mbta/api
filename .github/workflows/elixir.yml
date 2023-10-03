@@ -32,22 +32,6 @@ jobs:
           mix local.hex --force
         if: steps.asdf-cache.outputs.cache-hit != 'true'
 
-  formatting:
-    name: Formatting
-    runs-on: ubuntu-22.04
-    needs: asdf
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: ASDF cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
-      - name: Check formatting
-        run: mix format --check-formatted
-
   deps:
     name: Get Dependencies
     runs-on: ubuntu-22.04
@@ -97,6 +81,8 @@ jobs:
         with:
           path: _build/dev
           key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
+      - name: Check formatting
+        run: mix format --check-formatted
       - name: Compile (warnings as errors)
         run: mix compile --force --warnings-as-errors
       - name: Package Audits
