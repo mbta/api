@@ -60,7 +60,8 @@ defmodule ApiWeb.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:phoenix, "~> 1.6"},
+      {:phoenix, "~> 1.6.15"},
+      {:phoenix_view, "~> 2.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_view, "~> 0.18"},
       {:bandit, "~> 1.0-pre"},
