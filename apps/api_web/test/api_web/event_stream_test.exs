@@ -200,6 +200,15 @@ defmodule ApiWeb.EventStreamTest do
       # unsubscribed process is terminated
       assert_receive {:DOWN, ^ref, :process, ^pid, :normal}
     end
+
+    test "does not crash if sending a chunk returns `{:error, :closed}`", %{conn: conn} do
+      {_, adapter_state} = conn.adapter
+      conn = %{conn | adapter: {__MODULE__.ChunkClosingAdapter, adapter_state}}
+      state = initialize(conn, @module)
+      assert_receive_data()
+      send(self(), {:events, [{"reset", []}]})
+      assert %Plug.Conn{state: :chunked} = hibernate_loop(state)
+    end
   end
 
   defp assert_receive_data do
@@ -221,4 +230,26 @@ defmodule ApiWeb.EventStreamTest do
   end
 
   defp await_hibernate(_pid, _count), do: :failed
+
+  defmodule ChunkClosingAdapter do
+    @behaviour Plug.Conn.Adapter
+
+    defdelegate send_resp(state, status, headers, body), to: Plug.Adapters.Test.Conn
+
+    defdelegate send_file(state, status, headers, path, offset, length),
+      to: Plug.Adapters.Test.Conn
+
+    defdelegate send_chunked(state, status, headers), to: Plug.Adapters.Test.Conn
+
+    def chunk(_state, _body) do
+      {:error, :closed}
+    end
+
+    defdelegate read_req_body(state, opts), to: Plug.Adapters.Test.Conn
+    defdelegate inform(state, status, headers), to: Plug.Adapters.Test.Conn
+    defdelegate upgrade(state, protocol, opts), to: Plug.Adapters.Test.Conn
+    defdelegate push(state, path, headers), to: Plug.Adapters.Test.Conn
+    defdelegate get_peer_data(state), to: Plug.Adapters.Test.Conn
+    defdelegate get_http_protocol(state), to: Plug.Adapters.Test.Conn
+  end
 end

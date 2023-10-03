@@ -7,6 +7,7 @@ defmodule ApiWeb.EventStream do
   import Plug.Conn
   alias __MODULE__.Supervisor
   alias ApiWeb.Plugs.CheckForShutdown
+  require Logger
 
   @enforce_keys [:conn, :pid, :timeout]
   defstruct @enforce_keys ++ [:timer]
@@ -27,6 +28,7 @@ defmodule ApiWeb.EventStream do
   @spec initialize(Plug.Conn.t(), module) :: state
   def initialize(conn, module, timeout \\ 30_000) do
     {:ok, pid} = Supervisor.server_subscribe(conn, module)
+    Logger.debug("#{__MODULE__} connected self=#{inspect(self())} server=#{inspect(pid)}")
     Process.monitor(pid)
 
     conn =
@@ -48,6 +50,18 @@ defmodule ApiWeb.EventStream do
       {:close, conn} ->
         Supervisor.server_unsubscribe(state.pid)
         conn
+
+      {:error, :closed} ->
+        Supervisor.server_unsubscribe(state.pid)
+        state.conn
+
+      {:error, error} ->
+        Logger.warning(
+          "#{__MODULE__} unexpected error in hibernate_loop self=#{inspect(self())} server=#{inspect(state.pid)} reason=#{inspect(error)}"
+        )
+
+        Supervisor.server_unsubscribe(state.pid)
+        state.conn
     end
   end
 
@@ -96,7 +110,11 @@ defmodule ApiWeb.EventStream do
 
   @spec close(state, Plug.Conn.body()) :: {:close, Plug.Conn.t()} | {:error, term}
   defp close(state, chunks \\ []) do
-    with {:ok, conn} <- chunk(state.conn, chunks), do: {:close, conn}
+    Logger.debug("#{__MODULE__} closing self=#{inspect(self())} server=#{inspect(state.pid)}")
+
+    with {:ok, conn} <- chunk(state.conn, chunks) do
+      {:close, conn}
+    end
   end
 
   @spec ensure_timer(state) :: state
