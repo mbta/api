@@ -40,7 +40,7 @@ defmodule ApiWeb.Admin.SessionControllerTest do
       )
 
     assert html_response(conn, 200) =~ "Login"
-    assert get_flash(conn, :error) != nil
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) != nil
     assert html_response(conn, 200) =~ "Invalid credentials"
   end
 
@@ -51,7 +51,7 @@ defmodule ApiWeb.Admin.SessionControllerTest do
       post(form_header(conn), admin_session_path(conn, :create), user: @unauthorized_user_attrs)
 
     assert html_response(conn, 200) =~ "Login"
-    assert get_flash(conn, :error) != nil
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) != nil
     assert html_response(conn, 200) =~ "not authorized"
   end
 

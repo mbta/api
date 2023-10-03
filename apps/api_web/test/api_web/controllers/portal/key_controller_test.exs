@@ -8,7 +8,7 @@ defmodule ApiWeb.ClientPortal.KeyControllerTest do
   describe "create" do
     test "creates approved key the first time", %{conn: conn, user: user} do
       conn = post(conn, key_path(conn, :create))
-      assert get_flash(conn, :success)
+      assert Phoenix.Flash.get(conn.assigns.flash, :success)
       assert redirected_to(conn) == portal_path(conn, :index)
       assert [key] = ApiAccounts.list_keys_for_user(user)
       assert key.approved
@@ -20,7 +20,7 @@ defmodule ApiWeb.ClientPortal.KeyControllerTest do
     test "creates a requested key the second time", %{conn: conn, user: user} do
       {:ok, _} = ApiAccounts.create_key(user, %{approved: true})
       conn = post(conn, key_path(conn, :create))
-      assert get_flash(conn, :success)
+      assert Phoenix.Flash.get(conn.assigns.flash, :success)
       assert redirected_to(conn) == portal_path(conn, :index)
       keys = ApiAccounts.list_keys_for_user(user)
       assert Enum.count(keys) == 2
@@ -33,7 +33,7 @@ defmodule ApiWeb.ClientPortal.KeyControllerTest do
     test "doesn't allow more than 1 request per user", %{conn: conn, user: user} do
       {:ok, _} = ApiAccounts.create_key(user, %{approved: false})
       conn = post(conn, key_path(conn, :create))
-      assert get_flash(conn, :error)
+      assert Phoenix.Flash.get(conn.assigns.flash, :error)
       assert redirected_to(conn) == portal_path(conn, :index)
       assert Enum.count(ApiAccounts.list_keys_for_user(user)) == 1
     end

@@ -295,6 +295,8 @@ defmodule ApiWeb.SwaggerHelpers do
   end
 
   defp path_fn(module) do
+    Code.ensure_loaded!(ApiWeb.Router.Helpers)
+
     short_name =
       module
       |> to_string

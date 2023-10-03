@@ -21,17 +21,17 @@
   <body>
     <%= render("navigation.html", assigns) %>
 
-    <%= if info = get_flash(@conn, :success) do %>
+    <%= if info = Phoenix.Flash.get(@flash, :success) do %>
       <div class="alert alert-success text-center" role="alert" style="border-radius: 0">
         <div class="container"><%= info %></div>
       </div>
     <% end %>
-    <%= if info = get_flash(@conn, :info) do %>
+    <%= if info = Phoenix.Flash.get(@flash, :info) do %>
       <div class="alert alert-info text-center" role="alert" style="border-radius: 0">
         <div class="container"><%= info %></div>
       </div>
     <% end %>
-    <%= if error = get_flash(@conn, :error) do %>
+    <%= if error = Phoenix.Flash.get(@flash, :error) do %>
       <div class="alert alert-danger text-center" role="alert" style="border-radius: 0">
         <div class="container"><%= error %></div>
       </div>

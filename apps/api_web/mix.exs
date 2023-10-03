@@ -8,7 +8,7 @@ defmodule ApiWeb.Mixfile do
       aliases: aliases(),
       build_embedded: Mix.env() == :prod,
       build_path: "../../_build",
-      compilers: [:phoenix] ++ Mix.compilers() ++ [:phoenix_swagger],
+      compilers: Mix.compilers() ++ [:phoenix_swagger],
       config_path: "../../config/config.exs",
       deps: deps(),
       deps_path: "../../deps",
@@ -60,7 +60,7 @@ defmodule ApiWeb.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:phoenix, "~> 1.6.15"},
+      {:phoenix, "~> 1.7"},
       {:phoenix_view, "~> 2.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_view, "~> 0.18"},
