@@ -10,7 +10,7 @@ defmodule ApiWeb.EventStream.Supervisor do
   alias ApiWeb.EventStream.{DiffServer, ServerRegistry, ServerSupervisor}
 
   def start_link(_opts) do
-    Supervisor.start_link(__MODULE__, [])
+    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   @doc """
