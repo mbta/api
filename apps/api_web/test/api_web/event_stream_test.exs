@@ -136,29 +136,23 @@ defmodule ApiWeb.EventStreamTest do
       on_exit(fn -> assert_stopped(state.pid) end)
     end
 
-    test "closes the connection once CheckForShutdown.shutdown() is called (events)", %{
+    test "closes immediately if CheckForShutdown is not running", %{
       conn: conn
     } do
       CheckForShutdown.shutdown()
 
       state = initialize(conn, @module)
-      assert_receive_data()
-
-      send(self(), {:events, []})
-
       assert {:close, conn} = receive_result(state)
 
       assert chunks(conn) == ""
-      on_exit(fn -> assert_stopped(state.pid) end)
     end
 
     test "closes the connection once CheckForShutdown.shutdown() is called (timeout)", %{
       conn: conn
     } do
-      CheckForShutdown.shutdown()
-
       state = initialize(conn, @module)
       assert_receive_data()
+      CheckForShutdown.shutdown()
 
       send(self(), :timeout)
 
@@ -171,10 +165,9 @@ defmodule ApiWeb.EventStreamTest do
     test "closes the connection once CheckForShutdown.shutdown() is called (unknown message)", %{
       conn: conn
     } do
-      CheckForShutdown.shutdown()
-
       state = initialize(conn, @module)
       assert_receive_data()
+      CheckForShutdown.shutdown()
 
       send(self(), :unknown_message)
 
