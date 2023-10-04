@@ -48,20 +48,17 @@ defmodule ApiWeb.EventStream do
         :proc_lib.hibernate(__MODULE__, :hibernate_loop, [state])
 
       {:close, conn} ->
-        Supervisor.server_unsubscribe(state.pid)
-        conn
+        unsubscribe(%{state | conn: conn})
 
       {:error, :closed} ->
-        Supervisor.server_unsubscribe(state.pid)
-        state.conn
+        unsubscribe(state)
 
       {:error, error} ->
         Logger.warning(
           "#{__MODULE__} unexpected error in hibernate_loop self=#{inspect(self())} server=#{inspect(state.pid)} reason=#{inspect(error)}"
         )
 
-        Supervisor.server_unsubscribe(state.pid)
-        state.conn
+        unsubscribe(state)
     end
   end
 
@@ -114,6 +111,31 @@ defmodule ApiWeb.EventStream do
 
     with {:ok, conn} <- chunk(state.conn, chunks) do
       {:close, conn}
+    end
+  end
+
+  defp unsubscribe(%{pid: pid} = state) when is_pid(pid) do
+    Supervisor.server_unsubscribe(pid)
+    unsubscribe(%{state | pid: nil})
+  end
+
+  defp unsubscribe(state) do
+    # consume any extra messages received after unsubscribing
+    receive do
+      {:events, _} ->
+        unsubscribe(state)
+
+      :timeout ->
+        unsubscribe(state)
+
+      {:error, _} ->
+        unsubscribe(state)
+
+      {:DOWN, _, :process, _pid, _reason} ->
+        unsubscribe(state)
+    after
+      0 ->
+        state.conn
     end
   end
 

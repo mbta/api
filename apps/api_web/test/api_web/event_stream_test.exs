@@ -207,7 +207,9 @@ defmodule ApiWeb.EventStreamTest do
       state = initialize(conn, @module)
       assert_receive_data()
       send(self(), {:events, [{"reset", []}]})
+      send(self(), {:events, [{"reset", []}]})
       assert %Plug.Conn{state: :chunked} = hibernate_loop(state)
+      refute_received {:events, _}
     end
   end
 
