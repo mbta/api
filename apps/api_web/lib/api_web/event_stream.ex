@@ -27,10 +27,6 @@ defmodule ApiWeb.EventStream do
 
   @spec initialize(Plug.Conn.t(), module) :: state
   def initialize(conn, module, timeout \\ 30_000) do
-    {:ok, pid} = Supervisor.server_subscribe(conn, module)
-    Logger.debug("#{__MODULE__} connected self=#{inspect(self())} server=#{inspect(pid)}")
-    Process.monitor(pid)
-
     conn =
       conn
       |> put_resp_header("content-type", "text/event-stream")
@@ -38,7 +34,16 @@ defmodule ApiWeb.EventStream do
       |> put_resp_header("x-accel-buffering", "no")
       |> send_chunked(200)
 
-    ensure_timer(%__MODULE__{conn: conn, pid: pid, timeout: timeout})
+    if CheckForShutdown.running?() do
+      {:ok, pid} = Supervisor.server_subscribe(conn, module)
+      Logger.debug("#{__MODULE__} connected self=#{inspect(self())} server=#{inspect(pid)}")
+      Process.monitor(pid)
+
+      ensure_timer(%__MODULE__{conn: conn, pid: pid, timeout: timeout})
+    else
+      send(self(), {:close, conn})
+      %__MODULE__{conn: conn, pid: nil, timeout: timeout}
+    end
   end
 
   @spec hibernate_loop(state) :: Plug.Conn.t()
