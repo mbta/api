@@ -69,6 +69,7 @@ defmodule StateMediator.MqttMediator do
       EmqttFailover.Connection.start_link(
         client_id: EmqttFailover.client_id(prefix: "api"),
         configs: state.configs,
+        backoff: {1_000, 60_000, :jitter},
         handler:
           {__MODULE__.Handler,
            module: state.module, topic: state.topic, timeout: state.sync_timeout}
