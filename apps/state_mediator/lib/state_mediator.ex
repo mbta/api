@@ -88,7 +88,7 @@ defmodule StateMediator do
         url: broker,
         topic: app_value(State.Vehicle, :topic),
         username: app_value(State.Vehicle, :username),
-        password: app_value(State.Vehicle, :password),
+        password: fn -> app_value(State.Vehicle, :password) end,
         sync_timeout: 30_000
       ]
     }

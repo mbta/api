@@ -79,8 +79,14 @@ defmodule StateMediator.MqttMediator do
   end
 
   defp configs_from_url(url, opts) do
-    password_opts =
+    password_value =
       case opts[:password] do
+        fun when is_function(fun, 0) -> fun.()
+        other -> other
+      end
+
+    password_opts =
+      case password_value do
         nil -> [[]]
         [""] -> [[]]
         passwords -> for password <- String.split(passwords, " "), do: [password: password]
