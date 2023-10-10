@@ -51,7 +51,7 @@ defmodule StateMediator.Mixfile do
       {:goth, "~> 1.3"},
       {:hackney, "~> 1.18"},
       {:timex, "~> 3.7"},
-      {:emqtt_failover, git: "https://gitlab.com/paulswartz/emqtt_failover.git", tag: "v0.2"}
+      {:emqtt_failover, "~> 0.3"}
     ]
   end
 end
