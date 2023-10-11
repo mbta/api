@@ -18,7 +18,7 @@ config :api_web, ApiWeb.Endpoint,
       shutdown_timeout: 90_000
     ]
   ],
-  url: [scheme: "https", port: 443],
+  url: [scheme: "https", host: nil, port: 443],
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
