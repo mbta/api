@@ -74,7 +74,7 @@ defmodule StateMediator.Integration.GtfsTest do
         "Green-B" => ~w(place-gover),
         "Green-C" => ~w(place-gover),
         "Green-D" => ~w(place-north place-haecl place-gover),
-        "Green-E" => ~w(place-north place-haecl place-gover)
+        "Green-E" => ~w(place-north place-haecl place-mdftf)
       }
 
       order = ~w(place-pktrm place-boyls place-armnl place-coecl)
