@@ -42,18 +42,18 @@ defmodule State.Helpers do
   shape.
   """
   @spec stops_on_route_by_shape?(Model.Trip.t()) :: boolean
-  def stops_on_route_by_shape?(%Trip{route_type: type}) when is_integer(type), do: false
-  def stops_on_route_by_shape?(%Trip{alternate_route: bool}) when is_boolean(bool), do: false
-
-  def stops_on_route_by_shape?(%{shape_id: shape_id}) do
+  def stops_on_route_by_shape?(%{shape_id: shape_id} = trip) do
     case State.Shape.by_primary_id(shape_id) do
       %{priority: priority} when priority < 0 ->
-        false
+        stops_on_route?(trip)
 
       _ ->
         true
     end
   end
+
+  def stops_on_route_by_shape?(%Trip{route_type: type}) when is_integer(type), do: false
+  def stops_on_route_by_shape?(%Trip{alternate_route: bool}) when is_boolean(bool), do: false
 
   @doc """
   Safely get the size of an ETS table

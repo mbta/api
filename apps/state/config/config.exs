@@ -156,7 +156,10 @@ config :state, :shape,
     # Route 66
     "660085" => 3
   },
-  suffix_overrides: %{}
+  suffix_overrides: %{
+    # shuttles are all -1 priority
+    "-S" => -1
+  }
 
 # Overrides whether specific trips (by route pattern prefix) should be used in determining the
 # "canonical" set of stops for a route
