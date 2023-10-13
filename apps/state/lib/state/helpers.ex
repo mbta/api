@@ -16,6 +16,9 @@ defmodule State.Helpers do
         Application.compile_env(:state, :stops_on_route)[:route_pattern_prefix_overrides] do
     def stops_on_route?(%Trip{route_pattern_id: unquote(route_pattern_id) <> _}),
       do: unquote(include?)
+
+    def stops_on_route_by_shape?(%Trip{route_pattern_id: unquote(route_pattern_id) <> _}),
+      do: unquote(include?)
   end
 
   # Ignore alternate route trips and trips with a trip-specific route type
