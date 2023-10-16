@@ -21,7 +21,6 @@ jobs:
         id: build-push
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
       - name: Deploy to ECS
         uses: mbta/actions/deploy-ecs@v2
