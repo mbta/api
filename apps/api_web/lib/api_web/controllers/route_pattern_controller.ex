@@ -10,7 +10,7 @@ defmodule ApiWeb.RoutePatternController do
   * canonical
   """
   use ApiWeb.Web, :api_controller
-  alias State.{RoutePattern, RoutesByService, ServiceByDate}
+  alias State.{RoutePattern, RoutesByService, ServiceByDate, Trip}
 
   plug(:ensure_path_matches_version)
 
@@ -122,6 +122,7 @@ defmodule ApiWeb.RoutePatternController do
     end)
     |> Enum.into(%{})
     |> consolidate_route_ids()
+    |> gather_trip_based_route_pattern_ids()
   end
 
   defp consolidate_route_ids(
@@ -146,6 +147,28 @@ defmodule ApiWeb.RoutePatternController do
 
   defp consolidate_route_ids(params), do: params
 
+  defp gather_trip_based_route_pattern_ids(
+         %{date: _date, route_ids: [_ | _] = route_ids} = params
+       ) do
+    route_pattern_ids =
+      params
+      |> Map.take([:date, :direction_id])
+      |> Map.put(:routes, route_ids)
+      |> Trip.filter_by()
+      |> Enum.map(& &1.route_pattern_id)
+      |> consolidate_route_pattern_ids(params)
+
+    Map.put(params, :ids, route_pattern_ids)
+  end
+
+  defp gather_trip_based_route_pattern_ids(params), do: params
+
+  defp consolidate_route_pattern_ids(route_pattern_ids, %{ids: [_ | _] = ids}) do
+    Enum.filter(route_pattern_ids, fn rid -> Enum.member?(ids, rid) end)
+  end
+
+  defp consolidate_route_pattern_ids(route_pattern_ids, _), do: route_pattern_ids
+
   defp process_date(date_str) do
     case Date.from_iso8601(date_str) do
       {:ok, date} ->
@@ -154,7 +177,7 @@ defmodule ApiWeb.RoutePatternController do
           |> ServiceByDate.by_date()
           |> RoutesByService.for_service_ids()
 
-        %{date_specific_route_ids: ids}
+        %{date: date, date_specific_route_ids: ids}
 
       {:error, _} ->
         []

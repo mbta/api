@@ -29,16 +29,16 @@ defmodule State.RoutePattern do
     end
   end
 
-  @spec filter_by(filters()) :: [RoutePattern.t()]
-  def filter_by(%{ids: ids}) do
-    by_ids(ids)
-  end
-
   def filter_by(%{canonical: canonical} = filters) do
     filters
     |> Map.delete(:canonical)
     |> filter_by()
     |> Enum.filter(fn %RoutePattern{canonical: is_c} -> canonical == is_c end)
+  end
+
+  @spec filter_by(filters()) :: [RoutePattern.t()]
+  def filter_by(%{ids: ids}) do
+    by_ids(ids)
   end
 
   def filter_by(%{route_ids: _route_ids, stop_ids: _stop_ids} = filters) do
