@@ -1,16 +1,20 @@
 defmodule ApiWeb.RoutePatternController do
   @moduledoc """
-  Controller for Routes. Filterable by:
+  Controller for Route Patterns. Filterable by:
 
   * id
+  * date
+  * direction_id
   * route_id
+  * stop
+  * canonical
   """
   use ApiWeb.Web, :api_controller
-  alias State.RoutePattern
+  alias State.{RoutePattern, RoutesByService, ServiceByDate}
 
   plug(:ensure_path_matches_version)
 
-  @filters ~w(id canonical route direction_id stop)
+  @filters ~w(id canonical route direction_id stop date)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
@@ -48,6 +52,7 @@ defmodule ApiWeb.RoutePatternController do
     filter_param(:direction_id)
     filter_param(:stop_id, includes_children: true)
     filter_param(:canonical)
+    filter_param(:date, description: "Filter by date that route pattern is active")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -93,24 +98,67 @@ defmodule ApiWeb.RoutePatternController do
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
   defp format_filters(filters) do
-    Map.new(filters, fn {key, value} ->
+    filters
+    |> Enum.flat_map(fn {key, value} ->
       case {key, value} do
         {"id", ids} ->
-          {:ids, Params.split_on_comma(ids)}
+          %{ids: Params.split_on_comma(ids)}
 
         {"route", route_ids} ->
-          {:route_ids, Params.split_on_comma(route_ids)}
+          %{route_ids: Params.split_on_comma(route_ids)}
 
         {"direction_id", direction_id} ->
-          {:direction_id, Params.direction_id(%{"direction_id" => direction_id})}
+          %{direction_id: Params.direction_id(%{"direction_id" => direction_id})}
 
         {"stop", stop_ids} ->
-          {:stop_ids, Params.split_on_comma(stop_ids)}
+          %{stop_ids: Params.split_on_comma(stop_ids)}
 
         {"canonical", canonical} ->
-          {:canonical, Params.canonical(canonical)}
+          %{canonical: Params.canonical(canonical)}
+
+        {"date", date} ->
+          process_date(date)
       end
     end)
+    |> Enum.into(%{})
+    |> consolidate_route_ids()
+  end
+
+  defp consolidate_route_ids(
+         %{
+           route_ids: [_ | _] = route_ids,
+           date_specific_route_ids: [_ | _] = date_specific_route_ids
+         } = params
+       ) do
+    filtered_route_ids =
+      Enum.filter(route_ids, fn id -> Enum.member?(date_specific_route_ids, id) end)
+
+    params
+    |> Map.put(:route_ids, filtered_route_ids)
+    |> Map.delete(:date_specific_route_ids)
+  end
+
+  defp consolidate_route_ids(%{date_specific_route_ids: date_specific_route_ids} = params) do
+    params
+    |> Map.put(:route_ids, date_specific_route_ids)
+    |> Map.delete(:date_specific_route_ids)
+  end
+
+  defp consolidate_route_ids(params), do: params
+
+  defp process_date(date_str) do
+    case Date.from_iso8601(date_str) do
+      {:ok, date} ->
+        ids =
+          date
+          |> ServiceByDate.by_date()
+          |> RoutesByService.for_service_ids()
+
+        %{date_specific_route_ids: ids}
+
+      {:error, _} ->
+        []
+    end
   end
 
   defp pagination_opts(params, conn) do
