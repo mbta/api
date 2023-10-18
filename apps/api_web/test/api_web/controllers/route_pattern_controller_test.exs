@@ -482,7 +482,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
     test "can filter by date", %{conn: base_conn} do
       today = Parse.Time.service_date()
-      bad_date = ~D[2017-01-01]
+      bad_date = Date.add(today, 2)
 
       service = %Model.Service{
         id: "service",
@@ -530,7 +530,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
     test "can filter by date and route(s)", %{conn: base_conn} do
       today = Parse.Time.service_date()
-      bad_date = ~D[2027-01-01]
+      bad_date = Date.add(today, 2)
 
       service = %Model.Service{
         id: "service",

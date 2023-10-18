@@ -97,77 +97,111 @@ defmodule ApiWeb.RoutePatternController do
   defp reject_invalid_canonical_filter(filters), do: filters
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
-  defp format_filters(filters) do
+  defp format_filters(filters, acc \\ %{})
+
+  defp format_filters(%{"id" => ids} = filters, acc) do
+    new_acc = Map.put(acc, :ids, Params.split_on_comma(ids))
+
     filters
-    |> Enum.flat_map(fn {key, value} ->
-      case {key, value} do
-        {"id", ids} ->
-          %{ids: Params.split_on_comma(ids)}
-
-        {"route", route_ids} ->
-          %{route_ids: Params.split_on_comma(route_ids)}
-
-        {"direction_id", direction_id} ->
-          %{direction_id: Params.direction_id(%{"direction_id" => direction_id})}
-
-        {"stop", stop_ids} ->
-          %{stop_ids: Params.split_on_comma(stop_ids)}
-
-        {"canonical", canonical} ->
-          %{canonical: Params.canonical(canonical)}
-
-        {"date", date} ->
-          process_date(date)
-      end
-    end)
-    |> Enum.into(%{})
-    |> consolidate_route_ids()
-    |> gather_trip_based_route_pattern_ids()
+    |> Map.delete("id")
+    |> format_filters(new_acc)
   end
 
-  defp consolidate_route_ids(
-         %{
-           route_ids: [_ | _] = route_ids,
-           date_specific_route_ids: [_ | _] = date_specific_route_ids
-         } = params
-       ) do
-    filtered_route_ids =
-      Enum.filter(route_ids, fn id -> Enum.member?(date_specific_route_ids, id) end)
+  defp format_filters(%{"direction_id" => direction_id} = filters, acc) do
+    new_acc = Map.put(acc, :direction_id, Params.direction_id(%{"direction_id" => direction_id}))
 
-    params
-    |> Map.put(:route_ids, filtered_route_ids)
-    |> Map.delete(:date_specific_route_ids)
+    filters
+    |> Map.delete("direction_id")
+    |> format_filters(new_acc)
   end
 
-  defp consolidate_route_ids(%{date_specific_route_ids: date_specific_route_ids} = params) do
-    params
-    |> Map.put(:route_ids, date_specific_route_ids)
-    |> Map.delete(:date_specific_route_ids)
+  defp format_filters(%{"route" => route_ids} = filters, acc) do
+    new_acc = Map.put(acc, :route_ids, Params.split_on_comma(route_ids))
+
+    filters
+    |> Map.delete("route")
+    |> format_filters(new_acc)
   end
 
-  defp consolidate_route_ids(params), do: params
+  defp format_filters(%{"date" => date} = filters, acc) do
+    case process_date(date, acc) do
+      :error ->
+        filters
+        |> Map.delete("date")
+        |> format_filters(acc)
 
-  defp gather_trip_based_route_pattern_ids(
-         %{date: _date, route_ids: [_ | _] = route_ids} = params
-       ) do
+      new_acc ->
+        filters
+        |> Map.delete("date")
+        |> format_filters(new_acc)
+    end
+  end
+
+  defp format_filters(%{"stop" => stop_ids} = filters, acc) do
+    new_acc = Map.put(acc, :stop_ids, Params.split_on_comma(stop_ids))
+
+    filters
+    |> Map.delete("stop")
+    |> format_filters(new_acc)
+  end
+
+  defp format_filters(%{"canonical" => canonical} = filters, acc) do
+    new_acc = Map.put(acc, :canonical, Params.canonical(canonical))
+
+    filters
+    |> Map.delete("canonical")
+    |> format_filters(new_acc)
+  end
+
+  defp format_filters(_, acc) do
+    acc
+  end
+
+  defp consolidate_route_ids(%{route_ids: [_ | _] = route_ids}, [_ | _] = date_specific_route_ids) do
+    route_ids
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(date_specific_route_ids))
+    |> MapSet.to_list()
+  end
+
+  defp consolidate_route_ids(_, date_specific_route_ids), do: date_specific_route_ids
+
+  defp gather_trip_based_route_pattern_ids(%{date: _date, route_ids: [_ | _] = route_ids} = acc) do
     route_pattern_ids =
-      params
+      acc
       |> Map.take([:date, :direction_id])
       |> Map.put(:routes, route_ids)
       |> Trip.filter_by()
       |> Enum.map(& &1.route_pattern_id)
-      |> consolidate_route_pattern_ids(params)
+      |> consolidate_route_pattern_ids(acc)
 
-    Map.put(params, :ids, route_pattern_ids)
+    Map.put(acc, :ids, route_pattern_ids)
   end
 
-  defp gather_trip_based_route_pattern_ids(params), do: params
+  defp gather_trip_based_route_pattern_ids(acc), do: acc
 
   defp consolidate_route_pattern_ids(route_pattern_ids, %{ids: [_ | _] = ids}) do
-    Enum.filter(route_pattern_ids, fn rid -> Enum.member?(ids, rid) end)
+    route_pattern_ids
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(ids))
+    |> MapSet.to_list()
   end
 
   defp consolidate_route_pattern_ids(route_pattern_ids, _), do: route_pattern_ids
+
+  defp process_date(date_str, acc) do
+    case process_date(date_str) do
+      :error ->
+        :error
+
+      %{date: date, route_ids: date_specific_route_ids} ->
+        filtered_route_ids = consolidate_route_ids(acc, date_specific_route_ids)
+
+        acc
+        |> Map.merge(%{route_ids: filtered_route_ids, date: date})
+        |> gather_trip_based_route_pattern_ids()
+    end
+  end
 
   defp process_date(date_str) do
     case Date.from_iso8601(date_str) do
@@ -177,10 +211,10 @@ defmodule ApiWeb.RoutePatternController do
           |> ServiceByDate.by_date()
           |> RoutesByService.for_service_ids()
 
-        %{date: date, date_specific_route_ids: ids}
+        %{date: date, route_ids: ids}
 
       {:error, _} ->
-        []
+        :error
     end
   end
 
