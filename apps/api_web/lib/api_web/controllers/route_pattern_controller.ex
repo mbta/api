@@ -170,7 +170,7 @@ defmodule ApiWeb.RoutePatternController do
          %{ids: ids, date: _date, route_ids: [_ | _] = route_ids} = acc
        ) do
     acc
-    |> Map.take([:date, :direction_id, :route_patterns])
+    |> Map.take([:date, :direction_id])
     |> Map.put(:route_patterns, ids)
     |> Map.put(:routes, route_ids)
     |> gather_trip_based_route_pattern_ids(acc)
