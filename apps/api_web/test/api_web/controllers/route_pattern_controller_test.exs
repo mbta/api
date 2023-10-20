@@ -675,6 +675,10 @@ defmodule ApiWeb.RoutePatternControllerTest do
       params = %{"filter" => %{"date" => today_iso, "route" => nil}}
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [route_pattern1, route_pattern3] == data
+
+      params = %{"filter" => %{"date" => today_iso, "id" => "rp1,rp2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1] == data
     end
   end
 

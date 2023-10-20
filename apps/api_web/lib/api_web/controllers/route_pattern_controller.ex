@@ -166,28 +166,33 @@ defmodule ApiWeb.RoutePatternController do
 
   defp consolidate_route_ids(_, date_specific_route_ids), do: date_specific_route_ids
 
-  defp gather_trip_based_route_pattern_ids(%{date: _date, route_ids: [_ | _] = route_ids} = acc) do
-    route_pattern_ids =
-      acc
-      |> Map.take([:date, :direction_id])
-      |> Map.put(:routes, route_ids)
-      |> Trip.filter_by()
-      |> Enum.map(& &1.route_pattern_id)
-      |> consolidate_route_pattern_ids(acc)
+  defp gather_trip_based_route_pattern_ids(
+         %{ids: ids, date: _date, route_ids: [_ | _] = route_ids} = acc
+       ) do
+    acc
+    |> Map.take([:date, :direction_id, :route_patterns])
+    |> Map.put(:route_patterns, ids)
+    |> Map.put(:routes, route_ids)
+    |> gather_trip_based_route_pattern_ids(acc)
+  end
 
-    Map.put(acc, :ids, route_pattern_ids)
+  defp gather_trip_based_route_pattern_ids(%{date: _date, route_ids: [_ | _] = route_ids} = acc) do
+    acc
+    |> Map.take([:date, :direction_id, :route_patterns])
+    |> Map.put(:routes, route_ids)
+    |> gather_trip_based_route_pattern_ids(acc)
   end
 
   defp gather_trip_based_route_pattern_ids(acc), do: acc
 
-  defp consolidate_route_pattern_ids(route_pattern_ids, %{ids: [_ | _] = ids}) do
-    route_pattern_ids
-    |> MapSet.new()
-    |> MapSet.intersection(MapSet.new(ids))
-    |> MapSet.to_list()
-  end
+  defp gather_trip_based_route_pattern_ids(filters, acc) do
+    route_pattern_ids =
+      filters
+      |> Trip.filter_by()
+      |> Enum.map(& &1.route_pattern_id)
 
-  defp consolidate_route_pattern_ids(route_pattern_ids, _), do: route_pattern_ids
+    Map.put(acc, :ids, route_pattern_ids)
+  end
 
   defp process_date(date_str, acc) do
     case process_date(date_str) do
