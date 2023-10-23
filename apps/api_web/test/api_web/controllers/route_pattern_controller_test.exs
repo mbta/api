@@ -479,6 +479,207 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       assert [%{"sort_order" => 1}, %{"sort_order" => 2}, %{"sort_order" => 3}] = attrs
     end
+
+    test "can filter by date", %{conn: base_conn} do
+      today = Parse.Time.service_date()
+      bad_date = Date.add(today, 2)
+
+      service = %Model.Service{
+        id: "service",
+        start_date: today,
+        end_date: today,
+        added_dates: [today]
+      }
+
+      route = %Model.Route{id: "route"}
+      route_pattern = %Model.RoutePattern{id: "rp1", route_id: "route"}
+
+      trip = %Model.Trip{
+        id: "trip",
+        route_id: route.id,
+        service_id: service.id,
+        route_pattern_id: route_pattern.id
+      }
+
+      State.Service.new_state([service])
+      State.Route.new_state([route])
+      State.RoutePattern.new_state([route_pattern])
+      State.Trip.new_state([trip])
+      State.Trip.reset_gather()
+      State.RoutesByService.update!()
+
+      today_iso = Date.to_iso8601(today)
+      bad_date_iso = Date.to_iso8601(bad_date)
+
+      params = %{"filter" => %{"date" => today_iso}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern] == data
+
+      params = put_in(params["filter"]["date"], bad_date_iso)
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{"filter" => %{"date" => ""}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern] == data
+
+      params = %{"filter" => %{"date" => "invalid"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern] == data
+    end
+
+    test "can filter by date and route(s)", %{conn: base_conn} do
+      today = Parse.Time.service_date()
+      bad_date = Date.add(today, 2)
+
+      service = %Model.Service{
+        id: "service",
+        start_date: today,
+        end_date: today,
+        added_dates: [today]
+      }
+
+      future_service = %Model.Service{
+        id: "future_service",
+        start_date: bad_date,
+        end_date: bad_date,
+        added_dates: [bad_date]
+      }
+
+      route1 = %Model.Route{id: "route1"}
+      route2 = %Model.Route{id: "route2"}
+      route3 = %Model.Route{id: "route3"}
+      route_pattern1 = %Model.RoutePattern{id: "rp1", route_id: route1.id, canonical: false}
+      route_pattern2 = %Model.RoutePattern{id: "rp2", route_id: route2.id, canonical: false}
+      route_pattern3 = %Model.RoutePattern{id: "rp3", route_id: route3.id, canonical: true}
+
+      route_pattern4 = %Model.RoutePattern{
+        id: "rp4",
+        route_id: route3.id,
+        canonical: false,
+        direction_id: 0
+      }
+
+      route_pattern5 = %Model.RoutePattern{
+        id: "rp5",
+        route_id: route3.id,
+        canonical: false,
+        direction_id: 1
+      }
+
+      trip1 = %Model.Trip{
+        id: "trip1",
+        route_id: route1.id,
+        service_id: service.id,
+        route_pattern_id: route_pattern1.id
+      }
+
+      trip2 = %Model.Trip{
+        id: "trip2",
+        route_id: route2.id,
+        service_id: future_service.id,
+        route_pattern_id: route_pattern2.id
+      }
+
+      trip3 = %Model.Trip{
+        id: "trip3",
+        route_id: route3.id,
+        service_id: service.id,
+        route_pattern_id: route_pattern3.id
+      }
+
+      trip4 = %Model.Trip{
+        id: "trip4",
+        route_id: route3.id,
+        direction_id: 0,
+        service_id: future_service.id,
+        route_pattern_id: route_pattern4.id
+      }
+
+      trip5 = %Model.Trip{
+        id: "trip5",
+        route_id: route3.id,
+        direction_id: 1,
+        service_id: future_service.id,
+        route_pattern_id: route_pattern5.id
+      }
+
+      State.Service.new_state([service, future_service])
+      State.Route.new_state([route1, route2, route3])
+
+      State.RoutePattern.new_state([
+        route_pattern1,
+        route_pattern2,
+        route_pattern3,
+        route_pattern4,
+        route_pattern5
+      ])
+
+      State.Trip.new_state([trip1, trip2, trip3, trip4, trip5])
+      State.Trip.reset_gather()
+      State.RoutesByService.update!()
+
+      today_iso = Date.to_iso8601(today)
+      future_date_iso = Date.to_iso8601(bad_date)
+
+      params = %{"filter" => %{"date" => today_iso}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern3] == data
+
+      params = %{"filter" => %{"date" => today_iso, "canonical" => "false"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1] == data
+
+      params = %{"filter" => %{"date" => today_iso, "canonical" => "true"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern3] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => "route1,route2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1] == data
+
+      params = put_in(params["filter"]["route"], "route3,route4,Red,Blue")
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern3] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "route" => "route1,route2,route3"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern2, route_pattern4, route_pattern5] == data
+
+      params = %{
+        "filter" => %{
+          "date" => future_date_iso,
+          "route" => "route1,route2,route3",
+          "direction_id" => "0"
+        }
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern4] == data
+
+      params = %{
+        "filter" => %{
+          "date" => future_date_iso,
+          "route" => "route1,route2,route3",
+          "direction_id" => "1"
+        }
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern5] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => ""}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern3] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => nil}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern3] == data
+
+      params = %{"filter" => %{"date" => today_iso, "id" => "rp1,rp2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1] == data
+    end
   end
 
   describe "show" do

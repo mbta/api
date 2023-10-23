@@ -1,16 +1,20 @@
 defmodule ApiWeb.RoutePatternController do
   @moduledoc """
-  Controller for Routes. Filterable by:
+  Controller for Route Patterns. Filterable by:
 
   * id
+  * date
+  * direction_id
   * route_id
+  * stop
+  * canonical
   """
   use ApiWeb.Web, :api_controller
-  alias State.RoutePattern
+  alias State.{RoutePattern, RoutesByService, ServiceByDate, Trip}
 
   plug(:ensure_path_matches_version)
 
-  @filters ~w(id canonical route direction_id stop)
+  @filters ~w(id canonical route direction_id stop date)
   @includes ~w(route representative_trip)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
@@ -48,6 +52,7 @@ defmodule ApiWeb.RoutePatternController do
     filter_param(:direction_id)
     filter_param(:stop_id, includes_children: true)
     filter_param(:canonical)
+    filter_param(:date, description: "Filter by date that route pattern is active")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -92,25 +97,130 @@ defmodule ApiWeb.RoutePatternController do
   defp reject_invalid_canonical_filter(filters), do: filters
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: RoutePattern.filters()
-  defp format_filters(filters) do
-    Map.new(filters, fn {key, value} ->
-      case {key, value} do
-        {"id", ids} ->
-          {:ids, Params.split_on_comma(ids)}
+  defp format_filters(filters, acc \\ %{})
 
-        {"route", route_ids} ->
-          {:route_ids, Params.split_on_comma(route_ids)}
+  defp format_filters(%{"id" => ids} = filters, acc) do
+    new_acc = Map.put(acc, :ids, Params.split_on_comma(ids))
 
-        {"direction_id", direction_id} ->
-          {:direction_id, Params.direction_id(%{"direction_id" => direction_id})}
+    filters
+    |> Map.delete("id")
+    |> format_filters(new_acc)
+  end
 
-        {"stop", stop_ids} ->
-          {:stop_ids, Params.split_on_comma(stop_ids)}
+  defp format_filters(%{"direction_id" => direction_id} = filters, acc) do
+    new_acc = Map.put(acc, :direction_id, Params.direction_id(%{"direction_id" => direction_id}))
 
-        {"canonical", canonical} ->
-          {:canonical, Params.canonical(canonical)}
-      end
-    end)
+    filters
+    |> Map.delete("direction_id")
+    |> format_filters(new_acc)
+  end
+
+  defp format_filters(%{"route" => route_ids} = filters, acc) do
+    new_acc = Map.put(acc, :route_ids, Params.split_on_comma(route_ids))
+
+    filters
+    |> Map.delete("route")
+    |> format_filters(new_acc)
+  end
+
+  defp format_filters(%{"date" => date} = filters, acc) do
+    case process_date(date, acc) do
+      :error ->
+        filters
+        |> Map.delete("date")
+        |> format_filters(acc)
+
+      new_acc ->
+        filters
+        |> Map.delete("date")
+        |> format_filters(new_acc)
+    end
+  end
+
+  defp format_filters(%{"stop" => stop_ids} = filters, acc) do
+    new_acc = Map.put(acc, :stop_ids, Params.split_on_comma(stop_ids))
+
+    filters
+    |> Map.delete("stop")
+    |> format_filters(new_acc)
+  end
+
+  defp format_filters(%{"canonical" => canonical} = filters, acc) do
+    new_acc = Map.put(acc, :canonical, Params.canonical(canonical))
+
+    filters
+    |> Map.delete("canonical")
+    |> format_filters(new_acc)
+  end
+
+  defp format_filters(_, acc) do
+    acc
+  end
+
+  defp consolidate_route_ids(%{route_ids: [_ | _] = route_ids}, [_ | _] = date_specific_route_ids) do
+    route_ids
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(date_specific_route_ids))
+    |> MapSet.to_list()
+  end
+
+  defp consolidate_route_ids(_, date_specific_route_ids), do: date_specific_route_ids
+
+  defp gather_trip_based_route_pattern_ids(
+         %{ids: ids, date: _date, route_ids: [_ | _] = route_ids} = acc
+       ) do
+    acc
+    |> Map.take([:date, :direction_id])
+    |> Map.put(:route_patterns, ids)
+    |> Map.put(:routes, route_ids)
+    |> gather_trip_based_route_pattern_ids(acc)
+  end
+
+  defp gather_trip_based_route_pattern_ids(%{date: _date, route_ids: [_ | _] = route_ids} = acc) do
+    acc
+    |> Map.take([:date, :direction_id, :route_patterns])
+    |> Map.put(:routes, route_ids)
+    |> gather_trip_based_route_pattern_ids(acc)
+  end
+
+  defp gather_trip_based_route_pattern_ids(acc), do: acc
+
+  defp gather_trip_based_route_pattern_ids(filters, acc) do
+    route_pattern_ids =
+      filters
+      |> Trip.filter_by()
+      |> Enum.map(& &1.route_pattern_id)
+
+    Map.put(acc, :ids, route_pattern_ids)
+  end
+
+  defp process_date(date_str, acc) do
+    case process_date(date_str) do
+      :error ->
+        :error
+
+      %{date: date, route_ids: date_specific_route_ids} ->
+        filtered_route_ids = consolidate_route_ids(acc, date_specific_route_ids)
+
+        acc
+        |> Map.merge(%{route_ids: filtered_route_ids, date: date})
+        |> gather_trip_based_route_pattern_ids()
+    end
+  end
+
+  defp process_date(date_str) do
+    case Date.from_iso8601(date_str) do
+      {:ok, date} ->
+        ids =
+          date
+          |> ServiceByDate.by_date()
+          |> RoutesByService.for_service_ids()
+
+        %{date: date, route_ids: ids}
+
+      {:error, _} ->
+        :error
+    end
   end
 
   defp pagination_opts(params, conn) do
