@@ -604,6 +604,20 @@ defmodule ApiWeb.RoutePatternControllerTest do
         route_pattern_id: route_pattern5.id
       }
 
+      trip6 = %Model.Trip{
+        id: "trip6",
+        route_id: route1.id,
+        service_id: service.id,
+        route_pattern_id: route_pattern1.id
+      }
+
+      trip7 = %Model.Trip{
+        id: "trip7",
+        route_id: route1.id,
+        service_id: service.id,
+        route_pattern_id: route_pattern1.id
+      }
+
       State.Service.new_state([service, future_service])
       State.Route.new_state([route1, route2, route3])
 
@@ -615,7 +629,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
         route_pattern5
       ])
 
-      State.Trip.new_state([trip1, trip2, trip3, trip4, trip5])
+      State.Trip.new_state([trip1, trip2, trip3, trip4, trip5, trip6, trip7])
       State.Trip.reset_gather()
       State.RoutesByService.update!()
 

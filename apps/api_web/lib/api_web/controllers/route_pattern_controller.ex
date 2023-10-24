@@ -190,6 +190,7 @@ defmodule ApiWeb.RoutePatternController do
       filters
       |> Trip.filter_by()
       |> Enum.map(& &1.route_pattern_id)
+      |> Enum.uniq()
 
     Map.put(acc, :ids, route_pattern_ids)
   end
