@@ -773,20 +773,87 @@ defmodule ApiWeb.RoutePatternControllerTest do
       stop1 = %Model.Stop{id: "stop1"}
       stop2 = %Model.Stop{id: "stop2"}
 
-      schedule1 = %Model.Schedule{trip_id: trip1.id, stop_id: stop1.id, route_id: route1.id, service_id: service.id}
-      schedule2 = %Model.Schedule{trip_id: trip2.id, stop_id: stop1.id, route_id: route1.id, service_id: service.id}
-      schedule3 = %Model.Schedule{trip_id: trip3.id, stop_id: stop1.id, route_id: route1.id, service_id: future_service.id}
-      schedule4 = %Model.Schedule{trip_id: trip4.id, stop_id: stop1.id, route_id: route1.id, service_id: future_service.id}
-      schedule5a = %Model.Schedule{trip_id: trip5.id, stop_id: stop1.id, route_id: route2.id, service_id: service.id}
-      schedule5b = %Model.Schedule{trip_id: trip5.id, stop_id: stop2.id, route_id: route2.id, service_id: service.id}
-      schedule6a = %Model.Schedule{trip_id: trip6.id, stop_id: stop1.id, route_id: route2.id, service_id: service.id}
-      schedule6b = %Model.Schedule{trip_id: trip6.id, stop_id: stop2.id, route_id: route2.id, service_id: service.id}
-      new_state!([stop1, stop2], [route1, route2], [route_pattern1, route_pattern2, route_pattern3, route_pattern4], [trip1, trip2, trip3, trip4, trip5, trip6], [schedule1, schedule2, schedule3, schedule4, schedule5a, schedule5b, schedule6a, schedule6b])
+      schedule1 = %Model.Schedule{
+        trip_id: trip1.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: service.id
+      }
+
+      schedule2 = %Model.Schedule{
+        trip_id: trip2.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: service.id
+      }
+
+      schedule3 = %Model.Schedule{
+        trip_id: trip3.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: future_service.id
+      }
+
+      schedule4 = %Model.Schedule{
+        trip_id: trip4.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: future_service.id
+      }
+
+      schedule5a = %Model.Schedule{
+        trip_id: trip5.id,
+        stop_id: stop1.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      schedule5b = %Model.Schedule{
+        trip_id: trip5.id,
+        stop_id: stop2.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      schedule6a = %Model.Schedule{
+        trip_id: trip6.id,
+        stop_id: stop1.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      schedule6b = %Model.Schedule{
+        trip_id: trip6.id,
+        stop_id: stop2.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      new_state!(
+        [stop1, stop2],
+        [route1, route2],
+        [route_pattern1, route_pattern2, route_pattern3, route_pattern4],
+        [trip1, trip2, trip3, trip4, trip5, trip6],
+        [
+          schedule1,
+          schedule2,
+          schedule3,
+          schedule4,
+          schedule5a,
+          schedule5b,
+          schedule6a,
+          schedule6b
+        ]
+      )
+
       State.Trip.reset_gather()
       State.RoutesByService.update!()
 
       # date, stop, route
-      params = %{"filter" => %{"date" => today_iso, "route" => "route1,route2", "stop" => "stop1"}}
+      params = %{
+        "filter" => %{"date" => today_iso, "route" => "route1,route2", "stop" => "stop1"}
+      }
+
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [route_pattern1, route_pattern2, route_pattern3, route_pattern4] == data
 
@@ -838,23 +905,58 @@ defmodule ApiWeb.RoutePatternControllerTest do
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [] == data
 
-      params = %{"filter" => %{"date" => today_iso, "route" => "route1,route2", "stop" => "stop1", "id" => "rp1,rp3"}}
+      params = %{
+        "filter" => %{
+          "date" => today_iso,
+          "route" => "route1,route2",
+          "stop" => "stop1",
+          "id" => "rp1,rp3"
+        }
+      }
+
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [route_pattern1, route_pattern3] == data
 
-      params = %{"filter" => %{"date" => today_iso, "route" => "route1", "stop" => "stop2", "id" => "rp1"}}
+      params = %{
+        "filter" => %{"date" => today_iso, "route" => "route1", "stop" => "stop2", "id" => "rp1"}
+      }
+
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [] == data
 
-      params = %{"filter" => %{"date" => future_date_iso, "route" => "route1", "stop" => "stop2", "id" => "rp1"}}
+      params = %{
+        "filter" => %{
+          "date" => future_date_iso,
+          "route" => "route1",
+          "stop" => "stop2",
+          "id" => "rp1"
+        }
+      }
+
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [] == data
 
-      params = %{"filter" => %{"date" => future_date_iso, "route" => "route2", "stop" => "stop2", "id" => "rp1"}}
+      params = %{
+        "filter" => %{
+          "date" => future_date_iso,
+          "route" => "route2",
+          "stop" => "stop2",
+          "id" => "rp1"
+        }
+      }
+
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [] == data
 
-      params = %{"filter" => %{"date" => today_iso, "route" => "route2", "stop" => "stop1,stop2", "id" => "rp1,rp2,rp3"}}
+      params = %{
+        "filter" => %{
+          "date" => today_iso,
+          "route" => "route2",
+          "stop" => "stop1,stop2",
+          "id" => "rp1,rp2,rp3"
+        }
+      }
+
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [route_pattern3] == data
     end
