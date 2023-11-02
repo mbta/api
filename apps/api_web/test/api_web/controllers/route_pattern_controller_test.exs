@@ -694,6 +694,272 @@ defmodule ApiWeb.RoutePatternControllerTest do
       data = ApiWeb.RoutePatternController.index_data(base_conn, params)
       assert [route_pattern1] == data
     end
+
+    test "can filter by date, route, stop and direction", %{conn: base_conn} do
+      today = Parse.Time.service_date()
+      bad_date = Date.add(today, 2)
+      today_iso = Date.to_iso8601(today)
+      future_date_iso = Date.to_iso8601(bad_date)
+
+      service = %Model.Service{
+        id: "service",
+        start_date: today,
+        end_date: today,
+        added_dates: [today]
+      }
+
+      future_service = %Model.Service{
+        id: "future_service",
+        start_date: bad_date,
+        end_date: bad_date,
+        added_dates: [bad_date]
+      }
+
+      route1 = %Model.Route{id: "route1"}
+      route2 = %Model.Route{id: "route2"}
+      route_pattern1 = %RoutePattern{id: "rp1", route_id: route1.id}
+      route_pattern2 = %RoutePattern{id: "rp2", route_id: route1.id}
+      route_pattern3 = %RoutePattern{id: "rp3", route_id: route2.id}
+      route_pattern4 = %RoutePattern{id: "rp4", route_id: route2.id}
+
+      trip1 = %Model.Trip{
+        id: "trip1",
+        route_id: route1.id,
+        route_pattern_id: route_pattern1.id,
+        service_id: service.id,
+        direction_id: 0
+      }
+
+      trip2 = %Model.Trip{
+        id: "trip2",
+        route_id: route1.id,
+        route_pattern_id: route_pattern2.id,
+        service_id: service.id,
+        direction_id: 1
+      }
+
+      trip3 = %Model.Trip{
+        id: "trip3",
+        route_id: route1.id,
+        route_pattern_id: route_pattern1.id,
+        service_id: future_service.id,
+        direction_id: 0
+      }
+
+      trip4 = %Model.Trip{
+        id: "trip4",
+        route_id: route1.id,
+        route_pattern_id: route_pattern2.id,
+        service_id: future_service.id,
+        direction_id: 1
+      }
+
+      trip5 = %Model.Trip{
+        id: "trip5",
+        route_id: route2.id,
+        route_pattern_id: route_pattern3.id,
+        service_id: service.id,
+        direction_id: 0
+      }
+
+      trip6 = %Model.Trip{
+        id: "trip6",
+        route_id: route2.id,
+        route_pattern_id: route_pattern4.id,
+        service_id: service.id,
+        direction_id: 1
+      }
+
+      stop1 = %Model.Stop{id: "stop1"}
+      stop2 = %Model.Stop{id: "stop2"}
+
+      schedule1 = %Model.Schedule{
+        trip_id: trip1.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: service.id
+      }
+
+      schedule2 = %Model.Schedule{
+        trip_id: trip2.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: service.id
+      }
+
+      schedule3 = %Model.Schedule{
+        trip_id: trip3.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: future_service.id
+      }
+
+      schedule4 = %Model.Schedule{
+        trip_id: trip4.id,
+        stop_id: stop1.id,
+        route_id: route1.id,
+        service_id: future_service.id
+      }
+
+      schedule5a = %Model.Schedule{
+        trip_id: trip5.id,
+        stop_id: stop1.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      schedule5b = %Model.Schedule{
+        trip_id: trip5.id,
+        stop_id: stop2.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      schedule6a = %Model.Schedule{
+        trip_id: trip6.id,
+        stop_id: stop1.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      schedule6b = %Model.Schedule{
+        trip_id: trip6.id,
+        stop_id: stop2.id,
+        route_id: route2.id,
+        service_id: service.id
+      }
+
+      new_state!(
+        [stop1, stop2],
+        [route1, route2],
+        [route_pattern1, route_pattern2, route_pattern3, route_pattern4],
+        [trip1, trip2, trip3, trip4, trip5, trip6],
+        [
+          schedule1,
+          schedule2,
+          schedule3,
+          schedule4,
+          schedule5a,
+          schedule5b,
+          schedule6a,
+          schedule6b
+        ]
+      )
+
+      State.Trip.reset_gather()
+      State.RoutesByService.update!()
+
+      # date, stop, route
+      params = %{
+        "filter" => %{"date" => today_iso, "route" => "route1,route2", "stop" => "stop1"}
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern2, route_pattern3, route_pattern4] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => "route1", "stop" => "stop2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "route" => "route1", "stop" => "stop2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "route" => "route2", "stop" => "stop2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => "route2", "stop" => "stop1,stop2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern3, route_pattern4] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => "route1"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern2] == data
+
+      params = %{"filter" => %{"date" => today_iso, "route" => "route2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern3, route_pattern4] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "route" => "route1"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern2] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "route" => "route2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{"filter" => %{"date" => today_iso, "stop" => "stop1"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern2, route_pattern3, route_pattern4] == data
+
+      params = %{"filter" => %{"date" => today_iso, "stop" => "stop2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern3, route_pattern4] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "stop" => "stop1"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern2] == data
+
+      params = %{"filter" => %{"date" => future_date_iso, "stop" => "stop2"}}
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{
+        "filter" => %{
+          "date" => today_iso,
+          "route" => "route1,route2",
+          "stop" => "stop1",
+          "id" => "rp1,rp3"
+        }
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern1, route_pattern3] == data
+
+      params = %{
+        "filter" => %{"date" => today_iso, "route" => "route1", "stop" => "stop2", "id" => "rp1"}
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{
+        "filter" => %{
+          "date" => future_date_iso,
+          "route" => "route1",
+          "stop" => "stop2",
+          "id" => "rp1"
+        }
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{
+        "filter" => %{
+          "date" => future_date_iso,
+          "route" => "route2",
+          "stop" => "stop2",
+          "id" => "rp1"
+        }
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [] == data
+
+      params = %{
+        "filter" => %{
+          "date" => today_iso,
+          "route" => "route2",
+          "stop" => "stop1,stop2",
+          "id" => "rp1,rp2,rp3"
+        }
+      }
+
+      data = ApiWeb.RoutePatternController.index_data(base_conn, params)
+      assert [route_pattern3] == data
+    end
   end
 
   describe "show" do

@@ -29,6 +29,7 @@ defmodule State.RoutePattern do
     end
   end
 
+  @spec filter_by(filters()) :: [RoutePattern.t()]
   def filter_by(%{canonical: canonical} = filters) do
     filters
     |> Map.delete(:canonical)
@@ -36,7 +37,37 @@ defmodule State.RoutePattern do
     |> Enum.filter(fn %RoutePattern{canonical: is_c} -> canonical == is_c end)
   end
 
-  @spec filter_by(filters()) :: [RoutePattern.t()]
+  def filter_by(%{ids: ids, route_ids: _route_ids, stop_ids: _stop_ids} = filters) do
+    ids_from_stops = MapSet.new(ids_from_stops(filters))
+    ids_from_routes = MapSet.new(ids_from_routes(filters))
+
+    ids_from_stops
+    |> MapSet.intersection(ids_from_routes)
+    |> MapSet.intersection(MapSet.new(ids))
+    |> MapSet.to_list()
+    |> by_ids()
+  end
+
+  def filter_by(%{ids: ids, stop_ids: _stop_ids} = filters) do
+    ids_from_stops = ids_from_stops(filters)
+
+    ids_from_stops
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(ids))
+    |> MapSet.to_list()
+    |> by_ids()
+  end
+
+  def filter_by(%{ids: ids, route_ids: _route_ids} = filters) do
+    ids_from_routes = ids_from_routes(filters)
+
+    ids_from_routes
+    |> MapSet.new()
+    |> MapSet.intersection(MapSet.new(ids))
+    |> MapSet.to_list()
+    |> by_ids()
+  end
+
   def filter_by(%{ids: ids}) do
     by_ids(ids)
   end
