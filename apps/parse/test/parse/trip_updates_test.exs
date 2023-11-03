@@ -17,8 +17,12 @@ defmodule Parse.TripUpdatesTest do
       update = %{
         "stop_id" => "place-north",
         "stop_sequence" => 6,
+        "arrival" => %{
+          "time" => 1_502_290_000
+        },
         "departure" => %{
-          "time" => 1_502_290_500
+          "time" => 1_502_290_500,
+          "uncertainty" => 60
         }
       }
 
@@ -52,7 +56,8 @@ defmodule Parse.TripUpdatesTest do
             stop_id: "stop",
             stop_sequence: 5,
             arrival: %{
-              time: 1
+              time: 1,
+              uncertainty: 60
             },
             departure: nil,
             schedule_relationship: :SCHEDULED
@@ -71,7 +76,10 @@ defmodule Parse.TripUpdatesTest do
                stop_id: "stop",
                vehicle_id: "vehicle",
                stop_sequence: 5,
-               arrival_time: %DateTime{}
+               arrival_time: %DateTime{},
+               arrival_uncertainty: 60,
+               departure_time: nil,
+               departure_uncertainty: nil
              } = actual
     end
 

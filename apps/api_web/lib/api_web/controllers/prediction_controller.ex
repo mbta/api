@@ -261,6 +261,34 @@ defmodule ApiWeb.PredictionController do
               example: "2017-08-14T15:38:58-04:00"
             )
 
+            arrival_uncertainty(
+              [:integer, :null],
+              """
+              Uncertainty value for the arrival time prediction.
+
+              | Value  | Description |
+              |--------|-------------|
+              | `60`   | A trip that has already started |
+              | `120`  | A terminal/reverse trip departure for a trip that has NOT started and a train is awaiting departure at the origin |
+              | `360`  | A terminal/reverse trip for a trip that has NOT started and a train is completing a previous trip |
+              """,
+              example: 60
+            )
+
+            departure_uncertainty(
+              [:integer, :null],
+              """
+              Uncertainty value for the departure time prediction.
+
+              | Value  | Description |
+              |--------|-------------|
+              | `60`   | A trip that has already started |
+              | `120`  | A terminal/reverse trip departure for a trip that has NOT started and a train is awaiting departure at the origin |
+              | `360`  | A terminal/reverse trip for a trip that has NOT started and a train is completing a previous trip |
+              """,
+              example: 60
+            )
+
             schedule_relationship(
               [:string, :null],
               """

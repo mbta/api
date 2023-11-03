@@ -17,7 +17,9 @@ defmodule Model.Prediction do
     :direction_id,
     :route_pattern_id,
     :arrival_time,
+    :arrival_uncertainty,
     :departure_time,
+    :departure_uncertainty,
     :stop_sequence,
     :schedule_relationship,
     :status,
@@ -38,6 +40,15 @@ defmodule Model.Prediction do
   See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `ScheduleRelationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship)
   """
   @type schedule_relationship :: :added | :cancelled | :no_data | :skipped | :unscheduled | nil
+
+  @typedoc """
+  | Value  | Description |
+  |--------|-------------|
+  | `60`   | A trip that has already started |
+  | `120`  | A terminal/reverse trip departure for a trip that has NOT started and a train is awaiting departure at the origin |
+  | `360`  | A terminal/reverse trip for a trip that has NOT started and a train is completing a previous trip |
+  """
+  @type uncertainty_values :: 60 | 120 | 360
 
   @typedoc """
   * `:arrival_time` - When the vehicle is now predicted to arrive. `nil` if the first stop (`stop_id`) on the the trip
@@ -65,7 +76,9 @@ defmodule Model.Prediction do
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
+          arrival_uncertainty: uncertainty_values | nil,
           departure_time: DateTime.t() | nil,
+          departure_uncertainty: uncertainty_values | nil,
           direction_id: Model.Direction.id(),
           route_id: Model.Route.id(),
           route_pattern_id: Model.RoutePattern.id(),
