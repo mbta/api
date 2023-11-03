@@ -41,7 +41,8 @@ defmodule Parse.Trips do
       wheelchair_accessible: String.to_integer(row["wheelchair_accessible"]),
       route_type: trip_route_type(row["trip_route_type"]),
       bikes_allowed: bikes_allowed(row["bikes_allowed"]),
-      route_pattern_id: copy_if_not_blank(row["route_pattern_id"])
+      route_pattern_id: copy_if_not_blank(row["route_pattern_id"]),
+      revenue_service: parse_is_revenue_service(row["trip_id"])
     }
   end
 
@@ -60,4 +61,7 @@ defmodule Parse.Trips do
   end
 
   defp copy_if_not_blank(_), do: nil
+
+  defp parse_is_revenue_service("NONREV-" <> _), do: false
+  defp parse_is_revenue_service(_), do: true
 end
