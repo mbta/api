@@ -339,5 +339,91 @@ defmodule State.TripTest do
       assert filter_by(%{names: ["name"]}) == [@trip]
       assert filter_by(%{names: ["not_a_name"]}) == []
     end
+
+    test "filters by revenue_status" do
+      trip1 = %Model.Trip{
+        block_id: "block_id",
+        id: "trip1",
+        route_id: "9",
+        direction_id: 1,
+        route_pattern_id: 1,
+        service_id: @service_id,
+        name: "trip1",
+        revenue_service: true
+      }
+
+      trip2 = %Model.Trip{
+        block_id: "block_id",
+        id: "NONREV-trip2",
+        route_id: "9",
+        direction_id: 1,
+        route_pattern_id: 1,
+        service_id: @service_id,
+        name: "trip2",
+        revenue_service: false
+      }
+
+      trip3 = %Model.Trip{
+        block_id: "block_id",
+        id: "trip3",
+        route_id: "10",
+        direction_id: 1,
+        route_pattern_id: 1,
+        service_id: @service_id,
+        name: "trip3",
+        revenue_service: true
+      }
+
+      trip4 = %Model.Trip{
+        block_id: "block_id",
+        id: "NONREV-trip4",
+        route_id: "10",
+        direction_id: 1,
+        route_pattern_id: 1,
+        service_id: @service_id,
+        name: "trip4",
+        revenue_service: false
+      }
+
+      new_state(%{multi_route_trips: [], trips: [trip1, trip2, trip3, trip4]})
+      assert Enum.sort_by(filter_by(%{routes: ["9"]}), & &1.name) == [trip1]
+      assert Enum.sort_by(filter_by(%{routes: ["10"]}), & &1.name) == [trip3]
+      assert Enum.sort_by(filter_by(%{route_pattern_id: 1}), & &1.name) == [trip1, trip3]
+
+      assert Enum.sort_by(filter_by(%{routes: ["9"], revenue_status: "revenue"}), & &1.name) == [
+               trip1
+             ]
+
+      assert Enum.sort_by(filter_by(%{routes: ["10"], revenue_status: "revenue"}), & &1.name) == [
+               trip3
+             ]
+
+      assert Enum.sort_by(filter_by(%{route_pattern_id: 1, revenue_status: "revenue"}), & &1.name) ==
+               [trip1, trip3]
+
+      assert Enum.sort_by(filter_by(%{routes: ["9"], revenue_status: "all"}), & &1.name) == [
+               trip1,
+               trip2
+             ]
+
+      assert Enum.sort_by(filter_by(%{routes: ["10"], revenue_status: "all"}), & &1.name) == [
+               trip3,
+               trip4
+             ]
+
+      assert Enum.sort_by(filter_by(%{route_pattern_id: 1, revenue_status: "all"}), & &1.name) ==
+               [trip1, trip2, trip3, trip4]
+
+      assert Enum.sort_by(filter_by(%{routes: ["9"], revenue_status: "non_revenue"}), & &1.name) ==
+               [trip2]
+
+      assert Enum.sort_by(filter_by(%{routes: ["10"], revenue_status: "non_revenue"}), & &1.name) ==
+               [trip4]
+
+      assert Enum.sort_by(
+               filter_by(%{route_pattern_id: 1, revenue_status: "non_revenue"}),
+               & &1.name
+             ) == [trip2, trip4]
+    end
   end
 end
