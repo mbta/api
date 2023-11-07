@@ -10,7 +10,7 @@ defmodule ApiWeb.TripController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id route route_pattern name)s
+  @filters ~w(id date direction_id route route_pattern name, revenue_status)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(route vehicle service shape predictions route_pattern stops)
 
