@@ -278,7 +278,7 @@ defmodule ApiWeb.PredictionController do
               | > 301            |	Likely invalid prediction, recommend not showing anything (and not showing scheduled time), very rare situation |
 
 
-              Subway
+              Subway/Light Rail
               See [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
 
               | Value  | Description |
@@ -305,7 +305,7 @@ defmodule ApiWeb.PredictionController do
               | 301              |	Valid real-time prediction, though the bus appears to be stalled or significantly delayed and predictions are not as accurate |
               | > 301            |	Likely invalid prediction, recommend not showing anything (and not showing scheduled time), very rare situation |
 
-              Subway
+              Subway/Light Rail
               See [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `departure`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
 
               | Value | Description |
