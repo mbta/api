@@ -13,7 +13,7 @@ defmodule ApiWeb.PredictionController do
   alias ApiWeb.LegacyStops
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue_status)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -61,6 +61,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:stop_id, includes_children: true)
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
+    filter_param(:revenue_status, desc: "Filter predictions by revenue status.")
 
     parameter("filter[route_pattern]", :query, :string, """
     Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.

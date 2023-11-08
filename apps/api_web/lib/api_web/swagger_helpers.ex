@@ -264,6 +264,21 @@ defmodule ApiWeb.SwaggerHelpers do
     )
   end
 
+  def filter_param(path_object, :revenue_status, opts) do
+    Path.parameter(
+      path_object,
+      "filter[revenue_status]",
+      :query,
+      :string,
+      """
+      #{opts[:desc]}
+
+      When filter is not included, the default behavior is to filter by `revenue_status=revenue`.
+      """,
+      enum: ["all", "revenue", "non_revenue"]
+    )
+  end
+
   def page(resource) do
     resource
     |> JsonApi.page()

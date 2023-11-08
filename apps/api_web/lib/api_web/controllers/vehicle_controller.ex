@@ -8,7 +8,7 @@ defmodule ApiWeb.VehicleController do
   use ApiWeb.Web, :api_controller
   alias State.Vehicle
 
-  @filters ~w(trip route direction_id id label route_type)s
+  @filters ~w(trip route direction_id id label route_type revenue_status)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(trip stop route)
 
@@ -87,6 +87,7 @@ defmodule ApiWeb.VehicleController do
 
     filter_param(:direction_id, desc: "Only used if `filter[route]` is also present.")
     filter_param(:route_type)
+    filter_param(:revenue_status, desc: "Filter vehicles by revenue status.")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
