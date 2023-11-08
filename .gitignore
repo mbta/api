@@ -34,6 +34,7 @@ cover
 # Python artifacts (for locust)
 __pycache__
 
-# local db 
+# local db
 shared-local-instance.db
 /bin
+dynamodb-local-metadata.json
