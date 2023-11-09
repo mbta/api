@@ -74,8 +74,18 @@ defmodule ApiWeb.ApiViewHelpersTest do
     end
   end
 
-  test "limit/1 returns proplery formated rate limit per key" do
+  test "limit/1 returns properly formatted rate limit per key" do
     key = %ApiAccounts.Key{key: @api_key}
     assert limit(key) == ApiWeb.config(:rate_limiter, :max_registered_per_interval)
+  end
+
+  test "limit_value/1 returns nil if daily_limit is not set" do
+    key = %ApiAccounts.Key{key: @api_key, daily_limit: nil}
+    assert limit_value(key) == nil
+  end
+
+  test "limit_value/1 returns formatted limit value if set" do
+    key = %ApiAccounts.Key{key: @api_key, daily_limit: 10_000 * 60 * 24}
+    assert limit_value(key) == limit(key)
   end
 end

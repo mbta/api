@@ -240,9 +240,29 @@ defmodule ApiWeb.ApiViewHelpers do
     |> String.replace("/", "%2F")
   end
 
+  def default_registered_per_interval() do
+    ApiWeb.RateLimiter.max_registered_per_interval()
+  end
+
   def limit(%ApiAccounts.Key{} = key) do
     key
     |> ApiWeb.User.from_key()
+    |> ApiWeb.RateLimiter.max_requests()
+    |> trunc()
+  end
+
+  def limit_value(%ApiAccounts.Key{} = key) do
+    key
+    |> ApiWeb.User.from_key()
+    |> limit_or_default_of_nil()
+  end
+
+  defp limit_or_default_of_nil(%ApiWeb.User{limit: nil}) do
+    nil
+  end
+
+  defp limit_or_default_of_nil(%ApiWeb.User{} = user) do
+    user
     |> ApiWeb.RateLimiter.max_requests()
     |> trunc()
   end
