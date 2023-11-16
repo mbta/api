@@ -56,6 +56,24 @@ defmodule ApiWeb.ApiViewHelpersTest do
     assert url_safe_id(struct, %{}) == expected
   end
 
+  describe "interval_atom/1" do
+    test "returns per-minute limit" do
+      assert interval_atom(60_000) == :per_minute_limit
+    end
+
+    test "returns hourly limit" do
+      assert interval_atom(3_600_000) == :hourly_limit
+    end
+
+    test "returns daily limit" do
+      assert interval_atom(86_400_000) == :daily_limit
+    end
+
+    test "truncates to the second if doesn't match a simple case" do
+      assert interval_atom(2_756) == :requests_per_seconds
+    end
+  end
+
   describe "interval_name/1" do
     test "returns per-minute limit" do
       assert interval_name(60_000) == "Per-Minute Limit"

@@ -240,7 +240,7 @@ defmodule ApiWeb.ApiViewHelpers do
     |> String.replace("/", "%2F")
   end
 
-  def default_registered_per_interval() do
+  def default_registered_per_interval do
     ApiWeb.RateLimiter.max_registered_per_interval()
   end
 
@@ -265,6 +265,22 @@ defmodule ApiWeb.ApiViewHelpers do
     user
     |> ApiWeb.RateLimiter.max_requests()
     |> trunc()
+  end
+
+  def interval_atom(clear_interval \\ ApiWeb.config(:rate_limiter, :clear_interval)) do
+    case clear_interval do
+      60_000 ->
+        :per_minute_limit
+
+      3_600_000 ->
+        :hourly_limit
+
+      86_400_000 ->
+        :daily_limit
+
+      ^clear_interval ->
+        :requests_per_seconds
+    end
   end
 
   def interval_name(clear_interval \\ ApiWeb.config(:rate_limiter, :clear_interval)) do
