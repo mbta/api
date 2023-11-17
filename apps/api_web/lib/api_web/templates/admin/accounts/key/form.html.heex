@@ -8,11 +8,11 @@
   <div class="form-group">
     <%= label(
       f,
-      "#{ApiWeb.ApiViewHelpers.interval_name()} (default #{ApiWeb.ApiViewHelpers.default_registered_per_interval()})",
+      "Per-Minute Limit (default #{ApiWeb.ApiViewHelpers.default_registered_per_minute()})",
       class: "control-label"
     ) %>
-    <%= text_input(f, ApiWeb.ApiViewHelpers.interval_atom(),
-      value: ApiWeb.ApiViewHelpers.limit_value(@changeset.data),
+    <%= text_input(f, :per_minute_limit,
+      value: ApiWeb.ApiViewHelpers.per_minute_limit_value(@changeset.data),
       class: "form-control"
     ) %>
     <%= error_tag(f, :daily_limit) %>

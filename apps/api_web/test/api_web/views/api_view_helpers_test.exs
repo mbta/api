@@ -56,54 +56,21 @@ defmodule ApiWeb.ApiViewHelpersTest do
     assert url_safe_id(struct, %{}) == expected
   end
 
-  describe "interval_atom/1" do
-    test "returns per-minute limit" do
-      assert interval_atom(60_000) == :per_minute_limit
-    end
-
-    test "returns hourly limit" do
-      assert interval_atom(3_600_000) == :hourly_limit
-    end
-
-    test "returns daily limit" do
-      assert interval_atom(86_400_000) == :daily_limit
-    end
-
-    test "truncates to the second if doesn't match a simple case" do
-      assert interval_atom(2_756) == :requests_per_seconds
-    end
-  end
-
-  describe "interval_name/1" do
-    test "returns per-minute limit" do
-      assert interval_name(60_000) == "Per-Minute Limit"
-    end
-
-    test "returns hourly limit" do
-      assert interval_name(3_600_000) == "Hourly Limit"
-    end
-
-    test "returns daily limit" do
-      assert interval_name(86_400_000) == "Daily Limit"
-    end
-
-    test "truncates to the second if doesn't match a simple case" do
-      assert interval_name(2_756) == "Requests Per 2.76 Seconds"
-    end
-  end
-
-  test "limit/1 returns properly formatted rate limit per key" do
+  test "per_minute_limit/1 returns properly formatted rate limit per key" do
     key = %ApiAccounts.Key{key: @api_key}
-    assert limit(key) == ApiWeb.config(:rate_limiter, :max_registered_per_interval)
+
+    assert per_minute_limit(key) ==
+             ApiWeb.config(:rate_limiter, :max_registered_per_interval) *
+               ApiWeb.RateLimiter.intervals_per_minute()
   end
 
-  test "limit_value/1 returns nil if daily_limit is not set" do
+  test "per_minute_limit_value/1 returns nil if daily_limit is not set" do
     key = %ApiAccounts.Key{key: @api_key, daily_limit: nil}
-    assert limit_value(key) == nil
+    assert per_minute_limit_value(key) == nil
   end
 
-  test "limit_value/1 returns formatted limit value if set" do
-    key = %ApiAccounts.Key{key: @api_key, daily_limit: 10_000 * 60 * 24}
-    assert limit_value(key) == limit(key)
+  test "per_minute_limit_value/1 returns formatted limit value if set" do
+    key = %ApiAccounts.Key{key: @api_key, daily_limit: 100_000}
+    assert per_minute_limit_value(key) == per_minute_limit(key)
   end
 end
