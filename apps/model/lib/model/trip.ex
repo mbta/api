@@ -17,7 +17,7 @@ defmodule Model.Trip do
     :route_type,
     :bikes_allowed,
     :route_pattern_id,
-    :revenue_service
+    revenue_service: true
   ]
 
   @type id :: String.t()
