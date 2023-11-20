@@ -485,7 +485,7 @@ defmodule ApiWeb.RoutePatternControllerTest do
       bad_date = Date.add(today, 2)
 
       service = %Model.Service{
-        id: "service",
+        id: "service-1-date",
         start_date: today,
         end_date: today,
         added_dates: [today]
@@ -533,14 +533,14 @@ defmodule ApiWeb.RoutePatternControllerTest do
       bad_date = Date.add(today, 2)
 
       service = %Model.Service{
-        id: "service",
+        id: "service-1-date-route",
         start_date: today,
         end_date: today,
         added_dates: [today]
       }
 
       future_service = %Model.Service{
-        id: "future_service",
+        id: "future_service-date-route",
         start_date: bad_date,
         end_date: bad_date,
         added_dates: [bad_date]
@@ -702,14 +702,14 @@ defmodule ApiWeb.RoutePatternControllerTest do
       future_date_iso = Date.to_iso8601(bad_date)
 
       service = %Model.Service{
-        id: "service",
+        id: "service-1-date-route-stop-direction",
         start_date: today,
         end_date: today,
         added_dates: [today]
       }
 
       future_service = %Model.Service{
-        id: "future_service",
+        id: "future_service-date-route-stop-direction",
         start_date: bad_date,
         end_date: bad_date,
         added_dates: [bad_date]
@@ -828,6 +828,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
         route_id: route2.id,
         service_id: service.id
       }
+
+      State.Service.new_state([service, future_service])
 
       new_state!(
         [stop1, stop2],
