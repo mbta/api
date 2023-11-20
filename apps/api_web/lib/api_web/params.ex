@@ -209,6 +209,12 @@ defmodule ApiWeb.Params do
   def canonical(_), do: nil
 
   @doc """
+  Parse revenue_status filter to valid params
+  """
+  def revenue_status(value) when value in ["all", "revenue", "non_revenue"], do: value
+  def revenue_status(_), do: :error
+
+  @doc """
   Parses and integer value from params.
 
   ## Examples

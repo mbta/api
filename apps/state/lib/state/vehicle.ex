@@ -61,6 +61,7 @@ defmodule State.Vehicle do
     [%{}]
     |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
     |> build_filters(:route_type, Map.get(filters, :route_types), filters)
+    |> build_filters(:revenue_status, Map.get(filters, :revenue_status), filters)
     |> State.Vehicle.select(idx)
     |> do_post_search_filter(filters)
   end
@@ -96,6 +97,21 @@ defmodule State.Vehicle do
       matcher
       |> Map.put(:effective_route_id, route_id)
       |> Map.put(:direction_id, direction_id)
+    end
+  end
+
+  require Logger
+
+  defp build_filters(matchers, :revenue_status, _, filters) do
+    trip_ids =
+      filters
+      |> Map.take([:revenue_status, :routes, :direction_id])
+      |> Trip.filter_by()
+      |> Enum.map(& &1.id)
+      |> Enum.uniq()
+
+    for matcher <- matchers, trip_id <- trip_ids do
+      Map.put(matcher, :trip_id, trip_id)
     end
   end
 
