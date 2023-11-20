@@ -1,6 +1,6 @@
-ARG ELIXIR_VERSION=1.14.3
-ARG ERLANG_VERSION=25.2.2
-ARG ALPINE_VERSION=3.17.0
+ARG ELIXIR_VERSION=1.14.5
+ARG ERLANG_VERSION=25.3.2.7
+ARG ALPINE_VERSION=3.17.5
 
 FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION} as builder
 
@@ -29,15 +29,15 @@ RUN mix release
 FROM alpine:${ALPINE_VERSION}
 
 RUN apk add --no-cache libssl1.1 dumb-init libstdc++ libgcc ncurses-libs && \
-    mkdir /work /api && \
-    adduser -D api && chown api /work
+  mkdir /work /api && \
+  adduser -D api && chown api /work
 
 COPY --from=builder /root/_build/prod/rel/api_web /api
 
 # Set exposed ports
 EXPOSE 4000
 ENV PORT=4000 MIX_ENV=prod TERM=xterm LANG=C.UTF-8 \
-    ERL_CRASH_DUMP_SECONDS=0 RELEASE_TMP=/work
+  ERL_CRASH_DUMP_SECONDS=0 RELEASE_TMP=/work
 
 USER api
 WORKDIR /work
