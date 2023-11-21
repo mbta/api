@@ -6,8 +6,15 @@
   <% end %>
 
   <div class="form-group">
-    <%= label(f, :daily_limit, class: "control-label") %>
-    <%= text_input(f, :daily_limit, class: "form-control") %>
+    <%= label(
+      f,
+      "Per-Minute Limit (default #{ApiWeb.ApiViewHelpers.default_registered_per_minute()})",
+      class: "control-label"
+    ) %>
+    <%= text_input(f, :per_minute_limit,
+      value: ApiWeb.ApiViewHelpers.per_minute_limit_value(@changeset.data),
+      class: "form-control"
+    ) %>
     <%= error_tag(f, :daily_limit) %>
   </div>
 

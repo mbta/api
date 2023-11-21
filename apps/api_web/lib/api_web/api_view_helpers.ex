@@ -240,27 +240,38 @@ defmodule ApiWeb.ApiViewHelpers do
     |> String.replace("/", "%2F")
   end
 
-  def limit(%ApiAccounts.Key{} = key) do
+  def default_registered_per_minute do
+    ApiWeb.RateLimiter.max_registered_per_interval() * ApiWeb.RateLimiter.intervals_per_minute()
+  end
+
+  @doc """
+  Returns the maximum number of requests a key represented as a per-minute limit
+  """
+  @spec max_requests_per_minute(ApiWeb.User.t()) :: non_neg_integer()
+  def max_requests_per_minute(%ApiWeb.User{} = user) do
+    ApiWeb.RateLimiter.max_requests(user) * ApiWeb.RateLimiter.intervals_per_minute()
+  end
+
+  def per_minute_limit(%ApiAccounts.Key{} = key) do
     key
     |> ApiWeb.User.from_key()
-    |> ApiWeb.RateLimiter.max_requests()
+    |> max_requests_per_minute()
     |> trunc()
   end
 
-  def interval_name(clear_interval \\ ApiWeb.config(:rate_limiter, :clear_interval)) do
-    case clear_interval do
-      60_000 ->
-        "Per-Minute Limit"
+  def per_minute_limit_value(%ApiAccounts.Key{} = key) do
+    key
+    |> ApiWeb.User.from_key()
+    |> limit_or_default_of_nil()
+  end
 
-      3_600_000 ->
-        "Hourly Limit"
+  defp limit_or_default_of_nil(%ApiWeb.User{limit: nil}) do
+    nil
+  end
 
-      86_400_000 ->
-        "Daily Limit"
-
-      clear_interval ->
-        second_limit = Float.round(clear_interval / 1000, 2)
-        "Requests Per #{second_limit} Seconds"
-    end
+  defp limit_or_default_of_nil(%ApiWeb.User{} = user) do
+    user
+    |> max_requests_per_minute()
+    |> trunc()
   end
 end

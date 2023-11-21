@@ -9,18 +9,24 @@ defmodule ApiWeb.Controllers.Portal.PortalControllerTest do
       assert html_response(conn, 200) =~ "Api Keys"
     end
 
-    test "index displays default key limit per interval of 100000", %{user: user, conn: conn} do
+    test "index displays default key limit per minute", %{
+      user: user,
+      conn: conn
+    } do
       {:ok, key} = ApiAccounts.create_key(user)
       {:ok, _} = ApiAccounts.update_key(key, %{approved: true})
       conn = get(conn, portal_path(conn, :index))
-      assert html_response(conn, 200) =~ "100000"
+      max = ApiWeb.config(:rate_limiter, :max_registered_per_interval)
+      interval = ApiWeb.config(:rate_limiter, :clear_interval)
+      per_interval_minute = div(max, interval) * 60_000
+      assert html_response(conn, 200) =~ "#{per_interval_minute}"
     end
 
     test "index displays dynamic key limit", %{user: user, conn: conn} do
       {:ok, key} = ApiAccounts.create_key(user)
       {:ok, _} = ApiAccounts.update_key(key, %{approved: true, daily_limit: 999_999_999_999})
       conn = get(conn, portal_path(conn, :index))
-      assert html_response(conn, 200) =~ "1157407"
+      assert html_response(conn, 200) =~ "694444200"
     end
   end
 
