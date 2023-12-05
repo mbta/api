@@ -56,26 +56,21 @@ defmodule ApiWeb.ApiViewHelpersTest do
     assert url_safe_id(struct, %{}) == expected
   end
 
-  describe "interval_name/1" do
-    test "returns per-minute limit" do
-      assert interval_name(60_000) == "Per-Minute Limit"
-    end
+  test "per_minute_limit/1 returns properly formatted rate limit per key" do
+    key = %ApiAccounts.Key{key: @api_key}
 
-    test "returns hourly limit" do
-      assert interval_name(3_600_000) == "Hourly Limit"
-    end
-
-    test "returns daily limit" do
-      assert interval_name(86_400_000) == "Daily Limit"
-    end
-
-    test "truncates to the second if doesn't match a simple case" do
-      assert interval_name(2_756) == "Requests Per 2.76 Seconds"
-    end
+    assert per_minute_limit(key) ==
+             ApiWeb.config(:rate_limiter, :max_registered_per_interval) *
+               ApiWeb.RateLimiter.intervals_per_minute()
   end
 
-  test "limit/1 returns proplery formated rate limit per key" do
-    key = %ApiAccounts.Key{key: @api_key}
-    assert limit(key) == ApiWeb.config(:rate_limiter, :max_registered_per_interval)
+  test "per_minute_limit_value/1 returns nil if daily_limit is not set" do
+    key = %ApiAccounts.Key{key: @api_key, daily_limit: nil}
+    assert per_minute_limit_value(key) == nil
+  end
+
+  test "per_minute_limit_value/1 returns formatted limit value if set" do
+    key = %ApiAccounts.Key{key: @api_key, daily_limit: 100_000}
+    assert per_minute_limit_value(key) == per_minute_limit(key)
   end
 end

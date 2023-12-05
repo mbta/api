@@ -109,7 +109,7 @@
         <tr>
           <th>Key</th>
           <th>Version</th>
-          <th><%= ApiWeb.ApiViewHelpers.interval_name() %></th>
+          <th>Per-Minute Limit</th>
           <th>Created</th>
           <th>Requested On</th>
           <th>Approved</th>
@@ -125,7 +125,7 @@
               <div><%= key.description %></div>
             </td>
             <td><%= key.api_version %></td>
-            <td><%= ApiWeb.ApiViewHelpers.limit(key) %></td>
+            <td><%= ApiWeb.ApiViewHelpers.per_minute_limit(key) %></td>
             <td><%= key.created %></td>
             <td><%= key.requested_date %></td>
             <td>

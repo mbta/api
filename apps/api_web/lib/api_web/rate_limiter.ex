@@ -10,6 +10,7 @@ defmodule ApiWeb.RateLimiter do
   @clear_interval ApiWeb.config(:rate_limiter, :clear_interval)
   @wait_time_ms ApiWeb.config(:rate_limiter, :wait_time_ms)
   @intervals_per_day div(86_400_000, @clear_interval)
+  @intervals_per_minute div(60_000, @clear_interval)
   @max_anon_per_interval ApiWeb.config(:rate_limiter, :max_anon_per_interval)
   @max_registered_per_interval ApiWeb.config(:rate_limiter, :max_registered_per_interval)
 
@@ -75,6 +76,9 @@ defmodule ApiWeb.RateLimiter do
 
   @doc false
   def intervals_per_day, do: @intervals_per_day
+
+  @doc false
+  def intervals_per_minute, do: @intervals_per_minute
 
   if Mix.env() == :test do
     @doc "Helper function for testing, to clear the limiter state."
