@@ -15,7 +15,7 @@
   <thead>
     <tr>
       <th>Key</th>
-      <th><%= ApiWeb.ApiViewHelpers.interval_name() %></th>
+      <th>Per-Minute Limit</th>
       <th>Version</th>
       <th>Created</th>
       <th>Allowed Domains</th>
@@ -31,7 +31,7 @@
           <div><%= key.description %></div>
         </td>
         <td>
-          <%= ApiWeb.ApiViewHelpers.limit(key) %>
+          <%= ApiWeb.ApiViewHelpers.per_minute_limit(key) %>
           <%= unless key.rate_request_pending do %>
             <%= link("Request Increase",
               to: key_path(@conn, :request_increase, key),
