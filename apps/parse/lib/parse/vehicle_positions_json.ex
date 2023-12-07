@@ -49,7 +49,8 @@ defmodule Parse.VehiclePositionsJson do
         updated_at: unix_to_local(Map.get(data, "timestamp")),
         consist: parse_consist(Map.get(vehicle, "consist")),
         occupancy_status: parse_occupancy_status(Map.get(data, "occupancy_status")),
-        carriages: carriages(Map.get(data, "multi_carriage_details"))
+        carriages: carriages(Map.get(data, "multi_carriage_details")),
+        revenue_service?: Map.get(trip, "revenue")
       }
     ]
   end
