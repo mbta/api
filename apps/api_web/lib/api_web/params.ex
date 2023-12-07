@@ -212,7 +212,7 @@ defmodule ApiWeb.Params do
   Parse revenue_status filter to valid params
   """
   def revenue_status(value) when value in ["all", "revenue", "non_revenue"], do: value
-  def revenue_status(_), do: :error
+  def revenue_status(_), do: "revenue"
 
   @doc """
   Parses and integer value from params.

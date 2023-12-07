@@ -179,7 +179,7 @@ defmodule ApiWeb.VehicleController do
 
   defp do_format_filter({"revenue_status", revenue_status}) do
     case Params.revenue_status(revenue_status) do
-      :error -> []
+      "revenue" -> %{revenue_status: "revenue"}
       val -> %{revenue_status: val}
     end
   end
