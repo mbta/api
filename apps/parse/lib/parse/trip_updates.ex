@@ -25,7 +25,8 @@ defmodule Parse.TripUpdates do
       route_id: copy(update.trip.route_id),
       direction_id: update.trip.direction_id,
       vehicle_id: vehicle_id(update.vehicle),
-      schedule_relationship: trip_relationship(update.trip.schedule_relationship)
+      schedule_relationship: trip_relationship(update.trip.schedule_relationship),
+      revenue_service?: Map.get(update.trip, :revenue)
     }
 
     update.stop_time_update
