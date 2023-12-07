@@ -236,9 +236,9 @@ defmodule ApiWeb.TripControllerTest do
     end
 
     test "filter by revenue status", %{conn: conn} do
-      trip1 = %Model.Trip{id: "1", route_id: "1", direction_id: 1, revenue_service: true}
-      trip2 = %Model.Trip{id: "2", route_id: "2", direction_id: 1, revenue_service: false}
-      trip3 = %Model.Trip{id: "3", route_id: "3", direction_id: 1, revenue_service: true}
+      trip1 = %Model.Trip{id: "1", route_id: "1", direction_id: 1, revenue_service?: true}
+      trip2 = %Model.Trip{id: "2", route_id: "2", direction_id: 1, revenue_service?: false}
+      trip3 = %Model.Trip{id: "3", route_id: "3", direction_id: 1, revenue_service?: true}
       :ok = State.Trip.new_state([trip1, trip2, trip3])
 
       assert index_data(conn, %{"revenue_status" => "all"}) == [trip1, trip2, trip3]
