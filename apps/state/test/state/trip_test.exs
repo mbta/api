@@ -344,86 +344,221 @@ defmodule State.TripTest do
       trip1 = %Model.Trip{
         block_id: "block_id",
         id: "trip1",
-        route_id: "9",
+        route_id: "rev-route-9",
         direction_id: 1,
-        route_pattern_id: 1,
+        route_pattern_id: "pattern1",
         service_id: @service_id,
+        route_type: 3,
         name: "trip1",
-        revenue_service: true
+        revenue_service?: true
       }
 
       trip2 = %Model.Trip{
         block_id: "block_id",
-        id: "NONREV-trip2",
-        route_id: "9",
+        id: "trip2",
+        route_id: "rev-route-9",
         direction_id: 1,
-        route_pattern_id: 1,
+        route_pattern_id: "pattern1",
         service_id: @service_id,
+        route_type: 3,
         name: "trip2",
-        revenue_service: false
+        revenue_service?: true
       }
 
       trip3 = %Model.Trip{
         block_id: "block_id",
         id: "trip3",
-        route_id: "10",
+        route_id: "rev-route-10",
         direction_id: 1,
-        route_pattern_id: 1,
+        route_pattern_id: "pattern1",
         service_id: @service_id,
+        route_type: 3,
         name: "trip3",
-        revenue_service: true
+        revenue_service?: true
       }
 
       trip4 = %Model.Trip{
         block_id: "block_id",
-        id: "NONREV-trip4",
-        route_id: "10",
+        id: "trip4",
+        route_id: "rev-route-10",
         direction_id: 1,
-        route_pattern_id: 1,
+        route_pattern_id: "pattern1",
         service_id: @service_id,
+        route_type: 3,
         name: "trip4",
-        revenue_service: false
+        revenue_service?: true
       }
 
       new_state(%{multi_route_trips: [], trips: [trip1, trip2, trip3, trip4]})
-      assert Enum.sort_by(filter_by(%{routes: ["9"]}), & &1.name) == [trip1]
-      assert Enum.sort_by(filter_by(%{routes: ["10"]}), & &1.name) == [trip3]
-      assert Enum.sort_by(filter_by(%{route_pattern_id: 1}), & &1.name) == [trip1, trip3]
 
-      assert Enum.sort_by(filter_by(%{routes: ["9"], revenue_status: "revenue"}), & &1.name) == [
-               trip1
+      stops = [
+        %Model.Stop{id: "stop1"},
+        %Model.Stop{id: "stop2"}
+      ]
+
+      routes = [
+        %Model.Route{
+          id: "rev-route-9",
+          type: 3
+        },
+        %Model.Route{
+          id: "rev-route-10",
+          type: 3
+        }
+      ]
+
+      State.Stop.new_state(stops)
+      State.Route.new_state(routes)
+
+      base_prediction = %Model.Prediction{
+        direction_id: 1,
+        route_pattern_id: "pattern1",
+        schedule_relationship: :added
+      }
+
+      predictions = [
+        %{
+          base_prediction
+          | trip_id: "trip5",
+            stop_id: "stop1",
+            stop_sequence: 0,
+            route_id: "rev-route-9",
+            revenue_service?: false
+        },
+        %{
+          base_prediction
+          | trip_id: "trip5",
+            stop_id: "stop2",
+            stop_sequence: 1,
+            route_id: "rev-route-9",
+            revenue_service?: false
+        },
+        %{
+          base_prediction
+          | trip_id: "trip6",
+            stop_id: "stop1",
+            stop_sequence: 0,
+            route_id: "rev-route-9",
+            revenue_service?: true
+        },
+        %{
+          base_prediction
+          | trip_id: "trip6",
+            stop_id: "stop2",
+            stop_sequence: 1,
+            route_id: "rev-route-9",
+            revenue_service?: true
+        },
+        %{
+          base_prediction
+          | trip_id: "trip7",
+            stop_id: "stop1",
+            stop_sequence: 0,
+            route_id: "rev-route-10",
+            revenue_service?: false
+        },
+        %{
+          base_prediction
+          | trip_id: "trip7",
+            stop_id: "stop2",
+            stop_sequence: 1,
+            route_id: "rev-route-10",
+            revenue_service?: false
+        },
+        %{
+          base_prediction
+          | trip_id: "trip8",
+            stop_id: "stop1",
+            stop_sequence: 0,
+            route_id: "rev-route-10",
+            revenue_service?: true
+        },
+        %{
+          base_prediction
+          | trip_id: "trip8",
+            stop_id: "stop2",
+            stop_sequence: 1,
+            route_id: "rev-route-10",
+            revenue_service?: true
+        }
+      ]
+
+      State.Prediction.new_state(predictions)
+      State.Trip.Added.last_updated()
+
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"]}) == [
+               "trip1",
+               "trip2",
+               "trip6"
              ]
 
-      assert Enum.sort_by(filter_by(%{routes: ["10"], revenue_status: "revenue"}), & &1.name) == [
-               trip3
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"]}) == [
+               "trip3",
+               "trip4",
+               "trip8"
              ]
 
-      assert Enum.sort_by(filter_by(%{route_pattern_id: 1, revenue_status: "revenue"}), & &1.name) ==
-               [trip1, trip3]
-
-      assert Enum.sort_by(filter_by(%{routes: ["9"], revenue_status: "all"}), & &1.name) == [
-               trip1,
-               trip2
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1}) == [
+               "trip1",
+               "trip2",
+               "trip3",
+               "trip4",
+               "trip6",
+               "trip8"
              ]
 
-      assert Enum.sort_by(filter_by(%{routes: ["10"], revenue_status: "all"}), & &1.name) == [
-               trip3,
-               trip4
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue_status: "revenue"}) ==
+               [
+                 "trip1",
+                 "trip2",
+                 "trip6"
+               ]
+
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue_status: "revenue"}) ==
+               [
+                 "trip3",
+                 "trip4",
+                 "trip8"
+               ]
+
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue_status: "revenue"}) ==
+               ["trip1", "trip2", "trip3", "trip4", "trip6", "trip8"]
+
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue_status: "all"}) == [
+               "trip1",
+               "trip2",
+               "trip5",
+               "trip6"
              ]
 
-      assert Enum.sort_by(filter_by(%{route_pattern_id: 1, revenue_status: "all"}), & &1.name) ==
-               [trip1, trip2, trip3, trip4]
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue_status: "all"}) == [
+               "trip3",
+               "trip4",
+               "trip7",
+               "trip8"
+             ]
 
-      assert Enum.sort_by(filter_by(%{routes: ["9"], revenue_status: "non_revenue"}), & &1.name) ==
-               [trip2]
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue_status: "all"}) ==
+               ["trip1", "trip2", "trip3", "trip4", "trip5", "trip6", "trip7", "trip8"]
 
-      assert Enum.sort_by(filter_by(%{routes: ["10"], revenue_status: "non_revenue"}), & &1.name) ==
-               [trip4]
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue_status: "non_revenue"}) ==
+               ["trip5"]
 
-      assert Enum.sort_by(
-               filter_by(%{route_pattern_id: 1, revenue_status: "non_revenue"}),
-               & &1.name
-             ) == [trip2, trip4]
+      assert mapped_and_sorted_filter_by(%{
+               routes: ["rev-route-10"],
+               revenue_status: "non_revenue"
+             }) ==
+               ["trip7"]
+
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue_status: "non_revenue"}) ==
+               ["trip5", "trip7"]
+    end
+
+    defp mapped_and_sorted_filter_by(params) do
+      params
+      |> filter_by()
+      |> Enum.sort_by(& &1.id)
+      |> Enum.map(& &1.id)
     end
   end
 end
