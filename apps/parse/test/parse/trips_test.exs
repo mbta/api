@@ -13,7 +13,8 @@ defmodule Parse.TripsTest do
     {:ok, %{blob: blob}}
   end
 
-  test "parse: parses a CSV blob into a list of trips, defaulting bikes_allowed", %{blob: blob} do
+  test "parse: parses a CSV blob into a list of trips, defaulting bikes_allowed and revenue_service?",
+       %{blob: blob} do
     assert parse(blob) == [
              %Trip{
                id: "30133120",
@@ -27,7 +28,7 @@ defmodule Parse.TripsTest do
                wheelchair_accessible: 1,
                bikes_allowed: 0,
                route_pattern_id: "1-0-1",
-               revenue_service: true
+               revenue_service?: true
              }
            ]
   end
@@ -51,7 +52,7 @@ defmodule Parse.TripsTest do
                wheelchair_accessible: 1,
                bikes_allowed: 1,
                route_pattern_id: "1-0-1",
-               revenue_service: true
+               revenue_service?: true
              }
            ]
   end
@@ -73,29 +74,5 @@ defmodule Parse.TripsTest do
     """
 
     assert [%Trip{route_type: 2}] = parse(blob)
-  end
-
-  test "parse: parses a CSV blob with non-revenue trip_id" do
-    blob = """
-    "route_id","service_id","trip_id","trip_headsign","trip_short_name","direction_id","block_id","shape_id","wheelchair_accessible","bikes_allowed","route_pattern_id"
-    "1","BUS22016-hbc26ns1-Weekday-02","NONREV-30133120","Dudley","",1,"C01-12","010058",1,1,"1-0-1"
-    """
-
-    assert parse(blob) == [
-             %Trip{
-               id: "NONREV-30133120",
-               service_id: "BUS22016-hbc26ns1-Weekday-02",
-               route_id: "1",
-               headsign: "Dudley",
-               name: "",
-               direction_id: 1,
-               block_id: "C01-12",
-               shape_id: "010058",
-               wheelchair_accessible: 1,
-               bikes_allowed: 1,
-               route_pattern_id: "1-0-1",
-               revenue_service: false
-             }
-           ]
   end
 end

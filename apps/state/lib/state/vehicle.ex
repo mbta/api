@@ -19,7 +19,8 @@ defmodule State.Vehicle do
           optional(:labels) => [String.t(), ...],
           optional(:routes) => [Model.Route.id(), ...],
           optional(:direction_id) => Model.Direction.id() | nil,
-          optional(:route_types) => [Model.Route.route_type(), ...]
+          optional(:route_types) => [Model.Route.route_type(), ...],
+          optional(:revenue_status) => String.t()
         }
 
   @impl State.Server
@@ -100,20 +101,17 @@ defmodule State.Vehicle do
     end
   end
 
-  require Logger
+  defp build_filters(matchers, :revenue_status, revenue_status, _filters) do
+    revenue_service? = revenue_service_value(revenue_status)
 
-  defp build_filters(matchers, :revenue_status, _, filters) do
-    trip_ids =
-      filters
-      |> Map.take([:revenue_status, :routes, :direction_id])
-      |> Trip.filter_by()
-      |> Enum.map(& &1.id)
-      |> Enum.uniq()
-
-    for matcher <- matchers, trip_id <- trip_ids do
-      Map.put(matcher, :trip_id, trip_id)
+    for matcher <- matchers do
+      Map.put(matcher, :revenue_service?, revenue_service?)
     end
   end
+
+  defp revenue_service_value("revenue"), do: true
+  defp revenue_service_value("non_revenue"), do: false
+  defp revenue_service_value(_), do: :_
 
   @spec do_post_search_filter([Vehicle.t()], filter_opts) :: [Vehicle.t()]
   defp do_post_search_filter(vehicles, %{labels: labels}) when is_list(labels) do

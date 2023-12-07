@@ -29,7 +29,8 @@ defmodule Parse.VehiclePositionsJsonTest do
         "route_id" => "708",
         "schedule_relationship" => "SCHEDULED",
         "start_date" => "20190905",
-        "trip_id" => "41820413"
+        "trip_id" => "41820413",
+        "revenue" => true
       },
       "vehicle" => %{"id" => "y0487", "label" => "0487"}
     }
@@ -72,7 +73,8 @@ defmodule Parse.VehiclePositionsJsonTest do
               occupancy_status: :many_seats_available,
               occupancy_percentage: 80
             }
-          ]
+          ],
+          revenue_service?: true
         }
       ]
 

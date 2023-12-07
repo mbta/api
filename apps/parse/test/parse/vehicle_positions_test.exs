@@ -30,7 +30,8 @@ defmodule Parse.VehiclePositionsTest do
         "route_id" => "66",
         "schedule_relationship" => "SCHEDULED",
         "start_date" => "20190910",
-        "trip_id" => "41893421"
+        "trip_id" => "41893421",
+        "revenue" => true
       },
       "vehicle" => %{
         "id" => "y1796",
@@ -66,7 +67,8 @@ defmodule Parse.VehiclePositionsTest do
           speed: nil,
           stop_id: "1308",
           trip_id: "41893421",
-          updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"])
+          updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"]),
+          revenue_service?: true
         }
       ]
 
@@ -101,7 +103,8 @@ defmodule Parse.VehiclePositionsTest do
           speed: nil,
           stop_id: "1308",
           trip_id: "41893421",
-          updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"])
+          updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"]),
+          revenue_service?: true
         }
       ]
 

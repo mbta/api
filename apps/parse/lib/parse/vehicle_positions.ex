@@ -51,7 +51,8 @@ defmodule Parse.VehiclePositions do
       current_stop_sequence: update.current_stop_sequence,
       updated_at: unix_to_local(update.timestamp),
       occupancy_status: occupancy_status(update.occupancy_status),
-      carriages: carriages(update.multi_carriage_details)
+      carriages: carriages(update.multi_carriage_details),
+      revenue_service?: optional_field_copy(update.trip, :revenue)
     }
   end
 

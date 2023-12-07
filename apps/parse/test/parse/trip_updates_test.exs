@@ -11,7 +11,8 @@ defmodule Parse.TripUpdatesTest do
         "start_date" => "2017-08-09",
         "schedule_relationship" => "SCHEDULED",
         "route_id" => "CR-Haverhill",
-        "direction_id" => 0
+        "direction_id" => 0,
+        "revenue" => true
       }
 
       update = %{
