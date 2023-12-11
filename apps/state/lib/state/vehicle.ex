@@ -20,7 +20,7 @@ defmodule State.Vehicle do
           optional(:routes) => [Model.Route.id(), ...],
           optional(:direction_id) => Model.Direction.id() | nil,
           optional(:route_types) => [Model.Route.route_type(), ...],
-          optional(:revenue_status) => String.t()
+          optional(:revenue_status) => :all | :non_revenue | :revenue
         }
 
   @impl State.Server

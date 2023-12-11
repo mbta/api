@@ -18,7 +18,7 @@ defmodule State.Trip do
           optional(:direction_id) => direction_id,
           optional(:date) => Date.t(),
           optional(:route_patterns) => [String.t()],
-          optional(:revenue_status) => String.t()
+          optional(:revenue_status) => :all | :non_revenue | :revenue
         }
 
   @fetch_trips {:fetch, "trips.txt"}
@@ -185,12 +185,12 @@ defmodule State.Trip do
   defp build_filters(matchers, :revenue_service?, nil),
     do: build_filters(matchers, :revenue_service?, true)
 
-  defp build_filters(matchers, :revenue_service?, "all"), do: matchers
+  defp build_filters(matchers, :revenue_service?, :all), do: matchers
 
-  defp build_filters(matchers, :revenue_service?, "revenue"),
+  defp build_filters(matchers, :revenue_service?, :revenue),
     do: build_filters(matchers, :revenue_service?, true)
 
-  defp build_filters(matchers, :revenue_service?, "non_revenue"),
+  defp build_filters(matchers, :revenue_service?, :non_revenue),
     do: build_filters(matchers, :revenue_service?, false)
 
   defp build_filters(matchers, _key, nil), do: matchers

@@ -211,8 +211,10 @@ defmodule ApiWeb.Params do
   @doc """
   Parse revenue_status filter to valid params
   """
-  def revenue_status(value) when value in ["all", "revenue", "non_revenue"], do: value
-  def revenue_status(_), do: "revenue"
+  for value <- ~w(all revenue non_revenue)a do
+    def revenue_status(unquote(Atom.to_string(value))), do: {:ok, unquote(value)}
+  end
+  def revenue_status(_value), do: :error
 
   @doc """
   Parses and integer value from params.

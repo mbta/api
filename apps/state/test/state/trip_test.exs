@@ -557,8 +557,8 @@ defmodule State.TripTest do
     defp mapped_and_sorted_filter_by(params) do
       params
       |> filter_by()
-      |> Enum.sort_by(& &1.id)
       |> Enum.map(& &1.id)
+      |> Enum.sort()
     end
   end
 end

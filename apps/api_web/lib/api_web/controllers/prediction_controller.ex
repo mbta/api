@@ -235,7 +235,9 @@ defmodule ApiWeb.PredictionController do
     end
   end
 
-  defp add_revenue_status_matchers(matchers, revenue_status) do
+  defp add_revenue_status_matchers(matchers, :error), do: matchers
+
+  defp add_revenue_status_matchers(matchers, {:ok, revenue_status}) do
     revenue_service_matcher = parse_revenue_status(revenue_status)
 
     for matcher <- matchers do
@@ -243,9 +245,9 @@ defmodule ApiWeb.PredictionController do
     end
   end
 
-  defp parse_revenue_status("all"), do: :_
-  defp parse_revenue_status("revenue"), do: true
-  defp parse_revenue_status("non_revenue"), do: false
+  defp parse_revenue_status(:all), do: :_
+  defp parse_revenue_status(:revenue), do: true
+  defp parse_revenue_status(:non_revenue), do: false
 
   def swagger_definitions do
     import PhoenixSwagger.JsonApi, except: [page: 1]
