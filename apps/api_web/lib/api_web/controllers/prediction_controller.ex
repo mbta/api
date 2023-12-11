@@ -235,7 +235,8 @@ defmodule ApiWeb.PredictionController do
     end
   end
 
-  defp add_revenue_status_matchers(matchers, :error), do: matchers
+  defp add_revenue_status_matchers(matchers, :error),
+    do: add_revenue_status_matchers(matchers, {:ok, :revenue})
 
   defp add_revenue_status_matchers(matchers, {:ok, revenue_status}) do
     revenue_service_matcher = parse_revenue_status(revenue_status)

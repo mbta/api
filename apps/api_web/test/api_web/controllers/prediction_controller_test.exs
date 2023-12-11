@@ -420,6 +420,9 @@ defmodule ApiWeb.PredictionControllerTest do
     result = index_data(conn, %{"revenue_status" => "revenue", "route" => "route1,route2"})
     assert Enum.sort_by(result, & &1.trip_id) == [p1, p3]
 
+    result = index_data(conn, %{"revenue_status" => "invalid", "route" => "route1,route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1, p3]
+
     result = index_data(conn, %{"revenue_status" => "revenue", "route" => "route2"})
     assert Enum.sort_by(result, & &1.trip_id) == [p3]
 

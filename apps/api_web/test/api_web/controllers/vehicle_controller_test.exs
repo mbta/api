@@ -277,6 +277,11 @@ defmodule ApiWeb.VehicleControllerTest do
              |> Enum.sort() == ["vehicle1", "vehicle3"]
 
       assert conn
+             |> index_data(%{"revenue_status" => "invalid"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1", "vehicle3"]
+
+      assert conn
              |> index_data(%{"revenue_status" => "non_revenue"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle2"]
@@ -288,6 +293,11 @@ defmodule ApiWeb.VehicleControllerTest do
 
       assert conn
              |> index_data(%{"route" => "1,2", "revenue_status" => "revenue"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1"]
+
+      assert conn
+             |> index_data(%{"route" => "1,2", "revenue_status" => "invalid"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle1"]
 

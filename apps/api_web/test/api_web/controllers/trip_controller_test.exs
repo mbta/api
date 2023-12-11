@@ -243,9 +243,11 @@ defmodule ApiWeb.TripControllerTest do
 
       assert index_data(conn, %{"revenue_status" => "all"}) == [trip1, trip2, trip3]
       assert index_data(conn, %{"revenue_status" => "revenue"}) == [trip1, trip3]
+      assert index_data(conn, %{"revenue_status" => "invalid"}) == {:error, :filter_required}
       assert index_data(conn, %{"revenue_status" => "non_revenue"}) == [trip2]
       assert index_data(conn, %{"route" => "1", "revenue_status" => "all"}) == [trip1]
       assert index_data(conn, %{"route" => "1", "revenue_status" => "revenue"}) == [trip1]
+      assert index_data(conn, %{"route" => "1", "revenue_status" => "invalid"}) == [trip1]
       assert index_data(conn, %{"route" => "1", "revenue_status" => "non_revenue"}) == []
     end
   end

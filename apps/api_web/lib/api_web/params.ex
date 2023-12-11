@@ -214,6 +214,7 @@ defmodule ApiWeb.Params do
   for value <- ~w(all revenue non_revenue)a do
     def revenue_status(unquote(Atom.to_string(value))), do: {:ok, unquote(value)}
   end
+
   def revenue_status(_value), do: :error
 
   @doc """
