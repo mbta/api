@@ -534,7 +534,8 @@ config :state, :stops_on_route,
       "9170169",
       "8206",
       "9070165",
-      "9070162"
+      "9070162",
+      "9070154"
     ],
     {"Green-D", 1} => [
       "9070162",
@@ -548,6 +549,7 @@ config :state, :stops_on_route,
       "1804",
       "1807",
       "9070150",
+      "9070154",
       "place-esomr",
       "place-gilmn",
       "place-mgngl",
