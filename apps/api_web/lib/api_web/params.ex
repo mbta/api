@@ -221,8 +221,10 @@ defmodule ApiWeb.Params do
     |> revenue()
   end
 
-  def revenue(["REVENUE"]), do: {:ok, :REVENUE}
-  def revenue(["NON_REVENUE"]), do: {:ok, :NON_REVENUE}
+  for value <- ~w(NON_REVENUE REVENUE)a do
+    def revenue([unquote(Atom.to_string(value))]), do: {:ok, unquote(value)}
+  end
+
   def revenue(["NON_REVENUE", "REVENUE"]), do: {:ok, :ALL}
   def revenue(_value), do: :error
 

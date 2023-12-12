@@ -268,7 +268,10 @@ defmodule ApiWeb.VehicleControllerTest do
 
       :ok = State.Vehicle.new_state([vehicle1, vehicle2, vehicle3])
 
-      assert conn |> index_data(%{"revenue" => "REVENUE,NON_REVENUE"}) |> Enum.map(& &1.id) |> Enum.sort() ==
+      assert conn
+             |> index_data(%{"revenue" => "REVENUE,NON_REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() ==
                ["vehicle1", "vehicle2", "vehicle3"]
 
       assert conn
