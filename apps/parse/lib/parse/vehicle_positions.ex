@@ -52,7 +52,7 @@ defmodule Parse.VehiclePositions do
       updated_at: unix_to_local(update.timestamp),
       occupancy_status: occupancy_status(update.occupancy_status),
       carriages: carriages(update.multi_carriage_details),
-      revenue_service?: optional_field_copy(update.trip, :revenue)
+      revenue: revenue(update.trip)
     }
   end
 
@@ -107,6 +107,18 @@ defmodule Parse.VehiclePositions do
   defp occupancy_status(:FULL), do: :full
 
   defp occupancy_status(:NOT_ACCEPTING_PASSENGERS), do: :not_accepting_passengers
+
+  defp revenue(nil), do: :REVENUE
+
+  defp revenue(true), do: :REVENUE
+
+  defp revenue(false), do: :NON_REVENUE
+
+  defp revenue(trip) do
+    trip
+    |> Map.get(:revenue, true)
+    |> revenue()
+  end
 
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)

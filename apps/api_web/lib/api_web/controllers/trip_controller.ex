@@ -10,7 +10,7 @@ defmodule ApiWeb.TripController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id route route_pattern name revenue_status)s
+  @filters ~w(id date direction_id route route_pattern name revenue)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(route vehicle service shape predictions route_pattern stops)
 
@@ -33,7 +33,7 @@ defmodule ApiWeb.TripController do
     filter_param(:date, description: "Filter by trips on a particular date")
     filter_param(:direction_id)
     filter_param(:id, name: :route)
-    filter_param(:revenue_status, desc: "Filter trips by revenue status.")
+    filter_param(:revenue, desc: "Filter trips by revenue status.")
 
     parameter(
       "filter[route_pattern]",
@@ -145,10 +145,10 @@ defmodule ApiWeb.TripController do
     end
   end
 
-  defp do_format_filter({"revenue_status", revenue_status}) do
-    case Params.revenue_status(revenue_status) do
+  defp do_format_filter({"revenue", revenue}) do
+    case Params.revenue(revenue) do
       :error -> []
-      {:ok, val} -> %{revenue_status: val}
+      {:ok, val} -> %{revenue: val}
     end
   end
 

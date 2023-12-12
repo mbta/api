@@ -150,4 +150,29 @@ defmodule ApiWeb.ParamsTest do
       assert :ok == Params.validate_show_params(%{"id" => "1", "filter" => %{"id" => "3"}}, conn)
     end
   end
+
+  describe "revenue/1" do
+    test "it enforces case sensitivity" do
+      assert :error = Params.revenue("revenue")
+      assert :error = Params.revenue("non_revenue")
+      assert :error = Params.revenue("revenue,non_revenue")
+      assert {:ok, :REVENUE} = Params.revenue("REVENUE,non_revenue")
+      assert {:ok, :NON_REVENUE} = Params.revenue("revenue,NON_REVENUE")
+    end
+
+    test "it parses a list of values" do
+      assert {:ok, :ALL} = Params.revenue("REVENUE,NON_REVENUE")
+      assert {:ok, :ALL} = Params.revenue("NON_REVENUE,REVENUE")
+      assert {:ok, :ALL} = Params.revenue("REVENUE,other,NON_REVENUE")
+      assert {:ok, :ALL} = Params.revenue("NON_REVENUE,,REVENUE")
+      assert :error = Params.revenue("NOT,VALID,PARAMS")
+    end
+
+    test "it parses single values" do
+      assert {:ok, :REVENUE} = Params.revenue("REVENUE")
+      assert {:ok, :NON_REVENUE} = Params.revenue("NON_REVENUE")
+      assert :error = Params.revenue("INVALID")
+      assert :error = Params.revenue("ALL")
+    end
+  end
 end

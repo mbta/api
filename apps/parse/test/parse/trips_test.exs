@@ -13,7 +13,7 @@ defmodule Parse.TripsTest do
     {:ok, %{blob: blob}}
   end
 
-  test "parse: parses a CSV blob into a list of trips, defaulting bikes_allowed and revenue_service?",
+  test "parse: parses a CSV blob into a list of trips, defaulting bikes_allowed and revenue",
        %{blob: blob} do
     assert parse(blob) == [
              %Trip{
@@ -28,7 +28,7 @@ defmodule Parse.TripsTest do
                wheelchair_accessible: 1,
                bikes_allowed: 0,
                route_pattern_id: "1-0-1",
-               revenue_service?: true
+               revenue: :REVENUE
              }
            ]
   end
@@ -52,7 +52,7 @@ defmodule Parse.TripsTest do
                wheelchair_accessible: 1,
                bikes_allowed: 1,
                route_pattern_id: "1-0-1",
-               revenue_service?: true
+               revenue: :REVENUE
              }
            ]
   end

@@ -340,7 +340,7 @@ defmodule State.TripTest do
       assert filter_by(%{names: ["not_a_name"]}) == []
     end
 
-    test "filters by revenue_status" do
+    test "filters by revenue" do
       trip1 = %Model.Trip{
         block_id: "block_id",
         id: "trip1",
@@ -350,7 +350,7 @@ defmodule State.TripTest do
         service_id: @service_id,
         route_type: 3,
         name: "trip1",
-        revenue_service?: true
+        revenue: :REVENUE
       }
 
       trip2 = %Model.Trip{
@@ -362,7 +362,7 @@ defmodule State.TripTest do
         service_id: @service_id,
         route_type: 3,
         name: "trip2",
-        revenue_service?: true
+        revenue: :REVENUE
       }
 
       trip3 = %Model.Trip{
@@ -374,7 +374,7 @@ defmodule State.TripTest do
         service_id: @service_id,
         route_type: 3,
         name: "trip3",
-        revenue_service?: true
+        revenue: :REVENUE
       }
 
       trip4 = %Model.Trip{
@@ -386,7 +386,7 @@ defmodule State.TripTest do
         service_id: @service_id,
         route_type: 3,
         name: "trip4",
-        revenue_service?: true
+        revenue: :REVENUE
       }
 
       new_state(%{multi_route_trips: [], trips: [trip1, trip2, trip3, trip4]})
@@ -423,7 +423,7 @@ defmodule State.TripTest do
             stop_id: "stop1",
             stop_sequence: 0,
             route_id: "rev-route-9",
-            revenue_service?: false
+            revenue: :NON_REVENUE
         },
         %{
           base_prediction
@@ -431,7 +431,7 @@ defmodule State.TripTest do
             stop_id: "stop2",
             stop_sequence: 1,
             route_id: "rev-route-9",
-            revenue_service?: false
+            revenue: :NON_REVENUE
         },
         %{
           base_prediction
@@ -439,7 +439,7 @@ defmodule State.TripTest do
             stop_id: "stop1",
             stop_sequence: 0,
             route_id: "rev-route-9",
-            revenue_service?: true
+            revenue: :REVENUE
         },
         %{
           base_prediction
@@ -447,7 +447,7 @@ defmodule State.TripTest do
             stop_id: "stop2",
             stop_sequence: 1,
             route_id: "rev-route-9",
-            revenue_service?: true
+            revenue: :REVENUE
         },
         %{
           base_prediction
@@ -455,7 +455,7 @@ defmodule State.TripTest do
             stop_id: "stop1",
             stop_sequence: 0,
             route_id: "rev-route-10",
-            revenue_service?: false
+            revenue: :NON_REVENUE
         },
         %{
           base_prediction
@@ -463,7 +463,7 @@ defmodule State.TripTest do
             stop_id: "stop2",
             stop_sequence: 1,
             route_id: "rev-route-10",
-            revenue_service?: false
+            revenue: :NON_REVENUE
         },
         %{
           base_prediction
@@ -471,7 +471,7 @@ defmodule State.TripTest do
             stop_id: "stop1",
             stop_sequence: 0,
             route_id: "rev-route-10",
-            revenue_service?: true
+            revenue: :REVENUE
         },
         %{
           base_prediction
@@ -479,7 +479,7 @@ defmodule State.TripTest do
             stop_id: "stop2",
             stop_sequence: 1,
             route_id: "rev-route-10",
-            revenue_service?: true
+            revenue: :REVENUE
         }
       ]
 
@@ -507,50 +507,50 @@ defmodule State.TripTest do
                "trip8"
              ]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue_status: :revenue}) ==
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: :REVENUE}) ==
                [
                  "trip1",
                  "trip2",
                  "trip6"
                ]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue_status: :revenue}) ==
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue: :REVENUE}) ==
                [
                  "trip3",
                  "trip4",
                  "trip8"
                ]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue_status: :revenue}) ==
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: :REVENUE}) ==
                ["trip1", "trip2", "trip3", "trip4", "trip6", "trip8"]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue_status: :all}) == [
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: :ALL}) == [
                "trip1",
                "trip2",
                "trip5",
                "trip6"
              ]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue_status: :all}) == [
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue: :ALL}) == [
                "trip3",
                "trip4",
                "trip7",
                "trip8"
              ]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue_status: :all}) ==
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: :ALL}) ==
                ["trip1", "trip2", "trip3", "trip4", "trip5", "trip6", "trip7", "trip8"]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue_status: :non_revenue}) ==
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: :NON_REVENUE}) ==
                ["trip5"]
 
       assert mapped_and_sorted_filter_by(%{
                routes: ["rev-route-10"],
-               revenue_status: :non_revenue
+               revenue: :NON_REVENUE
              }) ==
                ["trip7"]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue_status: :non_revenue}) ==
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: :NON_REVENUE}) ==
                ["trip5", "trip7"]
     end
 

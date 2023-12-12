@@ -21,7 +21,7 @@ defmodule Model.Vehicle do
     :consist,
     :occupancy_status,
     :carriages,
-    revenue_service?: true
+    revenue: :REVENUE
   ]
 
   alias Model.WGS84
@@ -90,7 +90,7 @@ defmodule Model.Vehicle do
   * `:stop_id` - The `Model.Stop.id` of the `Model.Stop.t` that the vehicle is `:current_status` relative to.
   * `:trip_id` - The `Model.Trip.id` of the `Model.Trip.t` that the vehicle is on.
   * `:carriages` - A list of `Model.Vehicle.Carriage` that provide occupancy on a more granular basis
-  * `:revenue_service?` - An indication of whether or not the vehicle is currently operating on a revenue trip
+  * `:revenue` - An indication of whether or not the vehicle is currently operating on a revenue trip
   """
   @type t :: %__MODULE__{
           id: id | nil,
@@ -110,7 +110,7 @@ defmodule Model.Vehicle do
           consist: [String.t()] | nil,
           occupancy_status: occupancy_status() | nil,
           carriages: [Model.Vehicle.Carriage] | [],
-          revenue_service?: boolean
+          revenue: :REVENUE | :NON_REVENUE
         }
 
   def primary?(%__MODULE__{route_id: id, effective_route_id: id}), do: true

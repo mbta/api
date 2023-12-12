@@ -13,7 +13,7 @@ defmodule ApiWeb.PredictionController do
   alias ApiWeb.LegacyStops
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue_status)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -61,7 +61,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:stop_id, includes_children: true)
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
-    filter_param(:revenue_status, desc: "Filter predictions by revenue status.")
+    filter_param(:revenue, desc: "Filter predictions by revenue status.")
 
     parameter("filter[route_pattern]", :query, :string, """
     Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.
@@ -85,7 +85,7 @@ defmodule ApiWeb.PredictionController do
       route_ids = Params.split_on_comma(filtered_params, "route")
       route_pattern_ids = Params.split_on_comma(filtered_params, "route_pattern")
       route_types = Params.route_types(filtered_params)
-      revenue_status = filtered_params |> Map.get("revenue_status") |> Params.revenue_status()
+      revenue = filtered_params |> Map.get("revenue") |> Params.revenue()
 
       direction_id_matcher =
         filtered_params
@@ -95,7 +95,7 @@ defmodule ApiWeb.PredictionController do
       matchers =
         filtered_params
         |> build_stop_sequence_matchers(direction_id_matcher)
-        |> add_revenue_status_matchers(revenue_status)
+        |> add_revenue_matchers(revenue)
 
       case filtered_params do
         %{"route_type" => _} = p when map_size(p) == 1 ->
@@ -235,20 +235,16 @@ defmodule ApiWeb.PredictionController do
     end
   end
 
-  defp add_revenue_status_matchers(matchers, :error),
-    do: add_revenue_status_matchers(matchers, {:ok, :revenue})
+  defp add_revenue_matchers(matchers, :error),
+    do: add_revenue_matchers(matchers, {:ok, :REVENUE})
 
-  defp add_revenue_status_matchers(matchers, {:ok, revenue_status}) do
-    revenue_service_matcher = parse_revenue_status(revenue_status)
+  defp add_revenue_matchers(matchers, {:ok, :ALL}), do: matchers
 
+  defp add_revenue_matchers(matchers, {:ok, revenue_matcher}) do
     for matcher <- matchers do
-      Map.put(matcher, :revenue_service?, revenue_service_matcher)
+      Map.put(matcher, :revenue, revenue_matcher)
     end
   end
-
-  defp parse_revenue_status(:all), do: :_
-  defp parse_revenue_status(:revenue), do: true
-  defp parse_revenue_status(:non_revenue), do: false
 
   def swagger_definitions do
     import PhoenixSwagger.JsonApi, except: [page: 1]

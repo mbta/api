@@ -171,7 +171,7 @@ defmodule State.Trip do
       |> build_filters(:direction_id, filters[:direction_id])
       |> build_filters(:route_pattern_id, filters[:route_patterns])
       |> build_filters(:id, filters[:ids])
-      |> build_filters(:revenue_service?, filters[:revenue_status])
+      |> build_filters(:revenue, filters[:revenue])
 
     idx = get_index(filters)
     trips = State.Trip.Added.select(matchers, idx) ++ State.Trip.select(matchers, idx)
@@ -182,16 +182,12 @@ defmodule State.Trip do
     end
   end
 
-  defp build_filters(matchers, :revenue_service?, nil),
-    do: build_filters(matchers, :revenue_service?, true)
+  defp build_filters(matchers, :revenue, :ALL), do: matchers
 
-  defp build_filters(matchers, :revenue_service?, :all), do: matchers
+  defp build_filters(matchers, :revenue, nil), do: build_filters(matchers, :revenue, :REVENUE)
 
-  defp build_filters(matchers, :revenue_service?, :revenue),
-    do: build_filters(matchers, :revenue_service?, true)
-
-  defp build_filters(matchers, :revenue_service?, :non_revenue),
-    do: build_filters(matchers, :revenue_service?, false)
+  defp build_filters(matchers, :revenue, value) when value in [:NON_REVENUE, :REVENUE],
+    do: build_filters(matchers, :revenue, [value])
 
   defp build_filters(matchers, _key, nil), do: matchers
 

@@ -74,7 +74,7 @@ defmodule Parse.VehiclePositionsJsonTest do
               occupancy_percentage: 80
             }
           ],
-          revenue_service?: true
+          revenue: :REVENUE
         }
       ]
 
@@ -185,7 +185,7 @@ defmodule Parse.VehiclePositionsJsonTest do
         }
       }
 
-      assert [%{consist: nil, revenue_service?: false}] = parse_entity(entity)
+      assert [%{consist: nil, revenue: :NON_REVENUE}] = parse_entity(entity)
     end
   end
 end

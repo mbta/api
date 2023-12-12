@@ -22,7 +22,7 @@ defmodule Model.Prediction do
     :schedule_relationship,
     :status,
     trip_match?: false,
-    revenue_service?: true
+    revenue: :REVENUE
   ]
 
   @typedoc """
@@ -63,7 +63,7 @@ defmodule Model.Prediction do
       [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
   * `:trip_id` - The trip the `stop_id` is on. See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripdescriptor)
   * `:trip_match?` - a boolean indicating whether the prediction is for a trip in the GTFS file
-  * `:revenue_service?` - An indication of whether or not the prediction is for a revenue trip
+  * `:revenue` - An indication of whether or not the prediction is for a revenue trip
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
@@ -78,7 +78,7 @@ defmodule Model.Prediction do
           stop_sequence: non_neg_integer | nil,
           trip_id: Model.Trip.id(),
           trip_match?: boolean,
-          revenue_service?: boolean
+          revenue: :REVENUE | :NON_REVENUE
         }
 
   @spec trip_id(t) :: Model.Trip.id()

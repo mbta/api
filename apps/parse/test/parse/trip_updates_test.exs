@@ -74,7 +74,7 @@ defmodule Parse.TripUpdatesTest do
                vehicle_id: "vehicle",
                stop_sequence: 5,
                arrival_time: %DateTime{},
-               revenue_service?: true
+               revenue: :REVENUE
              } = actual
     end
 
@@ -134,7 +134,7 @@ defmodule Parse.TripUpdatesTest do
 
       assert %Model.Prediction{
                vehicle_id: nil,
-               revenue_service?: false
+               revenue: :NON_REVENUE
              } = actual
     end
   end

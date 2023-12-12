@@ -64,7 +64,7 @@ defmodule State.Trip.Added do
             service_id: nil,
             wheelchair_accessible: 1,
             bikes_allowed: 0,
-            revenue_service?: prediction.revenue_service?
+            revenue: prediction.revenue
         }
       ]
     else
@@ -110,7 +110,7 @@ defmodule State.Trip.Added do
           headsign: stop.name,
           name: "",
           bikes_allowed: 0,
-          revenue_service?: prediction.revenue_service?
+          revenue: prediction.revenue
         }
       ]
     end

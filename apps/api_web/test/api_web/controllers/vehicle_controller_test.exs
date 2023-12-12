@@ -240,69 +240,69 @@ defmodule ApiWeb.VehicleControllerTest do
     end
 
     test "can filter by revenue status", %{conn: conn} do
-      trip1 = %Model.Trip{id: "1", route_id: "1", direction_id: 1, revenue_service?: true}
-      trip2 = %Model.Trip{id: "2", route_id: "2", direction_id: 1, revenue_service?: false}
-      trip3 = %Model.Trip{id: "3", route_id: "3", direction_id: 1, revenue_service?: true}
+      trip1 = %Model.Trip{id: "1", route_id: "1", direction_id: 1, revenue: :REVENUE}
+      trip2 = %Model.Trip{id: "2", route_id: "2", direction_id: 1, revenue: :NON_REVENUE}
+      trip3 = %Model.Trip{id: "3", route_id: "3", direction_id: 1, revenue: :REVENUE}
       :ok = State.Trip.new_state([trip1, trip2, trip3])
 
       vehicle1 = %Vehicle{
         id: "vehicle1",
         trip_id: trip1.id,
         route_id: trip1.route_id,
-        revenue_service?: true
+        revenue: :REVENUE
       }
 
       vehicle2 = %Vehicle{
         id: "vehicle2",
         trip_id: trip2.id,
         route_id: trip2.route_id,
-        revenue_service?: false
+        revenue: :NON_REVENUE
       }
 
       vehicle3 = %Vehicle{
         id: "vehicle3",
         trip_id: trip3.id,
         route_id: trip3.route_id,
-        revenue_service?: true
+        revenue: :REVENUE
       }
 
       :ok = State.Vehicle.new_state([vehicle1, vehicle2, vehicle3])
 
-      assert conn |> index_data(%{"revenue_status" => "all"}) |> Enum.map(& &1.id) |> Enum.sort() ==
+      assert conn |> index_data(%{"revenue" => "REVENUE,NON_REVENUE"}) |> Enum.map(& &1.id) |> Enum.sort() ==
                ["vehicle1", "vehicle2", "vehicle3"]
 
       assert conn
-             |> index_data(%{"revenue_status" => "revenue"})
+             |> index_data(%{"revenue" => "REVENUE"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle1", "vehicle3"]
 
       assert conn
-             |> index_data(%{"revenue_status" => "invalid"})
+             |> index_data(%{"revenue" => "invalid"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle1", "vehicle3"]
 
       assert conn
-             |> index_data(%{"revenue_status" => "non_revenue"})
+             |> index_data(%{"revenue" => "NON_REVENUE"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle2"]
 
       assert conn
-             |> index_data(%{"route" => "1,2", "revenue_status" => "all"})
+             |> index_data(%{"route" => "1,2", "revenue" => "REVENUE,NON_REVENUE"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle1", "vehicle2"]
 
       assert conn
-             |> index_data(%{"route" => "1,2", "revenue_status" => "revenue"})
+             |> index_data(%{"route" => "1,2", "revenue" => "REVENUE"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle1"]
 
       assert conn
-             |> index_data(%{"route" => "1,2", "revenue_status" => "invalid"})
+             |> index_data(%{"route" => "1,2", "revenue" => "invalid"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle1"]
 
       assert conn
-             |> index_data(%{"route" => "1,2", "revenue_status" => "non_revenue"})
+             |> index_data(%{"route" => "1,2", "revenue" => "NON_REVENUE"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle2"]
     end

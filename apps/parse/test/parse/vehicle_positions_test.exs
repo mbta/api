@@ -68,7 +68,7 @@ defmodule Parse.VehiclePositionsTest do
           stop_id: "1308",
           trip_id: "41893421",
           updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"]),
-          revenue_service?: true
+          revenue: :REVENUE
         }
       ]
 
@@ -104,7 +104,7 @@ defmodule Parse.VehiclePositionsTest do
           stop_id: "1308",
           trip_id: "41893421",
           updated_at: Parse.Timezone.unix_to_local(@vehicle["vehicle"]["timestamp"]),
-          revenue_service?: true
+          revenue: :REVENUE
         }
       ]
 

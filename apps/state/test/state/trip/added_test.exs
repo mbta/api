@@ -121,30 +121,30 @@ defmodule State.Trip.AddedTest do
              ] = by_id(@trip_id)
     end
 
-    test "creates a trip with revenue_service? value set to true" do
+    test "creates a trip with revenue value set to :REVENUE" do
       predictions = [
-        %{@prediction | revenue_service?: true, stop_id: "child"}
+        %{@prediction | revenue: :REVENUE, stop_id: "child"}
       ]
 
       insert_predictions(predictions)
 
       assert [
                %Model.Trip{
-                 revenue_service?: true
+                 revenue: :REVENUE
                }
              ] = by_id(@trip_id)
     end
 
-    test "creates a trip with revenue_service? value set to false" do
+    test "creates a trip with revenue value set to :NON_REVENUE" do
       predictions = [
-        %{@prediction | revenue_service?: false, stop_id: "child"}
+        %{@prediction | revenue: :NON_REVENUE, stop_id: "child"}
       ]
 
       insert_predictions(predictions)
 
       assert [
                %Model.Trip{
-                 revenue_service?: false
+                 revenue: :NON_REVENUE
                }
              ] = by_id(@trip_id)
     end
@@ -228,16 +228,16 @@ defmodule State.Trip.AddedTest do
       assert by_id(@trip_id) == []
     end
 
-    test "creates a trip with revenue_service? value set to true",
+    test "creates a trip with revenue value set to :REVENUE",
          %{prediction: prediction} do
-      insert_predictions([%{prediction | revenue_service?: true}])
-      assert [%{headsign: "Last Stop on Shape", revenue_service?: true}] = by_id(@trip_id)
+      insert_predictions([%{prediction | revenue: :REVENUE}])
+      assert [%{headsign: "Last Stop on Shape", revenue: :REVENUE}] = by_id(@trip_id)
     end
 
-    test "creates a trip with revenue_service? value set to false",
+    test "creates a trip with revenue value set to false",
          %{prediction: prediction} do
-      insert_predictions([%{prediction | revenue_service?: false}])
-      assert [%{headsign: "Last Stop on Shape", revenue_service?: false}] = by_id(@trip_id)
+      insert_predictions([%{prediction | revenue: :NON_REVENUE}])
+      assert [%{headsign: "Last Stop on Shape", revenue: :NON_REVENUE}] = by_id(@trip_id)
     end
   end
 
@@ -272,14 +272,14 @@ defmodule State.Trip.AddedTest do
       assert [%{headsign: "Headsign"}] = by_id(@trip_id)
     end
 
-    test "creates a trip with revenue_service? value set to true" do
-      insert_predictions([%{@prediction | stop_id: "child", revenue_service?: true}])
-      assert [%{headsign: "Headsign", revenue_service?: true}] = by_id(@trip_id)
+    test "creates a trip with revenue value set to :REVENUE" do
+      insert_predictions([%{@prediction | stop_id: "child", revenue: :REVENUE}])
+      assert [%{headsign: "Headsign", revenue: :REVENUE}] = by_id(@trip_id)
     end
 
-    test "creates a trip with revenue_service? value set to false" do
-      insert_predictions([%{@prediction | stop_id: "child", revenue_service?: false}])
-      assert [%{headsign: "Headsign", revenue_service?: false}] = by_id(@trip_id)
+    test "creates a trip with revenue value set to :NON_REVENUE" do
+      insert_predictions([%{@prediction | stop_id: "child", revenue: :NON_REVENUE}])
+      assert [%{headsign: "Headsign", revenue: :NON_REVENUE}] = by_id(@trip_id)
     end
   end
 end

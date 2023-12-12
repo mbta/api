@@ -50,7 +50,7 @@ defmodule Parse.VehiclePositionsJson do
         consist: parse_consist(Map.get(vehicle, "consist")),
         occupancy_status: parse_occupancy_status(Map.get(data, "occupancy_status")),
         carriages: carriages(Map.get(data, "multi_carriage_details")),
-        revenue_service?: Map.get(trip, "revenue")
+        revenue: parse_revenue(Map.get(trip, "revenue"))
       }
     ]
   end
@@ -113,6 +113,10 @@ defmodule Parse.VehiclePositionsJson do
   defp parse_occupancy_status("NO_DATA_AVAILABLE"), do: :no_data_available
 
   defp parse_occupancy_status("NOT_BOARDABLE"), do: :not_boardable
+
+  defp parse_revenue(false), do: :NON_REVENUE
+
+  defp parse_revenue(_), do: :REVENUE
 
   defp unix_to_local(timestamp) when is_integer(timestamp) do
     Parse.Timezone.unix_to_local(timestamp)
