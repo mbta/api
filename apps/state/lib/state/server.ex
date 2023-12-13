@@ -432,14 +432,22 @@ defmodule State.Server do
     :mnesia.table_info(module, :size)
   end
 
-  def all(module, opts) do
-    module
-    |> :ets.tab2list()
-    |> to_structs(module, opts)
+  def all(module, opts, retry_once? \\ true) do
+    all_tables =
+      module
+      |> :ets.tab2list()
+
+    # Try to handle init values of nil with a retry
+    if Enum.empty?(all_tables) and retry_once? do
+      all(module, opts, false)
+    else
+      all_tables
+      |> to_structs(module, opts)
+    end
   rescue
     ArgumentError ->
       # if the table is being rebuilt, we re-try to get the data
-      all(module, opts)
+      all(module, opts, false)
   end
 
   def all_keys(module) do

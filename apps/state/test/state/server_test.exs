@@ -21,7 +21,6 @@ defmodule State.ServerTest do
 
   defp start_server(module) do
     module.start_link()
-    module.new_state([])
 
     on_exit(fn ->
       try do

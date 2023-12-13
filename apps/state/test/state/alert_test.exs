@@ -79,7 +79,7 @@ defmodule State.AlertTest do
     test "subscribes to State.Trip" do
       assert {:ok, _state, _} = init(nil)
       {:ok, _} = State.Trip.start_link()
-      assert_receive {:event, {:new_state, State.Trip}, _, _}
+      assert_receive {:event, {:new_state, State.Trip}, 0, nil}
     end
 
     test "creates InformedEntity and InformedEntityActivity tables" do
