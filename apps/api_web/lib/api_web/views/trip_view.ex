@@ -27,7 +27,21 @@ defmodule ApiWeb.TripView do
 
   def trip_location(trip, conn), do: trip_path(conn, :show, trip.id)
 
-  attributes([:name, :headsign, :direction_id, :wheelchair_accessible, :block_id, :bikes_allowed])
+  attributes([
+    :name,
+    :headsign,
+    :direction_id,
+    :wheelchair_accessible,
+    :block_id,
+    :bikes_allowed,
+    :revenue
+  ])
+
+  def attributes(%Model.Trip{} = t, conn) do
+    t
+    |> super(conn)
+    |> encode_revenue(t)
+  end
 
   has_one(
     :route,
@@ -152,5 +166,14 @@ defmodule ApiWeb.TripView do
         Map.delete(map, type_atom)
       end
     end)
+  end
+
+  defp encode_revenue(attributes, %{revenue: atom}) do
+    string_val =
+      atom
+      |> Atom.to_string()
+      |> String.upcase()
+
+    Map.put(attributes, :revenue, string_val)
   end
 end

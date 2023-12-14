@@ -16,7 +16,8 @@ defmodule ApiWeb.VehicleView do
     :current_stop_sequence,
     :updated_at,
     :occupancy_status,
-    :carriages
+    :carriages,
+    :revenue
   ])
 
   has_one(
@@ -45,6 +46,7 @@ defmodule ApiWeb.VehicleView do
     |> super(conn)
     |> backwards_compatible_attributes(vehicle, conn.assigns.api_version)
     |> encode_carriages()
+    |> encode_revenue(vehicle)
   end
 
   for status <- ~w(in_transit_to incoming_at stopped_at)a do
@@ -100,5 +102,14 @@ defmodule ApiWeb.VehicleView do
       occupancy_status: occupancy_status(carriage, nil),
       occupancy_percentage: carriage.occupancy_percentage
     }
+  end
+
+  defp encode_revenue(attributes, %{revenue: atom}) do
+    string_val =
+      atom
+      |> Atom.to_string()
+      |> String.upcase()
+
+    Map.put(attributes, :revenue, string_val)
   end
 end

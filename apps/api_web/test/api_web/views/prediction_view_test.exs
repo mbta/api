@@ -79,7 +79,8 @@ defmodule ApiWeb.PredictionViewTest do
              "departure_time" => "2016-06-07T00:00:00-04:00",
              "status" => "All Aboard",
              "schedule_relationship" => "ADDED",
-             "stop_sequence" => 5
+             "stop_sequence" => 5,
+             "revenue" => "REVENUE"
            }
   end
 

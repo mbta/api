@@ -62,7 +62,8 @@ defmodule ApiWeb.TripViewTest do
              "headsign" => "North Station",
              "wheelchair_accessible" => 1,
              "block_id" => "block",
-             "bikes_allowed" => 0
+             "bikes_allowed" => 0,
+             "revenue" => "REVENUE"
            }
 
     assert rendered["data"]["relationships"] ==
