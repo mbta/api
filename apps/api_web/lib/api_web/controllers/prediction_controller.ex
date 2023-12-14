@@ -238,10 +238,8 @@ defmodule ApiWeb.PredictionController do
   defp add_revenue_matchers(matchers, :error),
     do: add_revenue_matchers(matchers, {:ok, :REVENUE})
 
-  defp add_revenue_matchers(matchers, {:ok, :ALL}), do: matchers
-
-  defp add_revenue_matchers(matchers, {:ok, revenue_matcher}) do
-    for matcher <- matchers do
+  defp add_revenue_matchers(matchers, {:ok, revenue_matchers}) do
+    for revenue_matcher <- List.wrap(revenue_matchers), matcher <- matchers do
       Map.put(matcher, :revenue, revenue_matcher)
     end
   end

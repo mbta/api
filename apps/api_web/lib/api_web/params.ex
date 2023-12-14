@@ -211,22 +211,20 @@ defmodule ApiWeb.Params do
   @doc """
   Parse revenue filter to valid params
   """
-  def revenue(value) when is_binary(value) do
-    value
+  def revenue(values) when is_binary(values) do
+    values
     |> split_on_comma()
-    |> MapSet.new()
-    |> MapSet.intersection(MapSet.new(["REVENUE", "NON_REVENUE"]))
-    |> MapSet.to_list()
-    |> Enum.sort()
+    |> Enum.reduce_while({:ok, []}, fn
+      "REVENUE", {:ok, acc} -> {:cont, {:ok, [:REVENUE | acc]}}
+      "NON_REVENUE", {:ok, acc} -> {:cont, {:ok, [:NON_REVENUE | acc]}}
+      _, _ -> {:halt, :error}
+    end)
     |> revenue()
   end
 
-  for value <- ~w(NON_REVENUE REVENUE)a do
-    def revenue([unquote(Atom.to_string(value))]), do: {:ok, unquote(value)}
-  end
-
-  def revenue(["NON_REVENUE", "REVENUE"]), do: {:ok, :ALL}
-  def revenue(_value), do: :error
+  def revenue({:ok, []}), do: :error
+  def revenue(nil), do: :error
+  def revenue(val), do: val
 
   @doc """
   Parses and integer value from params.

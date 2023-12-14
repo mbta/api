@@ -507,50 +507,56 @@ defmodule State.TripTest do
                "trip8"
              ]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: :REVENUE}) ==
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: [:REVENUE]}) ==
                [
                  "trip1",
                  "trip2",
                  "trip6"
                ]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue: :REVENUE}) ==
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue: [:REVENUE]}) ==
                [
                  "trip3",
                  "trip4",
                  "trip8"
                ]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: :REVENUE}) ==
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: [:REVENUE]}) ==
                ["trip1", "trip2", "trip3", "trip4", "trip6", "trip8"]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: :ALL}) == [
+      assert mapped_and_sorted_filter_by(%{
+               routes: ["rev-route-9"],
+               revenue: [:NON_REVENUE, :REVENUE]
+             }) == [
                "trip1",
                "trip2",
                "trip5",
                "trip6"
              ]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-10"], revenue: :ALL}) == [
+      assert mapped_and_sorted_filter_by(%{
+               routes: ["rev-route-10"],
+               revenue: [:NON_REVENUE, :REVENUE]
+             }) == [
                "trip3",
                "trip4",
                "trip7",
                "trip8"
              ]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: :ALL}) ==
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: [:NON_REVENUE, :REVENUE]}) ==
                ["trip1", "trip2", "trip3", "trip4", "trip5", "trip6", "trip7", "trip8"]
 
-      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: :NON_REVENUE}) ==
+      assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: [:NON_REVENUE]}) ==
                ["trip5"]
 
       assert mapped_and_sorted_filter_by(%{
                routes: ["rev-route-10"],
-               revenue: :NON_REVENUE
+               revenue: [:NON_REVENUE]
              }) ==
                ["trip7"]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: :NON_REVENUE}) ==
+      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: [:NON_REVENUE]}) ==
                ["trip5", "trip7"]
     end
 

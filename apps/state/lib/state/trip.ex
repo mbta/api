@@ -18,7 +18,7 @@ defmodule State.Trip do
           optional(:direction_id) => direction_id,
           optional(:date) => Date.t(),
           optional(:route_patterns) => [String.t()],
-          optional(:revenue_status) => :all | :non_revenue | :revenue
+          optional(:revenue) => [:NON_REVENUE | :REVENUE]
         }
 
   @fetch_trips {:fetch, "trips.txt"}
@@ -171,7 +171,7 @@ defmodule State.Trip do
       |> build_filters(:direction_id, filters[:direction_id])
       |> build_filters(:route_pattern_id, filters[:route_patterns])
       |> build_filters(:id, filters[:ids])
-      |> build_filters(:revenue, filters[:revenue])
+      |> build_filters(:revenue, Map.get(filters, :revenue, :REVENUE))
 
     idx = get_index(filters)
     trips = State.Trip.Added.select(matchers, idx) ++ State.Trip.select(matchers, idx)
@@ -181,13 +181,6 @@ defmodule State.Trip do
       {:ok, date} -> Enum.filter(trips, &ServiceByDate.valid?(&1.service_id, date))
     end
   end
-
-  defp build_filters(matchers, :revenue, :ALL), do: matchers
-
-  defp build_filters(matchers, :revenue, nil), do: build_filters(matchers, :revenue, :REVENUE)
-
-  defp build_filters(matchers, :revenue, value) when value in [:NON_REVENUE, :REVENUE],
-    do: build_filters(matchers, :revenue, [value])
 
   defp build_filters(matchers, _key, nil), do: matchers
 

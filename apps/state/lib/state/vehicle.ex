@@ -20,7 +20,7 @@ defmodule State.Vehicle do
           optional(:routes) => [Model.Route.id(), ...],
           optional(:direction_id) => Model.Direction.id() | nil,
           optional(:route_types) => [Model.Route.route_type(), ...],
-          optional(:revenue) => :ALL | :NON_REVENUE | :REVENUE
+          optional(:revenue) => [:NON_REVENUE | :REVENUE]
         }
 
   @impl State.Server
@@ -101,17 +101,9 @@ defmodule State.Vehicle do
     end
   end
 
-  defp build_filters(matchers, :revenue, revenue_param, _filters) do
-    revenue = revenue_service_value(revenue_param)
-
-    for matcher <- matchers do
-      Map.put(matcher, :revenue, revenue)
-    end
+  defp build_filters(matchers, key, values, _filters) do
+    for matcher <- matchers, value <- List.wrap(values), do: Map.put(matcher, key, value)
   end
-
-  defp revenue_service_value(:ALL), do: :_
-  defp revenue_service_value(:NON_REVENUE), do: :NON_REVENUE
-  defp revenue_service_value(_), do: :REVENUE
 
   @spec do_post_search_filter([Vehicle.t()], filter_opts) :: [Vehicle.t()]
   defp do_post_search_filter(vehicles, %{labels: labels}) when is_list(labels) do
