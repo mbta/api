@@ -247,6 +247,17 @@ defmodule ApiWeb.TripController do
               """,
               example: 1
             )
+
+            revenue_status(
+              :string,
+              """
+              | Value           | Description |
+              |-----------------|-------------|
+              | `"REVENUE"`     | Indicates that the associated trip is accepting passengers. |
+              | `"NON_REVENUE"` | Indicates that the associated trip is not accepting passengers. |
+              """,
+              example: "REVENUE"
+            )
           end
 
           direction_id_attribute()
