@@ -79,6 +79,8 @@ config :state, :shape,
     "8000020" => -1,
     # Green-D (Medford/Tufts)
     "8000021" => -1,
+    # Green-D (Medford/Tufts)
+    "8000023" => -1,
     # Green-D (Lechmere)
     "840_0004" => -1,
     # Green-D (Lechmere)
