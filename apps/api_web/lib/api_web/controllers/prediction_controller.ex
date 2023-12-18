@@ -241,25 +241,27 @@ defmodule ApiWeb.PredictionController do
 
           attributes do
             arrival_time(
-              [:string, :null],
+              :string,
               """
               When the vehicle is now predicted to arrive.  `null` if the first stop \
               (`*/relationships/stop/data/id`) on the trip (`*/relationships/trip/data/id`). See \
               [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
               Format is ISO8601.
               """,
-              example: "2017-08-14T15:38:58-04:00"
+              example: "2017-08-14T15:38:58-04:00",
+              "x-nullable": true
             )
 
             departure_time(
-              [:string, :null],
+              :string,
               """
               When the vehicle is now predicted to depart.  `null` if the last stop \
               (`*/relationships/stop/data/id`) on the trip (`*/relationships/trip/data/id`). See \
               [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `departure`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
               Format is ISO8601.
               """,
-              example: "2017-08-14T15:38:58-04:00"
+              example: "2017-08-14T15:38:58-04:00",
+              "x-nullable": true
             )
 
             arrival_uncertainty(
@@ -318,7 +320,7 @@ defmodule ApiWeb.PredictionController do
             )
 
             schedule_relationship(
-              [:string, :null],
+              :string,
               """
               How the predicted stop relates to the `Model.Schedule.t` stops.
 
@@ -334,11 +336,12 @@ defmodule ApiWeb.PredictionController do
               See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor` `ScheduleRelationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship-1)
               See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `ScheduleRelationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship)
               """,
-              example: "UNSCHEDULED"
+              example: "UNSCHEDULED",
+              "x-nullable": true
             )
 
             stop_sequence(
-              [:integer, :null],
+              :integer,
               """
               The sequence the stop (`*/relationships/stop/data/id`) is arrived at during the trip \
               (`*/relationships/trip/data/id`).  The stop sequence is monotonically increasing along the \
@@ -346,7 +349,8 @@ defmodule ApiWeb.PredictionController do
 
               See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
               """,
-              example: 19
+              example: 19,
+              "x-nullable": true
             )
 
             status(:string, "Status of the schedule", example: "Approaching")
