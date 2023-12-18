@@ -270,35 +270,39 @@ defmodule ApiWeb.StopController do
             )
 
             description(
-              [:string, :null],
+              :string,
               """
               Description of the stop. See [GTFS `stops.txt` `stop_desc`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stopstxt).
               """,
-              example: "Alewife - Red Line"
+              example: "Alewife - Red Line",
+              "x-nullable": true
             )
 
             address(
-              [:string, :null],
+              :string,
               """
               A street address for the station. See [MBTA extensions to GTFS](https://docs.google.com/document/d/1RoQQj3_-7FkUlzFP4RcK1GzqyHp4An2lTFtcmW0wrqw/view).
               """,
-              example: "Alewife Brook Parkway and Cambridge Park Drive, Cambridge, MA 02140"
+              example: "Alewife Brook Parkway and Cambridge Park Drive, Cambridge, MA 02140",
+              "x-nullable": true
             )
 
             platform_code(
-              [:string, :null],
+              :string,
               """
               A short code representing the platform/track (like a number or letter). See [GTFS `stops.txt` `platform_code`](https://developers.google.com/transit/gtfs/reference/gtfs-extensions#stopstxt_1).
               """,
-              example: "5"
+              example: "5",
+              "x-nullable": true
             )
 
             platform_name(
-              [:string, :null],
+              :string,
               """
               A textual description of the platform or track. See [MBTA extensions to GTFS](https://docs.google.com/document/d/1RoQQj3_-7FkUlzFP4RcK1GzqyHp4An2lTFtcmW0wrqw/view).
               """,
-              example: "Red Line"
+              example: "Red Line",
+              "x-nullable": true
             )
 
             latitude(
@@ -348,31 +352,35 @@ defmodule ApiWeb.StopController do
             """)
 
             municipality(
-              [:string, :null],
+              :string,
               "The municipality in which the stop is located.",
-              example: "Cambridge"
+              example: "Cambridge",
+              "x-nullable": true
             )
 
             on_street(
-              [:string, :null],
+              :string,
               "The street on which the stop is located.",
-              example: "Massachusetts Avenue"
+              example: "Massachusetts Avenue",
+              "x-nullable": true
             )
 
             at_street(
-              [:string, :null],
+              :string,
               "The cross street at which the stop is located.",
-              example: "Essex Street"
+              example: "Essex Street",
+              "x-nullable": true
             )
 
             vehicle_type(
-              [:integer, :null],
+              :integer,
               """
               The type of transportation used at the stop. `vehicle_type` will be a valid routes.txt `route_type` value:
 
               #{route_type_description()}
               """,
-              example: 3
+              example: 3,
+              "x-nullable": true
             )
           end
 
