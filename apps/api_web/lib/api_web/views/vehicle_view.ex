@@ -105,10 +105,7 @@ defmodule ApiWeb.VehicleView do
   end
 
   defp encode_revenue(attributes, %{revenue: atom}) do
-    string_val =
-      atom
-      |> Atom.to_string()
-      |> String.upcase()
+    string_val = Atom.to_string(atom)
 
     Map.put(attributes, :revenue, string_val)
   end

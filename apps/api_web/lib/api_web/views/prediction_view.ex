@@ -201,15 +201,11 @@ defmodule ApiWeb.PredictionView do
   end
 
   def schedule_relationship(%{schedule_relationship: atom}) do
-    atom
-    |> Atom.to_string()
-    |> String.upcase()
+    Atom.to_string(atom)
   end
 
   def revenue(%{revenue: atom}) do
-    atom
-    |> Atom.to_string()
-    |> String.upcase()
+    Atom.to_string(atom)
   end
 
   def format_time(%DateTime{} = dt), do: DateTime.to_iso8601(dt)
