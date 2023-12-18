@@ -201,7 +201,9 @@ defmodule ApiWeb.PredictionView do
   end
 
   def schedule_relationship(%{schedule_relationship: atom}) do
-    Atom.to_string(atom)
+    atom
+    |> Atom.to_string()
+    |> String.upcase()
   end
 
   def revenue(%{revenue: atom}) do
