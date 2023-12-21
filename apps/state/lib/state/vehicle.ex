@@ -62,7 +62,7 @@ defmodule State.Vehicle do
     [%{}]
     |> build_filters(:effective_route_id, Map.get(filters, :routes), filters)
     |> build_filters(:route_type, Map.get(filters, :route_types), filters)
-    |> build_filters(:revenue, Map.get(filters, :revenue, :REVENUE), filters)
+    |> build_filters(:revenue, Map.get(filters, :revenue, [:REVENUE]), filters)
     |> State.Vehicle.select(idx)
     |> do_post_search_filter(filters)
   end

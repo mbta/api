@@ -171,7 +171,7 @@ defmodule State.Trip do
       |> build_filters(:direction_id, filters[:direction_id])
       |> build_filters(:route_pattern_id, filters[:route_patterns])
       |> build_filters(:id, filters[:ids])
-      |> build_filters(:revenue, Map.get(filters, :revenue, :REVENUE))
+      |> build_filters(:revenue, Map.get(filters, :revenue, [:REVENUE]))
 
     idx = get_index(filters)
     trips = State.Trip.Added.select(matchers, idx) ++ State.Trip.select(matchers, idx)
