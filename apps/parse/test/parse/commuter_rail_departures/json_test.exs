@@ -9,13 +9,15 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
     "schedule_relationship" => "SCHEDULED",
     "route_id" => "CR-Haverhill",
     "route_pattern_id" => "CR-Haverhill-0-0",
-    "direction_id" => 0
+    "direction_id" => 0,
+    "revenue" => false
   }
   @update %{
     "stop_id" => "place-north",
     "stop_sequence" => 6,
     "departure" => %{
-      "time" => 1_502_290_500
+      "time" => 1_502_290_500,
+      "uncertainty" => 60
     }
   }
 
@@ -63,7 +65,8 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
         trip_id: @trip["trip_id"],
         route_id: @trip["route_id"],
         route_pattern_id: @trip["route_pattern_id"],
-        direction_id: @trip["direction_id"]
+        direction_id: @trip["direction_id"],
+        revenue: :NON_REVENUE
       }
 
       actual = base_prediction(@trip, %{})
@@ -98,7 +101,9 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
         route_pattern_id: @trip["route_pattern_id"],
         direction_id: @trip["direction_id"],
         arrival_time: nil,
+        arrival_uncertainty: nil,
         departure_time: Parse.Timezone.unix_to_local(@update["departure"]["time"]),
+        departure_uncertainty: 60,
         stop_sequence: @update["stop_sequence"],
         schedule_relationship: nil,
         status: nil
