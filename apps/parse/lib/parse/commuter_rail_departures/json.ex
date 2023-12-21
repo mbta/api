@@ -33,7 +33,8 @@ defmodule Parse.CommuterRailDepartures.JSON do
       route_pattern_id: Map.get(trip, "route_pattern_id"),
       direction_id: Map.get(trip, "direction_id"),
       vehicle_id: vehicle_id(raw),
-      schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship"))
+      schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship")),
+      revenue: parse_revenue(Map.get(trip, "revenue", true))
     }
   end
 
@@ -89,4 +90,8 @@ defmodule Parse.CommuterRailDepartures.JSON do
 
   defp schedule_relationship("CANCELED"), do: :cancelled
   defp schedule_relationship(_), do: nil
+
+  defp parse_revenue(false), do: :NON_REVENUE
+
+  defp parse_revenue(_), do: :REVENUE
 end
