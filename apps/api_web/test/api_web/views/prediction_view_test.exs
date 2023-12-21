@@ -83,7 +83,8 @@ defmodule ApiWeb.PredictionViewTest do
              "departure_uncertainty" => 60,
              "status" => "All Aboard",
              "schedule_relationship" => "ADDED",
-             "stop_sequence" => 5
+             "stop_sequence" => 5,
+             "revenue" => "REVENUE"
            }
   end
 

@@ -11,7 +11,8 @@ defmodule ApiWeb.PredictionView do
     :schedule_relationship,
     :status,
     :stop_sequence,
-    :track
+    :track,
+    :revenue
   ])
 
   def preload(predictions, conn, include_opts) do
@@ -47,7 +48,8 @@ defmodule ApiWeb.PredictionView do
       direction_id: p.direction_id,
       schedule_relationship: schedule_relationship(p),
       status: p.status,
-      stop_sequence: p.stop_sequence
+      stop_sequence: p.stop_sequence,
+      revenue: revenue(p)
     }
 
     add_legacy_attributes(attributes, p, conn.assigns.api_version)
@@ -206,6 +208,10 @@ defmodule ApiWeb.PredictionView do
     atom
     |> Atom.to_string()
     |> String.upcase()
+  end
+
+  def revenue(%{revenue: atom}) do
+    Atom.to_string(atom)
   end
 
   def format_time(%DateTime{} = dt), do: DateTime.to_iso8601(dt)
