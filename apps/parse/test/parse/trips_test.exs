@@ -13,7 +13,8 @@ defmodule Parse.TripsTest do
     {:ok, %{blob: blob}}
   end
 
-  test "parse: parses a CSV blob into a list of trips, defaulting bikes_allowed", %{blob: blob} do
+  test "parse: parses a CSV blob into a list of trips, defaulting bikes_allowed and revenue",
+       %{blob: blob} do
     assert parse(blob) == [
              %Trip{
                id: "30133120",
@@ -26,7 +27,8 @@ defmodule Parse.TripsTest do
                shape_id: "010058",
                wheelchair_accessible: 1,
                bikes_allowed: 0,
-               route_pattern_id: "1-0-1"
+               route_pattern_id: "1-0-1",
+               revenue: :REVENUE
              }
            ]
   end
@@ -49,7 +51,8 @@ defmodule Parse.TripsTest do
                shape_id: "010058",
                wheelchair_accessible: 1,
                bikes_allowed: 1,
-               route_pattern_id: "1-0-1"
+               route_pattern_id: "1-0-1",
+               revenue: :REVENUE
              }
            ]
   end

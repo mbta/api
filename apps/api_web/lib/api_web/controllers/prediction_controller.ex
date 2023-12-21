@@ -13,7 +13,7 @@ defmodule ApiWeb.PredictionController do
   alias ApiWeb.LegacyStops
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue_status)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -61,7 +61,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:stop_id, includes_children: true)
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
-    filter_param(:revenue_status, desc: "Filter predictions by revenue status.")
+    filter_param(:revenue, desc: "Filter predictions by revenue status.")
 
     parameter("filter[route_pattern]", :query, :string, """
     Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.
@@ -85,13 +85,17 @@ defmodule ApiWeb.PredictionController do
       route_ids = Params.split_on_comma(filtered_params, "route")
       route_pattern_ids = Params.split_on_comma(filtered_params, "route_pattern")
       route_types = Params.route_types(filtered_params)
+      revenue = filtered_params |> Map.get("revenue") |> Params.revenue()
 
       direction_id_matcher =
         filtered_params
         |> Params.direction_id()
         |> direction_id_matcher()
 
-      matchers = stop_sequence_matchers(filtered_params, direction_id_matcher)
+      matchers =
+        filtered_params
+        |> build_stop_sequence_matchers(direction_id_matcher)
+        |> add_revenue_matchers(revenue)
 
       case filtered_params do
         %{"route_type" => _} = p when map_size(p) == 1 ->
@@ -218,7 +222,7 @@ defmodule ApiWeb.PredictionController do
     %{direction_id: direction_id}
   end
 
-  defp stop_sequence_matchers(params, direction_id_matcher) do
+  defp build_stop_sequence_matchers(params, direction_id_matcher) do
     case Params.split_on_comma(params, "stop_sequence") do
       [_ | _] = strs ->
         for str <- strs,
@@ -228,6 +232,15 @@ defmodule ApiWeb.PredictionController do
 
       [] ->
         [direction_id_matcher]
+    end
+  end
+
+  defp add_revenue_matchers(matchers, :error),
+    do: add_revenue_matchers(matchers, {:ok, :REVENUE})
+
+  defp add_revenue_matchers(matchers, {:ok, revenue_matchers}) do
+    for revenue_matcher <- List.wrap(revenue_matchers), matcher <- matchers do
+      Map.put(matcher, :revenue, revenue_matcher)
     end
   end
 
@@ -354,6 +367,17 @@ defmodule ApiWeb.PredictionController do
             )
 
             status(:string, "Status of the schedule", example: "Approaching")
+
+            revenue_status(
+              :string,
+              """
+              | Value           | Description |
+              |-----------------|-------------|
+              | `"REVENUE"`     | Indicates that the associated trip is accepting passengers. |
+              | `"NON_REVENUE"` | Indicates that the associated trip is not accepting passengers. |
+              """,
+              example: "REVENUE"
+            )
           end
 
           direction_id_attribute()

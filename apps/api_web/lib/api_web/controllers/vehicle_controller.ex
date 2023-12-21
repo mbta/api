@@ -8,7 +8,7 @@ defmodule ApiWeb.VehicleController do
   use ApiWeb.Web, :api_controller
   alias State.Vehicle
 
-  @filters ~w(trip route direction_id id label route_type revenue_status)s
+  @filters ~w(trip route direction_id id label route_type revenue)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(trip stop route)
 
@@ -87,7 +87,7 @@ defmodule ApiWeb.VehicleController do
 
     filter_param(:direction_id, desc: "Only used if `filter[route]` is also present.")
     filter_param(:route_type)
-    filter_param(:revenue_status, desc: "Filter vehicles by revenue status.")
+    filter_param(:revenue, desc: "Filter vehicles by revenue status.")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -177,6 +177,13 @@ defmodule ApiWeb.VehicleController do
     end
   end
 
+  defp do_format_filter({"revenue", revenue}) do
+    case Params.revenue(revenue) do
+      :error -> []
+      {:ok, val} -> %{revenue: val}
+    end
+  end
+
   defp do_format_filter(_), do: []
 
   def swagger_definitions do
@@ -263,6 +270,17 @@ defmodule ApiWeb.VehicleController do
                   "occupancy_percentage" => 80
                 }
               ]
+            )
+
+            revenue_status(
+              :string,
+              """
+              | Value           | Description |
+              |-----------------|-------------|
+              | `"REVENUE"`     | Indicates that the associated trip is accepting passengers. |
+              | `"NON_REVENUE"` | Indicates that the associated trip is not accepting passengers. |
+              """,
+              example: "REVENUE"
             )
           end
 

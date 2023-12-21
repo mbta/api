@@ -29,7 +29,8 @@ defmodule Parse.VehiclePositionsJsonTest do
         "route_id" => "708",
         "schedule_relationship" => "SCHEDULED",
         "start_date" => "20190905",
-        "trip_id" => "41820413"
+        "trip_id" => "41820413",
+        "revenue" => true
       },
       "vehicle" => %{"id" => "y0487", "label" => "0487"}
     }
@@ -72,7 +73,8 @@ defmodule Parse.VehiclePositionsJsonTest do
               occupancy_status: :many_seats_available,
               occupancy_percentage: 80
             }
-          ]
+          ],
+          revenue: :REVENUE
         }
       ]
 
@@ -176,13 +178,14 @@ defmodule Parse.VehiclePositionsJsonTest do
             "route_id" => "Orange",
             "schedule_relationship" => "ADDED",
             "start_date" => "20191021",
-            "trip_id" => "ADDED-1571239831"
+            "trip_id" => "ADDED-1571239831",
+            "revenue" => false
           },
           "vehicle" => %{"consist" => [], "id" => "O-54609FDE"}
         }
       }
 
-      assert [%{consist: nil}] = parse_entity(entity)
+      assert [%{consist: nil, revenue: :NON_REVENUE}] = parse_entity(entity)
     end
   end
 end
