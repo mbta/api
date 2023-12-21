@@ -4,7 +4,9 @@ defmodule ApiWeb.PredictionView do
 
   attributes([
     :arrival_time,
+    :arrival_uncertainty,
     :departure_time,
+    :departure_uncertainty,
     :direction_id,
     :schedule_relationship,
     :status,
@@ -40,7 +42,9 @@ defmodule ApiWeb.PredictionView do
   def attributes(%Model.Prediction{} = p, conn) do
     attributes = %{
       arrival_time: format_time(p.arrival_time),
+      arrival_uncertainty: p.arrival_uncertainty,
       departure_time: format_time(p.departure_time),
+      departure_uncertainty: p.departure_uncertainty,
       direction_id: p.direction_id,
       schedule_relationship: schedule_relationship(p),
       status: p.status,

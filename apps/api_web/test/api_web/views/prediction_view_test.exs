@@ -16,7 +16,9 @@ defmodule ApiWeb.PredictionViewTest do
     vehicle_id: "vehicle",
     direction_id: 0,
     arrival_time: nil,
+    arrival_uncertainty: nil,
     departure_time: @datetime,
+    departure_uncertainty: 60,
     schedule_relationship: :added,
     status: "All Aboard",
     stop_sequence: 5
@@ -76,7 +78,9 @@ defmodule ApiWeb.PredictionViewTest do
     assert rendered["data"]["attributes"] == %{
              "direction_id" => 0,
              "arrival_time" => nil,
+             "arrival_uncertainty" => nil,
              "departure_time" => "2016-06-07T00:00:00-04:00",
+             "departure_uncertainty" => 60,
              "status" => "All Aboard",
              "schedule_relationship" => "ADDED",
              "stop_sequence" => 5,
