@@ -15,7 +15,8 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
     "stop_id" => "place-north",
     "stop_sequence" => 6,
     "departure" => %{
-      "time" => 1_502_290_500
+      "time" => 1_502_290_500,
+      "uncertainty" => 60
     }
   }
 
@@ -98,7 +99,9 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
         route_pattern_id: @trip["route_pattern_id"],
         direction_id: @trip["direction_id"],
         arrival_time: nil,
+        arrival_uncertainty: nil,
         departure_time: Parse.Timezone.unix_to_local(@update["departure"]["time"]),
+        departure_uncertainty: 60,
         stop_sequence: @update["stop_sequence"],
         schedule_relationship: nil,
         status: nil

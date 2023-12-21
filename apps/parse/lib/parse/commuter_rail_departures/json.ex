@@ -42,7 +42,9 @@ defmodule Parse.CommuterRailDepartures.JSON do
       base
       | stop_id: Map.get(update, "stop_id"),
         arrival_time: time(Map.get(update, "arrival")),
+        arrival_uncertainty: parse_uncertainty(Map.get(update, "arrival")),
         departure_time: time(Map.get(update, "departure")),
+        departure_uncertainty: parse_uncertainty(Map.get(update, "departure")),
         stop_sequence: Map.get(update, "stop_sequence"),
         schedule_relationship: best_schedule_relationship(base.schedule_relationship, update),
         status: Map.get(update, "boarding_status")
@@ -56,6 +58,12 @@ defmodule Parse.CommuterRailDepartures.JSON do
   defp time(_) do
     nil
   end
+
+  defp parse_uncertainty(%{"uncertainty" => uncertainty}) when is_integer(uncertainty) do
+    uncertainty
+  end
+
+  defp parse_uncertainty(_), do: nil
 
   defp vehicle_id(%{"vehicle" => %{"id" => id}}), do: id
   defp vehicle_id(_), do: nil
