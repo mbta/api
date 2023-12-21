@@ -238,6 +238,77 @@ defmodule ApiWeb.VehicleControllerTest do
       conn = assign(conn, :api_version, "2018-05-07")
       assert {:error, _} = index_data(conn, %{"sort" => "last_updated"})
     end
+
+    test "can filter by revenue status", %{conn: conn} do
+      trip1 = %Model.Trip{id: "1", route_id: "1", direction_id: 1, revenue: :REVENUE}
+      trip2 = %Model.Trip{id: "2", route_id: "2", direction_id: 1, revenue: :NON_REVENUE}
+      trip3 = %Model.Trip{id: "3", route_id: "3", direction_id: 1, revenue: :REVENUE}
+      :ok = State.Trip.new_state([trip1, trip2, trip3])
+
+      vehicle1 = %Vehicle{
+        id: "vehicle1",
+        trip_id: trip1.id,
+        route_id: trip1.route_id,
+        revenue: :REVENUE
+      }
+
+      vehicle2 = %Vehicle{
+        id: "vehicle2",
+        trip_id: trip2.id,
+        route_id: trip2.route_id,
+        revenue: :NON_REVENUE
+      }
+
+      vehicle3 = %Vehicle{
+        id: "vehicle3",
+        trip_id: trip3.id,
+        route_id: trip3.route_id,
+        revenue: :REVENUE
+      }
+
+      :ok = State.Vehicle.new_state([vehicle1, vehicle2, vehicle3])
+
+      assert conn
+             |> index_data(%{"revenue" => "REVENUE,NON_REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() ==
+               ["vehicle1", "vehicle2", "vehicle3"]
+
+      assert conn
+             |> index_data(%{"revenue" => "REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1", "vehicle3"]
+
+      assert conn
+             |> index_data(%{"revenue" => "invalid"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1", "vehicle3"]
+
+      assert conn
+             |> index_data(%{"revenue" => "NON_REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle2"]
+
+      assert conn
+             |> index_data(%{"route" => "1,2", "revenue" => "REVENUE,NON_REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1", "vehicle2"]
+
+      assert conn
+             |> index_data(%{"route" => "1,2", "revenue" => "REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1"]
+
+      assert conn
+             |> index_data(%{"route" => "1,2", "revenue" => "invalid"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1"]
+
+      assert conn
+             |> index_data(%{"route" => "1,2", "revenue" => "NON_REVENUE"})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle2"]
+    end
   end
 
   describe "show" do
@@ -270,7 +341,8 @@ defmodule ApiWeb.VehicleControllerTest do
                  "current_stop_sequence" => nil,
                  "updated_at" => nil,
                  "occupancy_status" => nil,
-                 "carriages" => []
+                 "carriages" => [],
+                 "revenue" => "REVENUE"
                }
              }
     end

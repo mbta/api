@@ -264,6 +264,23 @@ defmodule ApiWeb.SwaggerHelpers do
     )
   end
 
+  def filter_param(path_object, :revenue, opts) do
+    Path.parameter(
+      path_object,
+      "filter[revenue]",
+      :query,
+      :string,
+      """
+      #{opts[:desc]}
+      Revenue status indicates whether or not the vehicle is accepting passengers.
+      When filter is not included, the default behavior is to filter by `revenue=REVENUE`.
+
+      Multiple `revenue` types #{comma_separated_list()}.
+      """,
+      enum: ["NON_REVENUE", "REVENUE", "NON_REVENUE,REVENUE"]
+    )
+  end
+
   def page(resource) do
     resource
     |> JsonApi.page()
