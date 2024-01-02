@@ -338,7 +338,7 @@ defmodule ApiWeb.StopController do
               example: 0
             )
 
-            location_type(%Schema{type: :integer, enum: [0, 1, 2]}, """
+            location_type(%Schema{type: :integer, enum: [0, 1, 2, 3]}, """
             The type of the stop.
 
             | Value | Type | Description |
