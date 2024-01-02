@@ -17,11 +17,14 @@ defmodule Model.Prediction do
     :direction_id,
     :route_pattern_id,
     :arrival_time,
+    :arrival_uncertainty,
     :departure_time,
+    :departure_uncertainty,
     :stop_sequence,
     :schedule_relationship,
     :status,
-    trip_match?: false
+    trip_match?: false,
+    revenue: :REVENUE
   ]
 
   @typedoc """
@@ -40,11 +43,38 @@ defmodule Model.Prediction do
   @type schedule_relationship :: :added | :cancelled | :no_data | :skipped | :unscheduled | nil
 
   @typedoc """
+  Uncertainty value for the arrival time prediction.
+  Bus and Commuter Rail
+  See [entities tripUpdate stop_time_updates arrival uncertainty](https://swiftly-inc.stoplight.io/docs/realtime-standalone/613d1d7f1eae3-gtfs-rt-trip-updates)
+  | Value            | Description |
+  |------------------|-------------|
+  | < 300 or omitted |	Valid real-time prediction |
+  | 300              |  Real-time prediction not available. This code is primarily used when a vehicle has not yet been assigned to the trip, (i.e. because the block has not started yet). It is a schedule-based prediction, but Swiftly adjusts the schedule-based prediction time using observed historical travel times to make predictions more accurate than the schedule |
+  | 301              |	Valid real-time prediction, though the bus appears to be stalled or significantly delayed and predictions are not as accurate |
+  | > 301            |	Likely invalid prediction, recommend not showing anything (and not showing scheduled time), very rare situation |
+
+  Subway
+  See [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
+  | Value  | Description |
+  |--------|-------------|
+  | 60   | A trip that has already started |
+  | 120  | A terminal/reverse trip departure for a trip that has NOT started and a train is awaiting departure at the origin |
+  | 360  | A terminal/reverse trip for a trip that has NOT started and a train is completing a previous trip |
+  """
+  @type uncertainty_values :: non_neg_integer | nil
+
+  @typedoc """
   * `:arrival_time` - When the vehicle is now predicted to arrive. `nil` if the first stop (`stop_id`) on the the trip
       (`trip_id`). See
       [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
+  * `:arrival_uncertainty` - Value representing the uncertainty of arrival prediction (`arrival_time`). See
+      [entities tripUpdate stop_time_updates arrival uncertainty](https://swiftly-inc.stoplight.io/docs/realtime-standalone/613d1d7f1eae3-gtfs-rt-trip-updates)
+      [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
   * `:departure_time` - When the vehicle is now predicted to depart. `nil` if the last stop (`stop_id`) on the trip
       (`trip_id`). See
+      [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `departure`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
+  * `:departure_uncertainty` - Value representing the uncertainty of departure prediction (`departure_time`). See
+      [entities tripUpdate stop_time_updates departure uncertainty](https://swiftly-inc.stoplight.io/docs/realtime-standalone/613d1d7f1eae3-gtfs-rt-trip-updates)
       [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `departure`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
   * `:direction_id` - Which direction along `route_id` the `trip_id` is going.  See
       [GTFS `trips.txt` `direction_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxt).
@@ -62,10 +92,13 @@ defmodule Model.Prediction do
       [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
   * `:trip_id` - The trip the `stop_id` is on. See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripdescriptor)
   * `:trip_match?` - a boolean indicating whether the prediction is for a trip in the GTFS file
+  * `:revenue` - An indication of whether or not the prediction is for a revenue trip
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
+          arrival_uncertainty: uncertainty_values,
           departure_time: DateTime.t() | nil,
+          departure_uncertainty: uncertainty_values,
           direction_id: Model.Direction.id(),
           route_id: Model.Route.id(),
           route_pattern_id: Model.RoutePattern.id(),
@@ -75,7 +108,8 @@ defmodule Model.Prediction do
           stop_id: Model.Stop.id(),
           stop_sequence: non_neg_integer | nil,
           trip_id: Model.Trip.id(),
-          trip_match?: boolean
+          trip_match?: boolean,
+          revenue: :REVENUE | :NON_REVENUE
         }
 
   @spec trip_id(t) :: Model.Trip.id()

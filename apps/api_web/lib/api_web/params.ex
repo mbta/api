@@ -209,6 +209,24 @@ defmodule ApiWeb.Params do
   def canonical(_), do: nil
 
   @doc """
+  Parse revenue filter to valid params
+  """
+  def revenue(values) when is_binary(values) do
+    values
+    |> split_on_comma()
+    |> Enum.reduce_while({:ok, []}, fn
+      "REVENUE", {:ok, acc} -> {:cont, {:ok, [:REVENUE | acc]}}
+      "NON_REVENUE", {:ok, acc} -> {:cont, {:ok, [:NON_REVENUE | acc]}}
+      _, _ -> {:halt, :error}
+    end)
+    |> revenue()
+  end
+
+  def revenue({:ok, []}), do: :error
+  def revenue(nil), do: :error
+  def revenue(val), do: val
+
+  @doc """
   Parses and integer value from params.
 
   ## Examples

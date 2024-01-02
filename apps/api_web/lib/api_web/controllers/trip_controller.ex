@@ -10,7 +10,7 @@ defmodule ApiWeb.TripController do
 
   plug(ApiWeb.Plugs.ValidateDate)
 
-  @filters ~w(id date direction_id route route_pattern name)s
+  @filters ~w(id date direction_id route route_pattern name revenue)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(route vehicle service shape predictions route_pattern stops)
 
@@ -33,6 +33,7 @@ defmodule ApiWeb.TripController do
     filter_param(:date, description: "Filter by trips on a particular date")
     filter_param(:direction_id)
     filter_param(:id, name: :route)
+    filter_param(:revenue, desc: "Filter trips by revenue status.")
 
     parameter(
       "filter[route_pattern]",
@@ -144,6 +145,13 @@ defmodule ApiWeb.TripController do
     end
   end
 
+  defp do_format_filter({"revenue", revenue}) do
+    case Params.revenue(revenue) do
+      :error -> []
+      {:ok, val} -> %{revenue: val}
+    end
+  end
+
   swagger_path :show do
     get(path(__MODULE__, :show))
 
@@ -238,6 +246,17 @@ defmodule ApiWeb.TripController do
               #{bikes_allowed("*")}
               """,
               example: 1
+            )
+
+            revenue_status(
+              :string,
+              """
+              | Value           | Description |
+              |-----------------|-------------|
+              | `"REVENUE"`     | Indicates that the associated trip is accepting passengers. |
+              | `"NON_REVENUE"` | Indicates that the associated trip is not accepting passengers. |
+              """,
+              example: "REVENUE"
             )
           end
 
