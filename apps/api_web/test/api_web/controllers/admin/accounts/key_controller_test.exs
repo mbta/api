@@ -131,6 +131,43 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
     refute new_key.rate_request_pending
   end
 
+  test "can edit the daily limit by providing a per-minute limit", %{conn: base_conn, user: user} do
+    {:ok, key} = ApiAccounts.create_key(user)
+    {:ok, key} = ApiAccounts.update_key(key, %{rate_request_pending: true})
+    ApiAccounts.Keys.cache_key(key)
+
+    conn =
+      base_conn
+      |> form_header()
+      |> put(admin_key_path(base_conn, :update, user, key), key: %{per_minute_limit: "10001"})
+
+    assert redirected_to(conn) == admin_user_path(conn, :show, user)
+    assert {:ok, new_key} = ApiAccounts.Keys.fetch_valid_key(key.key)
+    assert new_key.daily_limit == 10_001 * 60 * 24
+    refute Map.has_key?(new_key, :per_minute_limit)
+    refute new_key.rate_request_pending
+  end
+
+  test "can edit the daily limit by providing a per-minute limit as an integer", %{
+    conn: base_conn,
+    user: user
+  } do
+    {:ok, key} = ApiAccounts.create_key(user)
+    {:ok, key} = ApiAccounts.update_key(key, %{rate_request_pending: true})
+    ApiAccounts.Keys.cache_key(key)
+
+    conn =
+      base_conn
+      |> form_header()
+      |> put(admin_key_path(base_conn, :update, user, key), key: %{per_minute_limit: 10_001})
+
+    assert redirected_to(conn) == admin_user_path(conn, :show, user)
+    assert {:ok, new_key} = ApiAccounts.Keys.fetch_valid_key(key.key)
+    assert new_key.daily_limit == 10_001 * 60 * 24
+    refute Map.has_key?(new_key, :per_minute_limit)
+    refute new_key.rate_request_pending
+  end
+
   test "can edit the API version", %{conn: base_conn, user: user} do
     {:ok, key} = ApiAccounts.create_key(user)
     ApiAccounts.Keys.cache_key(key)

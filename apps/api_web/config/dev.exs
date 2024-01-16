@@ -28,3 +28,6 @@ config :logger, :console, format: "[$level] $message\n", level: :debug
 # Do not configure such in production as keeping
 # and calculating stacktraces is usually expensive.
 config :phoenix, :stacktrace_depth, 20
+
+config :api_web, :rate_limiter_concurrent, enabled: true, memcache: true
+config :logger, level: :error

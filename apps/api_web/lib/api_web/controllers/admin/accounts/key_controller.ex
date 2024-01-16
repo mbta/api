@@ -29,7 +29,11 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
   end
 
   def update(conn, %{"id" => key_id, "key" => key_params}) do
-    key_params = Map.put(key_params, :rate_request_pending, false)
+    key_params =
+      key_params
+      |> Map.put(:rate_request_pending, false)
+      |> handle_per_minute
+
     key = ApiAccounts.get_key!(key_id)
     user = conn.assigns.user
     # normally we would do this validation in ApiAccounts, but that
@@ -58,6 +62,35 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
       {:error, %ApiAccounts.Changeset{} = changeset} ->
         render(conn, "edit.html", user: user, key: key, changeset: changeset)
     end
+  end
+
+  # On update, an admin can provide a per_minute_limit
+  # that is stored as the daily_limit
+  defp handle_per_minute(%{"per_minute_limit" => p_m_limit} = key_params)
+       when is_binary(p_m_limit) do
+    case Integer.parse(p_m_limit) do
+      {int_p_m_limit, ""} ->
+        key_params
+        |> per_minute_to_daily(int_p_m_limit)
+
+      _ ->
+        key_params
+    end
+  end
+
+  defp handle_per_minute(%{"per_minute_limit" => p_m_limit} = key_params)
+       when is_integer(p_m_limit) do
+    per_minute_to_daily(key_params, p_m_limit)
+  end
+
+  defp handle_per_minute(key_params) do
+    key_params
+  end
+
+  defp per_minute_to_daily(key_params, int_p_m_limit) do
+    key_params
+    |> Map.put(:daily_limit, int_p_m_limit * 60 * 24)
+    |> Map.delete(:per_minute_limit)
   end
 
   def clone(conn, %{"id" => key_id}) do

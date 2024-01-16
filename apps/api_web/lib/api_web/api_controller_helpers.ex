@@ -27,6 +27,7 @@ defmodule ApiWeb.ApiControllerHelpers do
       plug(:split_include)
       plug(ApiWeb.Plugs.ModifiedSinceHandler, caller: __MODULE__)
       plug(ApiWeb.Plugs.RateLimiter)
+      plug(ApiWeb.Plugs.RateLimiterConcurrent)
 
       def index(conn, params), do: ApiControllerHelpers.index(__MODULE__, conn, params)
 
