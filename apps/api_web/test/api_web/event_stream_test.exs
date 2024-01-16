@@ -141,8 +141,8 @@ defmodule ApiWeb.EventStreamTest do
     } do
       CheckForShutdown.shutdown()
 
-      state = initialize(conn, @module)
-      assert {:close, conn} = receive_result(state)
+      conn = call(conn, @module, %{})
+      assert_receive {:plug_conn, :sent}
 
       assert chunks(conn) == ""
     end
