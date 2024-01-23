@@ -16,6 +16,7 @@ defmodule ApiWeb do
     children = [
       # Start the endpoint when the application starts
       ApiWeb.RateLimiter,
+      ApiWeb.RateLimiter.RateLimiterConcurrent,
       {RequestTrack, [name: ApiWeb.RequestTrack]},
       ApiWeb.EventStream.Supervisor,
       ApiWeb.Endpoint,
