@@ -199,7 +199,7 @@ defmodule StateMediator.Integration.GtfsTest do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Providence")
 
       assert [
-               %{name: "South Station - Wickford Junction via Back Bay"},
+               %{name: "South Station - Wickford Junction"},
                %{id: "9890004"},
                %{id: "SouthStationToStoughtonViaFairmount"}
              ] = shapes_0
