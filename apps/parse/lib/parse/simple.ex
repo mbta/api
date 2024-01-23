@@ -38,7 +38,8 @@ defmodule Parse.Simple do
 
   def parse(blob, row_callback) do
     blob
-    |> CSV.parse_string()
+    |> String.trim()
+    |> CSV.parse_string(skip_headers: false)
     |> Stream.transform(nil, fn
       headers, nil -> {[], headers}
       row, headers -> {[Enum.zip(headers, row) |> Map.new()], headers}
