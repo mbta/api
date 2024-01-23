@@ -42,7 +42,7 @@ defmodule Parse.Simple do
     |> CSV.parse_string(skip_headers: false)
     |> Stream.transform(nil, fn
       headers, nil -> {[], headers}
-      row, headers -> {[Enum.zip(headers, row) |> Map.new()], headers}
+      row, headers -> {[headers |> Enum.zip(row) |> Map.new()], headers}
     end)
     |> Enum.to_list()
     |> Enum.map(row_callback)
