@@ -12,6 +12,8 @@ defmodule Parse.Simple do
 
   """
 
+  alias NimbleCSV.RFC4180, as: CSV
+
   @callback parse_row(%{String.t() => String.t()}) :: any
 
   defmacro __using__([]) do
@@ -36,7 +38,13 @@ defmodule Parse.Simple do
 
   def parse(blob, row_callback) do
     blob
-    |> ExCsv.parse!(headings: true)
+    |> String.trim()
+    |> CSV.parse_string(skip_headers: false)
+    |> Stream.transform(nil, fn
+      headers, nil -> {[], headers}
+      row, headers -> {[headers |> Enum.zip(row) |> Map.new()], headers}
+    end)
+    |> Enum.to_list()
     |> Enum.map(row_callback)
   end
 end

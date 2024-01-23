@@ -46,7 +46,7 @@ defmodule Parse.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ex_csv, "~> 0.1.5"},
+      {:nimble_csv, "~> 1.2"},
       {:exprotobuf, "~> 1.2"},
       {:gpb, "~> 4.19"},
       {:timex, "~> 3.7"},

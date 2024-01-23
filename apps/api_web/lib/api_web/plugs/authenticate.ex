@@ -17,8 +17,9 @@ defmodule ApiWeb.Plugs.Authenticate do
   def call(conn, _) do
     conn
     |> api_key()
-    |> add_to_logger()
     |> authenticate()
+    |> add_to_logger()
+    |> validate_user()
   end
 
   defp authenticate(%{assigns: %{api_key: key}} = conn) when is_binary(key) do
@@ -29,10 +30,6 @@ defmodule ApiWeb.Plugs.Authenticate do
 
       {:error, _} ->
         conn
-        |> put_status(:forbidden)
-        |> put_view(ApiWeb.ErrorView)
-        |> render("403.json-api", [])
-        |> halt()
     end
   end
 
@@ -65,8 +62,14 @@ defmodule ApiWeb.Plugs.Authenticate do
     end
   end
 
-  defp add_to_logger(%{assigns: %{api_key: key}} = conn) when is_binary(key) do
+  defp add_to_logger(%{assigns: %{api_key: key, api_user: _}} = conn) when is_binary(key) do
     _ = Logger.metadata(api_key: key, ip: nil)
+    conn
+  end
+
+  defp add_to_logger(%{assigns: %{api_key: key}} = conn) when is_binary(key) do
+    # invalid API key, also log the IP address
+    _ = Logger.metadata(api_key: key, ip: conn_ip(conn))
     conn
   end
 
@@ -84,5 +87,17 @@ defmodule ApiWeb.Plugs.Authenticate do
       [forwarded_ip] ->
         forwarded_ip
     end
+  end
+
+  defp validate_user(%{assigns: %{api_user: _}} = conn) do
+    conn
+  end
+
+  defp validate_user(conn) do
+    conn
+    |> put_status(:forbidden)
+    |> put_view(ApiWeb.ErrorView)
+    |> render("403.json-api", [])
+    |> halt()
   end
 end

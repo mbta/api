@@ -22,11 +22,16 @@ defmodule ApiWeb.EventStream do
 
   @spec call(Plug.Conn.t(), module, map) :: Plug.Conn.t()
   def call(conn, module, _params) do
-    state = initialize(conn, module)
-    hibernate_loop(state)
+    case initialize(conn, module) do
+      %__MODULE__{} = state ->
+        hibernate_loop(state)
+
+      %Plug.Conn{} = conn ->
+        conn
+    end
   end
 
-  @spec initialize(Plug.Conn.t(), module) :: state
+  @spec initialize(Plug.Conn.t(), module) :: state | Plug.Conn.t()
   def initialize(conn, module, timeout \\ 30_000) do
     conn =
       conn
@@ -42,8 +47,8 @@ defmodule ApiWeb.EventStream do
 
       ensure_timer(%__MODULE__{conn: conn, pid: pid, timeout: timeout})
     else
-      send(self(), {:close, conn})
-      %__MODULE__{conn: conn, pid: nil, timeout: timeout}
+      state = %__MODULE__{conn: conn, pid: nil, timeout: timeout}
+      unsubscribe(state)
     end
   end
 
