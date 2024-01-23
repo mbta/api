@@ -166,11 +166,11 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   end
 
   def enabled? do
-    Keyword.fetch!(@rate_limit_concurrent_config, :enabled) == True
+    Keyword.fetch!(@rate_limit_concurrent_config, :enabled) == true
   end
 
   def memcache? do
-    Keyword.fetch!(@rate_limit_concurrent_config, :memcache) == True
+    Keyword.fetch!(@rate_limit_concurrent_config, :memcache) == true
   end
 
   def handle_call(:get_uuid, _from, state) do
