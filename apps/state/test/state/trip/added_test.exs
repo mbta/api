@@ -120,6 +120,34 @@ defmodule State.Trip.AddedTest do
                %Model.Trip{}
              ] = by_id(@trip_id)
     end
+
+    test "creates a trip with revenue value set to :REVENUE" do
+      predictions = [
+        %{@prediction | revenue: :REVENUE, stop_id: "child"}
+      ]
+
+      insert_predictions(predictions)
+
+      assert [
+               %Model.Trip{
+                 revenue: :REVENUE
+               }
+             ] = by_id(@trip_id)
+    end
+
+    test "creates a trip with revenue value set to :NON_REVENUE" do
+      predictions = [
+        %{@prediction | revenue: :NON_REVENUE, stop_id: "child"}
+      ]
+
+      insert_predictions(predictions)
+
+      assert [
+               %Model.Trip{
+                 revenue: :NON_REVENUE
+               }
+             ] = by_id(@trip_id)
+    end
   end
 
   describe "handle_event/4 with shapes" do
@@ -199,6 +227,18 @@ defmodule State.Trip.AddedTest do
       insert_predictions(predictions)
       assert by_id(@trip_id) == []
     end
+
+    test "creates a trip with revenue value set to :REVENUE",
+         %{prediction: prediction} do
+      insert_predictions([%{prediction | revenue: :REVENUE}])
+      assert [%{headsign: "Last Stop on Shape", revenue: :REVENUE}] = by_id(@trip_id)
+    end
+
+    test "creates a trip with revenue value set to false",
+         %{prediction: prediction} do
+      insert_predictions([%{prediction | revenue: :NON_REVENUE}])
+      assert [%{headsign: "Last Stop on Shape", revenue: :NON_REVENUE}] = by_id(@trip_id)
+    end
   end
 
   describe "handle_event/4 with route patterns" do
@@ -230,6 +270,16 @@ defmodule State.Trip.AddedTest do
     test "if there's a matching route_pattern, use the representative trip" do
       insert_predictions([%{@prediction | stop_id: "child"}])
       assert [%{headsign: "Headsign"}] = by_id(@trip_id)
+    end
+
+    test "creates a trip with revenue value set to :REVENUE" do
+      insert_predictions([%{@prediction | stop_id: "child", revenue: :REVENUE}])
+      assert [%{headsign: "Headsign", revenue: :REVENUE}] = by_id(@trip_id)
+    end
+
+    test "creates a trip with revenue value set to :NON_REVENUE" do
+      insert_predictions([%{@prediction | stop_id: "child", revenue: :NON_REVENUE}])
+      assert [%{headsign: "Headsign", revenue: :NON_REVENUE}] = by_id(@trip_id)
     end
   end
 end

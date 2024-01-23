@@ -79,6 +79,8 @@ config :state, :shape,
     "8000020" => -1,
     # Green-D (Medford/Tufts)
     "8000021" => -1,
+    # Green-D (Medford/Tufts)
+    "8000023" => -1,
     # Green-D (Lechmere)
     "840_0004" => -1,
     # Green-D (Lechmere)
@@ -534,7 +536,8 @@ config :state, :stops_on_route,
       "9170169",
       "8206",
       "9070165",
-      "9070162"
+      "9070162",
+      "9070154"
     ],
     {"Green-D", 1} => [
       "9070162",
@@ -548,6 +551,7 @@ config :state, :stops_on_route,
       "1804",
       "1807",
       "9070150",
+      "9070154",
       "place-esomr",
       "place-gilmn",
       "place-mgngl",

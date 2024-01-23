@@ -234,6 +234,23 @@ defmodule ApiWeb.TripControllerTest do
       assert index_data(conn, %{"route" => "1,2", "sort" => "invalid"}) ==
                {:error, :invalid_order_by}
     end
+
+    test "filter by revenue status", %{conn: conn} do
+      trip1 = %Model.Trip{id: "1", route_id: "1", direction_id: 1, revenue: :REVENUE}
+      trip2 = %Model.Trip{id: "2", route_id: "2", direction_id: 1, revenue: :NON_REVENUE}
+      trip3 = %Model.Trip{id: "3", route_id: "3", direction_id: 1, revenue: :REVENUE}
+      :ok = State.Trip.new_state([trip1, trip2, trip3])
+
+      assert index_data(conn, %{"revenue" => "REVENUE,NON_REVENUE"}) == [trip1, trip2, trip3]
+      assert index_data(conn, %{"revenue" => "NON_REVENUE,REVENUE"}) == [trip1, trip2, trip3]
+      assert index_data(conn, %{"revenue" => "REVENUE"}) == [trip1, trip3]
+      assert index_data(conn, %{"revenue" => "invalid"}) == {:error, :filter_required}
+      assert index_data(conn, %{"revenue" => "NON_REVENUE"}) == [trip2]
+      assert index_data(conn, %{"route" => "1", "revenue" => "REVENUE,NON_REVENUE"}) == [trip1]
+      assert index_data(conn, %{"route" => "1", "revenue" => "REVENUE"}) == [trip1]
+      assert index_data(conn, %{"route" => "1", "revenue" => "invalid"}) == [trip1]
+      assert index_data(conn, %{"route" => "1", "revenue" => "NON_REVENUE"}) == []
+    end
   end
 
   describe "show" do

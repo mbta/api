@@ -25,7 +25,8 @@ defmodule Parse.TripUpdates do
       route_id: copy(update.trip.route_id),
       direction_id: update.trip.direction_id,
       vehicle_id: vehicle_id(update.vehicle),
-      schedule_relationship: trip_relationship(update.trip.schedule_relationship)
+      schedule_relationship: trip_relationship(update.trip.schedule_relationship),
+      revenue: parse_revenue(Map.get(update.trip, :revenue, true))
     }
 
     update.stop_time_update
@@ -40,7 +41,9 @@ defmodule Parse.TripUpdates do
       | stop_id: copy(update.stop_id),
         stop_sequence: update.stop_sequence,
         arrival_time: parse_stop_time_event(update.arrival),
+        arrival_uncertainty: parse_uncertainty(update.arrival),
         departure_time: parse_stop_time_event(update.departure),
+        departure_uncertainty: parse_uncertainty(update.departure),
         schedule_relationship:
           stop_time_relationship(update.schedule_relationship, base.schedule_relationship)
     }
@@ -53,6 +56,12 @@ defmodule Parse.TripUpdates do
   def parse_stop_time_event(_) do
     nil
   end
+
+  defp parse_uncertainty(%{uncertainty: uncertainty}) when is_integer(uncertainty) do
+    uncertainty
+  end
+
+  defp parse_uncertainty(_), do: nil
 
   defp vehicle_id(%{id: id}), do: id
   defp vehicle_id(_), do: nil
@@ -106,4 +115,8 @@ defmodule Parse.TripUpdates do
   defp remove_last_departure_time([first | rest], acc) do
     remove_last_departure_time(rest, [first | acc])
   end
+
+  defp parse_revenue(false), do: :NON_REVENUE
+
+  defp parse_revenue(_), do: :REVENUE
 end

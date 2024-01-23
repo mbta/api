@@ -305,7 +305,7 @@ defmodule ApiWeb.RoutePatternController do
             )
 
             time_desc(
-              [:string, :null],
+              :string,
               """
               User-facing description of when the route pattern operate. Not all route patterns will include a time description
               """,

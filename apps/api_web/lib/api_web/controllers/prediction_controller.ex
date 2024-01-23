@@ -13,7 +13,7 @@ defmodule ApiWeb.PredictionController do
   alias ApiWeb.LegacyStops
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -61,6 +61,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:stop_id, includes_children: true)
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
+    filter_param(:revenue, desc: "Filter predictions by revenue status.")
 
     parameter("filter[route_pattern]", :query, :string, """
     Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.
@@ -84,13 +85,17 @@ defmodule ApiWeb.PredictionController do
       route_ids = Params.split_on_comma(filtered_params, "route")
       route_pattern_ids = Params.split_on_comma(filtered_params, "route_pattern")
       route_types = Params.route_types(filtered_params)
+      revenue = filtered_params |> Map.get("revenue") |> Params.revenue()
 
       direction_id_matcher =
         filtered_params
         |> Params.direction_id()
         |> direction_id_matcher()
 
-      matchers = stop_sequence_matchers(filtered_params, direction_id_matcher)
+      matchers =
+        filtered_params
+        |> build_stop_sequence_matchers(direction_id_matcher)
+        |> add_revenue_matchers(revenue)
 
       case filtered_params do
         %{"route_type" => _} = p when map_size(p) == 1 ->
@@ -217,7 +222,7 @@ defmodule ApiWeb.PredictionController do
     %{direction_id: direction_id}
   end
 
-  defp stop_sequence_matchers(params, direction_id_matcher) do
+  defp build_stop_sequence_matchers(params, direction_id_matcher) do
     case Params.split_on_comma(params, "stop_sequence") do
       [_ | _] = strs ->
         for str <- strs,
@@ -227,6 +232,15 @@ defmodule ApiWeb.PredictionController do
 
       [] ->
         [direction_id_matcher]
+    end
+  end
+
+  defp add_revenue_matchers(matchers, :error),
+    do: add_revenue_matchers(matchers, {:ok, :REVENUE})
+
+  defp add_revenue_matchers(matchers, {:ok, revenue_matchers}) do
+    for revenue_matcher <- List.wrap(revenue_matchers), matcher <- matchers do
+      Map.put(matcher, :revenue, revenue_matcher)
     end
   end
 
@@ -240,29 +254,86 @@ defmodule ApiWeb.PredictionController do
 
           attributes do
             arrival_time(
-              [:string, :null],
+              :string,
               """
               When the vehicle is now predicted to arrive.  `null` if the first stop \
               (`*/relationships/stop/data/id`) on the trip (`*/relationships/trip/data/id`). See \
               [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
               Format is ISO8601.
               """,
-              example: "2017-08-14T15:38:58-04:00"
+              example: "2017-08-14T15:38:58-04:00",
+              "x-nullable": true
             )
 
             departure_time(
-              [:string, :null],
+              :string,
               """
               When the vehicle is now predicted to depart.  `null` if the last stop \
               (`*/relationships/stop/data/id`) on the trip (`*/relationships/trip/data/id`). See \
               [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `departure`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
               Format is ISO8601.
               """,
-              example: "2017-08-14T15:38:58-04:00"
+              example: "2017-08-14T15:38:58-04:00",
+              "x-nullable": true
+            )
+
+            arrival_uncertainty(
+              [:integer, :null],
+              """
+              Uncertainty value for the arrival time prediction.
+
+              Bus and Commuter Rail
+              See [entities tripUpdate stop_time_updates arrival uncertainty](https://swiftly-inc.stoplight.io/docs/realtime-standalone/613d1d7f1eae3-gtfs-rt-trip-updates)
+
+              | Value            | Description |
+              |------------------|-------------|
+              | < 300 or omitted |	Valid real-time prediction |
+              | 300              |  Real-time prediction not available. This code is primarily used when a vehicle has not yet been assigned to the trip, (i.e. because the block has not started yet). It is a schedule-based prediction, but Swiftly adjusts the schedule-based prediction time using observed historical travel times to make predictions more accurate than the schedule |
+              | 301              |	Valid real-time prediction, though the bus appears to be stalled or significantly delayed and predictions are not as accurate |
+              | > 301            |	Likely invalid prediction, recommend not showing anything (and not showing scheduled time), very rare situation |
+
+
+              Subway/Light Rail
+              See [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `arrival`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
+
+              | Value  | Description |
+              |--------|-------------|
+              | 60   | A trip that has already started |
+              | 120  | A terminal/reverse trip departure for a trip that has NOT started and a train is awaiting departure at the origin |
+              | 360  | A terminal/reverse trip for a trip that has NOT started and a train is completing a previous trip |
+              """,
+              example: 60
+            )
+
+            departure_uncertainty(
+              [:integer, :null],
+              """
+              Uncertainty value for the departure time prediction.
+
+              Bus and Commuter Rail
+              See [entities tripUpdate stop_time_updates departure uncertainty](https://swiftly-inc.stoplight.io/docs/realtime-standalone/613d1d7f1eae3-gtfs-rt-trip-updates)
+
+              | Value            | Description |
+              |------------------|-------------|
+              | < 300 or omitted |	Valid real-time prediction |
+              | 300              | Real-time prediction not available. This code is primarily used when a vehicle has not yet been assigned to the trip, (i.e. because the block has not started yet). It is a schedule-based prediction, but Swiftly adjusts the schedule-based prediction time using observed historical travel times to make predictions more accurate than the schedule |
+              | 301              |	Valid real-time prediction, though the bus appears to be stalled or significantly delayed and predictions are not as accurate |
+              | > 301            |	Likely invalid prediction, recommend not showing anything (and not showing scheduled time), very rare situation |
+
+              Subway/Light Rail
+              See [GTFS `Realtime` `FeedMessage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `departure`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
+
+              | Value | Description |
+              |-------|-------------|
+              | 60    | A trip that has already started |
+              | 120   | A terminal/reverse trip departure for a trip that has NOT started and a train is awaiting departure at the origin |
+              | 360   | A terminal/reverse trip for a trip that has NOT started and a train is completing a previous trip |
+              """,
+              example: 60
             )
 
             schedule_relationship(
-              [:string, :null],
+              :string,
               """
               How the predicted stop relates to the `Model.Schedule.t` stops.
 
@@ -278,11 +349,12 @@ defmodule ApiWeb.PredictionController do
               See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor` `ScheduleRelationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship-1)
               See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `ScheduleRelationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship)
               """,
-              example: "UNSCHEDULED"
+              example: "UNSCHEDULED",
+              "x-nullable": true
             )
 
             stop_sequence(
-              [:integer, :null],
+              :integer,
               """
               The sequence the stop (`*/relationships/stop/data/id`) is arrived at during the trip \
               (`*/relationships/trip/data/id`).  The stop sequence is monotonically increasing along the \
@@ -290,10 +362,22 @@ defmodule ApiWeb.PredictionController do
 
               See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
               """,
-              example: 19
+              example: 19,
+              "x-nullable": true
             )
 
             status(:string, "Status of the schedule", example: "Approaching")
+
+            revenue_status(
+              :string,
+              """
+              | Value           | Description |
+              |-----------------|-------------|
+              | `"REVENUE"`     | Indicates that the associated trip is accepting passengers. |
+              | `"NON_REVENUE"` | Indicates that the associated trip is not accepting passengers. |
+              """,
+              example: "REVENUE"
+            )
           end
 
           direction_id_attribute()

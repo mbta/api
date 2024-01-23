@@ -378,6 +378,70 @@ defmodule ApiWeb.PredictionControllerTest do
     assert [_ | _] = response["included"]
   end
 
+  test "can filter by revenue status", %{conn: conn} do
+    route1 = %Model.Route{
+      id: "route1",
+      type: 2
+    }
+
+    route2 = %Model.Route{
+      id: "route2",
+      type: 2
+    }
+
+    State.Route.new_state([route1, route2])
+
+    p1 = %Prediction{trip_id: "trip1", route_id: "route1", revenue: :REVENUE}
+    p2 = %Prediction{trip_id: "trip2", route_id: "route1", revenue: :NON_REVENUE}
+    p3 = %Prediction{trip_id: "trip3", route_id: "route2", revenue: :REVENUE}
+    p4 = %Prediction{trip_id: "trip4", route_id: "route2", revenue: :NON_REVENUE}
+
+    :ok = State.Prediction.new_state([p1, p2, p3, p4])
+    State.Trip.Added.last_updated()
+
+    result = index_data(conn, %{"revenue" => "REVENUE,NON_REVENUE"})
+    assert Enum.sort_by(result, & &1.trip_id) == []
+
+    result = index_data(conn, %{"revenue" => "REVENUE,NON_REVENUE", "route" => "route1"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1, p2]
+
+    result = index_data(conn, %{"revenue" => "NON_REVENUE,REVENUE", "route" => "route1"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1, p2]
+
+    result = index_data(conn, %{"revenue" => "REVENUE,NON_REVENUE", "route" => "route1,route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1, p2, p3, p4]
+
+    result = index_data(conn, %{"revenue" => "REVENUE,NON_REVENUE", "route" => "route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p3, p4]
+
+    result = index_data(conn, %{"revenue" => "REVENUE"})
+    assert Enum.sort_by(result, & &1.trip_id) == []
+
+    result = index_data(conn, %{"revenue" => "REVENUE", "route" => "route1"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1]
+
+    result = index_data(conn, %{"revenue" => "REVENUE", "route" => "route1,route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1, p3]
+
+    result = index_data(conn, %{"revenue" => "invalid", "route" => "route1,route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p1, p3]
+
+    result = index_data(conn, %{"revenue" => "REVENUE", "route" => "route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p3]
+
+    result = index_data(conn, %{"revenue" => "NON_REVENUE"})
+    assert Enum.sort_by(result, & &1.trip_id) == []
+
+    result = index_data(conn, %{"revenue" => "NON_REVENUE", "route" => "route1"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p2]
+
+    result = index_data(conn, %{"revenue" => "NON_REVENUE", "route" => "route1,route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p2, p4]
+
+    result = index_data(conn, %{"revenue" => "NON_REVENUE", "route" => "route2"})
+    assert Enum.sort_by(result, & &1.trip_id) == [p4]
+  end
+
   test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
     response =
       get(

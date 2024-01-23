@@ -74,6 +74,16 @@ defmodule ApiWeb.Plugs.AuthenticateTest do
     refute Logger.metadata()[:ip]
   end
 
+  test "invalid API key puts api_key and IP in Logger.metadata", %{conn: conn} do
+    _ =
+      conn
+      |> conn_with_key("invalid")
+      |> call(@opts)
+
+    assert Logger.metadata()[:api_key] == "invalid"
+    assert Logger.metadata()[:ip] == "127.0.0.1"
+  end
+
   test "anonymous user puts IP in Logger.metadata", %{conn: conn} do
     _ = call(conn, @opts)
 
