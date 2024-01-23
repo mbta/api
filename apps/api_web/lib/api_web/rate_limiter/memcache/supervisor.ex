@@ -31,7 +31,7 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
     {:via, Registry, {@registry_name, index}}
   end
 
-  defp random_child do
+  def random_child do
     worker_name(:rand.uniform(@worker_count))
   end
 end

@@ -51,7 +51,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
       current_timestamp = get_current_unix_ts()
       heartbeat_tolerance = get_heartbeat_tolerance()
       {_type, key} = lookup(user, event_stream?)
-      {:ok, locks} = GenServer.call(__MODULE__, {:memcache_get, key, %{}})
+      {:ok, locks} = memcache_get(key, %{})
       # Check if any expired, and remove:
       valid_locks =
         :maps.filter(
@@ -61,13 +61,15 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
           locks
         )
 
-      if valid_locks != locks, do: GenServer.call(__MODULE__, {:memcache_set, key, valid_locks})
+      if valid_locks != locks, do: memcache_set(key, valid_locks)
       valid_locks
     else
       %{}
     end
   end
 
+  @spec check_concurrent_rate_limit(ApiWeb.User.t(), boolean()) ::
+          {false, number(), number()} | {true, number(), number()}
   def check_concurrent_rate_limit(user, event_stream?) do
     active_connections = user |> get_locks(event_stream?) |> Map.keys() |> length
 
@@ -153,7 +155,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
         "#{__MODULE__} event=remove_lock user_id=#{user.id} pid_key=#{pid_key} key=#{key}"
       )
 
-      GenServer.call(__MODULE__, {:memcache_set, key, locks})
+      memcache_set(key, locks)
 
       Logger.info(
         "#{__MODULE__} event=remove_lock_after user_id=#{user.id} pid_key=#{pid_key} key=#{key} locks=#{inspect(locks)}"
@@ -175,16 +177,15 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
     {:reply, {:ok, state.uuid}, state}
   end
 
-  def handle_call({:memcache_get, key, default_value}, _from, state) do
-    {:reply,
-     {:ok,
-      case Memcache.get(state.memcache_pid, key) do
-        {:ok, result} -> result
-        _ -> default_value
-      end}, state}
+  def memcache_set(key, value) do
+    Memcache.set(ApiWeb.RateLimiter.Memcache.Supervisor.random_child(), key, value)
   end
 
-  def handle_call({:memcache_set, key, value}, _from, state) do
-    {:reply, {:ok, Memcache.set(state.memcache_pid, key, value)}, state}
+  def memcache_get(key, default_value) do
+    {:ok,
+     case Memcache.get(ApiWeb.RateLimiter.Memcache.Supervisor.random_child(), key) do
+       {:ok, result} -> result
+       _ -> default_value
+     end}
   end
 end
