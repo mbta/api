@@ -15,13 +15,6 @@ defmodule ApiWeb.RateLimiterConcurrentTest do
   end
 
   test "check_concurrent_rate_limit/1" do
-    {anon_streaming_at_limit?, anon_streaming_remaining, anon_streaming_limit} =
-      RateLimiterConcurrent.check_concurrent_rate_limit(%ApiWeb.User{type: :anon}, true)
-
-    assert anon_streaming_limit == ApiWeb.config(:rate_limiter_concurrent, :max_anon_streaming)
-    assert anon_streaming_remaining == anon_streaming_limit
-    assert anon_streaming_at_limit? == false
-
     {anon_static_at_limit?, anon_static_remaining, anon_static_limit} =
       RateLimiterConcurrent.check_concurrent_rate_limit(%ApiWeb.User{type: :anon}, false)
 

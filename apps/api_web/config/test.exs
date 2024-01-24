@@ -28,5 +28,5 @@ config :recaptcha,
 config :logger, level: :warn
 
 config :api_web, :rate_limiter_concurrent,
-  enabled: true,
+  enabled: false,
   memcache: false

@@ -62,7 +62,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
         before_commit.(valid_locks)
       end)
     else
-      %{}
+      {:ok, %{}}
     end
   end
 
@@ -97,12 +97,6 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
                 )
               ),
             else: user.static_concurrent_limit
-
-        {true, :anon} ->
-          Keyword.fetch!(
-            @rate_limit_concurrent_config,
-            :max_anon_streaming
-          )
 
         {false, :anon} ->
           Keyword.fetch!(
@@ -147,8 +141,10 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
       {_type, key} = lookup(user, event_stream?)
       pid_key = if pid_key, do: pid_key, else: get_pid_key(pid)
 
-      {:ok, _locks} =
-        mutate_locks(user, event_stream?, fn locks -> Map.delete(locks, pid_key) end)
+      if memcache?() do
+        {:ok, _locks} =
+          mutate_locks(user, event_stream?, fn locks -> Map.delete(locks, pid_key) end)
+      end
 
       Logger.info(
         "#{__MODULE__} event=remove_lock user_id=#{user.id} pid_key=#{pid_key} key=#{key}"
