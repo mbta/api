@@ -16,20 +16,23 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
 
     registry = {Registry, keys: :unique, name: @registry_name}
 
-    if memcache_required?() do
-      workers =
-        for i <- 1..@worker_count do
-          Supervisor.child_spec({Memcache, [connection_opts, [name: worker_name(i)]]}, id: i)
-        end
+    children =
+      if memcache_required?() do
+        workers =
+          for i <- 1..@worker_count do
+            Supervisor.child_spec({Memcache, [connection_opts, [name: worker_name(i)]]}, id: i)
+          end
 
-      children = [registry | workers]
+        [registry | workers]
+      else
+        [registry]
+      end
 
-      Supervisor.start_link(
-        children,
-        strategy: :rest_for_one,
-        name: __MODULE__
-      )
-    end
+    Supervisor.start_link(
+      children,
+      strategy: :rest_for_one,
+      name: __MODULE__
+    )
   end
 
   @doc "Decrement a given key, using a random child."
