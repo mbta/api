@@ -144,7 +144,9 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
     if enabled?() do
       {_type, key} = lookup(user, event_stream?)
       pid_key = if pid_key, do: pid_key, else: get_pid_key(pid)
-      {:ok, _locks} = mutate_locks(user, event_stream?, fn (locks) -> Map.delete(locks, pid_key) end)
+
+      {:ok, _locks} =
+        mutate_locks(user, event_stream?, fn locks -> Map.delete(locks, pid_key) end)
 
       Logger.info(
         "#{__MODULE__} event=remove_lock user_id=#{user.id} pid_key=#{pid_key} key=#{key}"
