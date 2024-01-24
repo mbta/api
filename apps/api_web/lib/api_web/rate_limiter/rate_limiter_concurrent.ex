@@ -12,10 +12,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   def start_link([]), do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
   def init(_) do
-    connection_opts = Keyword.fetch!(@rate_limit_concurrent_config, :connection_opts)
-
-    {:ok, pid} = if memcache?(), do: Memcache.start_link(connection_opts), else: {:ok, nil}
-    {:ok, %{memcache_pid: pid, uuid: UUID.uuid1()}}
+    {:ok, %{uuid: UUID.uuid1()}}
   end
 
   defp lookup(%ApiWeb.User{} = user, event_stream?) do
@@ -46,23 +43,23 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
     Keyword.fetch!(@rate_limit_concurrent_config, :heartbeat_tolerance)
   end
 
-  def get_locks(%ApiWeb.User{} = user, event_stream?) do
+  def mutate_locks(%ApiWeb.User{} = user, event_stream?, before_commit \\ fn value -> value end) do
     if enabled?() do
       current_timestamp = get_current_unix_ts()
       heartbeat_tolerance = get_heartbeat_tolerance()
       {_type, key} = lookup(user, event_stream?)
-      {:ok, locks} = memcache_get(key, %{})
-      # Check if any expired, and remove:
-      valid_locks =
-        :maps.filter(
-          fn _, timestamp ->
-            timestamp + heartbeat_tolerance >= current_timestamp
-          end,
-          locks
-        )
 
-      if valid_locks != locks, do: memcache_set(key, valid_locks)
-      valid_locks
+      memcache_update(key, %{}, fn locks ->
+        valid_locks =
+          :maps.filter(
+            fn _, timestamp ->
+              timestamp + heartbeat_tolerance >= current_timestamp
+            end,
+            locks
+          )
+
+        before_commit.(valid_locks)
+      end)
     else
       %{}
     end
@@ -71,7 +68,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   @spec check_concurrent_rate_limit(ApiWeb.User.t(), boolean()) ::
           {false, number(), number()} | {true, number(), number()}
   def check_concurrent_rate_limit(user, event_stream?) do
-    active_connections = user |> get_locks(event_stream?) |> Map.keys() |> length
+    active_connections = user |> mutate_locks(event_stream?) |> Map.keys() |> length
 
     limit =
       case {event_stream?, user.type} do
@@ -127,13 +124,12 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
         "#{__MODULE__} event=add_lock user=#{inspect(user)} pid_key=#{pid_key} key=#{key} timestamp=#{timestamp}"
       )
 
-      locks = user |> get_locks(event_stream?) |> Map.put(pid_key, timestamp)
+      locks =
+        user |> mutate_locks(event_stream?, fn locks -> Map.put(locks, pid_key, timestamp) end)
 
       Logger.info(
         "#{__MODULE__} event=add_lock_after user=#{inspect(user)} pid_key=#{pid_key} key=#{key} timestamp=#{timestamp} locks=#{inspect(locks)}"
       )
-
-      GenServer.call(__MODULE__, {:memcache_set, key, locks})
     end
 
     nil
@@ -148,17 +144,10 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
     if enabled?() do
       {_type, key} = lookup(user, event_stream?)
       pid_key = if pid_key, do: pid_key, else: get_pid_key(pid)
-      locks_before = get_locks(user, event_stream?)
-      locks = locks_before |> Map.delete(pid_key)
+      mutate_locks(user, event_stream?, fn locks -> Map.delete(locks, pid_key) end)
 
       Logger.info(
         "#{__MODULE__} event=remove_lock user_id=#{user.id} pid_key=#{pid_key} key=#{key}"
-      )
-
-      memcache_set(key, locks)
-
-      Logger.info(
-        "#{__MODULE__} event=remove_lock_after user_id=#{user.id} pid_key=#{pid_key} key=#{key} locks=#{inspect(locks)}"
       )
     end
 
@@ -177,15 +166,9 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
     {:reply, {:ok, state.uuid}, state}
   end
 
-  def memcache_set(key, value) do
-    Memcache.set(ApiWeb.RateLimiter.Memcache.Supervisor.random_child(), key, value)
-  end
-
-  def memcache_get(key, default_value) do
-    {:ok,
-     case Memcache.get(ApiWeb.RateLimiter.Memcache.Supervisor.random_child(), key) do
-       {:ok, result} -> result
-       _ -> default_value
-     end}
+  def memcache_update(key, default_value, update_fn) do
+    Memcache.cas(ApiWeb.RateLimiter.Memcache.Supervisor.random_child(), key, update_fn,
+      default: default_value
+    )
   end
 end
