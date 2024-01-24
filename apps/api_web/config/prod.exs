@@ -56,12 +56,7 @@ config :logster, :filter_parameters, ~w(password password_confirm)
 
 config :api_web, :rate_limiter_concurrent,
   enabled: true,
-  memcache: true,
-  connection_opts: [
-    namespace: "api_concurrent_rate_limit",
-    ttl: 60,
-    coder: Memcache.Coder.JSON
-  ]
+  memcache: true
 
 config :api_web, :rate_limiter,
   clear_interval: 60_000,

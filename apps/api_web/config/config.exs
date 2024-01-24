@@ -28,7 +28,10 @@ config :api_web, :rate_limiter,
   limiter: ApiWeb.RateLimiter.ETS,
   max_anon_per_interval: 5_000,
   max_registered_per_interval: 100_000,
-  wait_time_ms: 0
+  wait_time_ms: 0,
+  connection_opts: [
+    coder: Memcache.Coder.JSON
+  ]
 
 config :api_web, :rate_limiter_concurrent,
   enabled: false,
@@ -36,14 +39,6 @@ config :api_web, :rate_limiter_concurrent,
   # How many seconds tolerated when calculating whether a connection is still open
   # 45 - 30 (see ApiWeb.EventStream.Initialize's timeout value) gives us a buffer of 15 seconds:
   heartbeat_tolerance: 45,
-  connection_opts: [
-    namespace: "api_concurrent_rate_limit_dev",
-    # The total lifetime (s) of an API key + request type (static or streaming) key:
-    ttl: 60,
-    # Allows us to hold a nested payload per key, this is necessary because memcached does not offer
-    # a great way to group keys:
-    coder: Memcache.Coder.JSON
-  ],
   # Default concurrent connections - these can be overridden on a per-key basis in the admin UI:
   max_anon_static: 5,
   max_registered_streaming: 10,

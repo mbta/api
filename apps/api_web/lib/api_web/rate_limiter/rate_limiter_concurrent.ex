@@ -6,6 +6,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
 
   use GenServer
   require Logger
+  alias ApiWeb.RateLimiter.Memcache.Supervisor
 
   @rate_limit_concurrent_config Application.compile_env!(:api_web, :rate_limiter_concurrent)
 
@@ -68,7 +69,8 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   @spec check_concurrent_rate_limit(ApiWeb.User.t(), boolean()) ::
           {false, number(), number()} | {true, number(), number()}
   def check_concurrent_rate_limit(user, event_stream?) do
-    active_connections = user |> mutate_locks(event_stream?) |> Map.keys() |> length
+    {:ok, locks} = user |> mutate_locks(event_stream?)
+    active_connections = locks |> Map.keys() |> length
 
     limit =
       case {event_stream?, user.type} do
@@ -169,8 +171,6 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   end
 
   def memcache_update(key, default_value, update_fn) do
-    Memcache.cas(ApiWeb.RateLimiter.Memcache.Supervisor.random_child(), key, update_fn,
-      default: default_value
-    )
+    Memcache.cas(Supervisor.random_child(), key, update_fn, default: default_value)
   end
 end
