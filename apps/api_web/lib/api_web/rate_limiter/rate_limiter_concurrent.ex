@@ -137,14 +137,12 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
         event_stream?,
         pid_key \\ nil
       ) do
-    if enabled?() do
+    if enabled?() and memcache?() do
       {_type, key} = lookup(user, event_stream?)
       pid_key = if pid_key, do: pid_key, else: get_pid_key(pid)
 
-      if memcache?() do
-        {:ok, _locks} =
-          mutate_locks(user, event_stream?, fn locks -> Map.delete(locks, pid_key) end)
-      end
+      {:ok, _locks} =
+        mutate_locks(user, event_stream?, fn locks -> Map.delete(locks, pid_key) end)
 
       Logger.info(
         "#{__MODULE__} event=remove_lock user_id=#{user.id} pid_key=#{pid_key} key=#{key}"
