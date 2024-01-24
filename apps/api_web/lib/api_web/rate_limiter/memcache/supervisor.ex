@@ -42,7 +42,8 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
   end
 
   defp memcache_required? do
-    ApiWeb.RateLimiter.RateLimiterConcurrent.enabled?() or
+    (ApiWeb.RateLimiter.RateLimiterConcurrent.enabled?() and
+       ApiWeb.RateLimiter.RateLimiterConcurrent.memcache?()) or
       ApiWeb.config(:rate_limiter, :limiter) == ApiWeb.RateLimiter.Memcache
   end
 
