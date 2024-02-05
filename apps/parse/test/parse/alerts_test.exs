@@ -125,7 +125,7 @@ defmodule Parse.AlertsTest do
                  "New Commuter Rail schedules become effective today, Monday, May 23rd. To view updated schedules, go to mbta.com.",
                informed_entity: [
                  %{route_type: 2, route: "CR-Fairmount"},
-                 %{route: "5", stop: "10032", trip: "trip", direction_id: 1}
+                 %{route: "5", route_type: 3, stop: "10032", trip: "trip", direction_id: 1}
                ],
                lifecycle: "NEW",
                service_effect: "Commuter Rail schedule change",
@@ -645,7 +645,7 @@ defmodule Parse.AlertsTest do
       }
 
       assert [alert] = parse_json(map)
-      assert alert.informed_entity == [%{route: "CR-Lowell", direction_id: 1}]
+      assert alert.informed_entity == [%{route: "CR-Lowell", direction_id: 1, route_type: 2}]
     end
 
     test "can parse banner text" do
