@@ -178,7 +178,19 @@ defmodule Parse.Alerts do
     |> build_informed_entity(json, ["trip", "trip_id"], :trip, &copy/1)
   end
 
-  defp build_informed_entity(entity, json, access, entity_field, mapper \\ fn x -> x end) do
+  defp build_informed_entity(entity, json, access, entity_field, mapper \\ fn x -> x end)
+
+  defp build_informed_entity(entity, json, access, :route_type, mapper) do
+    case get_in(json, access) do
+      nil ->
+        add_route_type(entity)
+
+      value ->
+        Map.put(entity, :route_type, mapper.(value))
+    end
+  end
+
+  defp build_informed_entity(entity, json, access, entity_field, mapper) do
     case get_in(json, access) do
       nil ->
         entity
@@ -186,6 +198,29 @@ defmodule Parse.Alerts do
       value ->
         Map.put(entity, entity_field, mapper.(value))
     end
+  end
+
+  defp add_route_type(%{route: nil} = entity), do: entity
+
+  defp add_route_type(%{route: route} = entity)
+       when route in ["Green", "Green-B", "Green-C", "Green-D", "Green-E", "Mattapan"] do
+    Map.put(entity, :route_type, 0)
+  end
+
+  defp add_route_type(%{route: route} = entity) when route in ["Blue", "Red", "Orange"] do
+    Map.put(entity, :route_type, 1)
+  end
+
+  defp add_route_type(%{route: "CR-" <> _} = entity) do
+    Map.put(entity, :route_type, 2)
+  end
+
+  defp add_route_type(%{route: "Boat" <> _} = entity) do
+    Map.put(entity, :route_type, 4)
+  end
+
+  defp add_route_type(%{route: _} = entity) do
+    Map.put(entity, :route_type, 3)
   end
 
   defp unix_timestamp(seconds_since_epoch) do
