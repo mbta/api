@@ -223,6 +223,8 @@ defmodule Parse.Alerts do
     Map.put(entity, :route_type, 3)
   end
 
+  defp add_route_type(entity), do: entity
+
   defp unix_timestamp(seconds_since_epoch) do
     seconds_since_epoch
     |> DateTime.from_unix!()
