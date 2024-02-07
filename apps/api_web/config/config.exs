@@ -36,6 +36,8 @@ config :api_web, :rate_limiter,
 config :api_web, :rate_limiter_concurrent,
   enabled: false,
   memcache: false,
+  log_statistics: true,
+  limit_users: false,
   # How many seconds tolerated when calculating whether a connection is still open
   # 45 - 30 (see ApiWeb.EventStream.Initialize's timeout value) gives us a buffer of 15 seconds:
   heartbeat_tolerance: 45,
@@ -89,8 +91,6 @@ config :api_web, :phoenix_swagger,
   swagger_files: %{
     "priv/static/swagger.json" => [router: ApiWeb.Router, endpoint: ApiWeb.Endpoint]
   }
-
-config :api_web, :rate_limiter_concurrent, log_statistics: true, limit_users: false
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
