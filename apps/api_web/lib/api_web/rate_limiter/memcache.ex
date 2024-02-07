@@ -5,6 +5,11 @@ defmodule ApiWeb.RateLimiter.Memcache do
   @behaviour ApiWeb.RateLimiter.Limiter
   alias ApiWeb.RateLimiter.Memcache.Supervisor
 
+  @impl true
+  def start_link(_) do
+    {:ok, self()}
+  end
+
   @impl ApiWeb.RateLimiter.Limiter
   def rate_limited?(key, max_requests) do
     case Supervisor.decr(key, default: max_requests) do
