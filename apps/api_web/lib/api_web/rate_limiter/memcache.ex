@@ -4,13 +4,14 @@ defmodule ApiWeb.RateLimiter.Memcache do
   """
   @behaviour ApiWeb.RateLimiter.Limiter
   alias ApiWeb.RateLimiter.Memcache.Supervisor
-  use Agent
+  use GenServer
 
   @impl ApiWeb.RateLimiter.Limiter
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  @impl true
   def init(opts) do
     {:ok, opts}
   end
