@@ -9,11 +9,13 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   alias ApiWeb.RateLimiter.Memcache.Supervisor
 
   @rate_limit_concurrent_config Application.compile_env!(:api_web, :rate_limiter_concurrent)
-
+  @uuid_key "ApiWeb.RateLimiter.RateLimiterConcurrent_uuid"
   def start_link([]), do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
   def init(_) do
-    {:ok, %{uuid: UUID.uuid1()}}
+    uuid = UUID.uuid1()
+    :persistent_term.put(@uuid_key, uuid)
+    {:ok, %{uuid: uuid}}
   end
 
   defp lookup(%ApiWeb.User{} = user, event_stream?) do
@@ -32,8 +34,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   end
 
   defp get_uuid do
-    {:ok, uuid} = GenServer.call(__MODULE__, :get_uuid)
-    uuid
+    :persistent_term.get(@uuid_key)
   end
 
   defp get_current_unix_ts do
@@ -153,15 +154,11 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
   end
 
   def enabled? do
-    Keyword.fetch!(@rate_limit_concurrent_config, :enabled) == true
+    Keyword.fetch!(@rate_limit_concurrent_config, :enabled)
   end
 
   def memcache? do
-    Keyword.fetch!(@rate_limit_concurrent_config, :memcache) == true
-  end
-
-  def handle_call(:get_uuid, _from, state) do
-    {:reply, {:ok, state.uuid}, state}
+    Keyword.fetch!(@rate_limit_concurrent_config, :memcache)
   end
 
   def memcache_update(key, default_value, update_fn) do
