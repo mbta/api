@@ -30,7 +30,9 @@ defmodule ApiWeb.RateLimiter do
   ## Client
 
   def start_link(_opts \\ []) do
-    @limiter.start_link(clear_interval: @clear_interval)
+    if Kernel.function_exported?(@limiter, :start_link, 1) do
+      @limiter.start_link(clear_interval: @clear_interval)
+    end
   end
 
   @doc """
