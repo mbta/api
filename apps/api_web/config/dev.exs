@@ -29,4 +29,4 @@ config :logger, :console, format: "[$level] $message\n", level: :debug
 # and calculating stacktraces is usually expensive.
 config :phoenix, :stacktrace_depth, 20
 
-config :api_web, :rate_limiter_concurrent, enabled: true, memcache: true
+config :api_web, :rate_limiter_concurrent, enabled: false, memcache: false

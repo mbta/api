@@ -90,6 +90,8 @@ config :api_web, :phoenix_swagger,
     "priv/static/swagger.json" => [router: ApiWeb.Router, endpoint: ApiWeb.Endpoint]
   }
 
+config :api_web, :rate_limiter_concurrent, log_statistics: true, limit_users: false
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
