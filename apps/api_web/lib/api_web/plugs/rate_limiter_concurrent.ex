@@ -6,6 +6,8 @@ defmodule ApiWeb.Plugs.RateLimiterConcurrent do
   import Plug.Conn
   import Phoenix.Controller, only: [render: 3, put_view: 2]
 
+  require Logger
+
   alias ApiWeb.RateLimiter.RateLimiterConcurrent
 
   @rate_limit_concurrent_config Application.compile_env!(:api_web, :rate_limiter_concurrent)
@@ -19,8 +21,14 @@ defmodule ApiWeb.Plugs.RateLimiterConcurrent do
       {at_limit?, remaining, limit} =
         RateLimiterConcurrent.check_concurrent_rate_limit(conn.assigns.api_user, event_stream?)
 
+      if log_statistics?() do
+        Logger.info(
+          "ApiWeb.Plugs.RateLimiterConcurrent event=request_statistics api_user=#{conn.assigns.api_user.id} at_limit=#{at_limit?} remaining=#{remaining - 1} limit=#{limit} event_stream=#{event_stream?}"
+        )
+      end
+
       # Allow negative limits to allow unlimited use:
-      if limit >= 0 and at_limit? do
+      if limit_users?() and limit >= 0 and at_limit? do
         conn
         |> put_concurrent_rate_limit_headers(limit, remaining)
         |> put_status(429)
@@ -49,6 +57,14 @@ defmodule ApiWeb.Plugs.RateLimiterConcurrent do
   end
 
   def enabled? do
-    Keyword.fetch!(@rate_limit_concurrent_config, :enabled) == true
+    Keyword.fetch!(@rate_limit_concurrent_config, :enabled)
+  end
+
+  def limit_users? do
+    Keyword.fetch!(@rate_limit_concurrent_config, :limit_users)
+  end
+
+  def log_statistics? do
+    Keyword.fetch!(@rate_limit_concurrent_config, :log_statistics)
   end
 end
