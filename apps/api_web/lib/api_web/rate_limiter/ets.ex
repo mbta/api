@@ -7,7 +7,6 @@ defmodule ApiWeb.RateLimiter.ETS do
 
   @tab :mbta_api_rate_limiter
 
-  @impl ApiWeb.RateLimiter.Limiter
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
