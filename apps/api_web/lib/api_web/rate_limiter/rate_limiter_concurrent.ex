@@ -20,12 +20,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
 
   defp lookup(%ApiWeb.User{} = user, event_stream?) do
     type = if event_stream?, do: "event_stream", else: "static"
-    key = "concurrent_#{user.id}_#{type}"
-
-    {
-      type,
-      key
-    }
+    "concurrent_#{user.id}_#{type}"
   end
 
   def get_pid_key(pid) do
@@ -49,7 +44,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
     if enabled?() do
       current_timestamp = get_current_unix_ts()
       heartbeat_tolerance = get_heartbeat_tolerance()
-      {_type, key} = lookup(user, event_stream?)
+      key = lookup(user, event_stream?)
 
       memcache_update(key, %{}, fn locks ->
         valid_locks =
@@ -113,7 +108,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
 
   def add_lock(%ApiWeb.User{} = user, pid, event_stream?) do
     if enabled?() do
-      {_type, key} = lookup(user, event_stream?)
+      key = lookup(user, event_stream?)
       pid_key = get_pid_key(pid)
       timestamp = get_current_unix_ts()
 
@@ -139,7 +134,7 @@ defmodule ApiWeb.RateLimiter.RateLimiterConcurrent do
         pid_key \\ nil
       ) do
     if enabled?() and memcache?() do
-      {_type, key} = lookup(user, event_stream?)
+      key = lookup(user, event_stream?)
       pid_key = if pid_key, do: pid_key, else: get_pid_key(pid)
 
       {:ok, _locks} =
