@@ -26,3 +26,7 @@ config :recaptcha,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :api_web, :rate_limiter_concurrent,
+  enabled: false,
+  memcache: false

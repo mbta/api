@@ -4,16 +4,16 @@ defmodule ApiWeb.RateLimiter.Memcache do
   """
   @behaviour ApiWeb.RateLimiter.Limiter
   alias ApiWeb.RateLimiter.Memcache.Supervisor
+  use GenServer
 
   @impl ApiWeb.RateLimiter.Limiter
   def start_link(opts) do
-    clear_interval_ms = Keyword.fetch!(opts, :clear_interval)
-    clear_interval = div(clear_interval_ms, 1000)
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
 
-    connection_opts =
-      [ttl: clear_interval * 2] ++ ApiWeb.config(RateLimiter.Memcache, :connection_opts)
-
-    Supervisor.start_link(connection_opts)
+  @impl true
+  def init(opts) do
+    {:ok, opts}
   end
 
   @impl ApiWeb.RateLimiter.Limiter
