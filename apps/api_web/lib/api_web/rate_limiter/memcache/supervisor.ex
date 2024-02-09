@@ -9,15 +9,15 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
   use Agent
 
   def start_link(_) do
-    clear_interval_ms = Keyword.fetch!(@rate_limit_config, :clear_interval)
-    clear_interval = div(clear_interval_ms, 1000)
-    connection_opts_config = Keyword.fetch!(@rate_limit_config, :connection_opts)
-    connection_opts = [ttl: clear_interval * 2] ++ connection_opts_config
-
     registry = {Registry, keys: :unique, name: @registry_name}
 
     children =
       if memcache_required?() do
+        clear_interval_ms = Keyword.fetch!(@rate_limit_config, :clear_interval)
+        clear_interval = div(clear_interval_ms, 1000)
+        connection_opts_config = Keyword.fetch!(@rate_limit_config, :connection_opts)
+        connection_opts = [ttl: clear_interval * 2] ++ connection_opts_config
+
         workers =
           for i <- 1..@worker_count do
             Supervisor.child_spec({Memcache, [connection_opts, [name: worker_name(i)]]}, id: i)
