@@ -9,8 +9,6 @@ defmodule ApiWeb.User do
     :id,
     :type,
     :limit,
-    :static_concurrent_limit,
-    :streaming_concurrent_limit,
     :version,
     :allowed_domains
   ]
@@ -37,16 +35,6 @@ defmodule ApiWeb.User do
   The max number of requests per day that the user can make.
   """
   @type requests_per_day :: integer
-
-  @typedoc """
-  The max number of event-stream requests that the user can make at once.
-  """
-  @type streaming_concurrent_limit :: integer
-
-  @typedoc """
-  The max number of static requests that the user can make at once.
-  """
-  @type static_concurrent_limit :: integer
 
   @typedoc """
   Whether the user is an anonymous user or a registered user.
@@ -115,8 +103,6 @@ defmodule ApiWeb.User do
   def from_key(%ApiAccounts.Key{
         key: key,
         daily_limit: limit,
-        static_concurrent_limit: static_concurrent_limit,
-        streaming_concurrent_limit: streaming_concurrent_limit,
         api_version: version,
         allowed_domains: allowed_domains
       }) do
@@ -125,8 +111,6 @@ defmodule ApiWeb.User do
     %__MODULE__{
       id: key,
       limit: limit,
-      static_concurrent_limit: static_concurrent_limit,
-      streaming_concurrent_limit: streaming_concurrent_limit,
       type: :registered,
       version: version,
       allowed_domains: nil_or_allowed_domains(allowed_domains)
