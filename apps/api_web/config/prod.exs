@@ -54,10 +54,6 @@ config :ehmon, :report_mf, {:ehmon, :info_report}
 
 config :logster, :filter_parameters, ~w(password password_confirm)
 
-config :api_web, :rate_limiter_concurrent,
-  enabled: true,
-  memcache: true
-
 config :api_web, :rate_limiter,
   clear_interval: 60_000,
   max_anon_per_interval: 20,
