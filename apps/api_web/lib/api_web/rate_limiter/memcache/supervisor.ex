@@ -17,7 +17,8 @@ defmodule ApiWeb.RateLimiter.Memcache.Supervisor do
         clear_interval = div(clear_interval_ms, 1000)
 
         connection_opts_config =
-          Application.fetch_env!(:api_web, RateLimiter.Memcache)
+          :api_web
+          |> Application.fetch_env!(RateLimiter.Memcache)
           |> Keyword.fetch!(:connection_opts)
 
         connection_opts = [ttl: clear_interval * 2] ++ connection_opts_config
