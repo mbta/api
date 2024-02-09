@@ -28,10 +28,7 @@ config :api_web, :rate_limiter,
   limiter: ApiWeb.RateLimiter.ETS,
   max_anon_per_interval: 5_000,
   max_registered_per_interval: 100_000,
-  wait_time_ms: 0,
-  connection_opts: [
-    coder: Memcache.Coder.JSON
-  ]
+  wait_time_ms: 0
 
 config :api_web, :rate_limiter_concurrent,
   enabled: false,
