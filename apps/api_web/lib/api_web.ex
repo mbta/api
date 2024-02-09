@@ -15,7 +15,9 @@ defmodule ApiWeb do
     # no cover
     children = [
       # Start the endpoint when the application starts
+      ApiWeb.RateLimiter.Memcache.Supervisor,
       ApiWeb.RateLimiter,
+      ApiWeb.RateLimiter.RateLimiterConcurrent,
       {RequestTrack, [name: ApiWeb.RequestTrack]},
       ApiWeb.EventStream.Supervisor,
       ApiWeb.Endpoint,
