@@ -23,6 +23,13 @@ config :api_web, ApiWeb.Endpoint,
 
 config :api_web, :signing_salt, "NdisAeo6Jf02spiKqa"
 
+config :api_web, RateLimiter.Memcache,
+  connection_opts: [
+    namespace: "api_dev_rate_limit",
+    hostname: "localhost",
+    coder: Memcache.Coder.JSON
+  ]
+
 config :api_web, :rate_limiter,
   clear_interval: 60_000,
   limiter: ApiWeb.RateLimiter.ETS,

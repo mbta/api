@@ -13,7 +13,8 @@ config :api_web, :rate_limiter,
 config :api_web, RateLimiter.Memcache,
   connection_opts: [
     namespace: "api_test_rate_limit",
-    hostname: "localhost"
+    hostname: "localhost",
+    coder: Memcache.Coder.JSON
   ]
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
