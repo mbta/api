@@ -218,7 +218,7 @@ config :state, :stops_on_route,
     # Kingston Line shuttles to/from South Weymouth
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
-    "CR-Providence-d01bc229-0" => true,
+    "CR-Providence-410d3e77-0" => true,
     # Haverhill Line shuttles
     "Shuttle-BallardvaleMaldenCenter-0-" => true,
     "Shuttle-HaverhillMaldenCenter-0-" => true,
@@ -598,12 +598,20 @@ config :state, :stops_on_route,
     ],
     {"Orange", 0} => [
       "9070039",
-      "6565"
+      "6565",
+      "1258",
+      "9070006",
+      "9070004",
+      "9070002"
     ],
     {"Orange", 1} => [
       "6565",
       "6537",
-      "9070039"
+      "1222",
+      "9070039",
+      "9070003",
+      "9070005",
+      "9070007"
     ],
     {"Red", 0} => [
       "110",

@@ -25,11 +25,15 @@ defmodule Health.Checkers.RealTimeTest do
   describe "current/0" do
     test "returns current vehicle and prediction timestamps" do
       set_updated_timestamps()
+      prediction_timestamp = DateTime.from_naive!(~N[2020-12-30 15:00:00], "Etc/UTC")
+      vehicle_timestamp = DateTime.from_naive!(~N[2020-12-30 15:05:00], "Etc/UTC")
 
-      assert current() == [
-               prediction: DateTime.from_naive!(~N[2020-12-30 15:00:00], "Etc/UTC"),
-               vehicle: DateTime.from_naive!(~N[2020-12-30 15:05:00], "Etc/UTC")
-             ]
+      assert [
+               prediction: ^prediction_timestamp,
+               prediction_diff: 960,
+               vehicle: ^vehicle_timestamp,
+               vehicle_diff: 660
+             ] = current(&later_time/0)
     end
   end
 
