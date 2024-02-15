@@ -10,6 +10,8 @@ defmodule ApiWeb do
   # for more information on OTP Applications
   # no cover
   def start(_type, _args) do
+    :opentelemetry_cowboy.setup()
+    OpentelemetryPhoenix.setup(adapter: :cowboy2)
     runtime_config!()
 
     # no cover

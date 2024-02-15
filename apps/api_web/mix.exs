@@ -25,7 +25,14 @@ defmodule ApiWeb.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    extra_applications = [:logger, :recaptcha, :phoenix_swagger | env_applications(Mix.env())]
+    extra_applications = [
+      :logger,
+      :opentelemetry_exporter,
+      :opentelemetry,
+      :recaptcha,
+      :phoenix_swagger | env_applications(Mix.env())
+    ]
+
     [mod: {ApiWeb, []}, extra_applications: extra_applications]
   end
 
@@ -85,7 +92,14 @@ defmodule ApiWeb.Mixfile do
       {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", tag: "71cd746"},
       {:sentry, "~> 8.0"},
       {:qr_code, "~> 3.0"},
-      {:nimble_totp, "~> 1.0"}
+      {:nimble_totp, "~> 1.0"},
+      {:opentelemetry_api, "~> 1.2"},
+      {:opentelemetry, "~> 1.3"},
+      {:opentelemetry_exporter, "~> 1.6"},
+      {:opentelemetry_phoenix, "~> 1.2"},
+      {:opentelemetry_bandit, "~> 0.1.4"},
+      {:plug_cowboy, "~> 2.6"},
+      {:opentelemetry_cowboy, "~> 0.3.0"}
     ]
   end
 end

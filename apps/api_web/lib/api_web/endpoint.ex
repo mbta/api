@@ -14,6 +14,7 @@ defmodule ApiWeb.Endpoint do
   plug(Plug.Static, at: "/", from: :api_web, gzip: false, only: ~w(js css images favicon.ico))
 
   plug(Plug.RequestId)
+  plug(Plug.Telemetry, event_prefix: [:phoenix, :endpoint])
   plug(Logster.Plugs.Logger)
 
   plug(

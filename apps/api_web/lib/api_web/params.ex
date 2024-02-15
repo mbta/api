@@ -2,6 +2,7 @@ defmodule ApiWeb.Params do
   @moduledoc """
   Parses request params into domain datastructures.
   """
+  require OpenTelemetry.Tracer, as: Tracer
 
   ## Defaults
   @default_params ~w(include sort page filter fields api_key)
@@ -323,18 +324,22 @@ defmodule ApiWeb.Params do
       do: :ok
 
   def validate_includes(%{"include" => values}, includes, _conn) when is_binary(values) do
-    split =
-      values
-      |> String.split(",", trim: true)
-      |> Enum.map(&(&1 |> String.split(".") |> List.first()))
+    Tracer.with_span :validate_includes do
+      Process.sleep(200)
 
-    includes_set = MapSet.new(includes)
-    bad_includes = Enum.filter(split, fn el -> el not in includes_set end)
+      split =
+        values
+        |> String.split(",", trim: true)
+        |> Enum.map(&(&1 |> String.split(".") |> List.first()))
 
-    if bad_includes == [] do
-      :ok
-    else
-      {:error, :bad_include, bad_includes}
+      includes_set = MapSet.new(includes)
+      bad_includes = Enum.filter(split, fn el -> el not in includes_set end)
+
+      if bad_includes == [] do
+        :ok
+      else
+        {:error, :bad_include, bad_includes}
+      end
     end
   end
 
