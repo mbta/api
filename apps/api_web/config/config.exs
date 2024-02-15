@@ -7,18 +7,20 @@ import Config
 
 # Configures the endpoint
 config :api_web, ApiWeb.Endpoint,
-  adapter: Bandit.PhoenixAdapter,
+  # adapter: Bandit.PhoenixAdapter,
   url: [host: "localhost"],
   root: Path.dirname(__DIR__),
   secret_key_base: "v1EHfW07QPr8ai7bi0hooadtBorROPNjhSWx7CGv7AiCOhEyGoeT1jagMTNCE3PU",
   render_errors: [accepts: ~w(json html)],
   http: [
-    http_1_options: [
-      compress: true
-    ],
-    thousand_island_options: [
-      read_timeout: 120_000
-    ]
+    compress: true,
+    protocol_options: [idle_timeout: 86_400_000, request_timeout: 120_000]
+    # http_1_options: [
+    #   compress: true
+    # ],
+    # thousand_island_options: [
+    #   read_timeout: 120_000
+    # ]
   ]
 
 config :api_web, :signing_salt, "NdisAeo6Jf02spiKqa"

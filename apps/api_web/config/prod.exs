@@ -13,10 +13,15 @@ import Config
 # which you typically run after static files are built.
 config :api_web, ApiWeb.Endpoint,
   http: [
-    thousand_island_options: [
-      num_acceptors: 500,
-      shutdown_timeout: 90_000
+    transport_options: [
+          num_acceptors: 500,
+          max_connections: :infinity
     ]
+      ],
+    # thousand_island_options: [
+    #   num_acceptors: 500,
+    #   shutdown_timeout: 90_000
+    # ]
   ],
   url: [scheme: "https", host: nil, port: 443],
   server: true,

@@ -4,6 +4,8 @@ defmodule ApiWeb.StopController do
   alias ApiWeb.LegacyStops
   alias State.Stop
 
+  require OpenTelemetry.Tracer, as: Tracer
+
   plug(ApiWeb.Plugs.ValidateDate)
 
   @filters ~w(id date direction_id latitude longitude radius route route_type location_type service)s
@@ -238,14 +240,18 @@ defmodule ApiWeb.StopController do
   end
 
   def show_data(conn, %{"id" => id} = params) do
-    case Params.validate_includes(params, @show_includes, conn) do
-      :ok ->
-        [id]
-        |> LegacyStops.expand(conn.assigns.api_version, only_renames: true)
-        |> Enum.find_value(&Stop.by_id/1)
+    Tracer.with_span :show_stop do
+      Process.sleep(200)
 
-      {:error, _, _} = error ->
-        error
+      case Params.validate_includes(params, @show_includes, conn) do
+        :ok ->
+          [id]
+          |> LegacyStops.expand(conn.assigns.api_version, only_renames: true)
+          |> Enum.find_value(&Stop.by_id/1)
+
+        {:error, _, _} = error ->
+          error
+      end
     end
   end
 
