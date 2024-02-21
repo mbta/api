@@ -9,7 +9,7 @@ defmodule ApiWeb.Plugs.FetchUserTest do
   setup %{conn: conn} do
     ApiAccounts.Dynamo.create_table(ApiAccounts.User)
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
-    {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+    {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
 
     conn =
       conn

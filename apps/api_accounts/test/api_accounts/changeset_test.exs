@@ -4,7 +4,7 @@ defmodule ApiAccounts.ChangesetTest do
 
   @data %ApiAccounts.User{
     username: "test",
-    email: "test@mbta.com"
+    email: "test@example.com"
   }
 
   test "change/1" do
@@ -21,13 +21,13 @@ defmodule ApiAccounts.ChangesetTest do
     }
 
     params = %{
-      email: "test2@mbta.com",
+      email: "test2@example.com",
       role: "test",
       join_date: DateTime.from_naive!(~N[2017-01-01T00:00:00], "Etc/UTC")
     }
 
     string_params = %{
-      "email" => "test2@mbta.com",
+      "email" => "test2@example.com",
       "role" => "test",
       "join_date" => date
     }
@@ -116,7 +116,7 @@ defmodule ApiAccounts.ChangesetTest do
   end
 
   test "unique_contraint/2" do
-    params = %{email: "test@mbta.com"}
+    params = %{email: "test@example.com"}
     changeset = Changeset.cast(@data, params, :email)
     result = Changeset.unique_constraint(changeset, :email)
 
@@ -154,16 +154,16 @@ defmodule ApiAccounts.ChangesetTest do
       assert result.valid? == true
     end
 
-    test "marks as valid when supplying a real address on the mbta domain" do
-      params = %{email: "test@mbta.com"}
+    test "marks as valid when supplying a real address on the example domain" do
+      params = %{email: "test@example.com"}
       changeset = Changeset.cast(@data, params, :email)
       result = Changeset.validate_email(changeset, :email)
       assert result.errors == %{}
       assert result.valid? == true
     end
 
-    test "marks as valid when supplying a real address with a plus on the mbta domain" do
-      params = %{email: "test+test@mbta.com"}
+    test "marks as valid when supplying a real address with a plus on the example domain" do
+      params = %{email: "test+test@example.com"}
       changeset = Changeset.cast(@data, params, :email)
       result = Changeset.validate_email(changeset, :email)
       assert result.errors == %{}

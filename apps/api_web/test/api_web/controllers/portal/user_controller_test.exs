@@ -22,7 +22,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "creates a user and redirects on success", %{conn: conn} do
       valid_params = %{
-        email: "test@mbta.com",
+        email: "test@example.com",
         password: "password",
         password_confirmation: "password"
       }
@@ -38,7 +38,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "shows errors for invalid form submission", %{conn: conn} do
       params = %{
-        email: "test@mbta.com",
+        email: "test@example.com",
         password: "short",
         password_confirmation: ""
       }
@@ -55,7 +55,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
     test "shows error for duplicate email addresses", %{conn: conn} do
       params = %{
-        email: "test@mbta.com",
+        email: "test@example.com",
         password: "password",
         password_confirmation: "password"
       }
@@ -72,7 +72,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "redirects already authenticated users", %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
 
       conn =
         conn
@@ -86,7 +86,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
   describe "update password" do
     setup %{conn: conn} do
-      params = %{email: "test@mbta.com", password: "password"}
+      params = %{email: "test@example.com", password: "password"}
       {:ok, user} = ApiAccounts.create_user(params)
 
       conn =
@@ -138,7 +138,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
   describe "edit account" do
     setup %{conn: conn} do
-      params = %{email: "test@mbta.com", password: "password"}
+      params = %{email: "test@example.com", password: "password"}
       {:ok, user} = ApiAccounts.create_user(params)
 
       conn =
@@ -157,7 +157,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows error on invalid form submission", %{conn: conn} do
-      {:ok, other_user} = ApiAccounts.create_user(%{email: "existing@mbta.com"})
+      {:ok, other_user} = ApiAccounts.create_user(%{email: "existing@example.com"})
 
       params = %{
         action: "edit-information",
@@ -177,7 +177,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     test "updates account information when valid", %{conn: conn} do
       params = %{
         action: "edit-information",
-        user: %{email: "new@mbta.com", phone: "1234567"}
+        user: %{email: "new@example.com", phone: "1234567"}
       }
 
       conn =
@@ -209,7 +209,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows flash and redirects to home page when a known email is submited", %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
       params = %{email: user.email}
 
       conn =
@@ -222,7 +222,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     test "shows flash and redirects to home page when an unknown email is submited", %{conn: conn} do
-      params = %{email: "test@mbta.com"}
+      params = %{email: "test@example.com"}
 
       conn =
         conn
@@ -248,7 +248,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     end
 
     setup %{conn: conn} do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
       {:ok, user: user, conn: conn}
     end
 
@@ -311,7 +311,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
 
   describe "setting up 2fa" do
     setup %{conn: conn} do
-      {:ok, user_disabled} = ApiAccounts.create_user(%{email: "nofa@mbta.com"})
+      {:ok, user_disabled} = ApiAccounts.create_user(%{email: "nofa@example.com"})
 
       {:ok, conn: conn |> conn_with_session |> conn_with_user(user_disabled)}
     end
@@ -375,7 +375,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
   describe "disabling 2fa" do
     setup %{conn: conn} do
       time = DateTime.utc_now() |> DateTime.add(-35, :second)
-      {:ok, user_enabled} = ApiAccounts.create_user(%{email: "2fa@mbta.com"})
+      {:ok, user_enabled} = ApiAccounts.create_user(%{email: "2fa@example.com"})
       {:ok, user_enabled} = ApiAccounts.generate_totp_secret(user_enabled)
 
       {:ok, user_enabled} =

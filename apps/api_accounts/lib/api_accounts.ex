@@ -81,13 +81,13 @@ defmodule ApiAccounts do
 
   ## Examples
 
-      iex> get_user_by_email("test@mbta.com")
+      iex> get_user_by_email("test@example.com")
       {:ok, %User{...}}
 
-      iex> get_user_by_email("bad@mbta.com")
+      iex> get_user_by_email("bad@example.com")
       {:error, :not_found}
 
-      iex> get_user_by_email(%{email: "test@mbta.com"})
+      iex> get_user_by_email(%{email: "test@example.com"})
       {:ok, %User{...}}
 
       iex> get_user_by_email(%{email: "bad_addr"})
@@ -123,7 +123,7 @@ defmodule ApiAccounts do
 
   ## Examples
 
-    iex> get_user_by_email!("test@mbta.com")
+    iex> get_user_by_email!("test@example.com")
     %User{...}
 
   """
@@ -516,13 +516,13 @@ defmodule ApiAccounts do
 
   ## Examples
 
-      iex> authenticate(%{email: "test@mbta.com", password: "password"})
+      iex> authenticate(%{email: "test@example.com", password: "password"})
       {:ok, %User{...}}
 
-      iex> authenticate(%{email: "test@mbta.com", password: "password"})
+      iex> authenticate(%{email: "test@example.com", password: "password"})
       {:continue, :totp, %User{...}}
 
-      iex> authenticate(%{email: "test@mbta.com", password: "wrong_password"})
+      iex> authenticate(%{email: "test@example.com", password: "wrong_password"})
       {:error, :invalid_credentials}
 
       iex> authenticate(%{email: "bad_id", password: "password"})

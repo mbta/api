@@ -3,7 +3,7 @@ defmodule ApiWeb.Fixtures do
 
   @test_password "password"
   @valid_user_attrs %{
-    email: "authorized@mbta.com",
+    email: "authorized@example.com",
     password: @test_password
   }
 
