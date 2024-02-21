@@ -80,7 +80,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   test "update_item" do
-    user = put_user(id: "test", email: "test@mbta.com", phone: "1234567")
+    user = put_user(id: "test", email: "test@example.com", phone: "1234567")
 
     expected_user =
       user
@@ -92,7 +92,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   test "update_item doesn't persist virtual fields" do
-    user = put_user(id: "test", email: "test@mbta.com", phone: "1234567")
+    user = put_user(id: "test", email: "test@example.com", phone: "1234567")
     expected_user = Map.put(user, :phone, nil)
 
     assert {:ok, expected_user} ==
@@ -110,7 +110,7 @@ defmodule ApiAccounts.DynamoTest do
   end
 
   test "delete_item" do
-    user = put_user(id: "test", email: "test@mbta.com")
+    user = put_user(id: "test", email: "test@example.com")
     {:ok, ^user} = Dynamo.fetch_item(User, %{id: "test"})
     assert Dynamo.delete_item(user) == :ok
     assert {:error, :not_found} == Dynamo.fetch_item(User, %{id: "test"})
@@ -150,7 +150,7 @@ defmodule ApiAccounts.DynamoTest do
       for i <- 1..5 do
         user = %User{
           id: "#{i}",
-          email: "#{i}@mbta.com",
+          email: "#{i}@example.com",
           join_date: NaiveDateTime.utc_now(),
           schema_version: 0
         }
@@ -193,7 +193,7 @@ defmodule ApiAccounts.DynamoTest do
 
   describe "decode/2" do
     test "decodes items" do
-      expected_user = %User{email: "test@mbta.com"}
+      expected_user = %User{email: "test@example.com"}
 
       attrs = %{
         "email" => %{"S" => expected_user.email},
@@ -205,7 +205,7 @@ defmodule ApiAccounts.DynamoTest do
     end
 
     test "assigns a default schema version of 0 when none present" do
-      expected_user = %User{email: "test@mbta.com", schema_version: 0}
+      expected_user = %User{email: "test@example.com", schema_version: 0}
       attrs = %{"email" => %{"S" => expected_user.email}}
       assert Dynamo.decode(attrs, User) == expected_user
     end

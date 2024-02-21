@@ -5,11 +5,11 @@ defmodule ApiWeb.Portal.SessionControllerTest do
 
   @test_password "password"
   @valid_user_attrs %{
-    email: "authorized@mbta.com",
+    email: "authorized@example.com",
     password: @test_password
   }
   @invalid_user_attrs %{
-    email: "unauthorized@mbta.com",
+    email: "unauthorized@example.com",
     password: @test_password
   }
 

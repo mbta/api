@@ -8,7 +8,7 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
     phone: "some phone",
     role: "some role",
     username: "some username",
-    email: "test@mbta.com"
+    email: "test@example.com"
   }
   @update_attrs %{
     active: false,
@@ -17,7 +17,7 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
     phone: "",
     role: "some updated role",
     username: "some updated username",
-    email: "new_test@mbta.com"
+    email: "new_test@example.com"
   }
   @invalid_attrs %{
     active: nil,
@@ -49,10 +49,12 @@ defmodule ApiWeb.Admin.Accounts.UserControllerTest do
 
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
 
-    %{email: "admin@mbta.com", role: "administrator", totp_enabled: true}
-
     {:ok, user} =
-      ApiAccounts.create_user(%{email: "test@mbta.com", role: "administrator", totp_enabled: true})
+      ApiAccounts.create_user(%{
+        email: "test@example.com",
+        role: "administrator",
+        totp_enabled: true
+      })
 
     {:ok, user} = ApiAccounts.generate_totp_secret(user)
     ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))

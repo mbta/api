@@ -9,7 +9,11 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
     on_exit(fn -> ApiAccounts.Dynamo.delete_all_tables() end)
 
     {:ok, user} =
-      ApiAccounts.create_user(%{email: "test@mbta.com", role: "administrator", totp_enabled: true})
+      ApiAccounts.create_user(%{
+        email: "test@example.com",
+        role: "administrator",
+        totp_enabled: true
+      })
 
     {:ok, user} = ApiAccounts.generate_totp_secret(user)
     ApiAccounts.enable_totp(user, NimbleTOTP.verification_code(user.totp_secret_bin))
@@ -94,7 +98,7 @@ defmodule ApiWeb.Admin.Accounts.KeyControllerTest do
   test "shows pending key approvals", %{conn: conn} do
     key_requests =
       for i <- 1..5 do
-        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@mbta.com"})
+        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@example.com"})
         {:ok, key} = ApiAccounts.create_key(user)
         {key, user}
       end

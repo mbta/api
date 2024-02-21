@@ -8,7 +8,7 @@ defmodule ApiAccountsTest do
     join_date: DateTime.from_naive!(~N[2010-04-17 14:00:00], "Etc/UTC"),
     phone: "some phone",
     username: "some username",
-    email: "test@mbta.com"
+    email: "test@example.com"
   }
 
   @fixed_now ~U[2019-03-31 02:30:00Z]
@@ -32,7 +32,7 @@ defmodule ApiAccountsTest do
       blocked: false,
       join_date: DateTime.from_naive!(~N[2011-05-18 15:01:01], "Etc/UTC"),
       phone: "some updated phone",
-      email: "new_test@mbta.com"
+      email: "new_test@example.com"
     }
     @invalid_attrs %{
       active: nil,
@@ -133,7 +133,7 @@ defmodule ApiAccountsTest do
 
   describe "users register_user/1" do
     @register_attrs %{
-      email: "test@mbta.com",
+      email: "test@example.com",
       password: "password",
       password_confirmation: "password"
     }
@@ -145,7 +145,7 @@ defmodule ApiAccountsTest do
 
     test "enforces password length" do
       params = %{
-        email: "test@mbta.com",
+        email: "test@example.com",
         password: "test",
         password_confirmation: "test"
       }
@@ -327,14 +327,14 @@ defmodule ApiAccountsTest do
   test "list_key_requests/0" do
     expected =
       for i <- 1..5 do
-        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@mbta.com"})
+        {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}@example.com"})
         {:ok, _approved_key} = ApiAccounts.request_key(user)
         {:ok, key} = ApiAccounts.request_key(user)
         {key, user}
       end
 
     for i <- 1..2 do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}-#{i}@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test#{i}-#{i}@example.com"})
       {:ok, key} = ApiAccounts.create_key(user)
       ApiAccounts.update_key(key, %{approved: true})
     end
@@ -345,7 +345,7 @@ defmodule ApiAccountsTest do
 
   describe "can_request_key?/1" do
     test "checks by user" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
       assert ApiAccounts.can_request_key?(user)
 
       {:ok, key} = ApiAccounts.create_key(user)
@@ -356,7 +356,7 @@ defmodule ApiAccountsTest do
     end
 
     test "checks by a user's keys" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
       keys = ApiAccounts.list_keys_for_user(user)
       assert ApiAccounts.can_request_key?(keys)
 
@@ -372,12 +372,12 @@ defmodule ApiAccountsTest do
 
   describe "auto_approve_key?/1" do
     test "true if the user has no other keys" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
       assert ApiAccounts.auto_approve_key?(user)
     end
 
     test "false if the user has other keys" do
-      {:ok, user} = ApiAccounts.create_user(%{email: "test@mbta.com"})
+      {:ok, user} = ApiAccounts.create_user(%{email: "test@example.com"})
       {:ok, _} = ApiAccounts.create_key(user)
       refute ApiAccounts.auto_approve_key?(user)
     end
@@ -433,7 +433,7 @@ defmodule ApiAccountsTest do
 
   describe "update_password/2" do
     setup do
-      params = %{email: "test@mbta.com", password: "password"}
+      params = %{email: "test@example.com", password: "password"}
       {:ok, user} = ApiAccounts.create_user(params)
       {:ok, user: user}
     end
@@ -489,10 +489,10 @@ defmodule ApiAccountsTest do
     end
 
     test "doesn't allow duplicate emails when changing email", %{user: user} do
-      {:ok, _} = ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
+      {:ok, _} = ApiAccounts.update_information(user, %{email: "existing@example.com"})
 
       assert {:error, changeset} =
-               ApiAccounts.update_information(user, %{email: "existing@mbta.com"})
+               ApiAccounts.update_information(user, %{email: "existing@example.com"})
 
       refute changeset.valid?
       assert Enum.at(changeset.errors.email, 0) =~ "taken"
@@ -513,9 +513,9 @@ defmodule ApiAccountsTest do
 
   test "list_administators" do
     {:ok, admin} =
-      ApiAccounts.create_user(%{id: "admin", email: "admin@mbta.com", role: "administrator"})
+      ApiAccounts.create_user(%{id: "admin", email: "admin@example.com", role: "administrator"})
 
-    ApiAccounts.create_user(%{id: "user", email: "user@mbta.com"})
+    ApiAccounts.create_user(%{id: "user", email: "user@example.com"})
 
     assert [admin] == ApiAccounts.list_administrators()
   end
