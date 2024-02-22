@@ -2,7 +2,7 @@ name: Elixir CI
 
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: "0 5 * * *"
   push:
     branches: master
   pull_request:
@@ -136,6 +136,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - run: pwd
       - name: ASDF cache
         uses: actions/cache@v3
         with:
