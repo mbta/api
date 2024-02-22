@@ -127,6 +127,12 @@ jobs:
         image: amazon/dynamodb-local:2.0.0
         ports:
           - 8000:8000
+      mosquitto:
+        image: eclipse-mosquitto:2.0
+        ports:
+          - 1883:1883
+        volumes:
+          - ./mosquitto:/mosquitto/config/
 
     steps:
       - uses: actions/checkout@v3
