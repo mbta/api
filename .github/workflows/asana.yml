@@ -1,8 +1,10 @@
 name: Asana integration for GitHub PRs
-on: 
+on:
   workflow_dispatch:
   pull_request:
-    types: [review_requested, closed, opened, reopened]
+    types: [review_requested, closed, opened, reopened, converted_to_draft, edited, ready_for_review]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   call-workflow:
@@ -11,6 +13,7 @@ jobs:
       development-section: "In Development"
       review-section: "Pending Review"
       merged-section: "Merged / Not Deployed"
+      trigger-phrase: "\\*\\*Asana Ticket:\\*\\*"
       attach-pr: true
     secrets:
       asana-token: ${{ secrets.ASANA_PERSONAL_ACCESS_TOKEN }}
