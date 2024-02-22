@@ -6,3 +6,10 @@ services:
     container_name: dynamodb-local
     ports:
       - "8000:8000"
+  mosquitto:
+    image: "eclipse-mosquitto:2.0"
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto:/mosquitto/config/
