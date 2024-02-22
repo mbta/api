@@ -21,21 +21,10 @@ end
 
 ## Setting Up DynamoDB Local
 
-Download [DynamoDB local](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html).
+Make sure you have Docker installed, and then run
 
-```
-(mkdir -p bin/dynamodb && \
-cd bin/dynamodb && \
-curl -O https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz && \
-tar -xzf dynamodb_local_latest.tar.gz && \
-rm dynamodb_local_latest.tar.gz)
-```
-
-Run the JAR file to start the local DynamoDB server:
-
-```
-(export DYNAMODB_PATH=./bin/dynamodb && \
-java -Djava.library.path=${DYNAMODB_PATH}/DynamoDBLocal_lib -jar ${DYNAMODB_PATH}/DynamoDBLocal.jar -sharedDb)
+```shell
+docker compose up
 ```
 
 Once DynamoDB is running, you can create a new admin user:
