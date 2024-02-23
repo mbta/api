@@ -21,10 +21,10 @@ end
 
 ## Setting Up DynamoDB Local
 
-Make sure you have Docker installed, and then run
+Make sure you have Podman installed and configured, and then run
 
 ```shell
-docker compose up
+podman compose up
 ```
 
 Once DynamoDB is running, you can create a new admin user:
