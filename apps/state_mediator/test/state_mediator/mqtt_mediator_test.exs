@@ -28,8 +28,8 @@ defmodule StateMediator.MqttMediatorTest do
 
   # @moduletag capture_log: true
   @opts [
-    url: "mqtt://test.mosquitto.org",
-    topic: "home/#",
+    url: "mqtt://localhost:1883",
+    topic: "home/test",
     state: __MODULE__.StateModule
   ]
 
@@ -55,6 +55,21 @@ defmodule StateMediator.MqttMediatorTest do
 
     test "are sent to the state module" do
       {:ok, _pid} = start_link(@opts)
+
+      {:ok, _client} =
+        EmqttFailover.Connection.start_link(
+          configs: [@opts[:url]],
+          handler: {EmqttFailover.ConnectionHandler.Parent, parent: self()}
+        )
+
+      assert_receive {:connected, ^client}, 5_000
+
+      :ok =
+        EmqttFailover.Connection.publish(client, %EmqttFailover.Message{
+          topic: @opts[:topic],
+          payload: "online"
+        })
+
       assert_receive {:updated, contents}, 5_000
       assert <<_::binary>> = contents
     end
