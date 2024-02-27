@@ -245,7 +245,7 @@ config :state, :stops_on_route,
     "CR-Franklin-02118599-" => true,
     # Worcester Line shuttles
     "Shuttle-AshlandFramingham-0-" => true,
-    "Shuttle-SouthStationFraminghamExpress-0-" => true,
+    "Shuttle-FraminghamSouthStationExpress-0-" => true,
     "Shuttle-SouthStationWellesleyHillsLocal-0-" => true,
     "Shuttle-BackBayFraminghamExpress-0-" => true,
     "Shuttle-BackBayWellesleyHillsLocal-0-" => true
