@@ -21,7 +21,7 @@ end
 
 ## Setting Up DynamoDB Local
 
-Make sure you have Docker installed, and then run
+Make sure you have Colima and Docker installed and configured and then run:
 
 ```shell
 docker compose up
