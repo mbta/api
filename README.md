@@ -16,6 +16,21 @@ To start your Phoenix app:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
+## Tests
+
+To run the tests, first install and setup Colima, Docker, and docker-compose:
+
+```shell
+brew install docker docker-compose colima
+colima start
+mkdir -p ${DOCKER_CONFIG:-"~/.docker"}/cli-plugins
+ln -sfn /opt/homebrew/opt/docker-compose/bin/docker-compose ${DOCKER_CONFIG:-"~/.docker"}/cli-plugins/docker-compose
+```
+
+Then, start the Compose configuration in a separate window or tab and run the tests: 
+  1. `docker compose up` 
+  2. `mix test`
+
 ## Environment Variables
 
 In addition to the Elixir config files, the V3 API allows runtime configuration through a collection of environment variables.
