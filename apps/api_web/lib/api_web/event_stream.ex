@@ -7,6 +7,7 @@ defmodule ApiWeb.EventStream do
   import Plug.Conn
   alias __MODULE__.Supervisor
   alias ApiWeb.Plugs.CheckForShutdown
+  alias ApiWeb.RateLimiter.RateLimiterConcurrent
   require Logger
 
   @enforce_keys [:conn, :pid, :timeout]
@@ -53,6 +54,13 @@ defmodule ApiWeb.EventStream do
 
   @spec hibernate_loop(state) :: Plug.Conn.t()
   def hibernate_loop(state) do
+    if Map.has_key?(state.conn.assigns, :api_user) do
+      # Update the concurrent rate limit cache to ensure any flushing doesn't impact long-running connections:
+      RateLimiterConcurrent.add_lock(state.conn.assigns.api_user, self(), true)
+    else
+      Logger.warn("#{__MODULE__} missing_api_user - cannot rate limit!")
+    end
+
     case receive_result(state) do
       {:continue, state} ->
         :proc_lib.hibernate(__MODULE__, :hibernate_loop, [state])
@@ -130,6 +138,13 @@ defmodule ApiWeb.EventStream do
   end
 
   defp unsubscribe(state) do
+    if Map.has_key?(state.conn.assigns, :api_user) do
+      # clean up our concurrent connections lock:
+      RateLimiterConcurrent.remove_lock(state.conn.assigns.api_user, self(), true)
+    else
+      Logger.warn("#{__MODULE__} missing_api_user - cannot rate limit!")
+    end
+
     # consume any extra messages received after unsubscribing
     receive do
       {:events, _} ->
