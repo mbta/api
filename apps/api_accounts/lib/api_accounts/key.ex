@@ -18,8 +18,6 @@ defmodule ApiAccounts.Key do
     field(:requested_date, :datetime)
     field(:approved, :boolean, default: false)
     field(:locked, :boolean, default: false)
-    field(:static_concurrent_limit, :integer)
-    field(:streaming_concurrent_limit, :integer)
     field(:daily_limit, :integer)
     field(:rate_request_pending, :boolean, default: false)
     field(:api_version, :string)
@@ -30,7 +28,7 @@ defmodule ApiAccounts.Key do
   @doc false
   def changeset(struct, params \\ %{}) do
     fields = ~w(
-      created requested_date approved locked static_concurrent_limit streaming_concurrent_limit daily_limit rate_request_pending api_version description allowed_domains
+      created requested_date approved locked daily_limit rate_request_pending api_version description allowed_domains
     )a
     cast(struct, params, fields)
   end

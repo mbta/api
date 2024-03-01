@@ -23,32 +23,12 @@ config :api_web, ApiWeb.Endpoint,
 
 config :api_web, :signing_salt, "NdisAeo6Jf02spiKqa"
 
-config :api_web, RateLimiter.Memcache,
-  connection_opts: [
-    namespace: "api_dev_rate_limit",
-    hostname: "localhost",
-    coder: Memcache.Coder.JSON
-  ]
-
 config :api_web, :rate_limiter,
   clear_interval: 60_000,
   limiter: ApiWeb.RateLimiter.ETS,
   max_anon_per_interval: 5_000,
   max_registered_per_interval: 100_000,
   wait_time_ms: 0
-
-config :api_web, :rate_limiter_concurrent,
-  enabled: false,
-  memcache: false,
-  log_statistics: true,
-  limit_users: false,
-  # How many seconds tolerated when calculating whether a connection is still open
-  # 45 - 30 (see ApiWeb.EventStream.Initialize's timeout value) gives us a buffer of 15 seconds:
-  heartbeat_tolerance: 45,
-  # Default concurrent connections - these can be overridden on a per-key basis in the admin UI:
-  max_anon_static: 5,
-  max_registered_streaming: 10,
-  max_registered_static: 20
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: false
 

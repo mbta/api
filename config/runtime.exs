@@ -41,8 +41,7 @@ if is_prod? and is_release? do
   config :api_web, RateLimiter.Memcache,
     connection_opts: [
       namespace: System.fetch_env!("HOST"),
-      hostname: System.fetch_env!("MEMCACHED_HOST"),
-      coder: Memcache.Coder.JSON
+      hostname: System.fetch_env!("MEMCACHED_HOST")
     ]
 
   config :state_mediator, Realtime,

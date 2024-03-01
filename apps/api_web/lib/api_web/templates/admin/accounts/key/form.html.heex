@@ -19,18 +19,6 @@
   </div>
 
   <div class="form-group">
-    <%= label(f, :static_concurrent_limit, class: "control-label") %>
-    <%= text_input(f, :static_concurrent_limit, class: "form-control") %>
-    <%= error_tag(f, :static_concurrent_limit) %>
-  </div>
-
-  <div class="form-group">
-    <%= label(f, :streaming_concurrent_limit, class: "control-label") %>
-    <%= text_input(f, :streaming_concurrent_limit, class: "form-control") %>
-    <%= error_tag(f, :streaming_concurrent_limit) %>
-  </div>
-
-  <div class="form-group">
     <%= label(f, :description, class: "control-label") %>
     <%= text_input(f, :description, class: "form-control") %>
     <%= error_tag(f, :description) %>
