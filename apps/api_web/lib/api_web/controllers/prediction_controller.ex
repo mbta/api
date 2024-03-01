@@ -102,21 +102,21 @@ defmodule ApiWeb.PredictionController do
           {:error, :only_route_type}
 
         p when map_size(p) > 0 ->
-          filtered_params
-          |> Params.split_on_comma("trip")
-          |> case do
-            [] ->
-              case route_pattern_ids do
-                [] ->
-                  all_stops_and_routes(stop_ids, route_ids, matchers)
+          trip_params = Params.split_on_comma(filtered_params, "trip")
 
-                route_pattern_ids ->
-                  all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
-              end
+          matchers =
+            case {trip_params, route_pattern_ids} do
+              {[], []} ->
+                all_stops_and_routes(stop_ids, route_ids, matchers)
 
-            trip_ids ->
-              all_stops_and_trips(stop_ids, trip_ids, matchers)
-          end
+              {[], route_pattern_ids} ->
+                all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
+
+              {trip_ids, _} ->
+                all_stops_and_trips(stop_ids, trip_ids, matchers)
+            end
+
+          matchers
           |> Prediction.filter_by_route_type(route_types)
           |> State.all(pagination_opts)
 

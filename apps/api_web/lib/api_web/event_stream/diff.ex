@@ -25,14 +25,10 @@ defmodule ApiWeb.EventStream.Diff do
       update = Map.values(updated_map)
 
       remove =
-        map_list_1
-        |> Enum.flat_map(fn item ->
-          if item_in_map(removed_map, item) do
-            [Map.take(item, ~w(id type))]
-          else
-            []
-          end
-        end)
+        for item <- map_list_1,
+            item_in_map(removed_map, item) do
+          Map.take(item, ~w(id type))
+        end
         |> Enum.reverse()
 
       %{
