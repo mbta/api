@@ -13,8 +13,7 @@ config :api_web, :rate_limiter,
 config :api_web, RateLimiter.Memcache,
   connection_opts: [
     namespace: "api_test_rate_limit",
-    hostname: "localhost",
-    coder: Memcache.Coder.JSON
+    hostname: "localhost"
   ]
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
@@ -27,7 +26,3 @@ config :recaptcha,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
-
-config :api_web, :rate_limiter_concurrent,
-  enabled: false,
-  memcache: false
