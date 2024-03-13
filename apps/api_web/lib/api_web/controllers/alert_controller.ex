@@ -469,7 +469,7 @@ defmodule ApiWeb.AlertController do
 
             severity(
               :integer,
-              "How severe the alert it from least (`0`) to most (`10`) severe.",
+              "How severe the alert is from least (`0`) to most (`10`) severe.",
               example: 10,
               maximum: 10,
               minimum: 0

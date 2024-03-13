@@ -217,7 +217,7 @@ defmodule Model.Alert do
   @type lifecycle :: String.t()
 
   @typedoc """
-  How severe the alert it from least (`0`) to most (`10`) severe.
+  How severe the alert is from least (`0`) to most (`10`) severe.
   """
   @type severity :: 0..10
 
