@@ -206,7 +206,6 @@ config :state, :stops_on_route,
     "Shuttle-NewburyportSalemExpress-0-" => true,
     "Shuttle-NewburyportSalemLocal-0-" => true,
     # Newburyport Line Shuttles during suspension
-    "Shuttle-BeverlyNorthStationLocal-" => true,
     "Shuttle-NewburyportNorthStationLimited-" => true,
     "Shuttle-RockportNorthStationLimited-" => true,
     # Fitchburg Line shuttles to/from Alewife
