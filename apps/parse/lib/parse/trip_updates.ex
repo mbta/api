@@ -26,7 +26,8 @@ defmodule Parse.TripUpdates do
       direction_id: update.trip.direction_id,
       vehicle_id: vehicle_id(update.vehicle),
       schedule_relationship: trip_relationship(update.trip.schedule_relationship),
-      revenue: parse_revenue(Map.get(update.trip, :revenue, true))
+      revenue: parse_revenue(Map.get(update.trip, :revenue, true)),
+      last_trip?: Map.get(update.trip, :last_trip?, false)
     }
 
     update.stop_time_update
