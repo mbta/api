@@ -12,7 +12,8 @@ defmodule Parse.TripUpdatesTest do
         "schedule_relationship" => "SCHEDULED",
         "route_id" => "CR-Haverhill",
         "direction_id" => 0,
-        "revenue" => true
+        "revenue" => true,
+        "last_trip" => false
       }
 
       update = %{
@@ -82,7 +83,8 @@ defmodule Parse.TripUpdatesTest do
                arrival_uncertainty: 60,
                departure_time: nil,
                departure_uncertainty: nil,
-               revenue: :REVENUE
+               revenue: :REVENUE,
+               last_trip?: false
              } = actual
     end
 
