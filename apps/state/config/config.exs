@@ -643,7 +643,8 @@ config :state, :stops_on_route,
       "place-NEC-1919",
       "place-NEC-1851",
       "place-NEC-1768",
-      "place-NEC-1659"
+      "place-NEC-1659",
+      "place-NEC-1891"
     ],
     {"Orange", 0} => [
       "9070039",
