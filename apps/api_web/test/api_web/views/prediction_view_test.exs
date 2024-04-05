@@ -19,6 +19,7 @@ defmodule ApiWeb.PredictionViewTest do
     arrival_uncertainty: nil,
     departure_time: @datetime,
     departure_uncertainty: 60,
+    last_trip?: false,
     schedule_relationship: :added,
     status: "All Aboard",
     stop_sequence: 5
@@ -81,6 +82,7 @@ defmodule ApiWeb.PredictionViewTest do
              "arrival_uncertainty" => nil,
              "departure_time" => "2016-06-07T00:00:00-04:00",
              "departure_uncertainty" => 60,
+             "last_trip" => false,
              "status" => "All Aboard",
              "schedule_relationship" => "ADDED",
              "stop_sequence" => 5,

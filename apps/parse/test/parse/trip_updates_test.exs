@@ -12,7 +12,8 @@ defmodule Parse.TripUpdatesTest do
         "schedule_relationship" => "SCHEDULED",
         "route_id" => "CR-Haverhill",
         "direction_id" => 0,
-        "revenue" => true
+        "revenue" => true,
+        "last_trip" => false
       }
 
       update = %{
@@ -82,7 +83,8 @@ defmodule Parse.TripUpdatesTest do
                arrival_uncertainty: 60,
                departure_time: nil,
                departure_uncertainty: nil,
-               revenue: :REVENUE
+               revenue: :REVENUE,
+               last_trip?: false
              } = actual
     end
 
@@ -143,6 +145,37 @@ defmodule Parse.TripUpdatesTest do
       assert %Model.Prediction{
                vehicle_id: nil,
                revenue: :NON_REVENUE
+             } = actual
+    end
+
+    test "parses last_trip? value for trip" do
+      update = %{
+        trip: %{
+          trip_id: "trip",
+          route_id: "route",
+          direction_id: 0,
+          schedule_relationship: :SCHEDULED,
+          last_trip?: true
+        },
+        stop_time_update: [
+          %{
+            stop_id: "stop",
+            stop_sequence: 5,
+            arrival: %{
+              time: 1
+            },
+            departure: nil,
+            schedule_relationship: :SCHEDULED
+          }
+        ],
+        vehicle: nil
+      }
+
+      [actual] = parse_trip_update(update)
+
+      assert %Model.Prediction{
+               vehicle_id: nil,
+               last_trip?: true
              } = actual
     end
   end
