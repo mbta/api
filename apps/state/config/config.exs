@@ -397,6 +397,28 @@ config :state, :stops_on_route,
         "place-WR-0325",
         "place-WR-0329"
       ]
+    ],
+    {"CR-Haverhill", 1} => [
+      [
+        "place-WR-0329",
+        "place-WR-0325",
+        "place-WR-0264",
+        "place-WR-0228",
+        "place-WR-0205",
+        # North Wilmington
+        "place-WR-0163",
+        # Reading
+        "place-WR-0120",
+        "place-NHRML-0127",
+        "place-WR-0099",
+        "place-WR-0085",
+        "place-WR-0075",
+        "place-WR-0067",
+        "place-WR-0062",
+        "place-ogmnl",
+        "place-mlmnl",
+        "place-north"
+      ]
     ]
   }
 
