@@ -270,6 +270,7 @@ defmodule State.Shape do
       case State.Stop.by_id(schedule.stop_id) do
         %{id: id, parent_station: nil} -> id
         %{parent_station: id} -> id
+        nil -> nil
       end
     end
   end
