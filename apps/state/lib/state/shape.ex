@@ -268,9 +268,14 @@ defmodule State.Shape do
         into: MapSet.new() do
       # use the parent station ID
       case State.Stop.by_id(schedule.stop_id) do
-        %{id: id, parent_station: nil} -> id
-        %{parent_station: id} -> id
-        nil -> nil
+        %{id: id, parent_station: nil} ->
+          id
+
+        %{parent_station: id} ->
+          id
+
+        nil ->
+          raise "schedule_stop_id=#{schedule.stop_id} Schedule stop_id is not present in Stop state."
       end
     end
   end
