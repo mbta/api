@@ -87,28 +87,33 @@ defmodule ApiWeb.StopController do
   def index_data(conn, params) do
     filter_opts = Params.filter_opts(params, @pagination_opts, conn)
 
-    with true <- check_distance_filter?(filter_opts),
-         :ok <- Params.validate_includes(params, @includes, conn),
-         {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
-      filtered
-      |> format_filters()
+    with :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filtered} <- Params.filter_params(params, @filters, conn),
+         formatted = format_filters(filtered),
+         :ok <- check_distance_filter(filter_opts, formatted) do
+      formatted
       |> expand_stops_filter(:ids, conn.assigns.api_version)
       |> Stop.filter_by()
       |> State.all(filter_opts)
-    else
-      false -> {:error, :distance_params}
-      {:error, _, _} = error -> error
     end
   end
 
-  defp check_distance_filter?(%{order_by: order_by} = filter_opts),
-    do: check_distance_params(%{filter_opts | order_by: Enum.into(order_by, %{})})
+  defp check_distance_filter(%{order_by: order_by}, formatted_filters) do
+    cond do
+      not Keyword.has_key?(order_by, :distance) ->
+        :ok
 
-  defp check_distance_filter?(_), do: true
+      match?(%{latitude: _, longitude: _}, formatted_filters) ->
+        :ok
 
-  defp check_distance_params(%{order_by: %{distance: _}, latitude: _, longitude: _}), do: true
-  defp check_distance_params(%{order_by: %{distance: _}}), do: false
-  defp check_distance_params(_), do: true
+      true ->
+        {:error, :distance_params}
+    end
+  end
+
+  defp check_distance_filter(_, _) do
+    :ok
+  end
 
   defp format_filters(filters) do
     filters

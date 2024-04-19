@@ -93,10 +93,28 @@ defmodule ApiWeb.StopControllerTest do
     test "returns 400 if sort=distance is specified and latitude or longitude is missing", %{
       conn: base_conn
     } do
+      stop = %Stop{id: "1", latitude: 1, longitude: 1}
+      State.Stop.new_state([stop])
+
       conn =
         get(base_conn, stop_path(base_conn, :index), %{
           "latitude" => "0",
           "radius" => "10",
+          "sort" => "distance"
+        })
+
+      assert conn.status == 400
+    end
+
+    test "returns 400 if sort=distance is specified and latitude or longitude is invalid", %{
+      conn: base_conn
+    } do
+      stop = %Stop{id: "1", latitude: 1, longitude: 1}
+      State.Stop.new_state([stop])
+
+      conn =
+        get(base_conn, stop_path(base_conn, :index), %{
+          "filter" => %{"latitude" => "{1}", "longitude" => "{0}"},
           "sort" => "distance"
         })
 
