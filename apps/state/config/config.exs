@@ -230,6 +230,7 @@ config :state, :stops_on_route,
     "Shuttle-HaverhillReadingLocal-0-" => true,
     "Shuttle-AndersonWoburnReading-0-" => true,
     "Shuttle-OakGroveReading-0-" => true,
+    "Shuttle-NorthStationReading-0-" => true,
     "CR-Haverhill-fc94d3b2-" => true,
     "CR-Haverhill-9a2b8f60-" => true,
     # Lowell Line shuttles
