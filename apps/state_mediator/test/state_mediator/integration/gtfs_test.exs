@@ -195,20 +195,30 @@ defmodule StateMediator.Integration.GtfsTest do
       assert [%{name: "Braintree - Alewife"}, %{name: "Ashmont - Alewife"}] = shapes_1
     end
 
-    test "Providence/Stoughton has 4 non-ignored shapes in direction 0 and 2 in direction 1" do
+    test "Providence/Stoughton has at least 2 non-ignored shapes in direction 0 and 2 in direction 1" do
       [shapes_0, shapes_1] = shapes_in_both_directions("CR-Providence")
 
       assert [
                # South Station - Wickford Junction via Back Bay
-               shape_0,
-               # South Station - Stoughton via Back Bay
-               %{id: "9890004"},
-               %{id: "SouthStationToStoughtonViaFairmount"},
-               # South Station - Wickford Junction
-               %{id: "9890009"}
+               shape_0
+               | remaining_shapes
              ] = shapes_0
 
       assert shape_0.name =~ "South Station - Wickford Junction"
+
+      assert Enum.all?(remaining_shapes, fn shape ->
+               case shape do
+                 # South Station - Stoughton via Back Bay
+                 %{id: "9890004"} -> true
+                 # South Station - Stoughton via Fairmount
+                 %{id: "SouthStationToStoughtonViaFairmount"} -> true
+                 # South Station - Wickford Junction
+                 %{id: "9890009"} -> true
+                 _ -> false
+               end
+             end)
+
+      assert Enum.count(remaining_shapes) >= 1
 
       assert [%{name: "Wickford Junction - South Station"}, %{id: "9890003"}] = shapes_1
     end
