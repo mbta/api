@@ -206,17 +206,16 @@ defmodule StateMediator.Integration.GtfsTest do
 
       assert shape_0.name =~ "South Station - Wickford Junction"
 
-      assert Enum.all?(remaining_shapes, fn shape ->
-               case shape do
+      Enum.each(remaining_shapes, fn shape ->
+        assert shape.id in [
                  # South Station - Stoughton via Back Bay
-                 %{id: "9890004"} -> true
+                 "9890004",
                  # South Station - Stoughton via Fairmount
-                 %{id: "SouthStationToStoughtonViaFairmount"} -> true
+                 "SouthStationToStoughtonViaFairmount",
                  # South Station - Wickford Junction
-                 %{id: "9890009"} -> true
-                 _ -> false
-               end
-             end)
+                 "9890009"
+               ]
+      end)
 
       assert Enum.count(remaining_shapes) >= 1
 
