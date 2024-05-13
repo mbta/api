@@ -285,10 +285,10 @@ defmodule State.StopsOnRouteTest do
     test "shows Plimptonville after Windsor Gardens even when they don't share a trip" do
       State.Stop.new_state([
         %Model.Stop{id: "place-sstat"},
-        %Model.Stop{id: "Windsor Gardens"},
-        %Model.Stop{id: "Plimptonville"},
-        %Model.Stop{id: "Walpole"},
-        %Model.Stop{id: "Franklin"}
+        %Model.Stop{id: "place-FB-0166"},
+        %Model.Stop{id: "place-FB-0177"},
+        %Model.Stop{id: "place-FB-0191"},
+        %Model.Stop{id: "place-FB-0275"}
       ])
 
       State.Route.new_state([%Model.Route{id: "CR-Franklin"}])
@@ -310,28 +310,36 @@ defmodule State.StopsOnRouteTest do
 
       State.Schedule.new_state([
         %Model.Schedule{trip_id: "via-plimptonville", stop_id: "place-sstat", stop_sequence: 1},
-        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "Plimptonville", stop_sequence: 2},
-        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "Franklin", stop_sequence: 3},
+        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "place-FB-0177", stop_sequence: 2},
+        %Model.Schedule{trip_id: "via-plimptonville", stop_id: "place-FB-0275", stop_sequence: 3},
         # Windsor Gardens trip has more stops because this bug only shows up when the merge
         # has windor gardens on the left and plimptonville on the right.
         # They're sorted by length before merging, so this forces them to be in the order to make the bug appear.
         %Model.Schedule{trip_id: "via-windsor-gardens", stop_id: "place-sstat", stop_sequence: 1},
         %Model.Schedule{
           trip_id: "via-windsor-gardens",
-          stop_id: "Windsor Gardens",
+          stop_id: "place-FB-0166",
           stop_sequence: 2
         },
-        %Model.Schedule{trip_id: "via-windsor-gardens", stop_id: "Walpole", stop_sequence: 3},
-        %Model.Schedule{trip_id: "via-windsor-gardens", stop_id: "Franklin", stop_sequence: 4}
+        %Model.Schedule{
+          trip_id: "via-windsor-gardens",
+          stop_id: "place-FB-0191",
+          stop_sequence: 3
+        },
+        %Model.Schedule{
+          trip_id: "via-windsor-gardens",
+          stop_id: "place-FB-0275",
+          stop_sequence: 4
+        }
       ])
 
       update!()
 
       stop_ids = by_route_id("CR-Franklin")
 
-      assert Enum.filter(stop_ids, &(&1 in ["Windsor Gardens", "Plimptonville"])) == [
-               "Windsor Gardens",
-               "Plimptonville"
+      assert Enum.filter(stop_ids, &(&1 in ["place-FB-0166", "place-FB-0177"])) == [
+               "place-FB-0166",
+               "place-FB-0177"
              ]
     end
 

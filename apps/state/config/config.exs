@@ -264,14 +264,35 @@ config :state, :stops_on_route,
 config :state, :stops_on_route,
   stop_order_overrides: %{
     {"CR-Franklin", 0} => [
-      ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"],
+      [
+        "place-NEC-2203",
+        "place-DB-2265",
+        "place-DB-2258",
+        "place-DB-2249",
+        "place-DB-2240",
+        "place-DB-2230",
+        "place-DB-2222",
+        "place-DB-2205",
+        "place-DB-0095",
+        "place-FB-0109"
+      ],
       ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
-      ["Walpole", "Foxboro", "Norfolk"],
       ["place-FB-0191", "place-FS-0049", "place-FB-0230"]
     ],
     {"CR-Franklin", 1} => [
-      ["Norfolk", "Foxboro", "Walpole"],
-      ["place-FB-0230", "place-FS-0049", "place-FB-0191"]
+      ["place-FB-0230", "place-FS-0049", "place-FB-0191"],
+      [
+        "place-FB-0109",
+        "place-DB-0095",
+        "place-DB-2205",
+        "place-DB-2222",
+        "place-DB-2230",
+        "place-DB-2240",
+        "place-DB-2249",
+        "place-DB-2258",
+        "place-DB-2265",
+        "place-NEC-2203"
+      ]
     ],
     {"CR-Fairmount", 0} => [
       ["Readville", "Dedham Corp Center", "Foxboro"],
@@ -455,13 +476,6 @@ config :state, :stops_on_route,
 config :state, :stops_on_route,
   not_on_route: %{
     {"CR-Franklin", 0} => [
-      "place-DB-2265",
-      "place-DB-2258",
-      "place-DB-2249",
-      "place-DB-2240",
-      "place-DB-2230",
-      "place-DB-2222",
-      "place-DB-2205",
       "place-NEC-2173",
       "place-NEC-2139",
       "place-NEC-2108",
@@ -473,13 +487,6 @@ config :state, :stops_on_route,
       "place-NEC-1659"
     ],
     {"CR-Franklin", 1} => [
-      "place-DB-2265",
-      "place-DB-2258",
-      "place-DB-2249",
-      "place-DB-2240",
-      "place-DB-2230",
-      "place-DB-2222",
-      "place-DB-2205",
       "place-NEC-2173",
       "place-NEC-2139",
       "place-NEC-2108",
