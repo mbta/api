@@ -367,7 +367,30 @@ config :state, :stops_on_route,
       [
         "place-rugg",
         "place-forhl",
-        "place-NEC-2203"
+        "place-NEC-2203",
+        "place-DB-0095"
+      ],
+      [
+        "place-NEC-2040",
+        "place-NEC-1969",
+        "place-NEC-1919",
+        "place-NEC-1891",
+        "place-NEC-1851"
+      ]
+    ],
+    {"CR-Providence", 1} => [
+      [
+        "place-NEC-1851",
+        "place-NEC-1891",
+        "place-NEC-1919",
+        "place-NEC-1969",
+        "place-NEC-2040"
+      ],
+      [
+        "place-DB-0095",
+        "place-NEC-2203",
+        "place-forhl",
+        "place-rugg"
       ]
     ],
     {"CR-Greenbush", 0} => [
