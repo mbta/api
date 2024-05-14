@@ -243,6 +243,8 @@ config :state, :stops_on_route,
     "CR-Greenbush-BraintreeGreenbush-" => true,
     "CR-Middleborough-52b80476-0_MM-0277-S_MM-0356-S_0" => true,
     "CR-Middleborough-75bed2bb-1_MM-0356-S_MM-0277-S_2" => true,
+    "CR-Middleborough-92c25d3b-0_MM-0277-S_MM-0356-S_0" => true,
+    "CR-Middleborough-bb403e6b-1_MM-0356-S_MM-0277-S_2" => true,
     # Franklin/Foxboro Line shuttles
     "Shuttle-ForgeParkWalpole-0-" => true,
     "CR-Franklin-3badde55-" => true,
