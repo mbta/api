@@ -6,6 +6,7 @@ defmodule Parse.Alerts do
   the basic field set.
   """
 
+  require Logger
   use Timex
 
   alias Model.Alert
@@ -73,6 +74,11 @@ defmodule Parse.Alerts do
 
   defp cause(%{"cause" => cause}) do
     copy(cause)
+  end
+
+  defp cause(alert) do
+    Logger.error("No cause found in alert: #{inspect(alert)}")
+    ""
   end
 
   def lifecycle("ONGOING"), do: "ONGOING"
