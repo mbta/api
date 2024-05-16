@@ -196,6 +196,9 @@ config :state, :stops_on_route,
     "Shuttle-LynnNorthStationExpress-0-" => true,
     "Shuttle-LynnSwampscott-0-" => true,
     "Shuttle-NorthStationSwampscott-0-" => true,
+    "Shuttle-NorthStationSwampscottLimited-0-" => true,
+    "Shuttle-NorthStationSwampscottLocal-0-" => true,
+    "Shuttle-NorthStationSwampscottExpress-0-" => true,
     "CR-Newburyport-adde8a7c-" => true,
     "CR-Newburyport-76fa2c91-" => true,
     "CR-Newburyport-173cb7ae-" => true,
@@ -230,6 +233,7 @@ config :state, :stops_on_route,
     "Shuttle-HaverhillReadingLocal-0-" => true,
     "Shuttle-AndersonWoburnReading-0-" => true,
     "Shuttle-OakGroveReading-0-" => true,
+    "Shuttle-NorthStationReading-0-" => true,
     "CR-Haverhill-fc94d3b2-" => true,
     "CR-Haverhill-9a2b8f60-" => true,
     # Lowell Line shuttles
@@ -242,6 +246,8 @@ config :state, :stops_on_route,
     "CR-Greenbush-BraintreeGreenbush-" => true,
     "CR-Middleborough-52b80476-0_MM-0277-S_MM-0356-S_0" => true,
     "CR-Middleborough-75bed2bb-1_MM-0356-S_MM-0277-S_2" => true,
+    "CR-Middleborough-92c25d3b-0_MM-0277-S_MM-0356-S_0" => true,
+    "CR-Middleborough-bb403e6b-1_MM-0356-S_MM-0277-S_2" => true,
     # Franklin/Foxboro Line shuttles
     "Shuttle-ForgeParkWalpole-0-" => true,
     "CR-Franklin-3badde55-" => true,
@@ -258,14 +264,35 @@ config :state, :stops_on_route,
 config :state, :stops_on_route,
   stop_order_overrides: %{
     {"CR-Franklin", 0} => [
-      ["Norwood Central", "Windsor Gardens", "Plimptonville", "Walpole"],
+      [
+        "place-NEC-2203",
+        "place-DB-2265",
+        "place-DB-2258",
+        "place-DB-2249",
+        "place-DB-2240",
+        "place-DB-2230",
+        "place-DB-2222",
+        "place-DB-2205",
+        "place-DB-0095",
+        "place-FB-0109"
+      ],
       ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
-      ["Walpole", "Foxboro", "Norfolk"],
       ["place-FB-0191", "place-FS-0049", "place-FB-0230"]
     ],
     {"CR-Franklin", 1} => [
-      ["Norfolk", "Foxboro", "Walpole"],
-      ["place-FB-0230", "place-FS-0049", "place-FB-0191"]
+      ["place-FB-0230", "place-FS-0049", "place-FB-0191"],
+      [
+        "place-FB-0109",
+        "place-DB-0095",
+        "place-DB-2205",
+        "place-DB-2222",
+        "place-DB-2230",
+        "place-DB-2240",
+        "place-DB-2249",
+        "place-DB-2258",
+        "place-DB-2265",
+        "place-NEC-2203"
+      ]
     ],
     {"CR-Fairmount", 0} => [
       ["Readville", "Dedham Corp Center", "Foxboro"],
@@ -361,7 +388,30 @@ config :state, :stops_on_route,
       [
         "place-rugg",
         "place-forhl",
-        "place-NEC-2203"
+        "place-NEC-2203",
+        "place-DB-0095"
+      ],
+      [
+        "place-NEC-2040",
+        "place-NEC-1969",
+        "place-NEC-1919",
+        "place-NEC-1891",
+        "place-NEC-1851"
+      ]
+    ],
+    {"CR-Providence", 1} => [
+      [
+        "place-NEC-1851",
+        "place-NEC-1891",
+        "place-NEC-1919",
+        "place-NEC-1969",
+        "place-NEC-2040"
+      ],
+      [
+        "place-DB-0095",
+        "place-NEC-2203",
+        "place-forhl",
+        "place-rugg"
       ]
     ],
     {"CR-Greenbush", 0} => [
@@ -426,22 +476,26 @@ config :state, :stops_on_route,
 config :state, :stops_on_route,
   not_on_route: %{
     {"CR-Franklin", 0} => [
-      "place-DB-2265",
-      "place-DB-2258",
-      "place-DB-2249",
-      "place-DB-2240",
-      "place-DB-2230",
-      "place-DB-2222",
-      "place-DB-2205"
+      "place-NEC-2173",
+      "place-NEC-2139",
+      "place-NEC-2108",
+      "place-NEC-2040",
+      "place-NEC-1919",
+      "place-NEC-1969",
+      "place-NEC-1851",
+      "place-NEC-1768",
+      "place-NEC-1659"
     ],
     {"CR-Franklin", 1} => [
-      "place-DB-2265",
-      "place-DB-2258",
-      "place-DB-2249",
-      "place-DB-2240",
-      "place-DB-2230",
-      "place-DB-2222",
-      "place-DB-2205"
+      "place-NEC-2173",
+      "place-NEC-2139",
+      "place-NEC-2108",
+      "place-NEC-2040",
+      "place-NEC-1919",
+      "place-NEC-1969",
+      "place-NEC-1851",
+      "place-NEC-1768",
+      "place-NEC-1659"
     ],
     {"CR-Providence", 0} => [
       "place-DB-2265",
@@ -450,8 +504,7 @@ config :state, :stops_on_route,
       "place-DB-2240",
       "place-DB-2230",
       "place-DB-2222",
-      "place-DB-2205",
-      "place-DB-0095"
+      "place-DB-2205"
     ],
     {"CR-Providence", 1} => [
       "place-DB-2265",
@@ -460,8 +513,7 @@ config :state, :stops_on_route,
       "place-DB-2240",
       "place-DB-2230",
       "place-DB-2222",
-      "place-DB-2205",
-      "place-DB-0095"
+      "place-DB-2205"
     ],
     {"CR-Fairmount", 0} => [
       "place-FB-0166",
@@ -717,7 +769,8 @@ config :state, :stops_on_route,
       "6551",
       "190",
       "9070025",
-      "9070080"
+      "9070080",
+      "151"
     ]
   }
 
