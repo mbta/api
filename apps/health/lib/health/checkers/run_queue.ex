@@ -5,13 +5,14 @@ defmodule Health.Checkers.RunQueue do
   low.
   """
   require Logger
+  @max_run_queue_length 100
 
   def current do
     [run_queue: queue_size()]
   end
 
   def healthy? do
-    h? = queue_size() < 50
+    h? = queue_size() <= @max_run_queue_length
 
     _ = log_processes(h?, Logger.level())
 
