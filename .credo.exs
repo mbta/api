@@ -48,6 +48,14 @@
         {Credo.Check.Warning.BoolOperationOnSameValues},
         {Credo.Check.Warning.IExPry},
         {Credo.Check.Warning.IoInspect},
+        {Credo.Check.Warning.MissedMetadataKeyInLoggerConfig,
+         [
+           files: %{excluded: ["**/*_test.exs"]},
+           metadata_keys:
+             "apps/api_web/config/prod.exs"
+             |> Config.Reader.read!()
+             |> get_in([:logger, :console, :metadata])
+         ]},
         {Credo.Check.Warning.OperationOnSameValues},
         {Credo.Check.Warning.OperationWithConstantResult},
         {Credo.Check.Warning.UnusedEnumOperation},

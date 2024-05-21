@@ -51,7 +51,7 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandler do
          last_modified_header = State.Metadata.last_modified_header(mod),
          conn = Plug.Conn.put_resp_header(conn, "last-modified", last_modified_header),
          {conn, [if_modified_since_header]} <- {conn, get_req_header(conn, "if-modified-since")},
-         {conn, false} <- {conn, is_modified?(last_modified_header, if_modified_since_header)} do
+         {conn, false} <- {conn, modified?(last_modified_header, if_modified_since_header)} do
       conn
       |> send_resp(:not_modified, "")
       |> halt()
@@ -64,12 +64,12 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandler do
     end
   end
 
-  def is_modified?(same, same) do
+  def modified?(same, same) do
     # shortcut if the headers have the same value
     false
   end
 
-  def is_modified?(first, second) do
+  def modified?(first, second) do
     with {:ok, first_val} <- modified_value(first),
          {:ok, second_val} <- modified_value(second) do
       first_val > second_val
