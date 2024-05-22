@@ -543,6 +543,21 @@ config :state, :stops_on_route,
       "place-WR-0228",
       "place-WR-0205"
     ],
+    {"CR-Kingston", 0} => [
+      # exclude CR-Middleborough stops not being served by Kingston line trips
+      # Holbrook/Randolph
+      "place-MM-0150",
+      # Montello
+      "place-MM-0186",
+      # Brockton
+      "place-MM-0200",
+      # Campello
+      "place-MM-0219",
+      # Bridgewater
+      "place-MM-0277",
+      # Middleborough/Lakeville
+      "place-MM-0356"
+    ],
     {"Green-B", 0} => [
       "9070150",
       "951",
