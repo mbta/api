@@ -5,19 +5,20 @@ defmodule Health.Checkers.RunQueue do
   low.
   """
   require Logger
-  @max_run_queue_length 100
 
   def current do
     [run_queue: queue_size()]
   end
 
   def healthy? do
-    h? = queue_size() <= @max_run_queue_length
+    h? = queue_size() <= max_run_queue_length()
 
     _ = log_processes(h?, Logger.level())
 
     h?
   end
+
+  defp max_run_queue_length, do: 100
 
   defp queue_size do
     :erlang.statistics(:run_queue)
