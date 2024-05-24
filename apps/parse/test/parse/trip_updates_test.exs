@@ -52,7 +52,8 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          revenue: true
+          revenue: true,
+          update_type: "mid_trip"
         },
         stop_time_update: [
           %{
@@ -84,7 +85,8 @@ defmodule Parse.TripUpdatesTest do
                departure_time: nil,
                departure_uncertainty: nil,
                revenue: :REVENUE,
-               last_trip?: false
+               last_trip?: false,
+               update_type: :mid_trip
              } = actual
     end
 
@@ -94,7 +96,8 @@ defmodule Parse.TripUpdatesTest do
           trip_id: "trip",
           route_id: "route",
           direction_id: 0,
-          schedule_relationship: :SCHEDULED
+          schedule_relationship: :SCHEDULED,
+          update_type: "mid_trip"
         },
         stop_time_update: [
           %{
@@ -124,7 +127,8 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          revenue: false
+          revenue: false,
+          update_type: "mid_trip"
         },
         stop_time_update: [
           %{
@@ -155,7 +159,61 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          last_trip?: true
+          last_trip?: true,
+          update_type: "mid_trip"
+        },
+        stop_time_update: [
+          %{
+            stop_id: "stop",
+            stop_sequence: 5,
+            arrival: %{
+              time: 1
+            },
+            departure: nil,
+            schedule_relationship: :SCHEDULED
+          }
+        ],
+        vehicle: nil
+      }
+
+      [actual] = parse_trip_update(update)
+
+      assert %Model.Prediction{
+               vehicle_id: nil,
+               last_trip?: true,
+               update_type: :mid_trip
+             } = actual
+
+      update = put_in(update.trip.update_type, "at_terminal")
+
+      [actual] = parse_trip_update(update)
+
+      assert %Model.Prediction{
+               vehicle_id: nil,
+               last_trip?: true,
+               update_type: :at_terminal
+             } = actual
+
+      update = put_in(update.trip.update_type, "reverse_trip")
+
+      [actual] = parse_trip_update(update)
+
+      assert %Model.Prediction{
+               vehicle_id: nil,
+               last_trip?: true,
+               update_type: :reverse_trip
+             } = actual
+    end
+
+    test "parses update_type values for trip" do
+      update = %{
+        trip: %{
+          trip_id: "trip",
+          route_id: "route",
+          direction_id: 0,
+          schedule_relationship: :SCHEDULED,
+          last_trip?: true,
+          update_type: "mid_trip"
         },
         stop_time_update: [
           %{

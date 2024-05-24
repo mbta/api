@@ -23,6 +23,7 @@ defmodule Model.Prediction do
     :stop_sequence,
     :schedule_relationship,
     :status,
+    :update_type,
     trip_match?: false,
     last_trip?: false,
     revenue: :REVENUE
@@ -95,6 +96,7 @@ defmodule Model.Prediction do
   * `:trip_match?` - a boolean indicating whether the prediction is for a trip in the GTFS file
   * `:last_trip?` - a boolean indicating whether the prediction is for the last trip in a given service day
   * `:revenue` - An indication of whether or not the prediction is for a revenue trip
+  * `:update_type` - TODO
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
@@ -112,7 +114,8 @@ defmodule Model.Prediction do
           trip_id: Model.Trip.id(),
           trip_match?: boolean,
           last_trip?: boolean,
-          revenue: :REVENUE | :NON_REVENUE
+          revenue: :REVENUE | :NON_REVENUE,
+          update_type: :mid_trip | :at_terminal | :reverse_trip
         }
 
   @spec trip_id(t) :: Model.Trip.id()

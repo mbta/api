@@ -378,6 +378,17 @@ defmodule ApiWeb.PredictionController do
               """,
               example: "REVENUE"
             )
+
+            update_type(
+              :string,
+              """
+              | Value            | Description |
+              |------------------|-------------|
+              | `"MID_TRIP"`     | Prediction is for the trip the vehicle is currently on. |
+              | `"AT_TERMINAL"`  | Prediction is for a terminal trip that hasn't started yet. |
+              | `"REVERSE_TRIP"` | Prediction is for a trip that hasn't started and the train that will be servicing this trip is currently in the middle of a previous trip. |
+              """
+            )
           end
 
           direction_id_attribute()

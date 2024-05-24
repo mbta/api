@@ -38,7 +38,8 @@ defmodule ApiWeb.PredictionControllerTest do
                         trip_id: "trip",
                         vehicle_id: "vehicle",
                         status: "On Time",
-                        direction_id: 1
+                        direction_id: 1,
+                        update_type: :mid_trip
                       }
   @cr_prediction hd(@cr_predictions)
 

@@ -27,7 +27,8 @@ defmodule Parse.TripUpdates do
       vehicle_id: vehicle_id(update.vehicle),
       schedule_relationship: trip_relationship(update.trip.schedule_relationship),
       revenue: parse_revenue(Map.get(update.trip, :revenue, true)),
-      last_trip?: Map.get(update.trip, :last_trip?, false)
+      last_trip?: Map.get(update.trip, :last_trip?, false),
+      update_type: parse_update_type(update.trip.update_type)
     }
 
     update.stop_time_update
@@ -120,4 +121,9 @@ defmodule Parse.TripUpdates do
   defp parse_revenue(false), do: :NON_REVENUE
 
   defp parse_revenue(_), do: :REVENUE
+
+  defp parse_update_type("mid_trip"), do: :mid_trip
+  defp parse_update_type("at_terminal"), do: :at_terminal
+  defp parse_update_type("reverse_trip"), do: :reverse_trip
+  defp parse_update_type(_), do: nil
 end
