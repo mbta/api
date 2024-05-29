@@ -96,7 +96,7 @@ defmodule Model.Prediction do
   * `:trip_match?` - a boolean indicating whether the prediction is for a trip in the GTFS file
   * `:last_trip?` - a boolean indicating whether the prediction is for the last trip in a given service day
   * `:revenue` - An indication of whether or not the prediction is for a revenue trip
-  * `:update_type` - TODO
+  * `:update_type` - An identifier for the type of prediction for the associated vehicle. 
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
