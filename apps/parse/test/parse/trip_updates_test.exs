@@ -52,8 +52,7 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          revenue: true,
-          update_type: "mid_trip"
+          revenue: true
         },
         stop_time_update: [
           %{
@@ -67,6 +66,7 @@ defmodule Parse.TripUpdatesTest do
             schedule_relationship: :SCHEDULED
           }
         ],
+        update_type: "mid_trip",
         vehicle: %{
           id: "vehicle"
         }
@@ -96,8 +96,7 @@ defmodule Parse.TripUpdatesTest do
           trip_id: "trip",
           route_id: "route",
           direction_id: 0,
-          schedule_relationship: :SCHEDULED,
-          update_type: "mid_trip"
+          schedule_relationship: :SCHEDULED
         },
         stop_time_update: [
           %{
@@ -110,6 +109,7 @@ defmodule Parse.TripUpdatesTest do
             schedule_relationship: :SCHEDULED
           }
         ],
+        update_type: "mid_trip",
         vehicle: nil
       }
 
@@ -127,8 +127,7 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          revenue: false,
-          update_type: "mid_trip"
+          revenue: false
         },
         stop_time_update: [
           %{
@@ -141,6 +140,7 @@ defmodule Parse.TripUpdatesTest do
             schedule_relationship: :SCHEDULED
           }
         ],
+        update_type: "mid_trip",
         vehicle: nil
       }
 
@@ -159,8 +159,7 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          last_trip?: true,
-          update_type: "mid_trip"
+          last_trip?: true
         },
         stop_time_update: [
           %{
@@ -173,6 +172,7 @@ defmodule Parse.TripUpdatesTest do
             schedule_relationship: :SCHEDULED
           }
         ],
+        update_type: "mid_trip",
         vehicle: nil
       }
 
@@ -184,7 +184,7 @@ defmodule Parse.TripUpdatesTest do
                update_type: :mid_trip
              } = actual
 
-      update = put_in(update.trip.update_type, "at_terminal")
+      update = put_in(update.update_type, "at_terminal")
 
       [actual] = parse_trip_update(update)
 
@@ -194,7 +194,7 @@ defmodule Parse.TripUpdatesTest do
                update_type: :at_terminal
              } = actual
 
-      update = put_in(update.trip.update_type, "reverse_trip")
+      update = put_in(update.update_type, "reverse_trip")
 
       [actual] = parse_trip_update(update)
 
@@ -212,8 +212,7 @@ defmodule Parse.TripUpdatesTest do
           route_id: "route",
           direction_id: 0,
           schedule_relationship: :SCHEDULED,
-          last_trip?: true,
-          update_type: "mid_trip"
+          last_trip?: true
         },
         stop_time_update: [
           %{
@@ -226,6 +225,7 @@ defmodule Parse.TripUpdatesTest do
             schedule_relationship: :SCHEDULED
           }
         ],
+        update_type: "mid_trip",
         vehicle: nil
       }
 
