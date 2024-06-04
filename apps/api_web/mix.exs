@@ -34,7 +34,7 @@ defmodule ApiWeb.Mixfile do
   end
 
   defp env_applications(:prod) do
-    [:sasl, :diskusage_logger]
+    [:diskusage_logger]
   end
 
   defp env_applications(_) do

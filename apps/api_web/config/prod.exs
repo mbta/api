@@ -38,11 +38,7 @@ config :api_web, :rate_limiter,
   limiter: ApiWeb.RateLimiter.Memcache,
   wait_time_ms: 100
 
-# Configures Elixir's Logger
-config :sasl, errlog_type: :error
-
 config :logger,
-  handle_sasl_reports: true,
   level: :info,
   backends: [:console, Sentry.LoggerBackend]
 
