@@ -13,7 +13,8 @@ defmodule ApiWeb.PredictionView do
     :status,
     :stop_sequence,
     :track,
-    :revenue
+    :revenue,
+    :update_type
   ])
 
   def preload(predictions, conn, include_opts) do
@@ -48,10 +49,11 @@ defmodule ApiWeb.PredictionView do
       departure_uncertainty: p.departure_uncertainty,
       direction_id: p.direction_id,
       last_trip: p.last_trip?,
-      schedule_relationship: schedule_relationship(p),
+      schedule_relationship: upcase_atom_to_string(p.schedule_relationship),
       status: p.status,
       stop_sequence: p.stop_sequence,
-      revenue: revenue(p)
+      revenue: revenue(p),
+      update_type: upcase_atom_to_string(p.update_type)
     }
 
     add_legacy_attributes(attributes, p, conn.assigns.api_version)
@@ -202,20 +204,18 @@ defmodule ApiWeb.PredictionView do
     Map.put(acc, :datetime, time)
   end
 
-  def schedule_relationship(%{schedule_relationship: nil}) do
-    nil
-  end
-
-  def schedule_relationship(%{schedule_relationship: atom}) do
-    atom
-    |> Atom.to_string()
-    |> String.upcase()
-  end
-
   def revenue(%{revenue: atom}) do
     Atom.to_string(atom)
   end
 
   def format_time(%DateTime{} = dt), do: DateTime.to_iso8601(dt)
   def format_time(nil), do: nil
+
+  defp upcase_atom_to_string(nil), do: nil
+
+  defp upcase_atom_to_string(atom) do
+    atom
+    |> Atom.to_string()
+    |> String.upcase()
+  end
 end
