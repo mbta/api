@@ -15,7 +15,7 @@ defmodule State.ServerBench do
     Application.ensure_all_started(:mnesia)
     State.Schedule.start_link
     State.Schedule.new_state(@items)
-    Logger.configure(level: :warn)
+    Logger.configure(level: :warning)
     {:ok, :ignored}
   end
 

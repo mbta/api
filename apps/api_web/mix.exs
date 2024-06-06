@@ -73,7 +73,6 @@ defmodule ApiWeb.Mixfile do
       {:api_accounts, in_umbrella: true},
       {:memcachex, "~> 0.5"},
       {:ehmon, github: "mbta/ehmon", branch: "master", only: :prod},
-      {:benchwarmer, "~> 0.0", only: [:dev, :test]},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:logster, "~> 1.1"},
       {:phoenix_swagger, "~> 0.8"},

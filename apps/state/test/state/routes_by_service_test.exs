@@ -47,7 +47,7 @@ defmodule State.RoutesByServiceTest do
     update!()
 
     on_exit(fn ->
-      Logger.configure(level: :warn)
+      Logger.configure(level: :warning)
     end)
   end
 

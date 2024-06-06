@@ -14,7 +14,7 @@ defmodule Parse.CommuterRailOccupancies do
         Enum.flat_map(data, &parse_record/1)
 
       e ->
-        Logger.warn("#{__MODULE__} decode_error e=#{inspect(e)}")
+        Logger.warning("#{__MODULE__} decode_error e=#{inspect(e)}")
         []
     end
   end
@@ -38,13 +38,13 @@ defmodule Parse.CommuterRailOccupancies do
       ]
     else
       error ->
-        Logger.warn("#{__MODULE__} parse_error error=#{inspect(error)} #{inspect(record)}")
+        Logger.warning("#{__MODULE__} parse_error error=#{inspect(error)} #{inspect(record)}")
         []
     end
   end
 
   defp parse_record(record) do
-    Logger.warn("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
+    Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
     []
   end
 

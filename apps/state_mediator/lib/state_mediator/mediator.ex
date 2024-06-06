@@ -159,7 +159,7 @@ defmodule StateMediator.Mediator do
     end)
   end
 
-  defp logger_with_level_for_error(%HTTPoison.Error{reason: :timeout}), do: &Logger.warn/1
+  defp logger_with_level_for_error(%HTTPoison.Error{reason: :timeout}), do: &Logger.warning/1
   defp logger_with_level_for_error(_), do: &Logger.error/1
 
   @spec expand_url(String.t() | {module(), atom(), [any()]}) :: String.t()

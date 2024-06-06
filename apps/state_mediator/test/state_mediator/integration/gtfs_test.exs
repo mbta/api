@@ -31,7 +31,7 @@ defmodule StateMediator.Integration.GtfsTest do
     receive_items(State.RoutesPatternsAtStop)
     receive_items(State.Shape)
     receive_items(State.StopsOnRoute)
-    Logger.configure(level: :warn)
+    Logger.configure(level: :warning)
   end
 
   defp maybe_start_lasso!(nil) do
