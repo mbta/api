@@ -8,7 +8,7 @@ defmodule StateMediatorTest do
 
     test "returns environment value when set set" do
       expected = "config_b"
-      :os.putenv('FAKE_VAR_B', String.to_charlist(expected))
+      :os.putenv(~c"FAKE_VAR_B", String.to_charlist(expected))
       assert StateMediator.source_url(State.FakeModuleB) == expected
     end
 

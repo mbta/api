@@ -25,4 +25,4 @@ config :recaptcha,
   secret: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning

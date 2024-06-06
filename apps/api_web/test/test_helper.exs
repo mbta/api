@@ -2,7 +2,7 @@ excludes = [:integration]
 
 # try to connect to memcache: if it fails, don't run those tests
 excludes =
-  case :gen_tcp.connect('localhost', 11_211, [:inet], 100) do
+  case :gen_tcp.connect(~c"localhost", 11_211, [:inet], 100) do
     {:ok, sock} ->
       :gen_tcp.close(sock)
       excludes

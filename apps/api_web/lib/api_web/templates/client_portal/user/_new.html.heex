@@ -24,12 +24,16 @@
 
         <.form_group form={f} field={:password_confirmation}>
           <%= label(f, :password_confirmation, class: "control-label") %>
-          <%= password_input(f, :password_confirmation, class: "form-control", autocomplete: "off") %>
+          <%= password_input(f, :password_confirmation,
+            class: "form-control",
+            autocomplete: "off"
+          ) %>
           <%= error_tag(f, :password_confirmation) %>
         </.form_group>
 
         <div class="form-group">
           <%= if Application.get_env(:recaptcha, :enabled) do %>
+            <!-- skip Sobelow XSS.Raw because there's no client input used in this response -->
             <%= raw(Recaptcha.Template.display(callback: "recaptchaCompleted")) %>
           <% end %>
         </div>

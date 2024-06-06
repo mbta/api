@@ -64,7 +64,7 @@ defmodule Fetch.Worker do
 
   def handle_info(message, state) do
     _ =
-      Logger.warn(fn ->
+      Logger.warning(fn ->
         # no cover
         "unexpected message to Fetch.Worker[#{state.url}]: #{inspect(message)}"
       end)
@@ -200,7 +200,7 @@ defmodule Fetch.Worker do
   end
 
   defp logger_with_level_for_error({:error, %HTTPoison.Error{reason: :timeout}}),
-    do: &Logger.warn/1
+    do: &Logger.warning/1
 
   defp logger_with_level_for_error(_), do: &Logger.error/1
 
@@ -231,7 +231,7 @@ defmodule Fetch.Worker do
         :ok
 
       {:error, posix} ->
-        _ = Logger.warn("Error while writing #{cache_file}: #{inspect(posix)}")
+        _ = Logger.warning("Error while writing #{cache_file}: #{inspect(posix)}")
         :ok
     end
   end

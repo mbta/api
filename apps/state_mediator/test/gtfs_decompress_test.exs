@@ -55,7 +55,7 @@ defmodule GtfsDecompressTest do
         {to_charlist(filename), body(filename)}
       end
 
-    {:ok, {_, body}} = :zip.create('GTFS.zip', file_list, [:memory])
+    {:ok, {_, body}} = :zip.create(~c"GTFS.zip", file_list, [:memory])
     body
   end
 

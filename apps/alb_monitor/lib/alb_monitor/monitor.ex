@@ -109,7 +109,7 @@ defmodule ALBMonitor.Monitor do
     end
   end
 
-  defp log_warn(message) when is_binary(message), do: Logger.warn(["alb_monitor ", message])
+  defp log_warn(message) when is_binary(message), do: Logger.warning(["alb_monitor ", message])
   defp log_info(message) when is_binary(message), do: Logger.info(["alb_monitor ", message])
 
   defp schedule_check(%State{check_interval: check_interval}) do
