@@ -58,7 +58,7 @@ defmodule StateMediator.Mediator do
     interval = options |> Keyword.get(:interval)
 
     if url == "" do
-      :ignore
+      {:stop, "no URL specified!"}
     else
       send(self(), :initial)
 
