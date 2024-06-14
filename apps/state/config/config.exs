@@ -223,6 +223,8 @@ config :state, :stops_on_route,
     "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
     # Needham Line shuttle
     "Shuttle-ForestHillsNewtonHighlands-0-" => true,
+    #Kingston-Halifax shuttle
+    "Shuttle-HalifaxKingston-0-" => true,
     # Kingston Line shuttles to/from South Weymouth
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
