@@ -221,9 +221,9 @@ config :state, :stops_on_route,
     "CR-Fitchburg-d82ea33a-" => true,
     # Newton Connection RailBus for Worcester Line
     "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
-    #Needham Line shuttle
+    # Needham Line shuttle
     "Shuttle-ForestHillsNewtonHighlands-0-" => true,
-    #Kingston-Halifax shuttle
+    # Kingston-Halifax shuttle
     "Shuttle-HalifaxKingston-0-" => true,
     # Kingston Line shuttles to/from South Weymouth
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
