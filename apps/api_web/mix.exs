@@ -76,7 +76,7 @@ defmodule ApiWeb.Mixfile do
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:logster, "~> 1.1"},
       {:phoenix_swagger, "~> 0.8"},
-      {:ex_json_schema, "~> 0.6.2"},
+      {:ex_json_schema, "~> 0.7.4"},
       {:diskusage_logger, "~> 0.2", only: :prod},
       {:jason, "~> 1.4"},
       {:stream_data, "~> 0.5", only: :test},
