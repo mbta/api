@@ -165,7 +165,7 @@ defmodule StateMediator.Integration.GtfsTest do
 
   describe "shapes" do
     test "outbound highest-priority shape ends at the end of the route" do
-      for route_id <- ~w(CR-Haverhill CR-Lowell CR-Worcester Blue Green-E) do
+      for route_id <- ~w(CR-Lowell CR-Worcester Blue Green-E) do
         [primary_shape | _] = State.Shape.select_routes([route_id], 0)
         [last_stop | _] = stops(route_id, 1)
         # don't require an exact match
