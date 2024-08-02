@@ -251,7 +251,14 @@ defmodule State.ServerTest do
         %Example{id: 2, data: :other}
       ])
 
-      assert [%{data: 38}, %{data: 44}, %{data: :other}] = HooksServer.all()
+      # ETS tables appear to have different internal ordering on Mac and Linux as of OTP 26, so
+      # explicitly sorting here is necessary to fix this test.
+      assert [
+               %Example{id: 1, data: 38},
+               %Example{id: 1, data: 44},
+               %Example{id: 2, data: :other}
+             ] = Enum.sort(HooksServer.all())
+
       assert [%{data: 38}, %{data: 44}] = HooksServer.by_id(1)
       assert [%{data: 38}] = HooksServer.select([%{data: 37}])
     end
