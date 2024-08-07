@@ -245,7 +245,8 @@ defmodule Model.Alert do
   * `:service_effect` - Summarizes the service and the impact to that service.
   * `:severity` - Servity of the alert.  See `t:severity/0`.
   * `:short_header` - A shortened version of `:header`.
-  * `:duration_certainty` - Indicates the certainty of the duration's end time
+  * `:duration_certainty` - Indicates whether an alert has a KNOWN or UNKNOWN duration. KNOWN duration_certainty alerts are expected to end at the
+     specified end time, while UNKNOWN duration_certainty alerts may extend beyond the specified end time.
   * `:timeframe` - Summarizes when an alert is in effect.
   * `:updated_at` - The last time this alert was updated.
   * `:url` - A URL for extra details, such as outline construction or maintenance plans.
