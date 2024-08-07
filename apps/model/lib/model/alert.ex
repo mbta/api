@@ -222,6 +222,20 @@ defmodule Model.Alert do
   """
   @type severity :: 0..10
 
+  @duration_certainty_enum ~w(
+    UNKNOWN
+    KNOWN
+  )
+
+  @typedoc """
+  | Value |
+  |-------|
+  #{Enum.map_join(@duration_certainty_enum, "\n", &"| `\"#{&1}\"` |")}
+  Indicates whether an alert has a KNOWN or UNKNOWN duration. KNOWN duration_certainty alerts are expected \
+  to end at the specified end time, while UNKNOWN duration_certainty alerts may extend beyond the specified end time.
+  """
+  @type duration_certainty :: String.t()
+
   @typedoc """
   * `:id` - Unique ID
   * `:active_period` - See `t:datetime_pair/0` for individual entries in list.
@@ -278,4 +292,7 @@ defmodule Model.Alert do
 
   @doc false
   def effect_enum, do: @effect_enum
+
+  @doc false
+  def duration_certainty_enum, do: @duration_certainty_enum
 end
