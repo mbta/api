@@ -336,6 +336,7 @@ defmodule Parse.AlertsTest do
                      facility: "facility ID"
                    }
                  ],
+                 duration_certainty: "KNOWN",
                  service_effect: "Salem closed",
                  timeframe: "through tomorrow",
                  lifecycle: "NEW",

@@ -38,7 +38,8 @@ defmodule ApiWeb.AlertControllerTest do
                service_effect: "service effect",
                timeframe: "timeframe",
                lifecycle: "lifecycle",
-               informed_entity: [full_informed_entity]
+               informed_entity: [full_informed_entity],
+               duration_certainty: "UNKNOWN"
              }
            end)
 

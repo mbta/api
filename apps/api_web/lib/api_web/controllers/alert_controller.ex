@@ -298,6 +298,7 @@ defmodule ApiWeb.AlertController do
 
     cause_enum = Model.Alert.cause_enum()
     effect_enum = Model.Alert.effect_enum()
+    duration_certainty_enum = Model.Alert.duration_certainty_enum()
 
     %{
       Activity:
@@ -507,6 +508,14 @@ defmodule ApiWeb.AlertController do
               "A URL for extra details, such as outline construction or maintenance plans.",
               example:
                 "http://www.mbta.com/uploadedfiles/Documents/Schedules_and_Maps/Commuter_Rail/fairmount.pdf?led=6/3/2017%201:22:09%20AM"
+            )
+
+            duration_certainty(
+              %Schema{type: :string, enum: duration_certainty_enum},
+              """
+              #{typedoc(:duration_certainty)}
+              """,
+              example: hd(duration_certainty_enum)
             )
           end
 
