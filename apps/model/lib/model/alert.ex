@@ -225,14 +225,16 @@ defmodule Model.Alert do
   @duration_certainty_enum ~w(
     UNKNOWN
     KNOWN
+    ESTIMATED
   )
 
   @typedoc """
   | Value |
   |-------|
   #{Enum.map_join(@duration_certainty_enum, "\n", &"| `\"#{&1}\"` |")}
-  Indicates whether an alert has a KNOWN or UNKNOWN duration. KNOWN duration_certainty alerts are expected \
-  to end at the specified end time, while UNKNOWN duration_certainty alerts may extend beyond the specified end time.
+  Indicates whether an alert has a KNOWN, ESTIMATED, or UNKNOWN duration. KNOWN duration_certainty alerts are expected \
+  to end at the specified end time, ESTIMATED duration_certainty alerts have an estimated end time, and \
+  UNKNOWN duration_certainty alerts do not have a known or estimated end time.
   """
   @type duration_certainty :: String.t()
 
@@ -259,8 +261,9 @@ defmodule Model.Alert do
   * `:service_effect` - Summarizes the service and the impact to that service.
   * `:severity` - Servity of the alert.  See `t:severity/0`.
   * `:short_header` - A shortened version of `:header`.
-  * `:duration_certainty` - Indicates whether an alert has a KNOWN or UNKNOWN duration. KNOWN duration_certainty alerts are expected to end at the
-     specified end time, while UNKNOWN duration_certainty alerts may extend beyond the specified end time.
+  * `:duration_certainty` - Indicates whether an alert has a KNOWN, ESTIMATED, or UNKNOWN duration. KNOWN duration_certainty alerts are expected \
+      to end at the specified end time, ESTIMATED duration_certainty alerts have an estimated end time, and \
+      UNKNOWN duration_certainty alerts do not have a known or estimated end time.
   * `:timeframe` - Summarizes when an alert is in effect.
   * `:updated_at` - The last time this alert was updated.
   * `:url` - A URL for extra details, such as outline construction or maintenance plans.
