@@ -60,6 +60,7 @@ defmodule Parse.Alerts do
       informed_entity: alert |> Map.get("informed_entity") |> Enum.map(&informed_entity/1),
       service_effect: alert |> Map.get("service_effect_text") |> translated_text,
       timeframe: alert |> Map.get("timeframe_text") |> translated_text(default: nil),
+      duration_certainty: alert |> Map.get("duration_certainty"),
       lifecycle: alert |> Map.get("alert_lifecycle") |> lifecycle,
       url: alert |> Map.get("url") |> translated_text(default: nil),
       image: alert |> Map.get("image") |> translated_image(default: nil),

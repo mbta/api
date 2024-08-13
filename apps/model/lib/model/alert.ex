@@ -24,6 +24,7 @@ defmodule Model.Alert do
     :banner,
     :image,
     :image_alternative_text,
+    :duration_certainty,
     active_period: [],
     informed_entity: []
   ]
@@ -221,6 +222,22 @@ defmodule Model.Alert do
   """
   @type severity :: 0..10
 
+  @duration_certainty_enum ~w(
+    UNKNOWN
+    KNOWN
+    ESTIMATED
+  )
+
+  @typedoc """
+  | Value |
+  |-------|
+  #{Enum.map_join(@duration_certainty_enum, "\n", &"| `\"#{&1}\"` |")}
+  Indicates whether an alert has a KNOWN, ESTIMATED, or UNKNOWN duration. KNOWN duration_certainty alerts are expected \
+  to end at the specified end time, ESTIMATED duration_certainty alerts have an estimated end time, and \
+  UNKNOWN duration_certainty alerts do not have a known or estimated end time.
+  """
+  @type duration_certainty :: String.t()
+
   @typedoc """
   * `:id` - Unique ID
   * `:active_period` - See `t:datetime_pair/0` for individual entries in list.
@@ -244,6 +261,9 @@ defmodule Model.Alert do
   * `:service_effect` - Summarizes the service and the impact to that service.
   * `:severity` - Servity of the alert.  See `t:severity/0`.
   * `:short_header` - A shortened version of `:header`.
+  * `:duration_certainty` - Indicates whether an alert has a KNOWN, ESTIMATED, or UNKNOWN duration. KNOWN duration_certainty alerts are expected \
+      to end at the specified end time, ESTIMATED duration_certainty alerts have an estimated end time, and \
+      UNKNOWN duration_certainty alerts do not have a known or estimated end time.
   * `:timeframe` - Summarizes when an alert is in effect.
   * `:updated_at` - The last time this alert was updated.
   * `:url` - A URL for extra details, such as outline construction or maintenance plans.
@@ -264,6 +284,7 @@ defmodule Model.Alert do
           service_effect: String.t(),
           severity: severity,
           short_header: String.t(),
+          duration_certainty: String.t(),
           timeframe: String.t(),
           updated_at: DateTime.t(),
           url: String.t()
@@ -274,4 +295,7 @@ defmodule Model.Alert do
 
   @doc false
   def effect_enum, do: @effect_enum
+
+  @doc false
+  def duration_certainty_enum, do: @duration_certainty_enum
 end
