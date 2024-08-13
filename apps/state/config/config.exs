@@ -524,14 +524,22 @@ config :state, :stops_on_route,
       "place-FB-0148",
       "place-FB-0143",
       "place-FB-0125",
-      "place-FB-0109"
+      "place-FB-0109",
+      "place-FB-0303",
+      "place-FB-0275",
+      "place-FB-0230",
+      "place-FB-0191"
     ],
     {"CR-Fairmount", 1} => [
       "place-FB-0166",
       "place-FB-0148",
       "place-FB-0143",
       "place-FB-0125",
-      "place-FB-0109"
+      "place-FB-0109",
+      "place-FB-0303",
+      "place-FB-0275",
+      "place-FB-0230",
+      "place-FB-0191"
     ],
     {"CR-Lowell", 0} => [
       "place-WR-0205",
