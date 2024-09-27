@@ -167,6 +167,8 @@ config :state, :shape,
 # "canonical" set of stops for a route
 config :state, :stops_on_route,
   route_pattern_prefix_overrides: %{
+    "Green-C-835" => false,
+    "Green-C-836" => false,
     # Green-D patterns that go to North Station
     "Green-D-851-1" => false,
     "Green-D-841-1" => false,
