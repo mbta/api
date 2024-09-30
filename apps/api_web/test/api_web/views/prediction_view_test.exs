@@ -92,6 +92,12 @@ defmodule ApiWeb.PredictionViewTest do
            }
   end
 
+  test "includes a unique record identifier by trip, stop, stop seq, and route", %{conn: conn} do
+    rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
+
+    assert rendered["data"]["id"] == "prediction-trip-North Station-02-5-CR-Lowell"
+  end
+
   test "includes trip/stop/route/vehicle relationships by default", %{conn: conn} do
     rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
 

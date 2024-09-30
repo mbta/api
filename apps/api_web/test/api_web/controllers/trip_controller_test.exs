@@ -296,7 +296,7 @@ defmodule ApiWeb.TripControllerTest do
                "id" => "trip",
                "relationships" => %{
                  "predictions" => %{
-                   "data" => [%{"id" => "prediction-trip-stop-", "type" => "prediction"}]
+                   "data" => [%{"id" => "prediction-trip-stop--", "type" => "prediction"}]
                  }
                }
              } = json_response(conn, 200)["data"]
