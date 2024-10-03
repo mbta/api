@@ -153,8 +153,8 @@ defmodule ApiWeb.PredictionView do
     optional_relationship("stop", stop_id, &State.Stop.by_id/1, conn)
   end
 
-  def id(%{trip_id: trip_id, stop_id: stop_id, stop_sequence: seq}, _conn) do
-    "prediction-#{trip_id}-#{stop_id}-#{seq}"
+  def id(%{trip_id: trip_id, stop_id: stop_id, stop_sequence: seq, route_id: route_id}, _conn) do
+    "prediction-#{trip_id}-#{stop_id}-#{seq}-#{route_id}"
   end
 
   def schedule(%{schedule: schedule}, _conn), do: schedule
