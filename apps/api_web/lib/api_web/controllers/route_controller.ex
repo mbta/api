@@ -313,6 +313,7 @@ defmodule ApiWeb.RouteController do
           """)
 
           relationship(:agency)
+          relationship(:line)
         end,
       Routes: page(:RouteResource),
       Route: single(:RouteResource)
