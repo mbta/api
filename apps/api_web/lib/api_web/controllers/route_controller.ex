@@ -314,6 +314,7 @@ defmodule ApiWeb.RouteController do
 
           relationship(:agency)
           relationship(:line)
+          relationship(:route_patterns, type: :has_many)
         end,
       Routes: page(:RouteResource),
       Route: single(:RouteResource)
