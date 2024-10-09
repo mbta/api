@@ -311,6 +311,8 @@ defmodule ApiWeb.RouteController do
           direction_attribute(:direction_destinations, """
           The destinations for direction ids for this route in ascending ordering starting at `0` for the first index.
           """)
+
+          relationship(:agency)
         end,
       Routes: page(:RouteResource),
       Route: single(:RouteResource)
