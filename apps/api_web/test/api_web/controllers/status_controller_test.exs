@@ -18,6 +18,7 @@ defmodule ApiWeb.StatusControllerTest do
     assert_attribute_key(json, "facility")
     assert_attribute_key(json, "prediction")
     assert_attribute_key(json, "route")
+    assert_attribute_key(json, "route_pattern")
     assert_attribute_key(json, "schedule")
     assert_attribute_key(json, "service")
     assert_attribute_key(json, "shape")
