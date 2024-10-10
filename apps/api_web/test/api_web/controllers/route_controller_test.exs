@@ -456,7 +456,8 @@ defmodule ApiWeb.RouteControllerTest do
                        "type" => "route_pattern"
                      }
                    ]
-                 }
+                 },
+                 "agency" => %{"data" => %{"id" => "1", "type" => "agency"}}
                }
              }
     end

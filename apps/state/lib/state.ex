@@ -14,6 +14,7 @@ defmodule State do
   def start(_type, _args) do
     children = [
       State.Metadata,
+      State.Agency,
       State.Service,
       State.Stop,
       State.Vehicle,
