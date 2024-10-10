@@ -112,6 +112,7 @@ defmodule State.MetadataTest do
     assert Map.has_key?(results, :facility)
     assert Map.has_key?(results, :prediction)
     assert Map.has_key?(results, :route)
+    assert Map.has_key?(results, :route_pattern)
     assert Map.has_key?(results, :schedule)
     assert Map.has_key?(results, :service)
     assert Map.has_key?(results, :shape)

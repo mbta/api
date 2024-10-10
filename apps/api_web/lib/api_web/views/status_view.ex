@@ -7,6 +7,7 @@ defmodule ApiWeb.StatusView do
     :facility,
     :prediction,
     :route,
+    :route_pattern,
     :schedule,
     :service,
     :shape,
@@ -31,6 +32,10 @@ defmodule ApiWeb.StatusView do
 
   def route(data, _) do
     %{last_updated: data.timestamps.route}
+  end
+
+  def route_pattern(data, _) do
+    %{last_updated: data.timestamps.route_pattern}
   end
 
   def schedule(data, _) do
