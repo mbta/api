@@ -108,7 +108,7 @@ defmodule State.Metadata do
       schedule: last_updated(State.Schedule),
       service: last_updated(State.Service),
       shape: last_updated(State.Shape),
-      stop: last_updated(State.Stop),
+      stop: last_updated(State.Stop.Cache),
       trip: last_updated(State.Trip),
       vehicle: last_updated(State.Vehicle)
     }
