@@ -56,6 +56,10 @@ defmodule State.Trip.Added do
     with %{route_pattern_id: route_pattern_id} when is_binary(route_pattern_id) <- prediction,
          %{representative_trip_id: rep_trip_id} <- State.RoutePattern.by_id(route_pattern_id),
          [trip | _] <- State.Trip.by_id(rep_trip_id) do
+      stop = parent_or_stop(prediction.stop_id)
+
+      headsign = if stop, do: stop.name, else: trip.headsign
+
       [
         %{
           trip
@@ -64,7 +68,8 @@ defmodule State.Trip.Added do
             service_id: nil,
             wheelchair_accessible: 1,
             bikes_allowed: 0,
-            revenue: prediction.revenue
+            revenue: prediction.revenue,
+            headsign: headsign
         }
       ]
     else
@@ -74,25 +79,7 @@ defmodule State.Trip.Added do
   end
 
   defp prediction_to_trip_via_shape(prediction) do
-    stop =
-      case State.Stop.by_id(prediction.stop_id) do
-        %{parent_station: nil} = stop -> stop
-        %{parent_station: id} -> State.Stop.by_id(id)
-        _other -> nil
-      end
-
-    last_stop_id =
-      [prediction.route_id]
-      |> State.Shape.select_routes(prediction.direction_id)
-      |> Stream.filter(&(&1.route_id == prediction.route_id))
-      |> Enum.find_value(&last_stop_id_on_shape(&1, prediction, stop))
-
-    stop =
-      if is_nil(last_stop_id) or last_stop_id == stop.id do
-        stop
-      else
-        State.Stop.by_id(last_stop_id)
-      end
+    stop = parent_or_stop(prediction.stop_id)
 
     if stop == nil do
       []
@@ -116,22 +103,11 @@ defmodule State.Trip.Added do
     end
   end
 
-  defp last_stop_id_on_shape(_, _, nil), do: nil
-
-  defp last_stop_id_on_shape(%{priority: p} = shape, prediction, stop) when p >= 0 do
-    shape_stops =
-      State.StopsOnRoute.by_route_id(
-        prediction.route_id,
-        direction_id: prediction.direction_id,
-        shape_ids: [shape.id]
-      )
-
-    if Enum.any?(shape_stops, &(&1 in [stop.id, stop.parent_station])) do
-      List.last(shape_stops)
+  defp parent_or_stop(stop_id) do
+    case State.Stop.by_id(stop_id) do
+      %{parent_station: nil} = stop -> stop
+      %{parent_station: id} -> State.Stop.by_id(id)
+      _other -> nil
     end
-  end
-
-  defp last_stop_id_on_shape(_, _, _) do
-    nil
   end
 end
