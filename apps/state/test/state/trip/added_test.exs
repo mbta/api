@@ -3,6 +3,7 @@ defmodule State.Trip.AddedTest do
   use ExUnit.Case
   import State.Trip.Added
   @trip_id "added_trip"
+  @scheduled_trip_id "scheduled_trip"
   @route_id "route"
   @route_pattern_id "pattern"
   @route_type 3
@@ -15,7 +16,9 @@ defmodule State.Trip.AddedTest do
     schedule_relationship: :added
   }
 
-  setup_all do
+  setup do
+    new_state([])
+
     stops = [
       %Model.Stop{id: "other", name: "Other"},
       %Model.Stop{id: "child", parent_station: "parent", name: "Child"},
@@ -36,11 +39,6 @@ defmodule State.Trip.AddedTest do
       State.Route.new_state([])
     end)
 
-    :ok
-  end
-
-  setup do
-    new_state([])
     :ok
   end
 
@@ -152,7 +150,7 @@ defmodule State.Trip.AddedTest do
 
   describe "handle_event/4 with shapes" do
     setup do
-      trip_id = "scheduled_trip"
+      trip_id = @scheduled_trip_id
       shape_id = "shape_id"
 
       State.Shape.new_state([
@@ -181,8 +179,21 @@ defmodule State.Trip.AddedTest do
       {:ok, %{shape: shape, prediction: prediction}}
     end
 
-    test "if there's a matching shape for the route/direction, uses the last stop predicted stop",
+    test "if there's a matching shape for the route/direction, uses the last stop from that shape",
          %{prediction: prediction} do
+      predictions = [
+        %{@prediction | stop_sequence: 3, stop_id: "child"},
+        %{@prediction | stop_sequence: 2, stop_id: "other"}
+      ]
+
+      insert_predictions(predictions)
+      assert [%{headsign: "Last Stop on Shape"}] = by_id(@trip_id)
+    end
+
+    test "if there's a matching shape for the route/direction and it's a subway route, uses the last predicted stop",
+         %{prediction: prediction} do
+      State.Route.new_state([%Model.Route{id: @route_id, type: 0}])
+
       predictions = [
         %{@prediction | stop_sequence: 3, stop_id: "child"},
         %{@prediction | stop_sequence: 2, stop_id: "other"}
@@ -210,7 +221,7 @@ defmodule State.Trip.AddedTest do
       prediction: prediction
     } do
       State.Schedule.new_state([
-        %Model.Schedule{trip_id: "scheduled_trip", stop_sequence: 2, stop_id: "shape"}
+        %Model.Schedule{trip_id: @scheduled_trip_id, stop_sequence: 2, stop_id: "shape"}
       ])
 
       State.StopsOnRoute.update!()
@@ -236,19 +247,19 @@ defmodule State.Trip.AddedTest do
     test "creates a trip with revenue value set to :REVENUE",
          %{prediction: prediction} do
       insert_predictions([%{prediction | revenue: :REVENUE}])
-      assert [%{headsign: "Parent", revenue: :REVENUE}] = by_id(@trip_id)
+      assert [%{headsign: "Last Stop on Shape", revenue: :REVENUE}] = by_id(@trip_id)
     end
 
     test "creates a trip with revenue value set to false",
          %{prediction: prediction} do
       insert_predictions([%{prediction | revenue: :NON_REVENUE}])
-      assert [%{headsign: "Parent", revenue: :NON_REVENUE}] = by_id(@trip_id)
+      assert [%{headsign: "Last Stop on Shape", revenue: :NON_REVENUE}] = by_id(@trip_id)
     end
   end
 
   describe "handle_event/4 with route patterns" do
     setup do
-      trip_id = "scheduled_trip"
+      trip_id = @scheduled_trip_id
 
       State.RoutePattern.new_state([
         %Model.RoutePattern{id: @route_pattern_id, representative_trip_id: trip_id}
@@ -272,19 +283,36 @@ defmodule State.Trip.AddedTest do
       end)
     end
 
-    test "if there's a matching route_pattern, use the last predicted stop" do
+    test "if there's a matching route_pattern, use the representative trip" do
+      insert_predictions([%{@prediction | stop_id: "child"}])
+      assert [%{headsign: "Headsign"}] = by_id(@trip_id)
+    end
+
+    test "if there's a matching route_pattern, and it's a subway route, use the last stop" do
+      State.Route.new_state([%Model.Route{id: @route_id, type: 0}])
+
+      State.Trip.new_state([
+        %Model.Trip{
+          id: @scheduled_trip_id,
+          route_id: @route_id,
+          direction_id: 0,
+          headsign: "Headsign",
+          route_type: 0
+        }
+      ])
+
       insert_predictions([%{@prediction | stop_id: "child"}])
       assert [%{headsign: "Parent"}] = by_id(@trip_id)
     end
 
     test "creates a trip with revenue value set to :REVENUE" do
       insert_predictions([%{@prediction | stop_id: "child", revenue: :REVENUE}])
-      assert [%{headsign: "Parent", revenue: :REVENUE}] = by_id(@trip_id)
+      assert [%{headsign: "Headsign", revenue: :REVENUE}] = by_id(@trip_id)
     end
 
     test "creates a trip with revenue value set to :NON_REVENUE" do
       insert_predictions([%{@prediction | stop_id: "child", revenue: :NON_REVENUE}])
-      assert [%{headsign: "Parent", revenue: :NON_REVENUE}] = by_id(@trip_id)
+      assert [%{headsign: "Headsign", revenue: :NON_REVENUE}] = by_id(@trip_id)
     end
   end
 end
