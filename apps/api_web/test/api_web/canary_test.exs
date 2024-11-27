@@ -43,6 +43,11 @@ defmodule ApiWeb.CanaryTest do
     assert {:error, "expect function/0 for notify_fn, got nil"} =
              Canary.start_link(notify_fn: nil)
 
-    assert_receive {:EXIT, _, "expect function/0 for notify_fn, got nil"}
+    # start_link consumes EXIT as of OTP 26, so we need to use spawn_link to trigger this. see:
+    # https://github.com/erlang/otp/issues/7524 and
+    # https://www.erlang.org/doc/apps/stdlib/gen_server.html#start_link/4
+    pid = spawn_link(Canary, :start_link, [[notify_fn: nil]])
+
+    assert_receive {:EXIT, ^pid, "expect function/0 for notify_fn, got nil"}
   end
 end
