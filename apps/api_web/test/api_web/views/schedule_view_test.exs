@@ -7,8 +7,10 @@ defmodule ApiWeb.ScheduleViewTest do
 
   alias Model.Schedule
 
+  @trip_id "schedule_view_trip"
+
   @schedule %Schedule{
-    trip_id: "trip",
+    trip_id: @trip_id,
     route_id: "route",
     stop_id: "stop",
     direction_id: 1,
@@ -67,7 +69,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
       associated_prediction = %Model.Prediction{
         route_id: "route",
-        trip_id: "trip",
+        trip_id: @trip_id,
         stop_id: "stop",
         stop_sequence: 1,
         direction_id: 1,
@@ -93,7 +95,7 @@ defmodule ApiWeb.ScheduleViewTest do
         |> render("index.json-api", data: @schedule, conn: conn, opts: %{include: "prediction"})
         |> get_in(["data", "relationships", "prediction", "data", "id"])
 
-      assert prediction_id == "prediction-trip-stop-1-route"
+      assert prediction_id == "prediction-#{@trip_id}-stop-1-route"
     end
 
     test "does not return a prediction if not explicitly requested", %{conn: conn} do
@@ -101,7 +103,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
       associated_prediction = %Model.Prediction{
         route_id: "route",
-        trip_id: "trip",
+        trip_id: @trip_id,
         stop_id: "stop",
         stop_sequence: 1,
         direction_id: 1,
@@ -135,7 +137,7 @@ defmodule ApiWeb.ScheduleViewTest do
 
       associated_prediction = %Model.Prediction{
         route_id: "route",
-        trip_id: "trip",
+        trip_id: @trip_id,
         stop_id: "stop",
         stop_sequence: 1,
         direction_id: 1,

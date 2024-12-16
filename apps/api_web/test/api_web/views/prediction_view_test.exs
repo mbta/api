@@ -7,10 +7,11 @@ defmodule ApiWeb.PredictionViewTest do
 
   alias Model.Prediction
 
+  @trip_id "prediction_view_trip"
   # GMT
   @datetime Timex.to_datetime(~N[2016-06-07T00:00:00], "America/New_York")
   @prediction %Prediction{
-    trip_id: "trip",
+    trip_id: @trip_id,
     stop_id: "North Station-02",
     route_id: "CR-Lowell",
     vehicle_id: "vehicle",
@@ -34,7 +35,7 @@ defmodule ApiWeb.PredictionViewTest do
   ]
   @trips [
     %Model.Trip{
-      id: "trip",
+      id: @trip_id,
       route_id: "CR-Lowell",
       direction_id: 1,
       service_id: "service"
@@ -47,7 +48,7 @@ defmodule ApiWeb.PredictionViewTest do
     }
   ]
   @associated_schedule %Model.Schedule{
-    trip_id: "trip",
+    trip_id: @trip_id,
     route_id: "CR-Lowell",
     stop_id: "North Station",
     direction_id: 0,
@@ -95,7 +96,8 @@ defmodule ApiWeb.PredictionViewTest do
   test "includes a unique record identifier by trip, stop, stop seq, and route", %{conn: conn} do
     rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
 
-    assert rendered["data"]["id"] == "prediction-trip-North Station-02-5-CR-Lowell"
+    assert rendered["data"]["id"] ==
+             "prediction-prediction_view_trip-North Station-02-5-CR-Lowell"
   end
 
   test "includes trip/stop/route/vehicle relationships by default", %{conn: conn} do
@@ -103,7 +105,7 @@ defmodule ApiWeb.PredictionViewTest do
 
     assert rendered["data"]["relationships"] ==
              %{
-               "trip" => %{"data" => %{"type" => "trip", "id" => "trip"}},
+               "trip" => %{"data" => %{"type" => "trip", "id" => @trip_id}},
                "stop" => %{"data" => %{"type" => "stop", "id" => "North Station-02"}},
                "route" => %{"data" => %{"type" => "route", "id" => "CR-Lowell"}},
                "vehicle" => %{"data" => %{"type" => "vehicle", "id" => "vehicle"}}
@@ -151,7 +153,7 @@ defmodule ApiWeb.PredictionViewTest do
         |> render("index.json-api", data: prediction, conn: conn)
         |> get_in(["data", "relationships", "schedule", "data", "id"])
 
-      assert schedule_id == "schedule-trip-North Station-5"
+      assert schedule_id == "schedule-prediction_view_trip-North Station-5"
     end
 
     test "does not return a schedule if not explicitly requested", %{conn: conn} do
