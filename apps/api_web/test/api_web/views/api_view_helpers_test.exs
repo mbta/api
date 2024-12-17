@@ -4,7 +4,7 @@ defmodule ApiWeb.ApiViewHelpersTest do
   import ApiViewHelpers
 
   @service_id "service"
-  @trip_id "api_view_helpers_trip"
+  @trip_id "trip"
   @trip %Model.Trip{
     block_id: "block_id",
     id: @trip_id,
