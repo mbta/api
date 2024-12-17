@@ -32,6 +32,11 @@ defmodule ApiWeb.ConnCase do
 
   setup _tags do
     conn = conn_with_api_key(Phoenix.ConnTest.build_conn())
+
+    # Ensure each test is using a fresh instance of State modules
+    Application.stop(:state)
+    Application.start(:state)
+
     {:ok, conn: conn}
   end
 

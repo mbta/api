@@ -3,7 +3,6 @@ defmodule ApiWeb.StopControllerTest do
   alias Model.{Facility, Schedule, Stop, Trip}
 
   setup %{conn: conn} do
-    State.Stop.new_state([])
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 

@@ -4,8 +4,6 @@ defmodule ApiWeb.TripControllerTest do
   alias Model.Trip
 
   setup %{conn: conn} do
-    State.Trip.new_state([])
-
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 

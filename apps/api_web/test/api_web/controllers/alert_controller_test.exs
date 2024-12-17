@@ -50,9 +50,6 @@ defmodule ApiWeb.AlertControllerTest do
 
   setup tags do
     State.Stop.new_state([%Model.Stop{}])
-    State.Trip.new_state([])
-    State.Route.new_state([])
-    State.Schedule.new_state([])
     State.RoutesPatternsAtStop.update!()
 
     Facility.new_state([
