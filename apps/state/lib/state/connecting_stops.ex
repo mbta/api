@@ -88,7 +88,7 @@ defmodule State.ConnectingStops do
   defp maybe_update(state) do
     # Normally sources should only be empty if they are still initializing their own state, so in
     # that case we shouldn't update ours yet
-    if Enum.all?(@sources, &(&1.size > 0)), do: update_state(state), else: state
+    if Enum.all?(@sources, &(&1.size() > 0)), do: update_state(state), else: state
   end
 
   @spec update_state(state, overrides) :: state

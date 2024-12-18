@@ -46,9 +46,7 @@ config :logger,
   level: :info,
   backends: [:console, Sentry.LoggerBackend]
 
-config :logger, :console,
-  format: "$dateT$time [$level] node=$node $metadata$message\n",
-  metadata: [:request_id, :api_key, :ip, :records, :api_version, :concurrent]
+config :logger, :console, format: "$dateT$time [$level] node=$node $metadata$message\n"
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
 

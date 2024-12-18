@@ -2,7 +2,6 @@ defmodule Parse.VehiclePositionsTest do
   @moduledoc false
   use ExUnit.Case, async: true
   import Parse.VehiclePositions
-  alias Parse.Realtime.VehiclePosition
 
   @vehicle %{
     "id" => "y1796",
@@ -116,14 +115,6 @@ defmodule Parse.VehiclePositionsTest do
       body = :zlib.gzip(Jason.encode!(%{entity: [@vehicle]}))
       actual = parse(body)
       assert [_] = actual
-    end
-  end
-
-  describe "parse_vehicle_update/1" do
-    test "can parse an empty position" do
-      vp = %VehiclePosition{}
-      vehicle = parse_vehicle_update(vp)
-      assert vehicle.updated_at
     end
   end
 end

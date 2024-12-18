@@ -261,42 +261,48 @@ defmodule ApiWeb.RoutePatternControllerTest do
           route_id: "route1",
           direction_id: 0,
           canonical: true,
-          typicality: 5
+          typicality: 5,
+          sort_order: 1
         },
         %RoutePattern{
           id: "rp2",
           route_id: "route1",
           direction_id: 1,
           canonical: true,
-          typicality: 5
+          typicality: 5,
+          sort_order: 2
         },
         %RoutePattern{
           id: "rp3",
           route_id: "route2",
           direction_id: 0,
           canonical: false,
-          typicality: 5
+          typicality: 5,
+          sort_order: 3
         },
         %RoutePattern{
           id: "rp4",
           route_id: "route2",
           direction_id: 1,
           canonical: false,
-          typicality: 5
+          typicality: 5,
+          sort_order: 4
         },
         %RoutePattern{
           id: "rp5",
           route_id: "route3",
           direction_id: 0,
           canonical: false,
-          typicality: 5
+          typicality: 5,
+          sort_order: 5
         },
         %RoutePattern{
           id: "rp6",
           route_id: "route3",
           direction_id: 1,
           canonical: false,
-          typicality: 5
+          typicality: 5,
+          sort_order: 6
         }
       ]
     end
@@ -337,15 +343,15 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       assert [
                %{
+                 "id" => "rp3",
+                 "attributes" => %{"direction_id" => 0, "canonical" => false}
+               },
+               %{
                  "id" => "rp4",
                  "attributes" => %{"direction_id" => 1, "canonical" => false}
                },
                %{
                  "id" => "rp5",
-                 "attributes" => %{"direction_id" => 0, "canonical" => false}
-               },
-               %{
-                 "id" => "rp3",
                  "attributes" => %{"direction_id" => 0, "canonical" => false}
                },
                %{
@@ -368,6 +374,18 @@ defmodule ApiWeb.RoutePatternControllerTest do
 
       assert [
                %{
+                 "id" => "rp1",
+                 "attributes" => %{"direction_id" => 0, "canonical" => true}
+               },
+               %{
+                 "id" => "rp2",
+                 "attributes" => %{"direction_id" => 1, "canonical" => true}
+               },
+               %{
+                 "id" => "rp3",
+                 "attributes" => %{"direction_id" => 0, "canonical" => false}
+               },
+               %{
                  "id" => "rp4",
                  "attributes" => %{"direction_id" => 1, "canonical" => false}
                },
@@ -376,20 +394,8 @@ defmodule ApiWeb.RoutePatternControllerTest do
                  "attributes" => %{"direction_id" => 0, "canonical" => false}
                },
                %{
-                 "id" => "rp1",
-                 "attributes" => %{"direction_id" => 0, "canonical" => true}
-               },
-               %{
-                 "id" => "rp3",
-                 "attributes" => %{"direction_id" => 0, "canonical" => false}
-               },
-               %{
                  "id" => "rp6",
                  "attributes" => %{"direction_id" => 1, "canonical" => false}
-               },
-               %{
-                 "id" => "rp2",
-                 "attributes" => %{"direction_id" => 1, "canonical" => true}
                }
              ] = json_response(conn, 200)["data"]
     end
