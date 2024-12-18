@@ -179,8 +179,7 @@ defmodule State.Trip.AddedTest do
       {:ok, %{shape: shape, prediction: prediction}}
     end
 
-    test "if there's a matching shape for the route/direction, uses the last stop from that shape",
-         %{prediction: prediction} do
+    test "if there's a matching shape for the route/direction, uses the last stop from that shape" do
       predictions = [
         %{@prediction | stop_sequence: 3, stop_id: "child"},
         %{@prediction | stop_sequence: 2, stop_id: "other"}
@@ -190,8 +189,7 @@ defmodule State.Trip.AddedTest do
       assert [%{headsign: "Last Stop on Shape"}] = by_id(@trip_id)
     end
 
-    test "if there's a matching shape for the route/direction and it's a subway route, uses the last predicted stop",
-         %{prediction: prediction} do
+    test "if there's a matching shape for the route/direction and it's a subway route, uses the last predicted stop" do
       State.Route.new_state([%Model.Route{id: @route_id, type: 0}])
 
       predictions = [

@@ -1,5 +1,5 @@
 defmodule ApiWeb.ApiViewHelpersTest do
-  use ExUnit.Case
+  use ApiWeb.ConnCase
   alias ApiWeb.ApiViewHelpers
   import ApiViewHelpers
 
@@ -35,7 +35,6 @@ defmodule ApiWeb.ApiViewHelpersTest do
     end
 
     test "otherwise uses trip_id to lookup trip" do
-      State.Trip.new_state([])
       conn = %Plug.Conn{assigns: %{split_include: MapSet.new(["trip"])}}
 
       assert trip(%{trip_id: @trip_id}, conn) == nil

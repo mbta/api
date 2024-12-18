@@ -14,11 +14,6 @@ defmodule ApiWeb.FacilityViewTest do
     longitude: -71.794593
   }
 
-  setup do
-    State.Facility.Property.new_state([])
-    :ok
-  end
-
   test "can do a basic rendering", %{conn: conn} do
     rendered = render("index.json-api", data: @facility, conn: conn)["data"]
     assert rendered["type"] == "facility"
