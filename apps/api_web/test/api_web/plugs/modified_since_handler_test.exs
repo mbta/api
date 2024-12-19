@@ -78,7 +78,7 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandlerTest do
     end
   end
 
-  describe "is_modified?/2" do
+  describe "modified?/2" do
     property "is true when first header is greater than second header" do
       check all(
               {first, first_header} <- rfc1123(),
@@ -86,7 +86,7 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandlerTest do
               max_runs: 1000
             ) do
         expected = first > second
-        actual = ModifiedSinceHandler.is_modified?(first_header, second_header)
+        actual = ModifiedSinceHandler.modified?(first_header, second_header)
         assert expected == actual
       end
     end

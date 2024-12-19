@@ -23,17 +23,7 @@ defmodule ApiWeb.EventStream.Diff do
     if update_size <= map_size(list_2_map) do
       add = Enum.filter(map_list_2, &item_in_map(added_map, &1))
       update = Map.values(updated_map)
-
-      remove =
-        map_list_1
-        |> Enum.flat_map(fn item ->
-          if item_in_map(removed_map, item) do
-            [Map.take(item, ~w(id type))]
-          else
-            []
-          end
-        end)
-        |> Enum.reverse()
+      remove = find_removed_items(map_list_1, removed_map)
 
       %{
         add: add,
@@ -48,6 +38,17 @@ defmodule ApiWeb.EventStream.Diff do
   def diff(_, map_list_2) do
     # don't need to bother with a diff if one of the lists is empty
     %{reset: [map_list_2]}
+  end
+
+  defp find_removed_items(map, removed_map) do
+    map
+    |> Enum.flat_map(fn item ->
+      if(item_in_map(removed_map, item),
+        do: [Map.take(item, ~w(id type))],
+        else: []
+      )
+    end)
+    |> Enum.reverse()
   end
 
   defp by_key(%{"type" => type, "id" => id} = item), do: {{type, id}, item}
