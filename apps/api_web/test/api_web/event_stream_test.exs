@@ -13,7 +13,6 @@ defmodule ApiWeb.EventStreamTest do
 
   setup %{conn: conn} do
     CheckForShutdown.reset()
-    State.Prediction.new_state([])
 
     conn =
       conn
