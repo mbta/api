@@ -82,7 +82,7 @@ defmodule ApiWeb.Mixfile do
       {:stream_data, "~> 0.5", only: :test},
       {:sobelow, "~> 0.11", only: :dev, runtime: false},
       {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", ref: "71cd746be987f6834c1a933f5d2f934350e55060"},
-      {:sentry, "~> 8.0"},
+      {:sentry, "~> 10.8"},
       {:qr_code, "~> 3.0"},
       {:nimble_totp, "~> 1.0"}
     ]
