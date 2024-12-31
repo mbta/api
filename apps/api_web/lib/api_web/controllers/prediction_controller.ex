@@ -102,21 +102,19 @@ defmodule ApiWeb.PredictionController do
           {:error, :only_route_type}
 
         p when map_size(p) > 0 ->
-          trip_params = Params.split_on_comma(filtered_params, "trip")
+          trip_ids = Params.split_on_comma(filtered_params, "trip")
 
-          matchers =
-            case {trip_params, route_pattern_ids} do
-              {[], []} ->
-                all_stops_and_routes(stop_ids, route_ids, matchers)
+          {trip_ids, route_pattern_ids}
+          |> case do
+            {[], []} ->
+              all_stops_and_routes(stop_ids, route_ids, matchers)
 
-              {[], route_pattern_ids} ->
-                all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
+            {[], route_pattern_ids} ->
+              all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
 
-              {trip_ids, _} ->
-                all_stops_and_trips(stop_ids, trip_ids, matchers)
-            end
-
-          matchers
+            {trip_ids, _} ->
+              all_stops_and_trips(stop_ids, trip_ids, matchers)
+          end
           |> Prediction.filter_by_route_type(route_types)
           |> State.all(pagination_opts)
 
@@ -377,6 +375,17 @@ defmodule ApiWeb.PredictionController do
               | `"NON_REVENUE"` | Indicates that the associated trip is not accepting passengers. |
               """,
               example: "REVENUE"
+            )
+
+            update_type(
+              :string,
+              """
+              | Value            | Description |
+              |------------------|-------------|
+              | `"MID_TRIP"`     | Prediction is for the trip the vehicle is currently on. |
+              | `"AT_TERMINAL"`  | Prediction is for a terminal trip that hasn't started yet. |
+              | `"REVERSE_TRIP"` | Prediction is for a trip that hasn't started and the train that will be servicing this trip is currently in the middle of a previous trip. |
+              """
             )
           end
 

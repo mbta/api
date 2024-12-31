@@ -12,7 +12,7 @@ defmodule State.Logger do
   @doc """
   Measures time of `function` and logs
   """
-  @spec debug_time(measured :: (() -> result), message :: (milliseconds :: float -> String.t())) ::
+  @spec debug_time(measured :: (-> result), message :: (milliseconds :: float -> String.t())) ::
           result
         when result: any
   def debug_time(measured, message) when is_function(measured, 0) and is_function(message, 1) do

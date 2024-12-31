@@ -38,12 +38,12 @@ defmodule ApiWeb.PredictionControllerTest do
                         trip_id: "trip",
                         vehicle_id: "vehicle",
                         status: "On Time",
-                        direction_id: 1
+                        direction_id: 1,
+                        update_type: :mid_trip
                       }
   @cr_prediction hd(@cr_predictions)
 
   setup %{conn: conn} do
-    State.Trip.new_state([])
     # stop is needed since we look up parent stops
     State.Stop.new_state([@stop, @parent_stop, %Stop{id: "2"}])
     State.Prediction.new_state(@cr_predictions)
@@ -583,7 +583,6 @@ defmodule ApiWeb.PredictionControllerTest do
 
     test "does not return alerts when no alerts exist", %{conn: conn} do
       different_route_prediction = %{@cr_prediction | route_id: "red", trip_id: "trip2"}
-      State.Alert.new_state([])
       State.Prediction.new_state([different_route_prediction, @cr_prediction])
 
       include_nothing_conn =
@@ -625,7 +624,6 @@ defmodule ApiWeb.PredictionControllerTest do
        %{conn: conn} do
     # run it 100 times since it's a race condition between State.Prediction and State.Trip.Added
     for _ <- 0..100 do
-      State.Prediction.new_state([])
       # wait for State,Trip.Added to clear
       State.Trip.Added.last_updated()
       # need a stop ID to generate an Added trip

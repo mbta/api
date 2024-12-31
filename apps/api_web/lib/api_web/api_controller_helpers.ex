@@ -39,12 +39,12 @@ defmodule ApiWeb.ApiControllerHelpers do
   end
 
   def index(module, conn, params) do
-    index =
+    mod =
       conn
       |> get_format()
       |> index_for_format()
 
-    index.call(conn, module, params)
+    mod.call(conn, module, params)
   end
 
   def call(conn, module, params) do

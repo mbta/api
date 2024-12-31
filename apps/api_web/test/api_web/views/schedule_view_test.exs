@@ -93,7 +93,7 @@ defmodule ApiWeb.ScheduleViewTest do
         |> render("index.json-api", data: @schedule, conn: conn, opts: %{include: "prediction"})
         |> get_in(["data", "relationships", "prediction", "data", "id"])
 
-      assert prediction_id == "prediction-trip-stop-1"
+      assert prediction_id == "prediction-trip-stop-1-route"
     end
 
     test "does not return a prediction if not explicitly requested", %{conn: conn} do

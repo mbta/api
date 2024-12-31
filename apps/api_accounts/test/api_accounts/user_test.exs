@@ -109,7 +109,7 @@ defmodule ApiAccounts.UserTest do
       result = User.register(%User{}, @register_params)
       assert result.changes.password != @register_params.password
       assert result.valid?
-      assert Bcrypt.check_pass(@register_params.password, result.changes.password)
+      assert Bcrypt.verify_pass(@register_params.password, result.changes.password)
     end
   end
 

@@ -13,7 +13,7 @@ defmodule Health.Checkers.RunQueueTest do
     end
 
     test "does nothing when the log level is high" do
-      assert log_processes(false, :warn) == :ignored
+      assert log_processes(false, :warning) == :ignored
     end
   end
 

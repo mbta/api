@@ -73,7 +73,6 @@ defmodule ApiWeb.Mixfile do
       {:api_accounts, in_umbrella: true},
       {:memcachex, "~> 0.5"},
       {:ehmon, github: "mbta/ehmon", branch: "master", only: :prod},
-      {:benchwarmer, "~> 0.0", only: [:dev, :test]},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:logster, "~> 1.1"},
       {:phoenix_swagger, "~> 0.8"},
@@ -82,7 +81,7 @@ defmodule ApiWeb.Mixfile do
       {:jason, "~> 1.4"},
       {:stream_data, "~> 0.5", only: :test},
       {:sobelow, "~> 0.11", only: :dev, runtime: false},
-      {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", tag: "71cd746"},
+      {:recaptcha, git: "https://github.com/samueljseay/recaptcha.git", ref: "71cd746be987f6834c1a933f5d2f934350e55060"},
       {:sentry, "~> 8.0"},
       {:qr_code, "~> 3.0"},
       {:nimble_totp, "~> 1.0"}

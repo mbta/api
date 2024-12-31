@@ -11,12 +11,14 @@ defmodule Health.Checkers.RunQueue do
   end
 
   def healthy? do
-    h? = queue_size() < 50
+    h? = queue_size() <= max_run_queue_length()
 
     _ = log_processes(h?, Logger.level())
 
     h?
   end
+
+  defp max_run_queue_length, do: 100
 
   defp queue_size do
     :erlang.statistics(:run_queue)

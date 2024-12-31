@@ -25,7 +25,7 @@ defmodule State.Stop do
           optional(:route_types) => [Model.Route.route_type()]
         }
 
-  @type stop_search :: (() -> [Stop.t()])
+  @type stop_search :: (-> [Stop.t()])
 
   def start_link(_opts \\ []) do
     Supervisor.start_link(__MODULE__, nil, name: __MODULE__)

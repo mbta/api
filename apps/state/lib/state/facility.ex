@@ -16,7 +16,7 @@ defmodule State.Facility do
           optional(:types) => [String.t()]
         }
 
-  @type facility_search :: (() -> [Facility.t()])
+  @type facility_search :: (-> [Facility.t()])
 
   # If you change this list, be sure to also update the gtfs-documentation
   @facility_types ~w(

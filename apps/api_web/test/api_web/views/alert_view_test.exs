@@ -22,7 +22,8 @@ defmodule ApiWeb.AlertViewTest do
     timeframe: "timeframe",
     lifecycle: "lifecycle",
     image: "image",
-    image_alternative_text: "image alternative text"
+    image_alternative_text: "image alternative text",
+    duration_certainty: "KNOWN"
   }
 
   test "can do a basic rendering (does not include relationships)", %{conn: conn} do
@@ -52,7 +53,8 @@ defmodule ApiWeb.AlertViewTest do
              "informed_entity" => @alert.informed_entity,
              "service_effect" => @alert.service_effect,
              "timeframe" => @alert.timeframe,
-             "lifecycle" => @alert.lifecycle
+             "lifecycle" => @alert.lifecycle,
+             "duration_certainty" => @alert.duration_certainty
            }
 
     refute rendered["relationships"]

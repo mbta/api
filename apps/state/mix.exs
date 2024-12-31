@@ -47,7 +47,9 @@ defmodule State.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:rstar, github: 'armon/erl-rstar', app: false},
+      {:rstar, github: "armon/erl-rstar", app: false},
+      # Needed for rstar
+      {:proper, "~> 1.4"},
       {:timex, "~> 3.7"},
       {:fetch, in_umbrella: true},
       {:events, in_umbrella: true},

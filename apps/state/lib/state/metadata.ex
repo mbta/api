@@ -104,10 +104,11 @@ defmodule State.Metadata do
       facility: last_updated(State.Facility),
       prediction: last_updated(State.Prediction),
       route: last_updated(State.Route),
+      route_pattern: last_updated(State.RoutePattern),
       schedule: last_updated(State.Schedule),
       service: last_updated(State.Service),
       shape: last_updated(State.Shape),
-      stop: last_updated(State.Stop),
+      stop: last_updated(State.Stop.Cache),
       trip: last_updated(State.Trip),
       vehicle: last_updated(State.Vehicle)
     }

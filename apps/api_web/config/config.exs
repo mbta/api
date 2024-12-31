@@ -51,7 +51,16 @@ config :api_web, :versions,
 
 config :logger, :console,
   format: "$date $time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [
+    :request_id,
+    :api_key,
+    :ip,
+    :records,
+    :api_version,
+    :concurrent,
+    :metadata_keep,
+    :metadata_value
+  ]
 
 # JSON-API configuration
 config :phoenix, json_library: Jason

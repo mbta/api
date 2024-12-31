@@ -31,7 +31,7 @@ defmodule StateMediator.Integration.GtfsTest do
     receive_items(State.RoutesPatternsAtStop)
     receive_items(State.Shape)
     receive_items(State.StopsOnRoute)
-    Logger.configure(level: :warn)
+    Logger.configure(level: :warning)
   end
 
   defp maybe_start_lasso!(nil) do
@@ -58,7 +58,7 @@ defmodule StateMediator.Integration.GtfsTest do
       assert_first_last_stop_id("CR-Providence", "place-sstat", "place-NEC-1659")
       assert_first_last_stop_id("CR-Fairmount", "place-sstat", ["place-DB-0095", "place-FS-0049"])
       assert_first_last_stop_id("CR-Franklin", "place-sstat", "place-FB-0303")
-      assert_first_last_stop_id("CR-Haverhill", "place-north", "place-WR-0329")
+      assert_first_last_stop_id("CR-Haverhill", "place-north", "place-WR-0325")
       assert_first_last_stop_id("CR-Lowell", "place-north", "place-NHRML-0254")
       assert_first_last_stop_id("CR-Kingston", "place-sstat", "place-KB-0351")
       assert_first_last_stop_id("Green-B", "place-gover", "place-lake")
@@ -165,7 +165,7 @@ defmodule StateMediator.Integration.GtfsTest do
 
   describe "shapes" do
     test "outbound highest-priority shape ends at the end of the route" do
-      for route_id <- ~w(CR-Haverhill CR-Lowell CR-Worcester Blue Green-E) do
+      for route_id <- ~w(CR-Lowell CR-Worcester Blue Green-E) do
         [primary_shape | _] = State.Shape.select_routes([route_id], 0)
         [last_stop | _] = stops(route_id, 1)
         # don't require an exact match

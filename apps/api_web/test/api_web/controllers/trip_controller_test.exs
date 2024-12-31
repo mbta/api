@@ -4,8 +4,6 @@ defmodule ApiWeb.TripControllerTest do
   alias Model.Trip
 
   setup %{conn: conn} do
-    State.Trip.new_state([])
-
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -296,7 +294,7 @@ defmodule ApiWeb.TripControllerTest do
                "id" => "trip",
                "relationships" => %{
                  "predictions" => %{
-                   "data" => [%{"id" => "prediction-trip-stop-", "type" => "prediction"}]
+                   "data" => [%{"id" => "prediction-trip-stop--", "type" => "prediction"}]
                  }
                }
              } = json_response(conn, 200)["data"]

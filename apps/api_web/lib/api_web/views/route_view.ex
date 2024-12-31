@@ -6,6 +6,12 @@ defmodule ApiWeb.RouteView do
   def route_location(route, conn), do: route_path(conn, :show, route.id)
 
   has_one(
+    :agency,
+    type: :agency,
+    serializer: ApiWeb.AgencyView
+  )
+
+  has_one(
     :line,
     type: :line,
     serializer: ApiWeb.LineView
@@ -46,6 +52,10 @@ defmodule ApiWeb.RouteView do
           text_color
           direction_names
           direction_destinations)a)
+  end
+
+  def agency(%{agency_id: agency_id}, conn) do
+    optional_relationship("agency", agency_id, &State.Agency.by_id/1, conn)
   end
 
   def line(%{line_id: line_id}, conn) do

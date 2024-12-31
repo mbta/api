@@ -167,6 +167,8 @@ config :state, :shape,
 # "canonical" set of stops for a route
 config :state, :stops_on_route,
   route_pattern_prefix_overrides: %{
+    "Green-C-835" => false,
+    "Green-C-836" => false,
     # Green-D patterns that go to North Station
     "Green-D-851-1" => false,
     "Green-D-841-1" => false,
@@ -221,6 +223,10 @@ config :state, :stops_on_route,
     "CR-Fitchburg-d82ea33a-" => true,
     # Newton Connection RailBus for Worcester Line
     "Shuttle-NewtonHighlandsWellesleyFarms-0-" => true,
+    # Needham Line shuttle
+    "Shuttle-ForestHillsNewtonHighlands-0-" => true,
+    # Kingston-Halifax shuttle
+    "Shuttle-HalifaxKingston-0-" => true,
     # Kingston Line shuttles to/from South Weymouth
     "Shuttle-BraintreeSouthWeymouth-0-" => true,
     # Providence trains stopping at Forest Hills
@@ -520,14 +526,22 @@ config :state, :stops_on_route,
       "place-FB-0148",
       "place-FB-0143",
       "place-FB-0125",
-      "place-FB-0109"
+      "place-FB-0109",
+      "place-FB-0303",
+      "place-FB-0275",
+      "place-FB-0230",
+      "place-FB-0191"
     ],
     {"CR-Fairmount", 1} => [
       "place-FB-0166",
       "place-FB-0148",
       "place-FB-0143",
       "place-FB-0125",
-      "place-FB-0109"
+      "place-FB-0109",
+      "place-FB-0303",
+      "place-FB-0275",
+      "place-FB-0230",
+      "place-FB-0191"
     ],
     {"CR-Lowell", 0} => [
       "place-WR-0205",
@@ -655,7 +669,8 @@ config :state, :stops_on_route,
       "9070184",
       "9070185",
       "9170211",
-      "9170178"
+      "9170178",
+      "9070169"
     ],
     {"Green-D", 1} => [
       "9070162",
@@ -724,18 +739,29 @@ config :state, :stops_on_route,
       "9070039",
       "6565",
       "1258",
+      "28743",
       "9070006",
       "9070004",
-      "9070002"
+      "9070002",
+      "9070026",
+      "9070028",
+      "11384",
+      "9170012",
+      "9070010"
     ],
     {"Orange", 1} => [
       "6565",
       "6537",
       "1222",
+      "28742",
       "9070039",
       "9070003",
       "9070005",
-      "9070007"
+      "9070007",
+      "9070026",
+      "9070029",
+      "9070013",
+      "11384"
     ],
     {"Red", 0} => [
       "110",
@@ -754,7 +780,9 @@ config :state, :stops_on_route,
       "9070079",
       "151",
       "9070083",
-      "6564"
+      "6564",
+      "9070065",
+      "9270022"
     ],
     {"Red", 1} => [
       "9170076",
@@ -770,7 +798,10 @@ config :state, :stops_on_route,
       "190",
       "9070025",
       "9070080",
-      "151"
+      "151",
+      "9070071",
+      "9070068",
+      "117"
     ]
   }
 

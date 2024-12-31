@@ -22,7 +22,8 @@ defmodule ApiWeb.PredictionViewTest do
     last_trip?: false,
     schedule_relationship: :added,
     status: "All Aboard",
-    stop_sequence: 5
+    stop_sequence: 5,
+    update_type: :mid_trip
   }
   @route %Model.Route{id: "CR-Lowell"}
   @stop %Model.Stop{id: "North Station-02", parent_station: "place-north", platform_code: "2"}
@@ -86,8 +87,15 @@ defmodule ApiWeb.PredictionViewTest do
              "status" => "All Aboard",
              "schedule_relationship" => "ADDED",
              "stop_sequence" => 5,
-             "revenue" => "REVENUE"
+             "revenue" => "REVENUE",
+             "update_type" => "MID_TRIP"
            }
+  end
+
+  test "includes a unique record identifier by trip, stop, stop seq, and route", %{conn: conn} do
+    rendered = render(ApiWeb.PredictionView, "index.json-api", data: @prediction, conn: conn)
+
+    assert rendered["data"]["id"] == "prediction-trip-North Station-02-5-CR-Lowell"
   end
 
   test "includes trip/stop/route/vehicle relationships by default", %{conn: conn} do

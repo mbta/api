@@ -34,7 +34,8 @@ defmodule Parse.CommuterRailDepartures.JSON do
       direction_id: Map.get(trip, "direction_id"),
       vehicle_id: vehicle_id(raw),
       schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship")),
-      revenue: parse_revenue(Map.get(trip, "revenue", true))
+      revenue: parse_revenue(Map.get(trip, "revenue", true)),
+      update_type: parse_update_type(Map.get(raw, "update_type"))
     }
   end
 
@@ -94,4 +95,9 @@ defmodule Parse.CommuterRailDepartures.JSON do
   defp parse_revenue(false), do: :NON_REVENUE
 
   defp parse_revenue(_), do: :REVENUE
+
+  defp parse_update_type("mid_trip"), do: :mid_trip
+  defp parse_update_type("at_terminal"), do: :at_terminal
+  defp parse_update_type("reverse_trip"), do: :reverse_trip
+  defp parse_update_type(_), do: nil
 end
