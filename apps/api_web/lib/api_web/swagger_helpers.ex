@@ -80,7 +80,7 @@ defmodule ApiWeb.SwaggerHelpers do
   @spec carriages_description() :: String.t()
   def carriages_description do
     """
-    Carriage-level crowding details. See [GTFS-realtime multi_carriage_details](https://gtfs.org/realtime/reference/#message-CarriageDetails).
+    Carriage-level crowding details. See [GTFS-realtime multi_carriage_details](https://gtfs.org/documentation/realtime/reference/#message-carriagedetails).
     """
   end
 
@@ -141,7 +141,7 @@ defmodule ApiWeb.SwaggerHelpers do
       :query,
       :string,
       """
-      Filter by route_type: https://developers.google.com/transit/gtfs/reference/routes-file.
+      Filter by route_type: https://gtfs.org/documentation/schedule/reference/#routestxt.
 
       Multiple `route_type` #{comma_separated_list()}.
 
