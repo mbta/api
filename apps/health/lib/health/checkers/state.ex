@@ -42,7 +42,7 @@ defmodule Health.Checkers.State do
     statuses =
       for app <- @apps do
         subscribe({:new_state, app})
-        {app_name(app), app.size}
+        {app_name(app), app.size()}
       end
 
     {:ok, statuses}

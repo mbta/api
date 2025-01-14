@@ -61,16 +61,11 @@ defmodule ApiWeb.PredictionController.SortByArrivalTimeTest do
     }
   ]
 
-  setup_all do
+  setup %{conn: conn} do
     # stop is needed since we look up parent stops
     State.Stop.new_state([@stop, @parent_stop])
-    State.Trip.new_state([])
     State.Route.new_state([@route1, @route2, @route3])
     State.Prediction.new_state(Enum.shuffle(@cr_predictions))
-    :ok
-  end
-
-  setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 

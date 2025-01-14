@@ -78,7 +78,7 @@ defmodule State.Server do
         {:__aliases__, _, module_parts} -> Module.concat(module_parts)
       end
 
-    key_index = List.first(recordable.fields)
+    key_index = List.first(recordable.fields())
 
     quote do
       use Events.Server

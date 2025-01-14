@@ -1,6 +1,6 @@
-ARG ELIXIR_VERSION=1.16.3
-ARG ERLANG_VERSION=25.3.2.12
-ARG ALPINE_VERSION=3.17.7
+ARG ELIXIR_VERSION=1.17.3
+ARG ERLANG_VERSION=27.2
+ARG ALPINE_VERSION=3.21.0
 
 FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${ERLANG_VERSION}-alpine-${ALPINE_VERSION} as builder
 
@@ -28,7 +28,7 @@ RUN mix release
 # The one the elixir image was built with
 FROM alpine:${ALPINE_VERSION}
 
-RUN apk add --no-cache libssl1.1 dumb-init libstdc++ libgcc ncurses-libs && \
+RUN apk add --no-cache libssl3 dumb-init libstdc++ libgcc ncurses-libs && \
   mkdir /work /api && \
   adduser -D api && chown api /work
 

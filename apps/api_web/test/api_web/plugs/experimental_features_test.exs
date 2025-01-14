@@ -1,6 +1,6 @@
 defmodule ApiWeb.Plugs.ExperimentalFeaturesTest do
   import Phoenix.ConnTest
-  use ApiWeb.ConnCase, async: true
+  use ApiWeb.ConnCase
 
   test "init" do
     assert ApiWeb.Plugs.ExperimentalFeatures.init([]) == []

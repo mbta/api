@@ -10,7 +10,7 @@ defmodule State.Trip.Added do
     recordable: Model.Trip,
     hibernate: false
 
-  alias Model.{Prediction, Trip}
+  alias Model.{Prediction, Route, Trip}
 
   @impl GenServer
   def init(state) do
@@ -56,6 +56,10 @@ defmodule State.Trip.Added do
     with %{route_pattern_id: route_pattern_id} when is_binary(route_pattern_id) <- prediction,
          %{representative_trip_id: rep_trip_id} <- State.RoutePattern.by_id(route_pattern_id),
          [trip | _] <- State.Trip.by_id(rep_trip_id) do
+      stop = parent_or_stop(prediction.stop_id)
+
+      headsign = if stop && subway?(trip.route_type), do: stop.name, else: trip.headsign
+
       [
         %{
           trip
@@ -64,7 +68,8 @@ defmodule State.Trip.Added do
             service_id: nil,
             wheelchair_accessible: 1,
             bikes_allowed: 0,
-            revenue: prediction.revenue
+            revenue: prediction.revenue,
+            headsign: headsign
         }
       ]
     else
@@ -74,31 +79,17 @@ defmodule State.Trip.Added do
   end
 
   defp prediction_to_trip_via_shape(prediction) do
-    stop =
-      case State.Stop.by_id(prediction.stop_id) do
-        %{parent_station: nil} = stop -> stop
-        %{parent_station: id} -> State.Stop.by_id(id)
-        _other -> nil
-      end
-
-    last_stop_id =
-      [prediction.route_id]
-      |> State.Shape.select_routes(prediction.direction_id)
-      |> Stream.filter(&(&1.route_id == prediction.route_id))
-      |> Enum.find_value(&last_stop_id_on_shape(&1, prediction, stop))
+    stop = parent_or_stop(prediction.stop_id)
+    route = State.Route.by_id(prediction.route_id)
 
     stop =
-      if is_nil(last_stop_id) or last_stop_id == stop.id do
-        stop
-      else
-        State.Stop.by_id(last_stop_id)
-      end
+      if subway?(route),
+        do: stop,
+        else: last_stop_for_prediction_pattern(prediction, stop) || stop
 
     if stop == nil do
       []
     else
-      route = State.Route.by_id(prediction.route_id)
-
       [
         %Trip{
           id: prediction.trip_id,
@@ -134,4 +125,24 @@ defmodule State.Trip.Added do
   defp last_stop_id_on_shape(_, _, _) do
     nil
   end
+
+  defp last_stop_for_prediction_pattern(prediction, stop) do
+    [prediction.route_id]
+    |> State.Shape.select_routes(prediction.direction_id)
+    |> Stream.filter(&(&1.route_id == prediction.route_id))
+    |> Enum.find_value(&last_stop_id_on_shape(&1, prediction, stop))
+    |> State.Stop.by_id()
+  end
+
+  defp parent_or_stop(stop_id) do
+    case State.Stop.by_id(stop_id) do
+      %{parent_station: nil} = stop -> stop
+      %{parent_station: id} -> State.Stop.by_id(id)
+      _other -> nil
+    end
+  end
+
+  defp subway?(%Route{type: type}), do: subway?(type)
+  defp subway?(type) when type in [0, 1], do: true
+  defp subway?(_), do: false
 end
