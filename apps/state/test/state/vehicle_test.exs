@@ -1,6 +1,7 @@
 defmodule State.VehicleTest do
   @moduledoc false
   use ExUnit.Case
+  import ExUnit.CaptureLog
 
   alias Model.{Route, Trip, Vehicle}
   import State.Vehicle
@@ -113,5 +114,24 @@ defmodule State.VehicleTest do
     new_state("here's some text!")
 
     assert size() == 1
+  end
+
+  test "logs a message for non-shuttle vehicles with an invalid direction" do
+    # direction_id is not assigned but this is not a shuttle
+    vehicle = %Vehicle{id: "42", trip_id: "2", route_id: "504"}
+    log = capture_log(fn -> new_state([vehicle]) end)
+
+
+    assert %Vehicle{id: "42"} = by_id("42")
+    assert log =~ "Found vehicle with invalid direction"
+    assert log =~ "42"
+
+    # direction_id is an invalid number
+    vehicle = %Vehicle{id: "43", trip_id: "2", route_id: "504", direction_id: -1}
+    log = capture_log(fn -> new_state([vehicle]) end)
+
+    assert %Vehicle{id: "43"} = by_id("43")
+    assert log =~ "Found vehicle with invalid direction"
+    assert log =~ "43"
   end
 end
