@@ -47,7 +47,7 @@ defmodule State.Vehicle do
 
   @spec has_invalid_dir(Vehicle.t()) :: boolean()
   defp has_invalid_dir(vehicle) do
-    not_shuttle = not String.contains?(vehicle.route_id, "Shuttle")
+    not_shuttle = vehicle.route_id != nil and not String.contains?(vehicle.route_id, "Shuttle")
 
     invalid_dir =
       vehicle.direction_id == nil or vehicle.direction_id > 1 or vehicle.direction_id < 0
