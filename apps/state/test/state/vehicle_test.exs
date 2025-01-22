@@ -121,7 +121,6 @@ defmodule State.VehicleTest do
     vehicle = %Vehicle{id: "42", trip_id: "2", route_id: "504"}
     log = capture_log(fn -> new_state([vehicle]) end)
 
-
     assert %Vehicle{id: "42"} = by_id("42")
     assert log =~ "Found vehicle with invalid direction"
     assert log =~ "42"
