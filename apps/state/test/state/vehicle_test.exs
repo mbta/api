@@ -132,5 +132,12 @@ defmodule State.VehicleTest do
     assert %Vehicle{id: "43"} = by_id("43")
     assert log =~ "Found vehicle with invalid direction"
     assert log =~ "43"
+
+    # it's a shuttle, so we don't care
+    vehicle = %Vehicle{id: "44", trip_id: "2", route_id: "Shuttle-ToTheMoon"}
+    log = capture_log(fn -> new_state([vehicle]) end)
+
+    assert %Vehicle{id: "44"} = by_id("44")
+    assert log == ""
   end
 end
