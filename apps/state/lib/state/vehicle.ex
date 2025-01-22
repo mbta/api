@@ -39,7 +39,7 @@ defmodule State.Vehicle do
   @impl State.Server
   def pre_insert_hook(vehicle) do
     if has_invalid_dir(vehicle) do
-      Logger.error("Found vehicle with invalid direction: #{inspect(vehicle)}")
+      Logger.warning("Found vehicle with invalid direction: #{inspect(vehicle)}")
     end
 
     update_effective_route_id(vehicle)
