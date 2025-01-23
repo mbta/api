@@ -394,7 +394,7 @@ defmodule ApiAccounts.Dynamo do
       {:error, reason} ->
         {:error, reason}
 
-      _  ->
+      _ ->
         {:error, "unknown response"}
     end
   end
