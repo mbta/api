@@ -98,27 +98,17 @@ defmodule StateMediator do
   defp crowding_children(true) do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true")
 
-    credentials = :commuter_rail_crowding |> app_value(:firebase_credentials) |> Jason.decode!()
-
-    scopes = [
-      "https://www.googleapis.com/auth/firebase.database",
-      "https://www.googleapis.com/auth/userinfo.email"
-    ]
-
-    source = {:service_account, credentials, scopes: scopes}
-    base_url = app_value(:commuter_rail_crowding, :firebase_url)
-
     [
-      {Goth, [name: StateMediator.Goth, source: source]},
       {
-        StateMediator.Mediator,
+        StateMediator.S3Mediator,
         [
-          spec_id: :cr_crowding_mediator,
-          state: State.CommuterRailOccupancy,
-          url: {StateMediator.Firebase, :url, [StateMediator.Goth, base_url]},
-          sync_timeout: 30_000,
+          spec_id: :cr_s3_crowding_mediator,
+          bucket_arn: "mbta-gtfs-commuter-rail-staging",
+          object: "crowding-trends.json",
+          spec_id: :s3_mediator,
           interval: 5 * 60 * 1_000,
-          opts: [timeout: 10_000]
+          sync_timeout: 30_000,
+          state: State.CommuterRailOccupancy
         ]
       }
     ]

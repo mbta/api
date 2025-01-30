@@ -28,7 +28,9 @@ if is_prod? and is_release? do
       port: "DYNAMO_PORT" |> System.get_env("443") |> String.to_integer(),
       scheme: System.get_env("DYNAMO_SCHEME", "https://"),
       host: System.fetch_env!("DYNAMO_HOST")
-    ]
+    ],
+    json_codec: Jason
+
 
   config :alb_monitor,
     ecs_metadata_uri: System.fetch_env!("ECS_CONTAINER_METADATA_URI"),

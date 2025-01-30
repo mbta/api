@@ -13,6 +13,9 @@ defmodule Parse.CommuterRailOccupancies do
       {:ok, %{"data" => data}} when is_list(data) ->
         Enum.flat_map(data, &parse_record/1)
 
+      {:ok, data} when is_list(data) ->
+        Enum.flat_map(data, &parse_record/1)
+
       e ->
         Logger.warning("#{__MODULE__} decode_error e=#{inspect(e)}")
         []
@@ -29,6 +32,37 @@ defmodule Parse.CommuterRailOccupancies do
     with {:ok, flag} <- density_flag(flag),
          {:ok, percentage} <- percentage(density),
          {:ok, name} <- trip_name(train) do
+
+      [
+        %Model.CommuterRailOccupancy{
+          percentage: percentage,
+          status: flag,
+          trip_name: name
+        }
+      ]
+    else
+      error ->
+        Logger.warning("#{__MODULE__} parse_error error=#{inspect(error)} #{inspect(record)}")
+        []
+    end
+  end
+
+  defp parse_record(
+         %{
+           "MedianDensity" => density,
+           "MedianDensityFlag" => flag,
+           "Trip Name" => train
+         } = record
+       ) do
+    with {:ok, flag} <- density_flag(flag),
+         {:ok, percentage} <- percentage(density),
+         {:ok, name} <- trip_name(train) do
+      model = %Model.CommuterRailOccupancy{
+        percentage: percentage,
+        status: flag,
+        trip_name: name
+      }
+      Logger.error("OK we parsed #{inspect(model)}")
       [
         %Model.CommuterRailOccupancy{
           percentage: percentage,
