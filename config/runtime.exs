@@ -66,7 +66,8 @@ if is_prod? and is_release? do
     secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
 
   config :state_mediator, :commuter_rail_crowding,
-    firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS")
+    s3_bucket: System.fetch_env!("CR_CROWDING_S3_BUCKET"),
+    s3_object: System.fetch_env!("CR_CROWDING_S3_OBJECT")
 
   config :recaptcha,
     enabled: true,

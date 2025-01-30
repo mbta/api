@@ -9,7 +9,7 @@ defmodule StateMediator do
   def start(_type, _args) do
     children =
       children(Application.get_env(:state_mediator, :start)) ++
-        crowding_children(app_value(:commuter_rail_crowding, :enabled) == "true")
+        crowding_children(app_value(:commuter_rail_crowding, :enabled) == "true", app_value(:commuter_rail_crowding, :source))
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
@@ -94,9 +94,9 @@ defmodule StateMediator do
     }
   end
 
-  @spec crowding_children(boolean()) :: [:supervisor.child_spec() | {module(), term()} | module()]
-  defp crowding_children(true) do
-    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true")
+  @spec crowding_children(boolean(), :s3 | :firebase) :: [:supervisor.child_spec() | {module(), term()} | module()]
+  defp crowding_children(true, :s3) do
+    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=s3")
 
     [
       {
@@ -114,7 +114,35 @@ defmodule StateMediator do
     ]
   end
 
-  defp crowding_children(false) do
+  defp crowding_children(true, :firebase) do
+    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=firebase")
+
+    credentials = :commuter_rail_crowding |> app_value(:firebase_credentials) |> Jason.decode!()
+
+    scopes = [
+      "https://www.googleapis.com/auth/firebase.database",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+
+    source = {:service_account, credentials, scopes: scopes}
+    base_url = app_value(:commuter_rail_crowding, :firebase_url)
+
+    [
+      {Goth, [name: StateMediator.Goth, source: source]},
+      {
+        StateMediator.Mediator,
+        [
+          spec_id: :cr_crowding_mediator,
+          state: State.CommuterRailOccupancy,
+          url: {StateMediator.Firebase, :url, [StateMediator.Goth, base_url]},
+          sync_timeout: 30_000,
+          interval: 5 * 60 * 1_000,
+          opts: [timeout: 10_000] ]
+      }
+    ]
+  end
+
+  defp crowding_children(false, _) do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=false")
     []
   end
