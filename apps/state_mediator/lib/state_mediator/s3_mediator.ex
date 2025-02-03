@@ -92,9 +92,9 @@ defmodule StateMediator.S3Mediator do
   end
 
   defp handle_response(
-        response,
-        state
-      ) do
+         response,
+         state
+       ) do
     Logger.warning(
       "Received unknown response when getting commuter rail occupancies from S3: #{inspect(response)}"
     )
