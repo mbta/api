@@ -7,8 +7,8 @@ defmodule StateMediator do
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-
     crowding_source = app_value(:commuter_rail_crowding, :source)
+
     children =
       children(Application.get_env(:state_mediator, :start)) ++
         crowding_children(
