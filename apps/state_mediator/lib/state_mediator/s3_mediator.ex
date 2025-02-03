@@ -88,7 +88,6 @@ defmodule StateMediator.S3Mediator do
         {:ok, %{body: body}},
         %{sync_timeout: sync_timeout, module: state_module} = state
       ) do
-    {:ok, json} = Jason.decode(body)
     debug_time("#{state_module} new state", fn -> state_module.new_state(body, sync_timeout) end)
 
     schedule_update(state)
