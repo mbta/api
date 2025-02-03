@@ -53,20 +53,19 @@ defmodule StateMediator.S3Mediator do
     sync_timeout = options |> Keyword.get(:sync_timeout, 5000)
     interval = options |> Keyword.get(:interval, 5000)
 
-    send(self(), :initial)
+    state = %__MODULE__{
+      interval: interval,
+      module: state_module,
+      bucket_arn: bucket_arn,
+      object: object,
+      sync_timeout: sync_timeout
+    }
 
-    {:ok,
-     %__MODULE__{
-       interval: interval,
-       module: state_module,
-       bucket_arn: bucket_arn,
-       object: object,
-       sync_timeout: sync_timeout
-     }}
+    {:ok, state, {:continue, nil}}
   end
 
-  @spec handle_info(:initial | :timeout, t) :: {:noreply, t} | {:noreply, t, :hibernate}
-  def handle_info(:initial, %{module: state_module} = state) do
+  @spec handle_continue(any, t) :: {:noreply, t} | {:noreply, t, :hibernate}
+  def handle_continue(_, %{module: state_module} = state) do
     _ = Logger.debug(fn -> "#{__MODULE__} #{state_module} initial sync starting" end)
     fetch(state)
   end
@@ -83,16 +82,16 @@ defmodule StateMediator.S3Mediator do
     |> handle_response(state)
   end
 
-  def handle_response(
-        {:ok, %{body: body}},
-        %{sync_timeout: sync_timeout, module: state_module} = state
-      ) do
+  defp handle_response(
+         {:ok, %{body: body}},
+         %{sync_timeout: sync_timeout, module: state_module} = state
+       ) do
     debug_time("#{state_module} new state", fn -> state_module.new_state(body, sync_timeout) end)
 
     schedule_update(state)
   end
 
-  def handle_response(
+  defp handle_response(
         response,
         state
       ) do

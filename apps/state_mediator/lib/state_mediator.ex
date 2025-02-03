@@ -13,7 +13,7 @@ defmodule StateMediator do
       children(Application.get_env(:state_mediator, :start)) ++
         crowding_children(
           app_value(:commuter_rail_crowding, :enabled) == "true",
-          :erlang.binary_to_atom(crowding_source)
+          crowding_source
         )
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -99,10 +99,10 @@ defmodule StateMediator do
     }
   end
 
-  @spec crowding_children(boolean(), :s3 | :firebase) :: [
+  @spec crowding_children(boolean(), String.t()) :: [
           :supervisor.child_spec() | {module(), term()} | module()
         ]
-  defp crowding_children(true, :s3) do
+  defp crowding_children(true, "s3") do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=s3")
 
     [
@@ -121,7 +121,7 @@ defmodule StateMediator do
     ]
   end
 
-  defp crowding_children(true, :firebase) do
+  defp crowding_children(true, "firebase") do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=firebase")
 
     credentials = :commuter_rail_crowding |> app_value(:firebase_credentials) |> Jason.decode!()
