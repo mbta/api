@@ -85,9 +85,9 @@ defmodule StateMediator.S3Mediator do
   end
 
   def handle_response(
-         {:ok, %{body: body}},
-         %{sync_timeout: sync_timeout, module: state_module} = state
-       ) do
+        {:ok, %{body: body}},
+        %{sync_timeout: sync_timeout, module: state_module} = state
+      ) do
     {:ok, json} = Jason.decode(body)
     IO.inspect(json)
     debug_time("#{state_module} new state", fn -> state_module.new_state(body, sync_timeout) end)
@@ -96,9 +96,9 @@ defmodule StateMediator.S3Mediator do
   end
 
   def handle_response(
-         response,
-         state
-       ) do
+        response,
+        state
+      ) do
     Logger.warning(
       "Received unknown response when getting commuter rail occupancies from S3: #{inspect(response)}"
     )

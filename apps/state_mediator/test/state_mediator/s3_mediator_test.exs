@@ -14,7 +14,12 @@ defmodule StateMediator.S3MediatorTest do
   end
 
   @moduletag capture_log: true
-  @opts [bucket_arn: "mbta-gtfs-boom-shakalaka", object: "objection", state: __MODULE__.StateModule, interval: 1_000]
+  @opts [
+    bucket_arn: "mbta-gtfs-boom-shakalaka",
+    object: "objection",
+    state: __MODULE__.StateModule,
+    interval: 1_000
+  ]
 
   describe "init/1" do
     test "sends self() the :initial message" do

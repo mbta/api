@@ -32,7 +32,6 @@ defmodule Parse.CommuterRailOccupancies do
     with {:ok, flag} <- density_flag(flag),
          {:ok, percentage} <- percentage(density),
          {:ok, name} <- trip_name(train) do
-
       [
         %Model.CommuterRailOccupancy{
           percentage: percentage,
@@ -62,7 +61,9 @@ defmodule Parse.CommuterRailOccupancies do
         status: flag,
         trip_name: name
       }
+
       Logger.error("OK we parsed #{inspect(model)}")
+
       [
         %Model.CommuterRailOccupancy{
           percentage: percentage,

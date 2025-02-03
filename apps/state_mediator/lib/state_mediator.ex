@@ -9,7 +9,10 @@ defmodule StateMediator do
   def start(_type, _args) do
     children =
       children(Application.get_env(:state_mediator, :start)) ++
-        crowding_children(app_value(:commuter_rail_crowding, :enabled) == "true", app_value(:commuter_rail_crowding, :source))
+        crowding_children(
+          app_value(:commuter_rail_crowding, :enabled) == "true",
+          app_value(:commuter_rail_crowding, :source)
+        )
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
@@ -94,7 +97,9 @@ defmodule StateMediator do
     }
   end
 
-  @spec crowding_children(boolean(), :s3 | :firebase) :: [:supervisor.child_spec() | {module(), term()} | module()]
+  @spec crowding_children(boolean(), :s3 | :firebase) :: [
+          :supervisor.child_spec() | {module(), term()} | module()
+        ]
   defp crowding_children(true, :s3) do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=s3")
 
@@ -137,7 +142,8 @@ defmodule StateMediator do
           url: {StateMediator.Firebase, :url, [StateMediator.Goth, base_url]},
           sync_timeout: 30_000,
           interval: 5 * 60 * 1_000,
-          opts: [timeout: 10_000] ]
+          opts: [timeout: 10_000]
+        ]
       }
     ]
   end
