@@ -68,7 +68,7 @@ if is_prod? and is_release? do
   config :state_mediator, :commuter_rail_crowding,
     s3_bucket: System.fetch_env!("CR_CROWDING_S3_BUCKET"),
     s3_object: System.fetch_env!("CR_CROWDING_S3_OBJECT"),
-    source: :s3
+    source: System.fetch_env!("CR_CROWDING_SOURCE")
 
   config :recaptcha,
     enabled: true,

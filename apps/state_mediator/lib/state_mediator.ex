@@ -11,7 +11,7 @@ defmodule StateMediator do
       children(Application.get_env(:state_mediator, :start)) ++
         crowding_children(
           app_value(:commuter_rail_crowding, :enabled) == "true",
-          app_value(:commuter_rail_crowding, :source)
+          app_value(:commuter_rail_crowding, :source) |> :erlang.binary_to_atom()
         )
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
