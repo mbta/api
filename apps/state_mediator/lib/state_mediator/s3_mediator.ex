@@ -77,11 +77,10 @@ defmodule StateMediator.S3Mediator do
   end
 
   defp fetch(%{bucket_arn: bucket_arn, object: object} = state) do
-    aws_response =
-      S3.get_object(bucket_arn, object)
+      bucket_arn
+      |> S3.get_object(object)
       |> ExAws.request()
-
-    handle_response(aws_response, state)
+      |> handle_response(state)
   end
 
   def handle_response(
