@@ -44,7 +44,7 @@ defmodule StateMediator.S3Mediator do
     GenServer.stop(pid)
   end
 
-  @spec init(Keyword.t()) :: {:ok, __MODULE__.t()} | no_return
+  @spec init(Keyword.t()) :: {:ok, __MODULE__.t(), {:continue, any()}}
   def init(options) do
     state_module = Keyword.fetch!(options, :state)
 
