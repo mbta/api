@@ -45,25 +45,18 @@ defmodule Parse.CommuterRailOccupancies do
         []
     end
   end
-
+  
+  # new format that keolis started providing when they switched this data over to S3
   defp parse_record(
          %{
-           "MedianDensity" => density,
-           "MedianDensityFlag" => flag,
+           "Median Density" => density,
+           "Median Density Flag" => flag,
            "Trip Name" => train
          } = record
        ) do
     with {:ok, flag} <- density_flag(flag),
          {:ok, percentage} <- percentage(density),
          {:ok, name} <- trip_name(train) do
-      model = %Model.CommuterRailOccupancy{
-        percentage: percentage,
-        status: flag,
-        trip_name: name
-      }
-
-      Logger.error("OK we parsed #{inspect(model)}")
-
       [
         %Model.CommuterRailOccupancy{
           percentage: percentage,
