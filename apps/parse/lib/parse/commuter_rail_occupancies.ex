@@ -45,7 +45,7 @@ defmodule Parse.CommuterRailOccupancies do
         []
     end
   end
-  
+
   # new format that keolis started providing when they switched this data over to S3
   defp parse_record(
          %{
