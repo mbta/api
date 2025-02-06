@@ -28,7 +28,9 @@ if is_prod? and is_release? do
       port: "DYNAMO_PORT" |> System.get_env("443") |> String.to_integer(),
       scheme: System.get_env("DYNAMO_SCHEME", "https://"),
       host: System.fetch_env!("DYNAMO_HOST")
-    ]
+    ],
+    json_codec: Jason
+
 
   config :alb_monitor,
     ecs_metadata_uri: System.fetch_env!("ECS_CONTAINER_METADATA_URI"),
@@ -64,7 +66,10 @@ if is_prod? and is_release? do
     secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
 
   config :state_mediator, :commuter_rail_crowding,
-    firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS")
+    firebase_credentials: System.fetch_env!("CR_CROWDING_FIREBASE_CREDENTIALS"),
+    s3_bucket: System.fetch_env!("CR_CROWDING_S3_BUCKET"),
+    s3_object: System.fetch_env!("CR_CROWDING_S3_OBJECT"),
+    source: System.fetch_env!("CR_CROWDING_SOURCE")
 
   config :recaptcha,
     enabled: true,
