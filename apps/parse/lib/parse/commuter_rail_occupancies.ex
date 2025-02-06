@@ -22,58 +22,43 @@ defmodule Parse.CommuterRailOccupancies do
     end
   end
 
-  defp parse_record(
-         %{
-           "MedianDensity" => density,
-           "MedianDensityFlag" => flag,
-           "cTrainNo" => train
-         } = record
-       ) do
-    with {:ok, flag} <- density_flag(flag),
-         {:ok, percentage} <- percentage(density),
-         {:ok, name} <- trip_name(train) do
-      [
-        %Model.CommuterRailOccupancy{
-          percentage: percentage,
-          status: flag,
-          trip_name: name
-        }
-      ]
-    else
-      error ->
-        Logger.warning("#{__MODULE__} parse_error error=#{inspect(error)} #{inspect(record)}")
-        []
-    end
-  end
+  defp parse_density_fields(%{
+         "MedianDensity" => density,
+         "MedianDensityFlag" => flag,
+         "cTrainNo" => train
+       }),
+       do: {:ok, {density, flag, train}}
 
-  # new format that keolis started providing when they switched this data over to S3
-  defp parse_record(
-         %{
-           "Median Density" => density,
-           "Median Density Flag" => flag,
-           "Trip Name" => train
-         } = record
-       ) do
-    with {:ok, flag} <- density_flag(flag),
-         {:ok, percentage} <- percentage(density),
-         {:ok, name} <- trip_name(train) do
-      [
-        %Model.CommuterRailOccupancy{
-          percentage: percentage,
-          status: flag,
-          trip_name: name
-        }
-      ]
-    else
-      error ->
-        Logger.warning("#{__MODULE__} parse_error error=#{inspect(error)} #{inspect(record)}")
-        []
-    end
+  # new format keolis started providing when they switched this data over to S3
+  defp parse_density_fields(%{
+         "Median Density" => density,
+         "Median Density Flag" => flag,
+         "Trip Name" => train
+       }),
+       do: {:ok, {density, flag, train}}
+
+  defp parse_density_fields(record) do
+    Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
+    {:error, :missing_fields}
   end
 
   defp parse_record(record) do
-    Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
-    []
+    with {:ok, {density, flag, train}} <- parse_density_fields(record),
+         {:ok, flag} <- density_flag(flag),
+         {:ok, percentage} <- percentage(density),
+         {:ok, name} <- trip_name(train) do
+      [
+        %Model.CommuterRailOccupancy{
+          percentage: percentage,
+          status: flag,
+          trip_name: name
+        }
+      ]
+    else
+      error ->
+        Logger.warning("#{__MODULE__} parse_error error=#{inspect(error)} #{inspect(record)}")
+        []
+    end
   end
 
   defp density_flag(0), do: {:ok, :many_seats_available}
