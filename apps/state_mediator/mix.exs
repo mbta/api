@@ -51,7 +51,8 @@ defmodule StateMediator.Mixfile do
       {:goth, "~> 1.3"},
       {:hackney, "~> 1.18"},
       {:timex, "~> 3.7"},
-      {:emqtt_failover, "~> 0.3"}
+      {:emqtt_failover, "~> 0.3"},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 end

@@ -7,9 +7,14 @@ defmodule StateMediator do
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
+    crowding_source = app_value(:commuter_rail_crowding, :source)
+
     children =
       children(Application.get_env(:state_mediator, :start)) ++
-        crowding_children(app_value(:commuter_rail_crowding, :enabled) == "true")
+        crowding_children(
+          app_value(:commuter_rail_crowding, :enabled) == "true",
+          crowding_source
+        )
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
@@ -94,9 +99,30 @@ defmodule StateMediator do
     }
   end
 
-  @spec crowding_children(boolean()) :: [:supervisor.child_spec() | {module(), term()} | module()]
-  defp crowding_children(true) do
-    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true")
+  @spec crowding_children(boolean(), String.t()) :: [
+          :supervisor.child_spec() | {module(), term()} | module()
+        ]
+  defp crowding_children(true, "s3") do
+    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=s3")
+
+    [
+      {
+        StateMediator.S3Mediator,
+        [
+          spec_id: :cr_s3_crowding_mediator,
+          bucket_arn: "mbta-gtfs-commuter-rail-staging",
+          object: "crowding-trends.json",
+          spec_id: :s3_mediator,
+          interval: 5 * 60 * 1_000,
+          sync_timeout: 30_000,
+          state: State.CommuterRailOccupancy
+        ]
+      }
+    ]
+  end
+
+  defp crowding_children(true, "firebase") do
+    Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=true, source=firebase")
 
     credentials = :commuter_rail_crowding |> app_value(:firebase_credentials) |> Jason.decode!()
 
@@ -124,7 +150,7 @@ defmodule StateMediator do
     ]
   end
 
-  defp crowding_children(false) do
+  defp crowding_children(false, _) do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=false")
     []
   end
