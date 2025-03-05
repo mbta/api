@@ -110,8 +110,8 @@ defmodule StateMediator do
         StateMediator.S3Mediator,
         [
           spec_id: :cr_s3_crowding_mediator,
-          bucket_arn: "mbta-gtfs-commuter-rail-staging",
-          object: "crowding-trends.json",
+          bucket_arn: app_value(:commuter_rail_crowding, :s3_bucket),
+          object: app_value(:commuter_rail_crowding, :s3_object),
           spec_id: :s3_mediator,
           interval: 5 * 60 * 1_000,
           sync_timeout: 30_000,
