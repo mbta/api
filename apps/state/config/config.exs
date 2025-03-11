@@ -297,7 +297,8 @@ config :state, :stops_on_route,
         "place-DB-2249",
         "place-DB-2258",
         "place-DB-2265",
-        "place-NEC-2203"
+        "place-NEC-2203",
+        "place-sstat"
       ]
     ],
     {"CR-Fairmount", 0} => [
