@@ -210,6 +210,7 @@ defmodule State.Stop do
       end
 
     opts = Keyword.merge(direction_opts, service_opts)
+    opts = Keyword.put(:canonical, false)
 
     search_operation = fn ->
       route_ids
