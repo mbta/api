@@ -70,8 +70,7 @@ defmodule State.StopsOnRoute do
 
   @spec by_route_ids([Model.Route.id()], Keyword.t()) :: stop_id_list
   def by_route_ids(route_ids, opts \\ []) do
-    canonical? = Keyword.get(opts, :canonical?, true)
-    canonical_match = if canonical?, do: true, else: :_
+    canonical_match = :_
     direction_id = Keyword.get(opts, :direction_id, :_)
 
     matchers =
