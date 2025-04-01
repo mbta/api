@@ -82,12 +82,7 @@ defmodule State.StopsOnRoute do
 
     results = :ets.select(@table, matchers)
 
-    if results == [] and canonical? do
-      # we didn't get any results, try including stops from all trips
-      by_route_ids(route_ids, put_in(opts[:canonical?], false))
-    else
-      merge_ids(results)
-    end
+    merge_ids(results)
   end
 
   def update! do
