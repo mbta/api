@@ -85,6 +85,10 @@ defmodule StateMediator.Mediator do
     fetch(state)
   end
 
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
+
   defp fetch(%{url: url, fetch_opts: fetch_opts} = state, opts \\ []) do
     url = expand_url(url)
 
