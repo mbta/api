@@ -192,4 +192,10 @@ defmodule State.RouteTest do
                })
     end
   end
+
+  describe "handle_info/2" do
+    test "handles unknown message" do
+      assert {:noreply, :foo} = State.Route.handle_info(:unknown, :foo)
+    end
+  end
 end

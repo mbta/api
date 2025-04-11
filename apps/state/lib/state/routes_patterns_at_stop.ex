@@ -119,6 +119,10 @@ defmodule State.RoutesPatternsAtStop do
     {:noreply, state, :hibernate}
   end
 
+  def handle_info(message, state) do
+    super(message, state)
+  end
+
   defp update_state(state) do
     debug_time(
       fn ->

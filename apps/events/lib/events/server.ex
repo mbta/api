@@ -21,6 +21,12 @@ defmodule Events.Server do
       def handle_info({:event, name, data, argument}, state) do
         handle_event(name, data, argument, state)
       end
+
+      def handle_info(_, state) do
+        {:noreply, state}
+      end
+
+      defoverridable handle_info: 2
     end
   end
 end
