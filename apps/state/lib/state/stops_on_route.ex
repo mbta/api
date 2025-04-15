@@ -188,14 +188,26 @@ defmodule State.StopsOnRoute do
 
   defp gather_explicit_overrides(%{id: "Boat-F6"}, 1),
     do: [
-      {"Boat-F6", 1, :all, "Boat-F6-Wdy-Smr-23", true,
-       ["Boat-Winthrop", "Boat-Quincy", "Boat-Logan", "Boat-Fan", "Boat-Aquarium"]}
+      {"Boat-F6", 1, :all, "Boat-F6-Weekday-Summer-25", true,
+       ["Boat-Winthrop", "Boat-Logan", "Boat-Aquarium"]}
     ]
 
   defp gather_explicit_overrides(%{id: "Boat-F6"}, 0),
     do: [
-      {"Boat-F6", 0, :all, "Boat-F6-Wdy-Smr-23", true,
-       ["Boat-Aquarium", "Boat-Fan", "Boat-Logan", "Boat-Quincy", "Boat-Winthrop"]}
+      {"Boat-F6", 0, :all, "Boat-F6-Weekday-Summer-25", true,
+       ["Boat-Aquarium", "Boat-Fan", "Boat-Logan", "Boat-Winthrop"]}
+    ]
+
+  defp gather_explicit_overrides(%{id: "Boat-F7"}, 1),
+    do: [
+      {"Boat-F7", 1, :all, "Boat-F7-Weekday-Summer-25", true,
+       ["Boat-Quincy", "Boat-Logan", "Boat-Fan", "Boat-Aquarium"]}
+    ]
+
+  defp gather_explicit_overrides(%{id: "Boat-F7"}, 0),
+    do: [
+      {"Boat-F7", 0, :all, "Boat-F7-Weekday-Summer-25", true,
+       ["Boat-Aquarium", "Boat-Logan", "Boat-Quincy"]}
     ]
 
   defp gather_explicit_overrides(_, _), do: []
