@@ -138,6 +138,7 @@ defmodule Model.Alert do
     TRACK_WORK
     TRAFFIC
     TRAIN_TRAFFIC
+    UNKNOWN_CAUSE
     UNRULY_PASSENGER
     WEATHER
   )
