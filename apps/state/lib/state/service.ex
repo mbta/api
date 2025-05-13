@@ -34,11 +34,11 @@ defmodule State.Service do
   end
 
   @doc """
-  Returns all Services that are valid today or any date in the future.
+  Returns all Services that are valid at the feed start or any day in the future.
   """
-  def valid_in_future do
-    now = Parse.Time.service_date()
-    Enum.filter(all(), &Service.valid_after?(&1, now))
+  def valid_in_feed do
+    {_, feed_start, _} = State.Feed.feed_metadata()
+    Enum.filter(all(), &Service.valid_after?(&1, feed_start))
   end
 
   @doc """
