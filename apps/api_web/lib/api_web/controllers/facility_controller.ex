@@ -166,7 +166,7 @@ defmodule ApiWeb.FacilityController do
               [GTFS `facilities.txt` `facility_lat`]
               """,
               example: -71.194994,
-              nullable: true
+              "x-nullable": true
 
             )
 
@@ -179,7 +179,7 @@ defmodule ApiWeb.FacilityController do
               [GTFS `facilities.txt` `facility_lon`]
               """,
               example: 42.316115,
-              nullable: true
+              "x-nullable": true
             )
 
             properties(
