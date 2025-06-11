@@ -1,8 +1,8 @@
-defmodule Parse.CommuterRailDepartures.JSON do
+defmodule Parse.GtfsRt.TripUpdatesEnhancedJSON do
   @moduledoc """
   Parses an enhanced Trip Updates JSON file into a list of `%Model.Prediction{}` structs.
 
-  This used to be only for Commuter Rail, but it's now generated for all modes.
+  This used to be only for parsing Commuter Rail TripUpdates, but now it is used for all modes
   """
   @behaviour Parse
 
