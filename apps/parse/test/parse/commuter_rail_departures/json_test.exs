@@ -1,7 +1,7 @@
 defmodule Parse.CommuterRailDepartures.JSONTest do
   @moduledoc false
   use ExUnit.Case, async: true
-  import Parse.CommuterRailDepartures.JSON
+  import Parse.GtfsRt.TripUpdatesEnhancedJson
 
   @trip %{
     "trip_id" => "CR-Weekday-Spring-17-205",
