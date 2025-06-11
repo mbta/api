@@ -1,4 +1,4 @@
-defmodule Parse.GtfsRt.TripUpdatesEnhancedJSON do
+defmodule Parse.GtfsRt.TripUpdatesEnhancedJson do
   @moduledoc """
   Parses an enhanced Trip Updates JSON file into a list of `%Model.Prediction{}` structs.
 
