@@ -2,7 +2,7 @@ name: Elixir CI
 
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: "0 5 * * *"
   push:
     branches: master
   pull_request:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v3
       # cache the ASDF directory, using the values from .tool-versions
       - name: ASDF cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
@@ -42,12 +42,12 @@ jobs:
       - uses: actions/checkout@v3
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
       - name: ASDF cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
@@ -66,19 +66,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: ASDF cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
       - uses: mbta/actions/reshim-asdf@v1
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
       - name: Restore dev build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: _build/dev
           key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
@@ -105,18 +105,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: ASDF cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
       - uses: mbta/actions/reshim-asdf@v1
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
-      - uses: mbta/actions/dialyzer@v1
+      - uses: mbta/actions/dialyzer@v2
 
   test:
     name: Test Tasks
@@ -141,19 +141,19 @@ jobs:
       - name: Restart MQTT to load mosquitto/mosquitto.conf from checkout
         run: docker restart mqtt
       - name: ASDF cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
       - uses: mbta/actions/reshim-asdf@v1
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
       - name: Restore test build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
