@@ -143,10 +143,6 @@ defmodule ApiWeb.VehicleController do
     |> Vehicle.filter_by()
   end
 
-  defp apply_filters(_filters) do
-    Vehicle.all()
-  end
-
   defp do_format_filter({key, string}) when key in ["label", "route"] do
     case Params.split_on_comma(string) do
       [] ->
