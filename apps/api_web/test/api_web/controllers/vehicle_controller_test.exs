@@ -28,52 +28,86 @@ defmodule ApiWeb.VehicleControllerTest do
   @trips @trips_base ++ [@trip_alt]
   {:ok, updated_at, 0} = DateTime.from_iso8601("1952-05-27T03:05:07Z")
 
-  @vehicles for i <- 1..9,
-                do: %Vehicle{
-                  id: "vehicle_#{i}",
-                  trip_id: "#{i}",
-                  route_id: @route.id,
-                  effective_route_id: @route.id,
-                  direction_id: 1,
-                  bearing: 5,
-                  current_status: :in_transit_to,
-                  current_stop_sequence: 3,
-                  label: "#{i}",
-                  updated_at: updated_at,
-                  latitude: 42.01,
-                  longitude: -71.15,
-                  speed: 75,
-                  stop_id: "current_stop",
-                  occupancy_status: :empty,
-                  carriages: [
-                    %Vehicle.Carriage{
-                      label: "carriage_1",
-                      occupancy_status: :empty,
-                      occupancy_percentage: 0,
-                      carriage_sequence: 1
-                    },
-                    %Vehicle.Carriage{
-                      label: "carriage_2",
-                      occupancy_status: :empty,
-                      occupancy_percentage: 0,
-                      carriage_sequence: 2
-                    }
-                  ]
-                }
+  @revenue_vehicles for i <- 1..9,
+                        do: %Vehicle{
+                          id: "vehicle_#{i}",
+                          trip_id: "#{i}",
+                          route_id: @route.id,
+                          effective_route_id: @route.id,
+                          direction_id: 1,
+                          bearing: 5,
+                          current_status: :in_transit_to,
+                          current_stop_sequence: 3,
+                          label: "#{i}",
+                          updated_at: updated_at,
+                          latitude: 42.01,
+                          longitude: -71.15,
+                          speed: 75,
+                          stop_id: "current_stop",
+                          occupancy_status: :empty,
+                          carriages: [
+                            %Vehicle.Carriage{
+                              label: "carriage_1",
+                              occupancy_status: :empty,
+                              occupancy_percentage: 0,
+                              carriage_sequence: 1
+                            },
+                            %Vehicle.Carriage{
+                              label: "carriage_2",
+                              occupancy_status: :empty,
+                              occupancy_percentage: 0,
+                              carriage_sequence: 2
+                            }
+                          ]
+                        }
+
+  @non_revenue_vehicles for i <- 1..5,
+                            do: %Vehicle{
+                              id: "vehicle_#{i}_non_rev",
+                              trip_id: "#{i}_non_rev",
+                              route_id: @route.id,
+                              effective_route_id: @route.id,
+                              direction_id: 1,
+                              bearing: 5,
+                              current_status: :in_transit_to,
+                              current_stop_sequence: 3,
+                              label: "#{i}_non_rev",
+                              updated_at: updated_at,
+                              latitude: 42.01,
+                              longitude: -71.15,
+                              speed: 75,
+                              stop_id: "current_stop",
+                              occupancy_status: :empty,
+                              revenue: :NON_REVENUE,
+                              carriages: [
+                                %Vehicle.Carriage{
+                                  label: "carriage_1",
+                                  occupancy_status: :empty,
+                                  occupancy_percentage: 0,
+                                  carriage_sequence: 1
+                                },
+                                %Vehicle.Carriage{
+                                  label: "carriage_2",
+                                  occupancy_status: :empty,
+                                  occupancy_percentage: 0,
+                                  carriage_sequence: 2
+                                }
+                              ]
+                            }
   @stop %Model.Stop{id: "current_stop"}
-  @vehicle hd(@vehicles)
+  @vehicle hd(@revenue_vehicles)
 
   setup %{conn: conn} do
     State.Route.new_state([@route, @route_alt])
     State.Trip.new_state(@trips)
-    State.Vehicle.new_state(@vehicles)
+    State.Vehicle.new_state(@revenue_vehicles ++ @non_revenue_vehicles)
     State.Stop.new_state([@stop])
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   describe "index_data/2" do
-    test "lists all entries on index", %{conn: conn} do
-      assert index_data(conn, %{}) == State.Vehicle.all()
+    test "lists all revenue vehicles on index", %{conn: conn} do
+      assert Enum.sort_by(index_data(conn, %{}), & &1.id) == @revenue_vehicles
     end
 
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
@@ -85,12 +119,12 @@ defmodule ApiWeb.VehicleControllerTest do
     test "can filter by ID", %{conn: conn} do
       assert index_data(conn, %{"id" => "vehicle_1,vehicle_9"}) == [
                @vehicle,
-               List.last(@vehicles)
+               List.last(@revenue_vehicles)
              ]
     end
 
     test "can filter by trip", %{conn: conn} do
-      for vehicle <- @vehicles do
+      for vehicle <- @revenue_vehicles do
         assert index_data(conn, %{"trip" => vehicle.trip_id}) == [vehicle]
         assert index_data(conn, %{"trip" => "#{vehicle.trip_id},not_a_trip"}) == [vehicle]
       end
@@ -119,7 +153,7 @@ defmodule ApiWeb.VehicleControllerTest do
     end
 
     test "can filter by label", %{conn: conn} do
-      for vehicle <- @vehicles do
+      for vehicle <- @revenue_vehicles do
         assert index_data(conn, %{"label" => vehicle.label}) == [vehicle]
         assert index_data(conn, %{"label" => "#{vehicle.label},not_a_label"}) == [vehicle]
       end
@@ -128,7 +162,7 @@ defmodule ApiWeb.VehicleControllerTest do
     end
 
     test "can filter by label and route", %{conn: conn} do
-      for vehicle <- @vehicles do
+      for vehicle <- @revenue_vehicles do
         assert index_data(conn, %{"label" => vehicle.label, "route" => vehicle.route_id}) == [
                  vehicle
                ]
@@ -141,7 +175,7 @@ defmodule ApiWeb.VehicleControllerTest do
     end
 
     test "can filter by label, route and direction_id", %{conn: conn} do
-      for vehicle <- @vehicles do
+      for vehicle <- @revenue_vehicles do
         assert index_data(conn, %{
                  "label" => vehicle.label,
                  "route" => vehicle.route_id,
@@ -193,14 +227,11 @@ defmodule ApiWeb.VehicleControllerTest do
     end
 
     test "can be paginated and sorted", %{conn: conn} do
-      vehicle2 = Enum.at(@vehicles, 1)
-      vehicle3 = Enum.at(@vehicles, 2)
-      vehicle7 = Enum.at(@vehicles, 6)
-      vehicle8 = Enum.at(@vehicles, 7)
+      vehicle2 = Enum.at(@revenue_vehicles, 1)
+      vehicle3 = Enum.at(@revenue_vehicles, 2)
+      vehicle7 = Enum.at(@revenue_vehicles, 6)
+      vehicle8 = Enum.at(@revenue_vehicles, 7)
       params = %{"page" => %{"offset" => 1, "limit" => 2}}
-
-      {[^vehicle2, ^vehicle3], _} = State.Vehicle.all(offset: 1, limit: 2, order_by: {:id, :asc})
-      {[^vehicle8, ^vehicle7], _} = State.Vehicle.all(offset: 1, limit: 2, order_by: {:id, :desc})
 
       {data, _} = index_data(conn, Map.merge(params, %{"sort" => "id"}))
       assert data == [vehicle2, vehicle3]
@@ -210,8 +241,8 @@ defmodule ApiWeb.VehicleControllerTest do
     end
 
     test "can filter along with pagination", %{conn: conn} do
-      vehicle4 = Enum.at(@vehicles, 3)
-      vehicle5 = Enum.at(@vehicles, 4)
+      vehicle4 = Enum.at(@revenue_vehicles, 3)
+      vehicle5 = Enum.at(@revenue_vehicles, 4)
       params = %{"page" => %{"limit" => 1}, "trip" => "5,4"}
 
       {data, _} = index_data(conn, Map.merge(params, %{"sort" => "id"}))
@@ -229,7 +260,7 @@ defmodule ApiWeb.VehicleControllerTest do
       conn: conn
     } do
       legacy_conn = assign(conn, :api_version, "2017-11-28")
-      newer_vehicle = %{Enum.at(@vehicles, 1) | id: "new", updated_at: DateTime.utc_now()}
+      newer_vehicle = %{Enum.at(@revenue_vehicles, 1) | id: "new", updated_at: DateTime.utc_now()}
       State.Vehicle.new_state([@vehicle, newer_vehicle])
 
       assert index_data(legacy_conn, %{"sort" => "last_updated"}) == [@vehicle, newer_vehicle]
@@ -308,6 +339,12 @@ defmodule ApiWeb.VehicleControllerTest do
              |> index_data(%{"route" => "1,2", "revenue" => "NON_REVENUE"})
              |> Enum.map(& &1.id)
              |> Enum.sort() == ["vehicle2"]
+
+      # revenue only by default
+      assert conn
+             |> index_data(%{})
+             |> Enum.map(& &1.id)
+             |> Enum.sort() == ["vehicle1", "vehicle3"]
     end
   end
 
