@@ -136,15 +136,11 @@ defmodule ApiWeb.VehicleController do
   end
 
   # If no id or trip present, evaluate all remaining filters together
-  defp apply_filters(%{} = filters) when map_size(filters) > 0 do
+  defp apply_filters(%{} = filters) do
     filters
     |> Stream.flat_map(&do_format_filter(&1))
     |> Enum.into(%{})
     |> Vehicle.filter_by()
-  end
-
-  defp apply_filters(_filters) do
-    Vehicle.all()
   end
 
   defp do_format_filter({key, string}) when key in ["label", "route"] do
