@@ -34,7 +34,8 @@ defmodule ApiWeb.RouteView do
     :color,
     :text_color,
     :direction_names,
-    :direction_destinations
+    :direction_destinations,
+    :listed_route
   ])
 
   def attributes(route, _conn) do
@@ -51,7 +52,8 @@ defmodule ApiWeb.RouteView do
           color
           text_color
           direction_names
-          direction_destinations)a)
+          direction_destinations
+          listed_route)a)
   end
 
   def agency(%{agency_id: agency_id}, conn) do
