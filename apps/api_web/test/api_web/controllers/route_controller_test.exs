@@ -14,7 +14,8 @@ defmodule ApiWeb.RouteControllerTest do
     text_color: "000000",
     line_id: "line-First",
     direction_names: ["Outbound", "Inbound"],
-    direction_destinations: ["One", "Another"]
+    direction_destinations: ["One", "Another"],
+    listed_route: true
   }
   @route2 %Model.Route{
     id: "2",
@@ -29,7 +30,8 @@ defmodule ApiWeb.RouteControllerTest do
     text_color: "000000",
     line_id: "line-First",
     direction_names: ["Outbound", "Inbound"],
-    direction_destinations: ["One", "Another"]
+    direction_destinations: ["One", "Another"],
+    listed_route: true
   }
   @route3 %Model.Route{
     id: "3",
@@ -43,7 +45,8 @@ defmodule ApiWeb.RouteControllerTest do
     color: "FFFFFF",
     text_color: "000000",
     direction_names: ["Outbound", "Inbound"],
-    direction_destinations: ["One", "Another"]
+    direction_destinations: ["One", "Another"],
+    listed_route: true
   }
   @line1 %Model.Line{
     id: "line-First",
@@ -414,6 +417,48 @@ defmodule ApiWeb.RouteControllerTest do
       data = ApiWeb.RouteController.index_data(conn, %{"id" => "#{@route.id},#{hidden.id}"})
       assert Enum.sort_by(data, & &1.id) == [@route, hidden]
     end
+
+    test "can filter by listed_route", %{conn: conn} do
+      listed = %{@route | id: "listed-route", listed_route: true}
+      unlisted = %{@route2 | id: "unlisted-route", listed_route: false}
+      unlisted2 = %{@route3 | id: "unlisted-route2", listed_route: false}
+
+      State.Route.new_state([
+        listed,
+        unlisted,
+        unlisted2
+      ])
+
+      assert ApiWeb.RouteController.index_data(conn, %{"filter" => %{"listed_route" => "true"}}) ==
+               [listed]
+
+      data = ApiWeb.RouteController.index_data(conn, %{"filter" => %{"listed_route" => "false"}})
+      assert length(data) == 3
+      assert Enum.sort_by(data, & &1.id) == [listed, unlisted, unlisted2]
+
+      assert ApiWeb.RouteController.index_data(conn, %{}) == [listed]
+    end
+
+    test "listed_route filter can be combined with other filters", %{conn: conn} do
+      listed_type1 = %{@route | id: "listed-1", type: 1, listed_route: true}
+      listed_type2 = %{@route2 | id: "listed-2", type: 2, listed_route: true}
+      unlisted_type1 = %{@route3 | id: "unlisted-1", type: 1, listed_route: false}
+      unlisted_type2 = %{@route | id: "unlisted-2", type: 2, listed_route: false}
+
+      State.Route.new_state([
+        listed_type1,
+        listed_type2,
+        unlisted_type1,
+        unlisted_type2
+      ])
+
+      params = %{"filter" => %{"listed_route" => "true", "type" => "1"}}
+      assert ApiWeb.RouteController.index_data(conn, params) == [listed_type1]
+
+      params = %{"filter" => %{"listed_route" => "false", "type" => "2"}}
+      data = ApiWeb.RouteController.index_data(conn, params)
+      assert Enum.sort_by(data, & &1.id) == [listed_type2, unlisted_type2]
+    end
   end
 
   describe "show" do
@@ -433,7 +478,8 @@ defmodule ApiWeb.RouteControllerTest do
                  "direction_destinations" => ["One", "Another"],
                  "sort_order" => 1,
                  "color" => "FFFFFF",
-                 "text_color" => "000000"
+                 "text_color" => "000000",
+                 "listed_route" => true
                },
                "links" => %{
                  "self" => "/routes/#{@route.id}"

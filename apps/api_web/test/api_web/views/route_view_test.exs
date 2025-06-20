@@ -26,7 +26,8 @@ defmodule ApiWeb.RouteViewTest do
       direction_destinations: [nil, nil],
       sort_order: 1,
       color: "some color",
-      text_color: "some text color"
+      text_color: "some text color",
+      listed_route: nil
     }
 
     assert ApiWeb.RouteView.attributes(route, %Plug.Conn{}) == expected
