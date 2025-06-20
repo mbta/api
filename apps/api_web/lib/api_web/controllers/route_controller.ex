@@ -7,11 +7,12 @@ defmodule ApiWeb.RouteController do
   * date
   * direction_id
   * type
+  * listed_route
   """
   use ApiWeb.Web, :api_controller
   alias State.{Route, RoutesByService, RoutesPatternsAtStop, ServiceByDate}
 
-  @filters ~w(id stop type direction_id date)
+  @filters ~w(id stop type direction_id date listed_route)
   @pagination_opts [:offset, :limit, :order_by]
   @includes_show ~w(line route_patterns)
   @includes_index ~w(stop) ++ @includes_show
@@ -62,6 +63,14 @@ defmodule ApiWeb.RouteController do
       :string,
       "Filter by multiple IDs. Multiple IDs #{comma_separated_list()}.",
       example: "1,2"
+    )
+
+    parameter(
+      "filter[listed_route]",
+      :query,
+      :string,
+      "Filter by whether route should be publicly listed. Set to 'true' to return only listed routes, 'false' to return all routes. If not provided, defaults to showing only listed routes (same as 'true').",
+      example: "true"
     )
 
     consumes("application/vnd.api+json")
@@ -126,6 +135,14 @@ defmodule ApiWeb.RouteController do
     |> case do
       [] -> []
       [_ | _] = types -> %{type: types}
+    end
+  end
+
+  defp do_format_filter({"listed_route", value}) do
+    case value do
+      "true" -> %{listed_route: true}
+      "false" -> %{listed_route: false}
+      _ -> []
     end
   end
 
@@ -216,6 +233,14 @@ defmodule ApiWeb.RouteController do
 
   defp filter_hidden(route_list, %{"id" => _ids}), do: route_list
 
+  defp filter_hidden(route_list, %{"listed_route" => listed_route}) do
+    case listed_route do
+      "true" -> Enum.filter(route_list, & &1.listed_route)
+      "false" -> route_list
+      _ -> filter_hidden(route_list, %{})
+    end
+  end
+
   defp filter_hidden(route_list, _) do
     filtered = Enum.reject(route_list, &Route.hidden?/1)
 
@@ -301,6 +326,14 @@ defmodule ApiWeb.RouteController do
               reference.md#routestxt).
               """,
               example: "000000"
+            )
+
+            listed_route(
+              :boolean,
+              """
+              Indicates whether the route should be publicly listed.
+              """,
+              example: true
             )
           end
 
