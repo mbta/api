@@ -1,7 +1,7 @@
 defmodule Parse.TripUpdatesTest do
   @moduledoc false
   use ExUnit.Case, async: true
-  import Parse.TripUpdates
+  import Parse.GtfsRt.TripUpdates
 
   describe "parse/1" do
     test "can parse an Enhanced JSON file" do
