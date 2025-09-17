@@ -65,6 +65,7 @@ defmodule Parse.AlertsTest do
           ],
           "id": "122425",
           "last_modified_timestamp": 1463995626,
+          "reminder_times": [1757970000, 1758013200],
           "service_effect_text": [
             {
               "translation": {
@@ -128,6 +129,10 @@ defmodule Parse.AlertsTest do
                  %{route: "5", route_type: 3, stop: "10032", trip: "trip", direction_id: 1}
                ],
                lifecycle: "NEW",
+               reminder_times: [
+                 Timex.to_datetime({{2025, 9, 15}, {17, 0, 0}}, "America/New_York"),
+                 Timex.to_datetime({{2025, 9, 16}, {5, 0, 0}}, "America/New_York")
+               ],
                service_effect: "Commuter Rail schedule change",
                severity: 3,
                short_header:
@@ -339,6 +344,7 @@ defmodule Parse.AlertsTest do
                  duration_certainty: "KNOWN",
                  service_effect: "Salem closed",
                  timeframe: "through tomorrow",
+                 last_push_notification_timestamp: iso_date("2017-05-16T11:19:51-04:00"),
                  lifecycle: "NEW",
                  url: "http://www.mbta.com/"
                }
@@ -746,16 +752,70 @@ defmodule Parse.AlertsTest do
       assert [%Alert{description: "more description"}] = parse_json(map)
     end
 
-    test "closed alerts aren't parsed" do
+    test "closed alerts are parsed" do
       data = %{
         "alerts" => [
           %{
-            "closed_timestamp" => 0
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "cause_detail" => "UNKNOWN_CAUSE",
+            "closed_timestamp" => 1_758_058_202,
+            "created_timestamp" => 1_758_053_585,
+            "description_text" => %{
+              "translation" => [
+                %{"text" => "Affected direction: Outbound", "language" => "en"}
+              ]
+            },
+            "duration_certainty" => "KNOWN",
+            "effect" => "OTHER_EFFECT",
+            "effect_detail" => "DELAY",
+            "header_text" => %{
+              "translation" => [
+                %{
+                  "text" =>
+                    "Providence Line Train 851 (3:20 pm from South Station) is operating 5-15 minutes behind schedule between Mansfield and Providence.",
+                  "language" => "en"
+                }
+              ]
+            },
+            "id" => "666572",
+            "informed_entity" => [
+              %{
+                "agency_id" => "1",
+                "route_type" => 2,
+                "route_id" => "CR-Providence",
+                "trip" => %{
+                  "route_id" => "CR-Providence",
+                  "trip_id" => "Sept8Read-768225-851",
+                  "direction_id" => 0
+                },
+                "activities" => ~w[BOARD EXIT RIDE]
+              }
+            ],
+            "last_modified_timestamp" => 1_758_058_202,
+            "last_push_notification_timestamp" => 1_758_053_585,
+            "service_effect_text" => %{
+              "translation" => [
+                %{"text" => "Providence/Stoughton Line delay", "language" => "en"}
+              ]
+            },
+            "severity" => 0,
+            "severity_level" => "WARNING",
+            "short_header_text" => %{
+              "translation" => [
+                %{
+                  "text" =>
+                    "Providence Line Train 851 (3:20 pm from South Station) is operating 5-15 minutes behind schedule between Mansfield and Providence.",
+                  "language" => "en"
+                }
+              ]
+            }
           }
         ]
       }
 
-      assert [] = parse_json(data)
+      closed_timestamp = iso_date("2025-09-16T17:30:02-04:00")
+      assert [%Alert{active_period: [], closed_timestamp: ^closed_timestamp}] = parse_json(data)
     end
 
     test "alerts without informed entities don't parse" do

@@ -41,7 +41,7 @@ defmodule Parse.Alerts do
     alerts
   end
 
-  def active?(%{"active_period" => _, "informed_entity" => [_ | _]}), do: true
+  def active?(%{"informed_entity" => [_ | _]}), do: true
   def active?(%{}), do: false
 
   def parse_alert(alert) do
@@ -56,7 +56,7 @@ defmodule Parse.Alerts do
       severity: Map.get(alert, "severity"),
       created_at: alert |> Map.get("created_timestamp") |> unix_timestamp,
       updated_at: alert |> Map.get("last_modified_timestamp") |> unix_timestamp,
-      active_period: alert |> Map.get("active_period") |> Enum.map(&active_period/1),
+      active_period: alert |> Map.get("active_period", []) |> Enum.map(&active_period/1),
       informed_entity: alert |> Map.get("informed_entity") |> Enum.map(&informed_entity/1),
       service_effect: alert |> Map.get("service_effect_text") |> translated_text,
       timeframe: alert |> Map.get("timeframe_text") |> translated_text(default: nil),
@@ -65,7 +65,11 @@ defmodule Parse.Alerts do
       url: alert |> Map.get("url") |> translated_text(default: nil),
       image: alert |> Map.get("image") |> translated_image(default: nil),
       image_alternative_text:
-        alert |> Map.get("image_alternative_text") |> translated_text(default: nil)
+        alert |> Map.get("image_alternative_text") |> translated_text(default: nil),
+      closed_timestamp: alert |> Map.get("closed_timestamp") |> unix_timestamp(),
+      last_push_notification_timestamp:
+        alert |> Map.get("last_push_notification_timestamp") |> unix_timestamp(),
+      reminder_times: alert |> Map.get("reminder_times") |> map_optional(&unix_timestamp/1)
     }
   end
 
@@ -173,6 +177,9 @@ defmodule Parse.Alerts do
 
   defp activities(list) when is_list(list), do: Enum.map(list, &copy/1)
 
+  defp map_optional(nil, _), do: nil
+  defp map_optional(list, f), do: Enum.map(list, f)
+
   defp informed_entity(json) do
     %{}
     |> build_informed_entity(json, ["activities"], :activities, &activities/1)
@@ -231,6 +238,8 @@ defmodule Parse.Alerts do
   end
 
   defp add_route_type(entity), do: entity
+
+  defp unix_timestamp(nil), do: nil
 
   defp unix_timestamp(seconds_since_epoch) do
     seconds_since_epoch
