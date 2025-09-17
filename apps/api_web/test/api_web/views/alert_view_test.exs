@@ -23,7 +23,10 @@ defmodule ApiWeb.AlertViewTest do
     lifecycle: "lifecycle",
     image: "image",
     image_alternative_text: "image alternative text",
-    duration_certainty: "KNOWN"
+    duration_certainty: "KNOWN",
+    last_push_notification_timestamp: Timex.now(),
+    closed_timestamp: nil,
+    reminder_times: [Timex.now()]
   }
 
   test "can do a basic rendering (does not include relationships)", %{conn: conn} do
@@ -54,7 +57,10 @@ defmodule ApiWeb.AlertViewTest do
              "service_effect" => @alert.service_effect,
              "timeframe" => @alert.timeframe,
              "lifecycle" => @alert.lifecycle,
-             "duration_certainty" => @alert.duration_certainty
+             "duration_certainty" => @alert.duration_certainty,
+             "closed_timestamp" => nil,
+             "last_push_notification_timestamp" => @alert.last_push_notification_timestamp,
+             "reminder_times" => @alert.reminder_times
            }
 
     refute rendered["relationships"]

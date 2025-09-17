@@ -28,7 +28,10 @@ defmodule ApiWeb.AlertView do
     :url,
     :image,
     :image_alternative_text,
-    :duration_certainty
+    :duration_certainty,
+    :closed_timestamp,
+    :last_push_notification_timestamp,
+    :reminder_times
   ])
 
   def active_period(%{active_period: periods}, _conn) do
