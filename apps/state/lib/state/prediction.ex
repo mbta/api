@@ -2,7 +2,7 @@ defmodule State.Prediction do
   @moduledoc "State for Predictions"
   use State.Server,
     indices: [:stop_id, :trip_id, :route_id, :route_pattern_id],
-    parser: Parse.TripUpdates,
+    parser: Parse.GtfsRt.TripUpdates,
     recordable: Model.Prediction,
     hibernate: false
 
