@@ -93,6 +93,10 @@ defmodule State.RoutesByService do
     {:noreply, state, :hibernate}
   end
 
+  def handle_info(message, state) do
+    super(message, state)
+  end
+
   def update_state(state) do
     trips = State.Trip.all()
     routes = Map.new(State.Route.all(), fn x -> {x.id, x} end)

@@ -36,6 +36,12 @@ defmodule StateMediator.MediatorTest do
     end
   end
 
+  describe "handle_info/2" do
+    test "maintains state on unknown message" do
+      assert {:noreply, :foo} = handle_info(:unknown, :foo)
+    end
+  end
+
   describe "handle_response/2" do
     test "on body: resets retries and schedules an update" do
       {:ok, state} = init(@opts)

@@ -34,7 +34,8 @@ defmodule State.ConnectingStops do
     "place-harsq" => %{add: ~w(110)},
     "place-aqucl" => %{add: ~w(Boat-Long Boat-Long-South-4 Boat-Aquarium)},
     "Boat-Charlestown" => %{add: ~w(12859 12856)},
-    "place-ER-0115" => %{add: ~w(ER-0117-01 ER-0117-02)}
+    "place-ER-0115" => %{add: ~w(ER-0117-01 ER-0117-02)},
+    "Boat-Winthrop" => %{add: ~w(129863)}
   }
 
   def start_link(_opts \\ []) do

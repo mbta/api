@@ -10,7 +10,10 @@ config :state_mediator, :commuter_rail_crowding,
     "CR_CROWDING_BASE_URL",
     "https://keolis-api-development.firebaseio.com/p-kcs-trms-firebase-7dayloading.json"
   },
-  enabled: {:system, "CR_CROWDING_ENABLED", "false"}
+  enabled: {:system, "CR_CROWDING_ENABLED", "true"},
+  s3_bucket: {:system, "CR_CROWDING_S3_BUCKET"},
+  s3_object: {:system, "CR_CROWDING_S3_OBJECT"},
+  source: {:system, "CR_CROWING_SOURCE", "s3"}
 
 config :state_mediator, Realtime,
   gtfs_url: {:system, "MBTA_GTFS_URL", "https://cdn.mbta.com/MBTA_GTFS.zip"},
