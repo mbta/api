@@ -165,7 +165,8 @@ defmodule ApiWeb.FacilityController do
               coordinate system. See \
               [GTFS `facilities.txt` `facility_lat`]
               """,
-              example: -71.194994
+              example: -71.194994,
+              "x-nullable": true
             )
 
             longitude(
@@ -176,7 +177,8 @@ defmodule ApiWeb.FacilityController do
               system. See
               [GTFS `facilities.txt` `facility_lon`]
               """,
-              example: 42.316115
+              example: 42.316115,
+              "x-nullable": true
             )
 
             properties(
