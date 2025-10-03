@@ -52,7 +52,7 @@ In addition to the Elixir config files, the V3 API allows runtime configuration 
 
 [Swagger](https://swagger.io/docs/) documentation for the Api is generated automatically.
 
-1. `mix phoenix.server`
+1. `mix phx.server`
 2. `open http://localhost:4000/docs/swagger`
 
 ## Want to contribute?
