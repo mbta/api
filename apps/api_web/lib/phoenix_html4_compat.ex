@@ -6,8 +6,10 @@ defmodule PhoenixHTML4Compat do
   https://hexdocs.pm/phoenix_html/changelog.html#v4-0-0-2023-12-19
   """
   defmacro __using__(_) do
-    import Phoenix.HTML
-    import Phoenix.HTML.Form
-    use PhoenixHTMLHelpers
+    quote do
+      import Phoenix.HTML
+      import Phoenix.HTML.Form
+      use PhoenixHTMLHelpers
+    end
   end
 end
