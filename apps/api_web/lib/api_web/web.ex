@@ -55,7 +55,7 @@ defmodule ApiWeb.Web do
         namespace: ApiWeb
 
       import Phoenix.Controller, only: [get_csrf_token: 0, view_module: 1]
-      use Phoenix.HTML
+      use PhoenixHTML4Compat
       import ApiWeb.Router.Helpers
       import ApiWeb.ErrorHelpers
       import ApiWeb.ViewHelpers
