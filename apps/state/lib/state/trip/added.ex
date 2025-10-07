@@ -55,10 +55,11 @@ defmodule State.Trip.Added do
   defp prediction_to_trip({trip_id, prediction}) do
     with %{route_pattern_id: route_pattern_id} when is_binary(route_pattern_id) <- prediction,
          %{representative_trip_id: rep_trip_id} <- State.RoutePattern.by_id(route_pattern_id),
-         [trip | _] <- State.Trip.by_id(rep_trip_id) do
+         [trip | _] <- State.Trip.by_id(rep_trip_id),
+         %Route{} = route <- State.Route.by_id(prediction.route_id) do
       stop = parent_or_stop(prediction.stop_id)
 
-      headsign = if stop && subway?(trip.route_type), do: stop.name, else: trip.headsign
+      headsign = if stop && subway?(route), do: stop.name, else: trip.headsign
 
       [
         %{

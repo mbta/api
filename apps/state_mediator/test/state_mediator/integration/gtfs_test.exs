@@ -58,7 +58,7 @@ defmodule StateMediator.Integration.GtfsTest do
       assert_first_last_stop_id("CR-Providence", "place-sstat", "place-NEC-1659")
       assert_first_last_stop_id("CR-Fairmount", "place-sstat", ["place-DB-0095", "place-FS-0049"])
       assert_first_last_stop_id("CR-Franklin", "place-sstat", "place-FB-0303")
-      assert_first_last_stop_id("CR-Haverhill", "place-north", "place-WR-0325")
+      assert_first_last_stop_id("CR-Haverhill", "place-north", "place-WR-0329")
       assert_first_last_stop_id("CR-Lowell", "place-north", "place-NHRML-0254")
       assert_first_last_stop_id("CR-Kingston", "place-sstat", "place-KB-0351")
       assert_first_last_stop_id("Green-B", "place-gover", "place-lake")
