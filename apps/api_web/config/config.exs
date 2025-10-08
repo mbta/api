@@ -13,7 +13,7 @@ config :api_web, ApiWeb.Endpoint,
   secret_key_base: "v1EHfW07QPr8ai7bi0hooadtBorROPNjhSWx7CGv7AiCOhEyGoeT1jagMTNCE3PU",
   render_errors: [accepts: ~w(json html)],
   http: [
-    http_1_options: [
+    http_options: [
       compress: true
     ],
     thousand_island_options: [
