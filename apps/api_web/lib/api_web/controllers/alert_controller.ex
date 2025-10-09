@@ -399,6 +399,12 @@ defmodule ApiWeb.AlertController do
               example: hd(cause_enum)
             )
 
+            closed_timestamp(
+              nullable(%Schema{type: :string, format: :"date-time"}, true),
+              "If the alert has been closed and an all clear notification should be sent, the time at which the alert was closed.",
+              example: "2025-08-17T11:21:00-04:00"
+            )
+
             created_at(
               %Schema{type: :string, format: :"date-time"},
               "Date/Time alert created. Format is ISO8601.",
@@ -466,7 +472,25 @@ defmodule ApiWeb.AlertController do
               "Entities affected by this alert."
             )
 
+            last_push_notification_timestamp(
+              nullable(%Schema{type: :string, format: :"date-time"}, true),
+              "The most recent time at which the alert changed significantly enough that a notification should be sent.",
+              example: "2025-08-17T11:23:00-04:00"
+            )
+
             lifecycle(:string, typedoc(:lifecycle), example: "Ongoing")
+
+            reminder_times(
+              nullable(
+                %Schema{
+                  items: %Schema{type: :string, format: :"date-time"},
+                  type: :array
+                },
+                true
+              ),
+              "Times at which a reminder notification should be sent.",
+              example: ["2025-08-17T11:24:00-04:00", "2025-08-17T11:24:01-04:00"]
+            )
 
             severity(
               :integer,
@@ -584,6 +608,16 @@ defmodule ApiWeb.AlertController do
     | `#{parent_pointer}/attributes/active_period` | Exact Date/Time ranges alert is active                                                   |
     | `#{parent_pointer}/attributes/lifecycle`     | Enumerated, machine-readable description of `#{parent_pointer}/attributes/active_period` |
     | `#{parent_pointer}/attributes/timeframe`     | Human-readable description of `#{parent_pointer}/attributes/active_period`               |
+
+    ## Notifications
+
+    There are 3 notifications related attributes
+
+    | JSON pointer                                                    | Description                                         |
+    |-----------------------------------------------------------------|-----------------------------------------------------|
+    | `#{parent_pointer}/attributes/closed_timestamp`                 | Time to send an all clear notification              |
+    | `#{parent_pointer}/attributes/last_push_notification_timestamp` | Time to send a new or updated alert notification    |
+    | `#{parent_pointer}/attributes/reminder_times`                   | Times to send upcoming alert reminder notifications |
     """
   end
 
