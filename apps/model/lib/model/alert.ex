@@ -2,7 +2,7 @@ defmodule Model.Alert do
   @moduledoc """
   An `effect` on the provided service (`informed_entity`) described by a `banner`, `header`, and `description` that is
   active for one or more periods (`active_period`) caused by a `cause`.  The alert has a `lifecycle` that can be read
-  by humans in its `timeframe`.  The overall alert can be read by huamns (`service_effect`).
+  by humans in its `timeframe`.  The overall alert can be read by humans (`service_effect`).
 
   See [GTFS Realtime `FeedMessage` `FeedEntity` `Alert`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
   """
@@ -25,6 +25,9 @@ defmodule Model.Alert do
     :image,
     :image_alternative_text,
     :duration_certainty,
+    :last_push_notification_timestamp,
+    :closed_timestamp,
+    :reminder_times,
     active_period: [],
     informed_entity: []
   ]
@@ -249,6 +252,7 @@ defmodule Model.Alert do
   * `:active_period` - See `t:datetime_pair/0` for individual entries in list.
   * `:banner` - Set if alert is meant to be displayed prominently, such as the top of every page.
   * `:cause` - Cause of the alert.  See `t:cause/0` for all names and values.
+  * `:closed_timestamp` - If the alert has been closed and an all clear notification should be sent, the time at which the alert was closed.
   * `:create` - When the alert was created, which is completely unrelarted to the `active_period`s.
   * `:description` - This plain-text string will be formatted as the body of the alert (or shown on an explicit
       "expand" request by the user). The information in the description should add to the information of the header. See
@@ -263,7 +267,9 @@ defmodule Model.Alert do
       [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `image_alternative_text`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
   * `:informed_entity` - Entities whose users we should notify of this alert.  See
       [GTFS Realtime `FeedMessage` `FeedEntity` `Alert` `informed_entity`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-alert)
+  * `:last_push_notification_timestamp` - The most recent time at which the alert changed significantly enough that a notification should be sent.
   * `:lifecycle` - Enumeration of where the alert is in its lifecycle.  See `t:lifecycle/0`.
+  * `:reminder_times` - Times at which a reminder notification should be sent.
   * `:service_effect` - Summarizes the service and the impact to that service.
   * `:severity` - Servity of the alert.  See `t:severity/0`.
   * `:short_header` - A shortened version of `:header`.
@@ -279,6 +285,7 @@ defmodule Model.Alert do
           active_period: [datetime_pair],
           banner: String.t() | nil,
           cause: cause,
+          closed_timestamp: DateTime.t() | nil,
           created_at: DateTime.t(),
           description: String.t(),
           effect: effect,
@@ -286,7 +293,9 @@ defmodule Model.Alert do
           image: String.t() | nil,
           image_alternative_text: String.t() | nil,
           informed_entity: [informed_entity],
+          last_push_notification_timestamp: DateTime.t() | nil,
           lifecycle: lifecycle,
+          reminder_times: [DateTime.t()] | nil,
           service_effect: String.t(),
           severity: severity,
           short_header: String.t(),
