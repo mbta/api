@@ -64,7 +64,7 @@ defmodule ApiWeb.Mixfile do
       {:phoenix_view, "~> 2.0"},
       {:phoenix_html, "~> 4.3"},
       {:phoenix_html_helpers, "~> 1.0"},
-      {:phoenix_live_view, "~> 0.18"},
+      {:phoenix_live_view, "~> 1.1"},
       {:bandit, "~> 1.0-pre"},
       {:ja_serializer, github: "mbta/ja_serializer", branch: "master"},
       {:timex, "~> 3.7"},
