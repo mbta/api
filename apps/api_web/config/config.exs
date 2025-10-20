@@ -37,6 +37,7 @@ config :api_web, :api_pipeline,
   accepts: ["json", "json-api", "event-stream"]
 
 config :api_web, :versions,
+  default: "2021-01-09",
   versions: [
     "2017-11-28",
     "2018-05-07",
@@ -46,8 +47,7 @@ config :api_web, :versions,
     "2019-07-01",
     "2020-05-01",
     "2021-01-09"
-  ],
-  default: "2021-01-09"
+  ]
 
 config :logger, :console,
   format: "$date $time $metadata[$level] $message\n",

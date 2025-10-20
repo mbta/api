@@ -428,7 +428,15 @@ defmodule ApiAccounts.Dynamo do
     ExAws.Dynamo.decode_item(item, as: mod)
   end
 
-  defp request(req), do: ex_aws_client().request(req, config())
+  defp request(req) do
+    c = config()
+    if Keyword.get(c, :enabled, true) do
+      ex_aws_client().request(req, c)
+    else
+      {:error, :dynamodb_disabled}
+      end
+    end
+  
   defp ex_aws_client, do: ExAws
 
   def config do

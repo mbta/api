@@ -344,6 +344,10 @@ defmodule ApiAccounts do
       {:ok, key} ->
         key
 
+      {:error, :dynamodb_disabled} ->
+        # create a pretend key with a high rate limit
+        %Key{key: key_id, approved: true, daily_limit: 10_000_000,
+             api_version: Application.get_env(:api_web, :versions)[:default]}
       {:error, :not_found} ->
         raise NoResultsError, "A Key with the id #{key_id} was not found."
     end

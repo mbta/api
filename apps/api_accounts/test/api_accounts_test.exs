@@ -258,6 +258,16 @@ defmodule ApiAccountsTest do
       end
     end
 
+    test "get_key!/1 returns a key if DynamoDB is disabled" do
+      config = Application.get_env(:ex_aws, :dynamodb)
+      on_exit fn ->
+      Application.put_env(:ex_aws, :dynamodb, config)
+      end
+      Application.put_env(:ex_aws, :dynamodb, [enabled: false] ++ config)
+
+      assert ApiAccounts.get_key!("bad_id")
+    end
+
     test "list_keys_for_user/1", %{user: user} do
       {:ok, _} = ApiAccounts.create_key(user)
       {:ok, _} = ApiAccounts.create_key(user)

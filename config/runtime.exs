@@ -25,6 +25,7 @@ if is_prod? and is_release? do
 
   config :ex_aws,
     dynamodb: [
+      enabled: false,
       port: "DYNAMO_PORT" |> System.get_env("443") |> String.to_integer(),
       scheme: System.get_env("DYNAMO_SCHEME", "https://"),
       host: System.fetch_env!("DYNAMO_HOST")
