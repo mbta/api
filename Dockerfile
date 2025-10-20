@@ -18,7 +18,7 @@ ADD apps apps
 ADD config config
 ADD mix.* /root/
 
-RUN mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest
+RUN mix do deps.get --only prod, phx.swagger.generate, compile, phx.digest, sentry.package_source_code
 RUN mix eval "Application.ensure_all_started(:tzdata); Tzdata.DataBuilder.load_and_save_table()"
 
 ADD rel/ rel/
