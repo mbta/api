@@ -10,7 +10,7 @@ if is_prod? and is_release? do
 
   if not is_nil(sentry_env) do
     config :sentry,
-      filter: ApiWeb.SentryEventFilter,
+      before_send: {ApiWeb.SentryEventFilter, :filter_event},
       dsn: System.fetch_env!("SENTRY_DSN"),
       environment_name: sentry_env,
       enable_source_code_context: true,
