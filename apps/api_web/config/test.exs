@@ -18,6 +18,12 @@ config :api_web, RateLimiter.Memcache,
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
 
+config :sentry,
+  test_mode: true,
+  # Testing the old code first
+  # before_send: {ApiWeb.SentryEventFilter, :filter_event}
+  filter: ApiWeb.SentryEventFilter
+
 # Credentials that always show widget and pass backend validation:
 config :recaptcha,
   enabled: true,
