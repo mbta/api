@@ -14,11 +14,13 @@ if is_prod? and is_release? do
       dsn: System.fetch_env!("SENTRY_DSN"),
       environment_name: sentry_env,
       enable_source_code_context: true,
-      root_source_code_path: File.cwd!(),
+      root_source_code_paths:
+        Mix.Project.apps_paths()
+        |> Map.values()
+        |> Enum.map(&Path.join(File.cwd!(), &1)),
       tags: %{
         env: sentry_env
-      },
-      included_environments: [sentry_env]
+      }
 
     config :logger, Sentry.LoggerBackend, level: :error
   end
@@ -30,7 +32,6 @@ if is_prod? and is_release? do
       host: System.fetch_env!("DYNAMO_HOST")
     ],
     json_codec: Jason
-
 
   config :alb_monitor,
     ecs_metadata_uri: System.fetch_env!("ECS_CONTAINER_METADATA_URI"),
