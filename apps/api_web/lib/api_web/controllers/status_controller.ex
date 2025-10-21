@@ -16,8 +16,4 @@ defmodule ApiWeb.StatusController do
 
     render(conn, "index.json-api", data: data)
   end
-
-  def raise_an_exception(_conn, _) do
-    raise RuntimeError, "raising a dummy exception to test Sentry"
-  end
 end

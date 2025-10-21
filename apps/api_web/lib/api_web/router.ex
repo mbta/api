@@ -85,7 +85,6 @@ defmodule ApiWeb.Router do
     pipe_through([:secure, :api])
 
     get("/status", StatusController, :index)
-    get("/raise_an_exception", StatusController, :raise_an_exception)
     resources("/stops", StopController, only: [:index, :show])
     resources("/routes", RouteController, only: [:index, :show])
     resources("/route_patterns", RoutePatternController, only: [:index, :show])
