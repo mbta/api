@@ -33,6 +33,7 @@ defmodule ApiWeb.Web do
   def controller do
     quote location: :keep do
       use Phoenix.Controller,
+        formats: [html: "View", "json-api": "View"],
         layouts: [html: {ApiWeb.ClientPortal.LayoutView, :app}],
         namespace: ApiWeb
 
