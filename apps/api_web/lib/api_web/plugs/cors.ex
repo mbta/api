@@ -4,10 +4,11 @@ defmodule ApiWeb.Plugs.CORS do
   """
 
   import Plug.Conn
-  import Corsica
   import Phoenix.Controller, only: [render: 3, put_view: 2]
 
-  @default_opts sanitize_opts(
+  alias Corsica
+
+  @default_opts Corsica.sanitize_opts(
                   origins: "*",
                   allow_methods: :all,
                   allow_headers: [
@@ -21,16 +22,16 @@ defmodule ApiWeb.Plugs.CORS do
   def init(opts), do: opts
 
   def call(%{assigns: assigns} = conn, _) do
-    if cors_req?(conn) do
+    if Corsica.cors_req?(conn) do
       allowed_domains = parse_allowed_domains(assigns.api_user.allowed_domains)
       opts = %{@default_opts | origins: allowed_domains}
 
       cond do
-        preflight_req?(conn) ->
-          send_preflight_resp(conn, opts)
+        Corsica.preflight_req?(conn) ->
+          Corsica.send_preflight_resp(conn, opts)
 
-        allowed_origin?(conn, opts) ->
-          put_cors_simple_resp_headers(conn, opts)
+        Corsica.allowed_origin?(conn, opts) ->
+          Corsica.put_cors_simple_resp_headers(conn, opts)
 
         true ->
           render_400(conn)
