@@ -15,9 +15,19 @@ if is_prod? and is_release? do
       environment_name: sentry_env,
       enable_source_code_context: true,
       root_source_code_paths:
-        Mix.Project.apps_paths()
-        |> Map.values()
-        |> Enum.map(&Path.join(File.cwd!(), &1)),
+        [
+          "api_web",
+          "health",
+          "parse",
+          "alb_monitor",
+          "state",
+          "fetch",
+          "model",
+          "events",
+          "api_accounts",
+          "state_mediator"
+        ]
+        |> Enum.map(&Path.join([File.cwd!(), "apps", &1])),
       tags: %{
         env: sentry_env
       }
