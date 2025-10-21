@@ -1,9 +1,9 @@
 <h2>Edit User</h2>
 
-<%= render("form.html",
+{render("form.html",
   changeset: @changeset,
   action: admin_user_path(@conn, :update, @user),
   method: :put
-) %>
+)}
 
-<span><%= link("Back", to: admin_user_path(@conn, :index)) %></span>
+<span>{link("Back", to: admin_user_path(@conn, :index))}</span>

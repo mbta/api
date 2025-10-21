@@ -17,22 +17,22 @@
   </head>
 
   <body>
-    <%= render("navigation.html", assigns) %>
+    {render("navigation.html", assigns)}
 
     <%= if info = Phoenix.Flash.get(@flash, :info) do %>
       <p class="alert alert-info text-center" role="alert" style="border-radius: 0">
-        <%= info %>
+        {info}
       </p>
     <% end %>
     <%= if error = Phoenix.Flash.get(@flash, :error) do %>
       <p class="alert alert-danger text-center" role="alert" style="border-radius: 0">
-        <%= error %>
+        {error}
       </p>
     <% end %>
 
     <div class="container">
       <main role="main">
-        <%= @inner_content %>
+        {@inner_content}
       </main>
     </div>
     <!-- /container -->

@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-3">
-        <p>© <%= DateTime.utc_now().year %> MBTA</p>
+        <p>© {DateTime.utc_now().year} MBTA</p>
       </div>
 
       <div class="col-sm-3">
@@ -37,13 +37,13 @@
           <label>Portal</label>
           <ul>
             <%= if user = @conn.assigns[:user] do %>
-              <li><%= link(user.email, to: user_path(@conn, :show)) %></li>
-              <li><%= link("Logout", to: session_path(@conn, :delete), method: :delete) %></li>
+              <li>{link(user.email, to: user_path(@conn, :show))}</li>
+              <li>{link("Logout", to: session_path(@conn, :delete), method: :delete)}</li>
             <% else %>
-              <li><%= link("Login", to: session_path(@conn, :new)) %></li>
-              <li><%= link("Register", to: user_path(@conn, :new)) %></li>
+              <li>{link("Login", to: session_path(@conn, :new))}</li>
+              <li>{link("Register", to: user_path(@conn, :new))}</li>
             <% end %>
-            <li><%= link("Docs", to: "/docs/swagger") %></li>
+            <li>{link("Docs", to: "/docs/swagger")}</li>
           </ul>
         </div>
       </div>

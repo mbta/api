@@ -9,19 +9,19 @@
     <input type="hidden" name="action" value="edit-information" />
 
     <.form_group form={f} field={:email}>
-      <%= label(f, :email, class: "control-label") %>
-      <%= email_input(f, :email, class: "form-control") %>
-      <%= error_tag(f, :email) %>
+      {label(f, :email, class: "control-label")}
+      {email_input(f, :email, class: "form-control")}
+      {error_tag(f, :email)}
     </.form_group>
 
     <.form_group form={f} field={:phone}>
-      <%= label(f, :phone, class: "control-label") %>
-      <%= text_input(f, :phone, class: "form-control") %>
-      <%= error_tag(f, :phone) %>
+      {label(f, :phone, class: "control-label")}
+      {text_input(f, :phone, class: "form-control")}
+      {error_tag(f, :phone)}
     </.form_group>
 
     <div class="form-group">
-      <%= submit("Update", class: "btn btn-primary") %>
+      {submit("Update", class: "btn btn-primary")}
     </div>
   <% end %>
 </div>
