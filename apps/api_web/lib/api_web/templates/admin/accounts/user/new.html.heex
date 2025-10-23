@@ -1,8 +1,8 @@
 <h2>New User</h2>
 
-<%= render("form.html",
+{render("form.html",
   changeset: @changeset,
   action: admin_user_path(@conn, :create)
-) %>
+)}
 
-<span><%= link("Back", to: admin_user_path(@conn, :index)) %></span>
+<span>{link("Back", to: admin_user_path(@conn, :index))}</span>

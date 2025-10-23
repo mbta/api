@@ -20,19 +20,19 @@
     <div class="collapse navbar-collapse" id="navbar-content">
       <%= if user = @conn.assigns[:user] do %>
         <ul class="nav navbar-nav">
-          <li><%= link("Users", to: admin_user_path(@conn, :index)) %></li>
-          <li><%= link("Keys", to: admin_key_path(@conn, :index)) %></li>
+          <li>{link("Users", to: admin_user_path(@conn, :index))}</li>
+          <li>{link("Keys", to: admin_key_path(@conn, :index))}</li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <%= link("Logout",
+            {link("Logout",
               to: admin_session_path(@conn, :delete),
               method: :delete,
               style: "display: inline-block; padding: 15px"
-            ) %>
+            )}
           </li>
         </ul>
-        <p class="navbar-text navbar-right"><%= user.email %></p>
+        <p class="navbar-text navbar-right">{user.email}</p>
       <% end %>
     </div>
   </div>

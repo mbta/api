@@ -9,19 +9,19 @@
     <% end %>
 
     <.form_group form={f} field={:email}>
-      <%= label(f, :email, class: "control-label") %>
-      <%= email_input(f, :email, class: "form-control") %>
-      <%= error_tag(f, :email) %>
+      {label(f, :email, class: "control-label")}
+      {email_input(f, :email, class: "form-control")}
+      {error_tag(f, :email)}
     </.form_group>
 
     <.form_group form={f} field={:password}>
-      <%= label(f, :password, class: "control-label") %>
-      <%= password_input(f, :password, class: "form-control", autocomplete: "off") %>
-      <%= error_tag(f, :password) %>
+      {label(f, :password, class: "control-label")}
+      {password_input(f, :password, class: "form-control", autocomplete: "off")}
+      {error_tag(f, :password)}
     </.form_group>
 
     <div class="form-group text-center">
-      <%= submit("Login", class: "btn btn-primary") %>
+      {submit("Login", class: "btn btn-primary")}
     </div>
   <% end %>
 </div>

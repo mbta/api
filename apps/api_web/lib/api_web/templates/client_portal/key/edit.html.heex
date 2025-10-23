@@ -3,17 +3,17 @@
   <div class="panel-heading">Key Details</div>
   <div class="panel-body">
     <ul>
-      <li><strong>User E-mail:</strong> <%= @user.email %></li>
-      <li><strong>Key:</strong> <%= @key.key %></li>
+      <li><strong>User E-mail:</strong> {@user.email}</li>
+      <li><strong>Key:</strong> {@key.key}</li>
     </ul>
   </div>
 </div>
 
-<%= render("form.html",
+{render("form.html",
   changeset: @changeset,
   action: key_path(@conn, :update, @key),
   method: :put,
   api_versions: @api_versions
-) %>
+)}
 
-<span><%= link("Back", to: portal_path(@conn, :index)) %></span>
+<span>{link("Back", to: portal_path(@conn, :index))}</span>

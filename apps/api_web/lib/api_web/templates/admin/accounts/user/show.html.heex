@@ -6,68 +6,68 @@
     <ul>
       <li>
         <strong>Email:</strong>
-        <%= @user.email %>
+        {@user.email}
       </li>
 
       <li>
         <strong>Username:</strong>
-        <%= @user.username %>
+        {@user.username}
       </li>
 
       <li>
         <strong>Role:</strong>
-        <%= @user.role %>
+        {@user.role}
       </li>
 
       <li>
         <strong>Phone:</strong>
-        <%= @user.phone %>
+        {@user.phone}
       </li>
 
       <li>
         <strong>Join date:</strong>
-        <%= @user.join_date %>
+        {@user.join_date}
       </li>
 
       <li>
         <strong>Active:</strong>
-        <%= @user.active %>
+        {@user.active}
       </li>
 
       <li>
         <strong>Blocked:</strong>
-        <%= @user.blocked %>
+        {@user.blocked}
       </li>
 
       <li>
         <strong>MFA Enabled:</strong>
-        <%= @user.totp_enabled %>
+        {@user.totp_enabled}
       </li>
     </ul>
 
     <span>
-      <%= link("Edit",
+      {link("Edit",
         to: admin_user_path(@conn, :edit, @user),
         class: "btn btn-primary"
-      ) %>
+      )}
     </span>
     <%= if @user.totp_enabled do %>
       <span>
-        <%= link("Disable MFA",
+        {link("Disable MFA",
           to: admin_user_path(@conn, :disable_2fa, @user),
           method: :post,
           data: [
             confirm: "This will significantly reduce the security of the account. Are you sure?"
           ],
           class: "btn btn-danger"
-        ) %>
+        )}
       </span>
     <% end %>
     <span>
-      <%= link("Back",
+      {link("Back",
         to: admin_user_path(@conn, :index),
         class: "btn btn-link"
-      ) %>
+      )}
     </span>
   </div>
 </div>
@@ -77,32 +77,32 @@
   <div class="panel-body">
     <%= if key = key_request(@keys) do %>
       <div class="text-center" style="margin-bottom: 25px">
-        <p>User requested a new key on <%= key.requested_date %>.</p>
+        <p>User requested a new key on {key.requested_date}.</p>
         <div class="text-center">
-          <%= link("Reject",
+          {link("Reject",
             to: admin_key_path(@conn, :delete, @user, key, action: "reject"),
             method: :delete,
             style: "display: inline-block",
             class: "btn btn-default"
-          ) %>
+          )}
 
-          <%= link("Approve",
+          {link("Approve",
             to: admin_key_path(@conn, :approve, @user, key),
             method: :put,
             style: "display: inline-block",
             class: "btn btn-primary"
-          ) %>
+          )}
         </div>
       </div>
     <% end %>
 
     <span>
-      <%= link("New",
+      {link("New",
         to: admin_key_path(@conn, :create, @user),
         method: :post,
         style: "display: inline-block",
         class: "btn btn-success"
-      ) %>
+      )}
     </span>
     <table class="table" style="">
       <thead>
@@ -121,13 +121,13 @@
         <%= for key <- @keys, key.approved do %>
           <tr>
             <td>
-              <div style="font-family: monospace"><%= key.key %></div>
-              <div><%= key.description %></div>
+              <div style="font-family: monospace">{key.key}</div>
+              <div>{key.description}</div>
             </td>
-            <td><%= key.api_version %></td>
-            <td><%= ApiWeb.ApiViewHelpers.per_minute_limit(key) %></td>
-            <td><%= key.created %></td>
-            <td><%= key.requested_date %></td>
+            <td>{key.api_version}</td>
+            <td>{ApiWeb.ApiViewHelpers.per_minute_limit(key)}</td>
+            <td>{key.created}</td>
+            <td>{key.requested_date}</td>
             <td>
               <%= if key.approved == true do %>
                 ✔
@@ -139,24 +139,24 @@
               <% end %>
             </td>
             <td>
-              <%= link("Edit",
+              {link("Edit",
                 to: admin_key_path(@conn, :edit, @user, key),
                 class: "btn btn-default btn-s"
-              ) %>
-              <%= link("Clone",
+              )}
+              {link("Clone",
                 to: admin_key_path(@conn, :clone, @user, key),
                 class: "btn btn-default btn-xs",
                 method: :put,
                 style: "display: inline-block",
                 data: [confirm: "Are you sure?"]
-              ) %>
-              <%= link("Delete",
+              )}
+              {link("Delete",
                 to: admin_key_path(@conn, :delete, @user, key),
                 method: :delete,
                 style: "display: inline-block",
                 data: [confirm: "Are you sure?"],
                 class: "btn btn-danger btn-xs"
-              ) %>
+              )}
             </td>
           </tr>
         <% end %>

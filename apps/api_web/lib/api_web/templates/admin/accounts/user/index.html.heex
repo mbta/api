@@ -17,11 +17,11 @@
   <tbody>
     <%= for user <- @users do %>
       <tr>
-        <td><%= user.email %></td>
-        <td><%= user.username %></td>
-        <td><%= user.role %></td>
-        <td><%= user.phone %></td>
-        <td><%= user.join_date %></td>
+        <td>{user.email}</td>
+        <td>{user.username}</td>
+        <td>{user.role}</td>
+        <td>{user.phone}</td>
+        <td>{user.join_date}</td>
         <td>
           <%= if user.active == true do %>
             ✔
@@ -40,25 +40,25 @@
 
         <td class="text-right">
           <span>
-            <%= link("Show",
+            {link("Show",
               to: admin_user_path(@conn, :show, user),
               class: "btn btn-default btn-xs"
-            ) %>
+            )}
           </span>
           <span>
-            <%= link("Edit",
+            {link("Edit",
               to: admin_user_path(@conn, :edit, user),
               class: "btn btn-default btn-xs"
-            ) %>
+            )}
           </span>
           <span>
-            <%= link("Delete",
+            {link("Delete",
               to: admin_user_path(@conn, :delete, user),
               method: :delete,
               data: [confirm: "Are you sure?"],
               style: "display: inline-block",
               class: "btn btn-danger btn-xs"
-            ) %>
+            )}
           </span>
         </td>
       </tr>
@@ -66,4 +66,4 @@
   </tbody>
 </table>
 
-<span><%= link("New User", to: admin_user_path(@conn, :new)) %></span>
+<span>{link("New User", to: admin_user_path(@conn, :new))}</span>

@@ -22,23 +22,23 @@
 
     <div class="collapse navbar-collapse" id="navbar-content">
       <ul class="nav navbar-nav">
-        <li><%= link("Documentation", to: "/docs/swagger") %></li>
+        <li>{link("Documentation", to: "/docs/swagger")}</li>
       </ul>
       <%= if user = @conn.assigns[:user] do %>
         <ul class="nav navbar-nav navbar-right">
-          <li><%= link(user.email, to: user_path(@conn, :show)) %></li>
+          <li>{link(user.email, to: user_path(@conn, :show))}</li>
           <li>
-            <%= button("Logout",
+            {button("Logout",
               to: session_path(@conn, :delete),
               method: :delete,
               class: "nav-link-register"
-            ) %>
+            )}
           </li>
         </ul>
       <% else %>
         <ul class="nav navbar-nav navbar-right">
-          <li><%= link("Login", to: session_path(@conn, :new)) %></li>
-          <li><%= link("Register", to: user_path(@conn, :new), class: "nav-link-register") %></li>
+          <li>{link("Login", to: session_path(@conn, :new))}</li>
+          <li>{link("Register", to: user_path(@conn, :new), class: "nav-link-register")}</li>
         </ul>
       <% end %>
     </div>

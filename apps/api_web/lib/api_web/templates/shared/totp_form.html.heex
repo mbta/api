@@ -1,10 +1,10 @@
 <div class="authentication-form">
   <%= form_for @changeset, @action, [method: :post], fn f -> %>
     <.form_group form={f} field={:totp_code}>
-      <%= label(f, :totp_code, "TOTP Code", class: "control-label") %>
-      <%= text_input(f, :totp_code, placeholder: "Code", class: "form-control") %>
-      <%= error_tag(f, :totp_code, "TOTP Code") %>
+      {label(f, :totp_code, "TOTP Code", class: "control-label")}
+      {text_input(f, :totp_code, placeholder: "Code", class: "form-control")}
+      {error_tag(f, :totp_code, "TOTP Code")}
     </.form_group>
-    <%= submit("Validate TOTP", class: "btn btn-primary") %>
+    {submit("Validate TOTP", class: "btn btn-primary")}
   <% end %>
 </div>
