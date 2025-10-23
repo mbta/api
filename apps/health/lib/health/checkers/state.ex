@@ -10,7 +10,9 @@ defmodule Health.Checkers.State do
     State.ServiceByDate,
     State.StopsOnRoute,
     State.RoutesPatternsAtStop,
-    State.Shape
+    State.Shape,
+    State.Prediction,
+    State.Vehicle
   ]
 
   def start_link(_opts \\ []) do
