@@ -217,7 +217,7 @@ defmodule StateMediator.Integration.GtfsTest do
                ]
       end)
 
-      assert Enum.count(remaining_shapes) >= 1
+      refute Enum.empty?(remaining_shapes)
 
       assert [%{name: "Wickford Junction - South Station"}, %{id: "9890003"}] = shapes_1
     end
