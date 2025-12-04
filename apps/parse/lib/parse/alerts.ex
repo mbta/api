@@ -56,7 +56,11 @@ defmodule Parse.Alerts do
       severity: Map.get(alert, "severity"),
       created_at: alert |> Map.get("created_timestamp") |> unix_timestamp,
       updated_at: alert |> Map.get("last_modified_timestamp") |> unix_timestamp,
-      active_period: alert |> Map.get("active_period", []) |> Enum.map(&active_period/1),
+      active_period:
+        alert
+        |> Map.get("active_period", [])
+        |> fallback_active_period()
+        |> Enum.map(&active_period/1),
       informed_entity: alert |> Map.get("informed_entity") |> Enum.map(&informed_entity/1),
       service_effect: alert |> Map.get("service_effect_text") |> translated_text,
       timeframe: alert |> Map.get("timeframe_text") |> translated_text(default: nil),
@@ -158,6 +162,17 @@ defmodule Parse.Alerts do
       false -> default
     end
   end
+
+  defp fallback_active_period([]) do
+    # some alerts authoring tools remove all active periods to signal that an alert is closed,
+    # but the GTFS-RT spec says that an alert with no active periods should actually be treated as
+    # always active until it is removed from the feed.
+    # we always specify active periods for current and future alerts, so we know that an alert
+    # with no active periods is actually closed.
+    [%{"start" => 0, "end" => 0}]
+  end
+
+  defp fallback_active_period(list), do: list
 
   defp active_period(%{"start" => start, "end" => stop}) do
     {unix_timestamp(start), unix_timestamp(stop)}
