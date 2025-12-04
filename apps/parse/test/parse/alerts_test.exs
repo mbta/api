@@ -816,7 +816,9 @@ defmodule Parse.AlertsTest do
 
       closed_timestamp = iso_date("2025-09-16T17:30:02-04:00")
 
-      assert [%Alert{active_period: [{0, 0}], closed_timestamp: ^closed_timestamp}] =
+      unix_epoch = iso_date("1970-01-01 00:00:00Z")
+
+      assert [%Alert{active_period: [{^unix_epoch, ^unix_epoch}], closed_timestamp: ^closed_timestamp}] =
                parse_json(data)
     end
 
