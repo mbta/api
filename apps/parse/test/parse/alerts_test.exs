@@ -815,7 +815,9 @@ defmodule Parse.AlertsTest do
       }
 
       closed_timestamp = iso_date("2025-09-16T17:30:02-04:00")
-      assert [%Alert{active_period: [], closed_timestamp: ^closed_timestamp}] = parse_json(data)
+
+      assert [%Alert{active_period: [{0, 0}], closed_timestamp: ^closed_timestamp}] =
+               parse_json(data)
     end
 
     test "alerts without informed entities don't parse" do
