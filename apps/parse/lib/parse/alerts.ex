@@ -157,9 +157,9 @@ defmodule Parse.Alerts do
       |> Enum.filter(&(&1["language"] == "en" or &1["language"] == nil))
       |> Enum.sort(:desc)
 
-    case length(translations) >= 1 do
-      true -> hd(translations)["url"]
-      false -> default
+    case Enum.empty?(translations) do
+      false -> hd(translations)["url"]
+      true -> default
     end
   end
 
