@@ -161,9 +161,6 @@ defmodule Parse.Alerts do
       [] -> default
       [first | _] -> first["url"]
     end
-      false -> hd(translations)["url"]
-      true -> default
-    end
   end
 
   defp fallback_active_period([]) do
