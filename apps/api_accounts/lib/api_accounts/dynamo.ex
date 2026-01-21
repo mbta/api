@@ -372,6 +372,7 @@ defmodule ApiAccounts.Dynamo do
     |> Enum.flat_map(fn
       %Task{} = task -> Task.await(task)
       results when is_list(results) -> results
+      _ -> []
     end)
   end
 
@@ -392,6 +393,9 @@ defmodule ApiAccounts.Dynamo do
 
       {:error, reason} ->
         {:error, reason}
+
+      _ ->
+        {:error, "unknown response"}
     end
   end
 
