@@ -2702,7 +2702,7 @@ defmodule Parse.Alerts do
         "activities" => ["PARK_CAR"]
       },
       %{
-        "route_type" => "1",
+        "route_type" => 1,
         # these are the activities that the existing informed entities have from alerts UI
         "activities" => ["BOARD", "EXIT", "RIDE"]
       }
