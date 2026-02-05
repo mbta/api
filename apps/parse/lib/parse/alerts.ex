@@ -44,7 +44,7 @@ defmodule Parse.Alerts do
   def active?(%{"informed_entity" => [_ | _]}), do: true
   def active?(%{}), do: false
 
-  def parse_alert(%{"id" => "691539"} = alert) do
+  def parse_alert(%{"id" => "695135"} = alert) do
     added_informed_entities = [
       %{
         "facility_id" => "park-DB-2205",
