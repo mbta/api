@@ -44,7 +44,7 @@ defmodule ApiWeb.VehicleControllerTest do
                           longitude: -71.15,
                           speed: 75,
                           stop_id: "current_stop",
-                          occupancy_status: :empty,
+                          occupancy_status: :many_seats_available,
                           carriages: [
                             %Vehicle.Carriage{
                               label: "carriage_1",
