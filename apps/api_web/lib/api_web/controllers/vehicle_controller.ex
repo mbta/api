@@ -249,7 +249,15 @@ defmodule ApiWeb.VehicleController do
             )
 
             occupancy_status(
-              :string,
+              %Schema{
+                type: :string,
+                enum: [
+                  "MANY_SEATS_AVAILABLE",
+                  "FEW_SEATS_AVAILABLE",
+                  "FULL",
+                  "NO_DATA_AVAILABLE"
+                ]
+              },
               """
               The degree of passenger occupancy for the vehicle. See [GTFS-realtime OccupancyStatus](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-vehiclestopstatus). Only the following values are used for vehicle-level occupancy status:
 
