@@ -330,6 +330,12 @@ defmodule ApiWeb.PredictionController do
               example: 60
             )
 
+            last_trip(
+              :boolean,
+              "Indicates whether this is a prediction for the last trip before the end of service.",
+              example: true
+            )
+
             schedule_relationship(
               :string,
               """
