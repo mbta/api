@@ -345,7 +345,7 @@ defmodule State.StopsOnRouteTest do
 
     test "can drop stops from a route" do
       trip_id = "fairmont-trip"
-      stop_ids = ["place-sstat", "place-FB-0109", "place-FB-0118"]
+      stop_ids = ["place-sstat", "place-DB-2205", "place-FB-0109"]
 
       State.Stop.new_state(for stop_id <- stop_ids, do: %Model.Stop{id: stop_id})
       State.Route.new_state([%Model.Route{id: "CR-Fairmount"}])
@@ -360,7 +360,7 @@ defmodule State.StopsOnRouteTest do
 
       stop_ids = by_route_id("CR-Fairmount")
 
-      assert stop_ids == ["place-sstat", "place-FB-0118"]
+      assert stop_ids == ["place-sstat", "place-DB-2205"]
     end
   end
 
