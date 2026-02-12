@@ -258,6 +258,9 @@ config :state, :stops_on_route,
     "Shuttle-ForgeParkWalpole-0-" => true,
     "CR-Franklin-3badde55-" => true,
     "CR-Franklin-02118599-" => true,
+    # Franklin line via Fairmount
+    "CR-Franklin-807421e2-" => true,
+    "CR-Franklin-901f1692-" => true,
     # Worcester Line shuttles
     "Shuttle-AshlandFramingham-0-" => true,
     "Shuttle-FraminghamSouthStationExpress-0-" => true,
