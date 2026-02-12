@@ -283,10 +283,10 @@ config :state, :stops_on_route,
         "place-FB-0109"
       ],
       ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
-      ["place-FB-0191", "place-FS-0049", "place-FB-0230"]
+      ["place-FB-0166", "place-FS-0049", "place-FB-0191"]
     ],
     {"CR-Franklin", 1} => [
-      ["place-FB-0230", "place-FS-0049", "place-FB-0191"],
+      ["place-FB-0191", "place-FS-0049", "place-FB-0166"],
       [
         "place-FB-0109",
         "place-DB-0095",
