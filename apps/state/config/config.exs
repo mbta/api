@@ -274,6 +274,10 @@ config :state, :stops_on_route,
   stop_order_overrides: %{
     {"CR-Franklin", 0} => [
       [
+        "place-sstat",
+        "place-bbsta",
+        "place-rugg",
+        "place-forhl",
         "place-NEC-2203",
         "place-DB-2265",
         "place-DB-2258",
@@ -283,10 +287,18 @@ config :state, :stops_on_route,
         "place-DB-2222",
         "place-DB-2205",
         "place-DB-0095",
-        "place-FB-0109"
-      ],
-      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
-      ["place-FB-0166", "place-FS-0049", "place-FB-0191"]
+        "place-FB-0109",
+        "place-FB-0118",
+        "place-FB-0125",
+        "place-FB-0143",
+        "place-FB-0148",
+        "place-FB-0166",
+        "place-FS-0049",
+        "place-FB-0191",
+        "place-FB-0230",
+        "place-FB-0275",
+        "place-FB-0303"
+      ]
     ],
     {"CR-Franklin", 1} => [
       [
