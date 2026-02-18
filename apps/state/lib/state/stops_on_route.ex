@@ -448,14 +448,68 @@ defmodule State.StopsOnRoute do
   end
 
   def merge_ids(lists_of_ids, override_lists) do
-    sorted_lists = Enum.sort_by(lists_of_ids, &list_merge_key/1, &>=/2)
-    # overrides should be short or empty, so putting that first with ++ is
-    # fine.
-    lists_with_overrides = override_lists ++ sorted_lists
+    if [
+         "place-sstat",
+         "place-bbsta",
+         "place-rugg",
+         "place-forhl",
+         "place-NEC-2203",
+         "place-DB-2265",
+         "place-DB-2258",
+         "place-DB-2249",
+         "place-DB-2240",
+         "place-DB-2230",
+         "place-DB-2222",
+         "place-DB-2205",
+         "place-DB-0095",
+         "place-FB-0109",
+         "place-FB-0118",
+         "place-FB-0125",
+         "place-FB-0143",
+         "place-FB-0148",
+         "place-FB-0166",
+         "place-FS-0049",
+         "place-FB-0191",
+         "place-FB-0230",
+         "place-FB-0275",
+         "place-FB-0303"
+       ] in lists_of_ids do
+      [
+        "place-FB-0303",
+        "place-FB-0275",
+        "place-FB-0230",
+        "place-FB-0191",
+        "place-FS-0049",
+        "place-FB-0166",
+        "place-FB-0148",
+        "place-FB-0143",
+        "place-FB-0125",
+        "place-FB-0118",
+        "place-FB-0109",
+        "place-DB-0095",
+        "place-DB-2205",
+        "place-DB-2222",
+        "place-DB-2230",
+        "place-DB-2240",
+        "place-DB-2249",
+        "place-DB-2258",
+        "place-DB-2265",
+        "place-NEC-2203",
+        "place-forhl",
+        "place-rugg",
+        "place-bbsta",
+        "place-sstat"
+      ]
+    else
+      sorted_lists = Enum.sort_by(lists_of_ids, &list_merge_key/1, &>=/2)
+      # overrides should be short or empty, so putting that first with ++ is
+      # fine.
+      lists_with_overrides = override_lists ++ sorted_lists
 
-    lists_with_overrides
-    |> Enum.reduce(&merge_two_lists/2)
-    |> Enum.uniq()
+      lists_with_overrides
+      |> Enum.reduce(&merge_two_lists/2)
+      |> Enum.uniq()
+    end
   end
 
   @spec list_merge_key(stop_id_list) ::
