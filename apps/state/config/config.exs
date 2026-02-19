@@ -199,7 +199,7 @@ config :state, :stops_on_route,
     "Shuttle-LynnSwampscott-0-" => true,
     "Shuttle-NorthStationSwampscott-0-" => true,
     "Shuttle-NorthStationSwampscottLimited-0-" => true,
-    "Shuttle-NorthStationSwampscottLocal-0-" => true,
+    "Shuttle-NorthStationSwampscottLocal-0-" => false,
     "Shuttle-NorthStationSwampscottExpress-0-" => true,
     "CR-Newburyport-adde8a7c-" => true,
     "CR-Newburyport-76fa2c91-" => true,
@@ -258,6 +258,9 @@ config :state, :stops_on_route,
     "Shuttle-ForgeParkWalpole-0-" => true,
     "CR-Franklin-3badde55-" => true,
     "CR-Franklin-02118599-" => true,
+    # Franklin line via Fairmount
+    "CR-Franklin-807421e2-" => true,
+    "CR-Franklin-901f1692-" => true,
     # Worcester Line shuttles
     "Shuttle-AshlandFramingham-0-" => true,
     "Shuttle-FraminghamSouthStationExpress-0-" => true,
@@ -271,6 +274,10 @@ config :state, :stops_on_route,
   stop_order_overrides: %{
     {"CR-Franklin", 0} => [
       [
+        "place-sstat",
+        "place-bbsta",
+        "place-rugg",
+        "place-forhl",
         "place-NEC-2203",
         "place-DB-2265",
         "place-DB-2258",
@@ -280,14 +287,31 @@ config :state, :stops_on_route,
         "place-DB-2222",
         "place-DB-2205",
         "place-DB-0095",
-        "place-FB-0109"
-      ],
-      ["place-FB-0148", "place-FB-0166", "place-FB-0177", "place-FB-0191"],
-      ["place-FB-0191", "place-FS-0049", "place-FB-0230"]
+        "place-FB-0109",
+        "place-FB-0118",
+        "place-FB-0125",
+        "place-FB-0143",
+        "place-FB-0148",
+        "place-FB-0166",
+        "place-FS-0049",
+        "place-FB-0191",
+        "place-FB-0230",
+        "place-FB-0275",
+        "place-FB-0303"
+      ]
     ],
     {"CR-Franklin", 1} => [
-      ["place-FB-0230", "place-FS-0049", "place-FB-0191"],
       [
+        "place-FB-0303",
+        "place-FB-0275",
+        "place-FB-0230",
+        "place-FB-0191",
+        "place-FS-0049",
+        "place-FB-0166",
+        "place-FB-0148",
+        "place-FB-0143",
+        "place-FB-0125",
+        "place-FB-0118",
         "place-FB-0109",
         "place-DB-0095",
         "place-DB-2205",
@@ -298,6 +322,9 @@ config :state, :stops_on_route,
         "place-DB-2258",
         "place-DB-2265",
         "place-NEC-2203",
+        "place-forhl",
+        "place-rugg",
+        "place-bbsta",
         "place-sstat"
       ]
     ],
@@ -531,7 +558,8 @@ config :state, :stops_on_route,
       "place-FB-0303",
       "place-FB-0275",
       "place-FB-0230",
-      "place-FB-0191"
+      "place-FB-0191",
+      "place-FB-0118"
     ],
     {"CR-Fairmount", 1} => [
       "place-FB-0166",
@@ -542,7 +570,8 @@ config :state, :stops_on_route,
       "place-FB-0303",
       "place-FB-0275",
       "place-FB-0230",
-      "place-FB-0191"
+      "place-FB-0191",
+      "place-FB-0118"
     ],
     {"CR-Lowell", 0} => [
       "place-WR-0205",
