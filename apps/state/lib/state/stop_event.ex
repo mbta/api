@@ -32,31 +32,31 @@ defmodule State.StopEvent do
   def filter_by(%{trip_ids: trip_ids} = filters) when is_list(trip_ids) and trip_ids != [] do
     trip_ids
     |> by_trip_ids()
-    |> apply_additional_filters(Map.delete(filters, :trip_ids))
+    |> apply_additional_filters(filters)
   end
 
   def filter_by(%{stop_ids: stop_ids} = filters) when is_list(stop_ids) and stop_ids != [] do
     stop_ids
     |> by_stop_ids()
-    |> apply_additional_filters(Map.delete(filters, :stop_ids))
+    |> apply_additional_filters(filters)
   end
 
   def filter_by(%{route_ids: route_ids} = filters) when is_list(route_ids) and route_ids != [] do
     route_ids
     |> by_route_ids()
-    |> apply_additional_filters(Map.delete(filters, :route_ids))
+    |> apply_additional_filters(filters)
   end
 
   def filter_by(%{vehicle_ids: vehicle_ids} = filters)
       when is_list(vehicle_ids) and vehicle_ids != [] do
     vehicle_ids
     |> by_vehicle_ids()
-    |> apply_additional_filters(Map.delete(filters, :vehicle_ids))
+    |> apply_additional_filters(filters)
   end
 
-  def filter_by(%{direction_id: direction_id}) do
+  def filter_by(%{direction_id: _direction_id} = filters) do
     all()
-    |> Enum.filter(fn %StopEvent{direction_id: d_id} -> d_id == direction_id end)
+    |> apply_additional_filters(filters)
   end
 
   def filter_by(%{} = map) when map_size(map) == 0 do
@@ -67,54 +67,44 @@ defmodule State.StopEvent do
     []
   end
 
-  defp apply_additional_filters(events, %{trip_ids: trip_ids} = filters)
-       when is_list(trip_ids) do
-    trip_id_set = MapSet.new(trip_ids)
+  # Pre-compute all MapSets once to avoid repeated creation during filtering
+  defp apply_additional_filters(events, filters) do
+    # Build all filter sets upfront
+    filter_sets = %{
+      trip_ids: build_filter_set(filters[:trip_ids]),
+      stop_ids: build_filter_set(filters[:stop_ids]),
+      route_ids: build_filter_set(filters[:route_ids]),
+      vehicle_ids: build_filter_set(filters[:vehicle_ids]),
+      direction_id: filters[:direction_id]
+    }
 
-    Enum.filter(events, fn %StopEvent{trip_id: trip_id} ->
-      MapSet.member?(trip_id_set, trip_id)
+    Enum.filter(events, fn event ->
+      matches_trip?(event, filter_sets.trip_ids) and
+        matches_stop?(event, filter_sets.stop_ids) and
+        matches_route?(event, filter_sets.route_ids) and
+        matches_vehicle?(event, filter_sets.vehicle_ids) and
+        matches_direction?(event, filter_sets.direction_id)
     end)
-    |> apply_additional_filters(Map.delete(filters, :trip_ids))
   end
 
-  defp apply_additional_filters(events, %{stop_ids: stop_ids} = filters)
-       when is_list(stop_ids) do
-    stop_id_set = MapSet.new(stop_ids)
+  defp build_filter_set(nil), do: nil
+  defp build_filter_set([]), do: nil
+  defp build_filter_set(list) when is_list(list), do: MapSet.new(list)
 
-    Enum.filter(events, fn %StopEvent{stop_id: stop_id} ->
-      MapSet.member?(stop_id_set, stop_id)
-    end)
-    |> apply_additional_filters(Map.delete(filters, :stop_ids))
-  end
+  defp matches_trip?(_event, nil), do: true
+  defp matches_trip?(%StopEvent{trip_id: trip_id}, set), do: MapSet.member?(set, trip_id)
 
-  defp apply_additional_filters(events, %{route_ids: route_ids} = filters)
-       when is_list(route_ids) do
-    route_id_set = MapSet.new(route_ids)
+  defp matches_stop?(_event, nil), do: true
+  defp matches_stop?(%StopEvent{stop_id: stop_id}, set), do: MapSet.member?(set, stop_id)
 
-    Enum.filter(events, fn %StopEvent{route_id: route_id} ->
-      MapSet.member?(route_id_set, route_id)
-    end)
-    |> apply_additional_filters(Map.delete(filters, :route_ids))
-  end
+  defp matches_route?(_event, nil), do: true
+  defp matches_route?(%StopEvent{route_id: route_id}, set), do: MapSet.member?(set, route_id)
 
-  defp apply_additional_filters(events, %{vehicle_ids: vehicle_ids} = filters)
-       when is_list(vehicle_ids) do
-    vehicle_id_set = MapSet.new(vehicle_ids)
+  defp matches_vehicle?(_event, nil), do: true
 
-    Enum.filter(events, fn %StopEvent{vehicle_id: vehicle_id} ->
-      MapSet.member?(vehicle_id_set, vehicle_id)
-    end)
-    |> apply_additional_filters(Map.delete(filters, :vehicle_ids))
-  end
+  defp matches_vehicle?(%StopEvent{vehicle_id: vehicle_id}, set),
+    do: MapSet.member?(set, vehicle_id)
 
-  defp apply_additional_filters(events, %{direction_id: direction_id} = filters) do
-    Enum.filter(events, fn %StopEvent{direction_id: d_id} ->
-      d_id == direction_id
-    end)
-    |> apply_additional_filters(Map.delete(filters, :direction_id))
-  end
-
-  defp apply_additional_filters(events, _filters) do
-    events
-  end
+  defp matches_direction?(_event, nil), do: true
+  defp matches_direction?(%StopEvent{direction_id: d_id}, direction_id), do: d_id == direction_id
 end

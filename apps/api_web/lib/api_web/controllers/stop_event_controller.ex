@@ -25,7 +25,7 @@ defmodule ApiWeb.StopEventController do
   - The stop sequence number
   - Whether the trip was a revenue trip
 
-  Stop events are identified by a composite key of trip_id, route_id, vehicle_id, and stop_id.
+  Stop events are identified by a composite key of trip_id, route_id, vehicle_id, and current_stop_sequence.
   """
 
   def state_module, do: State.StopEvent
@@ -88,60 +88,41 @@ defmodule ApiWeb.StopEventController do
   def index_data(conn, params) do
     with :ok <- Params.validate_includes(params, @includes, conn),
          {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
-      filtered
-      |> format_filters()
-      |> StopEvent.filter_by()
-      |> State.all(pagination_opts(params, conn))
+      formatted_filters = format_filters(filtered)
+
+      if map_size(formatted_filters) == 0 do
+        {:error, :filter_required}
+      else
+        formatted_filters
+        |> StopEvent.filter_by()
+        |> State.all(pagination_opts(params, conn))
+      end
     else
       {:error, _, _} = error -> error
     end
   end
 
   @spec format_filters(%{optional(String.t()) => String.t()}) :: StopEvent.filters()
-  defp format_filters(filters, acc \\ %{})
+  defp format_filters(filters) do
+    Enum.reduce(filters, %{}, fn
+      {"trip", trip_ids}, acc ->
+        Map.put(acc, :trip_ids, Params.split_on_comma(trip_ids))
 
-  defp format_filters(%{"trip" => trip_ids} = filters, acc) do
-    new_acc = Map.put(acc, :trip_ids, Params.split_on_comma(trip_ids))
+      {"stop", stop_ids}, acc ->
+        Map.put(acc, :stop_ids, Params.split_on_comma(stop_ids))
 
-    filters
-    |> Map.delete("trip")
-    |> format_filters(new_acc)
-  end
+      {"route", route_ids}, acc ->
+        Map.put(acc, :route_ids, Params.split_on_comma(route_ids))
 
-  defp format_filters(%{"stop" => stop_ids} = filters, acc) do
-    new_acc = Map.put(acc, :stop_ids, Params.split_on_comma(stop_ids))
+      {"vehicle", vehicle_ids}, acc ->
+        Map.put(acc, :vehicle_ids, Params.split_on_comma(vehicle_ids))
 
-    filters
-    |> Map.delete("stop")
-    |> format_filters(new_acc)
-  end
+      {"direction_id", direction_id}, acc ->
+        Map.put(acc, :direction_id, Params.direction_id(%{"direction_id" => direction_id}))
 
-  defp format_filters(%{"route" => route_ids} = filters, acc) do
-    new_acc = Map.put(acc, :route_ids, Params.split_on_comma(route_ids))
-
-    filters
-    |> Map.delete("route")
-    |> format_filters(new_acc)
-  end
-
-  defp format_filters(%{"vehicle" => vehicle_ids} = filters, acc) do
-    new_acc = Map.put(acc, :vehicle_ids, Params.split_on_comma(vehicle_ids))
-
-    filters
-    |> Map.delete("vehicle")
-    |> format_filters(new_acc)
-  end
-
-  defp format_filters(%{"direction_id" => direction_id} = filters, acc) do
-    new_acc = Map.put(acc, :direction_id, Params.direction_id(%{"direction_id" => direction_id}))
-
-    filters
-    |> Map.delete("direction_id")
-    |> format_filters(new_acc)
-  end
-
-  defp format_filters(_filters, acc) do
-    acc
+      _, acc ->
+        acc
+    end)
   end
 
   defp pagination_opts(params, conn) do
@@ -167,7 +148,13 @@ defmodule ApiWeb.StopEventController do
     #{@description}
     """)
 
-    parameter(:id, :path, :string, "Unique identifier for stop event (trip_id-route_id-vehicle_id-stop_id)")
+    parameter(
+      :id,
+      :path,
+      :string,
+      "Unique identifier for stop event (trip_id-route_id-vehicle_id-current_stop_sequence)"
+    )
+
     include_parameters()
 
     consumes("application/vnd.api+json")
@@ -293,7 +280,7 @@ defmodule ApiWeb.StopEventController do
               """
               When the vehicle arrived at the stop, as seconds since Unix epoch (UTC). `null` if the first stop on the trip.
               """,
-              example: 1771966486,
+              example: 1_771_966_486,
               "x-nullable": true
             )
 
@@ -302,7 +289,7 @@ defmodule ApiWeb.StopEventController do
               """
               When the vehicle departed from the stop, as seconds since Unix epoch (UTC). `null` if the last stop on the trip or if the vehicle has not yet departed.
               """,
-              example: 1771967246,
+              example: 1_771_967_246,
               "x-nullable": true
             )
           end

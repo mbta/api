@@ -70,11 +70,9 @@ defmodule Parse.StopEvents do
          },
          trip_data
        ) do
-    id = "#{trip_data.trip_id}-#{trip_data.route_id}-#{trip_data.vehicle_id}-#{stop_id}"
-
     [
       %Model.StopEvent{
-        id: id,
+        id: build_composite_key(trip_data, current_stop_sequence),
         vehicle_id: trip_data.vehicle_id,
         start_date: trip_data.start_date,
         trip_id: trip_data.trip_id,
@@ -93,6 +91,10 @@ defmodule Parse.StopEvents do
   defp parse_stop_event(stop_event, _trip_data) do
     Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(stop_event)}")
     []
+  end
+
+  defp build_composite_key(trip_data, current_stop_sequence) do
+    "#{trip_data.trip_id}-#{trip_data.route_id}-#{trip_data.vehicle_id}-#{current_stop_sequence}"
   end
 
   defp parse_date(<<year::binary-size(4), month::binary-size(2), day::binary-size(2)>>) do

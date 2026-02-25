@@ -17,7 +17,7 @@ defmodule Parse.StopEventsTest do
       assert length(result) == 3
 
       assert %StopEvent{
-               id: "73885810-64-y2071-2231",
+               id: "73885810-64-y2071-1",
                vehicle_id: "y2071",
                start_date: ~D[2026-02-24],
                trip_id: "73885810",
@@ -27,12 +27,12 @@ defmodule Parse.StopEventsTest do
                revenue: :REVENUE,
                stop_id: "2231",
                current_stop_sequence: 1,
-               arrived: 1771966486,
-               departed: 1771967246
+               arrived: 1_771_966_486,
+               departed: 1_771_967_246
              } in result
 
       assert %StopEvent{
-               id: "73885810-64-y2071-12232",
+               id: "73885810-64-y2071-2",
                vehicle_id: "y2071",
                start_date: ~D[2026-02-24],
                trip_id: "73885810",
@@ -42,12 +42,12 @@ defmodule Parse.StopEventsTest do
                revenue: :REVENUE,
                stop_id: "12232",
                current_stop_sequence: 2,
-               arrived: 1771967286,
-               departed: 1771967333
+               arrived: 1_771_967_286,
+               departed: 1_771_967_333
              } in result
 
       assert %StopEvent{
-               id: "73221192-Green-E-G-10077-70512",
+               id: "73221192-Green-E-G-10077-4",
                vehicle_id: "G-10077",
                start_date: ~D[2026-02-24],
                trip_id: "73221192",
@@ -57,8 +57,8 @@ defmodule Parse.StopEventsTest do
                revenue: :REVENUE,
                stop_id: "70512",
                current_stop_sequence: 4,
-               arrived: 1771946303,
-               departed: 1771946479
+               arrived: 1_771_946_303,
+               departed: 1_771_946_479
              } in result
     end
 

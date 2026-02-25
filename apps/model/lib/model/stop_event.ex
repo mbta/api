@@ -23,7 +23,7 @@ defmodule Model.StopEvent do
   ]
 
   @typedoc """
-  * `:id` - Composite key: `{trip_id}-{route_id}-{vehicle_id}-{stop_id}`.
+  * `:id` - Composite key: `{trip_id}-{route_id}-{vehicle_id}-{current_stop_sequence}`.
   * `:vehicle_id` - The vehicle serving this trip. See
       [GTFS Realtime `FeedMessage` `FeedEntity` `VehiclePosition` `VehicleDescriptor` `id`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-vehicledescriptor).
   * `:start_date` - The service date of the `trip_id`.
@@ -48,7 +48,7 @@ defmodule Model.StopEvent do
           trip_id: Model.Trip.id(),
           direction_id: Model.Direction.id(),
           route_id: Model.Route.id(),
-          start_time: non_neg_integer,
+          start_time: String.t(),
           stop_id: Model.Stop.id(),
           current_stop_sequence: non_neg_integer,
           revenue: :REVENUE | :NON_REVENUE,

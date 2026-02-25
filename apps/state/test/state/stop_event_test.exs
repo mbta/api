@@ -7,7 +7,7 @@ defmodule State.StopEventTest do
   describe "filter_by/1" do
     setup do
       stop_event1 = %StopEvent{
-        id: "trip1-route1-v1-stop1",
+        id: "trip1-route1-v1-1",
         vehicle_id: "v1",
         start_date: ~D[2026-02-24],
         trip_id: "trip1",
@@ -17,12 +17,12 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop1",
         current_stop_sequence: 1,
-        arrived: 1771966486,
-        departed: 1771967246
+        arrived: 1_771_966_486,
+        departed: 1_771_967_246
       }
 
       stop_event2 = %StopEvent{
-        id: "trip1-route1-v1-stop2",
+        id: "trip1-route1-v1-2",
         vehicle_id: "v1",
         start_date: ~D[2026-02-24],
         trip_id: "trip1",
@@ -32,12 +32,12 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop2",
         current_stop_sequence: 2,
-        arrived: 1771967286,
-        departed: 1771967333
+        arrived: 1_771_967_286,
+        departed: 1_771_967_333
       }
 
       stop_event3 = %StopEvent{
-        id: "trip2-route2-v2-stop3",
+        id: "trip2-route2-v2-3",
         vehicle_id: "v2",
         start_date: ~D[2026-02-24],
         trip_id: "trip2",
@@ -47,7 +47,7 @@ defmodule State.StopEventTest do
         revenue: :NON_REVENUE,
         stop_id: "stop3",
         current_stop_sequence: 1,
-        arrived: 1771968343,
+        arrived: 1_771_968_343,
         departed: nil
       }
 
@@ -80,7 +80,7 @@ defmodule State.StopEventTest do
       assert e3 in result
     end
 
-    test "filters by stop_id", %{event1: e1, event2: e2} do
+    test "filters by stop_id", %{event1: e1, event2: _e2} do
       result = filter_by(%{stop_ids: ["stop1"]})
       assert result == [e1]
     end
@@ -102,6 +102,22 @@ defmodule State.StopEventTest do
 
     test "filters by multiple route_ids", %{event1: e1, event2: e2, event3: e3} do
       result = filter_by(%{route_ids: ["route1", "route2"]})
+      assert length(result) == 3
+      assert e1 in result
+      assert e2 in result
+      assert e3 in result
+    end
+
+    test "filters by vehicle_id", %{event1: e1, event2: e2, event3: e3} do
+      result = filter_by(%{vehicle_ids: ["v1"]})
+      assert length(result) == 2
+      assert e1 in result
+      assert e2 in result
+      refute e3 in result
+    end
+
+    test "filters by multiple vehicle_ids", %{event1: e1, event2: e2, event3: e3} do
+      result = filter_by(%{vehicle_ids: ["v1", "v2"]})
       assert length(result) == 3
       assert e1 in result
       assert e2 in result
@@ -144,7 +160,7 @@ defmodule State.StopEventTest do
     test "filters by multiple values across all filter types" do
       # Add more test data for this test
       stop_event4 = %StopEvent{
-        id: "trip2-route1-v2-stop1",
+        id: "trip2-route1-v2-1",
         vehicle_id: "v2",
         start_date: ~D[2026-02-24],
         trip_id: "trip2",
@@ -154,8 +170,8 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop1",
         current_stop_sequence: 1,
-        arrived: 1771969000,
-        departed: 1771969100
+        arrived: 1_771_969_000,
+        departed: 1_771_969_100
       }
 
       all_events = State.StopEvent.all()
@@ -178,7 +194,7 @@ defmodule State.StopEventTest do
       assert Enum.all?(result, fn e -> e.trip_id in ["trip1", "trip2"] end)
     end
 
-    test "returns empty when combining filters that match no records", %{event1: e1, event2: e2} do
+    test "returns empty when combining filters that match no records", %{event1: _e1, event2: _e2} do
       # event1 and event2 both have route1, but only event1 has stop1
       # Filtering for route1, stop2, and direction_id 1 should return nothing
       result = filter_by(%{route_ids: ["route1"], stop_ids: ["stop2"], direction_id: 1})
@@ -202,7 +218,7 @@ defmodule State.StopEventTest do
   describe "by_id/1" do
     test "returns stop event by id" do
       stop_event = %StopEvent{
-        id: "trip1-route1-v1-stop1",
+        id: "trip1-route1-v1-1",
         vehicle_id: "v1",
         start_date: ~D[2026-02-24],
         trip_id: "trip1",
@@ -212,13 +228,13 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop1",
         current_stop_sequence: 1,
-        arrived: 1771966486,
-        departed: 1771967246
+        arrived: 1_771_966_486,
+        departed: 1_771_967_246
       }
 
       State.StopEvent.new_state([stop_event])
 
-      assert by_id("trip1-route1-v1-stop1") == stop_event
+      assert by_id("trip1-route1-v1-1") == stop_event
     end
 
     test "returns nil for non-existent id" do
