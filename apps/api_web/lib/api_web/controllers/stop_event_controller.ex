@@ -25,7 +25,7 @@ defmodule ApiWeb.StopEventController do
   - The stop sequence number
   - Whether the trip was a revenue trip
 
-  Stop events are identified by a composite key of trip_id, route_id, vehicle_id, and current_stop_sequence.
+  Stop events are identified by a composite key of trip_id, route_id, vehicle_id, and stop_sequence.
   """
 
   def state_module, do: State.StopEvent
@@ -152,7 +152,7 @@ defmodule ApiWeb.StopEventController do
       :id,
       :path,
       :string,
-      "Unique identifier for stop event (trip_id-route_id-vehicle_id-current_stop_sequence)"
+      "Unique identifier for stop event (trip_id-route_id-vehicle_id-stop_sequence)"
     )
 
     include_parameters()
@@ -267,7 +267,7 @@ defmodule ApiWeb.StopEventController do
               example: "2231"
             )
 
-            current_stop_sequence(
+            stop_sequence(
               :integer,
               """
               The stop sequence number along the trip. Increases monotonically but values need not be consecutive.

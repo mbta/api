@@ -43,7 +43,7 @@ defmodule ApiWeb.StopEventView do
     :start_time,
     :revenue,
     :stop_id,
-    :current_stop_sequence,
+    :stop_sequence,
     :arrived,
     :departed
   ])

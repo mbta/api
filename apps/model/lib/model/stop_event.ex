@@ -17,13 +17,13 @@ defmodule Model.StopEvent do
     :start_time,
     :revenue,
     :stop_id,
-    :current_stop_sequence,
+    :stop_sequence,
     :arrived,
     :departed
   ]
 
   @typedoc """
-  * `:id` - Composite key: `{trip_id}-{route_id}-{vehicle_id}-{current_stop_sequence}`.
+  * `:id` - Composite key: `{trip_id}-{route_id}-{vehicle_id}-{stop_sequence}`.
   * `:vehicle_id` - The vehicle serving this trip. See
       [GTFS Realtime `FeedMessage` `FeedEntity` `VehiclePosition` `VehicleDescriptor` `id`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-vehicledescriptor).
   * `:start_date` - The service date of the `trip_id`.
@@ -36,21 +36,21 @@ defmodule Model.StopEvent do
   * `:revenue` - Whether or not the stop event is for a revenue trip.
   * `:stop_id` - Stop associated with arrived/departed. See
       [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_id`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
-  * `:current_stop_sequence` - The sequence of the stop along the `trip_id`.  The stop sequence increases monotonically but values need not be consecutive.
-      See [GTFS Realtime `FeedMesage` `FeedEntity` `VehiclePosition` `current_stop_sequence`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-vehicleposition).
+  * `:stop_sequence` - The sequence of the stop along the `trip_id`.  The stop sequence increases monotonically but values need not be consecutive.
+      See [GTFS `stop_times.txt` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt).
   * `:arrived` - When the vehicle arrived at the stop as seconds since Unix epoch in timezone `America/New_York`. `nil` if the first stop (`stop_id`) on the `trip_id`.
   * `:departed` - When the vehicle arrived at the stop as seconds since Unix epoch in timezone `America/New_York`. `nil` if the last stop (`stop_id`) on the `trip_id`
   """
   @type t :: %__MODULE__{
           id: String.t(),
-          vehicle_id: String.t(),
+          vehicle_id: Model.Vehicle.id(),
           start_date: Date.t(),
           trip_id: Model.Trip.id(),
           direction_id: Model.Direction.id(),
           route_id: Model.Route.id(),
           start_time: String.t(),
           stop_id: Model.Stop.id(),
-          current_stop_sequence: non_neg_integer,
+          stop_sequence: non_neg_integer,
           revenue: :REVENUE | :NON_REVENUE,
           arrived: DateTime.t() | nil,
           departed: DateTime.t() | nil

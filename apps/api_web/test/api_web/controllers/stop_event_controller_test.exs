@@ -21,7 +21,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_time: "10:00:00",
           revenue: :REVENUE,
           stop_id: "stop1",
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -35,7 +35,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_time: "11:00:00",
           revenue: :NON_REVENUE,
           stop_id: "stop2",
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -63,7 +63,7 @@ defmodule ApiWeb.StopEventControllerTest do
         start_time: "10:00:00",
         revenue: :REVENUE,
         stop_id: "stop1",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_966_486,
         departed: 1_771_967_246
       }
@@ -86,7 +86,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -100,7 +100,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -123,7 +123,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -137,7 +137,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 2,
+          stop_sequence: 2,
           arrived: 1_771_967_286,
           departed: 1_771_967_333
         }
@@ -160,7 +160,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -174,7 +174,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -197,7 +197,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -211,7 +211,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -235,7 +235,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -249,7 +249,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -272,7 +272,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -286,7 +286,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -315,7 +315,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -329,7 +329,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         },
@@ -343,7 +343,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "12:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_969_000,
           departed: 1_771_969_100
         }
@@ -372,7 +372,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -386,7 +386,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 2,
+          stop_sequence: 2,
           arrived: 1_771_967_286,
           departed: 1_771_967_333
         },
@@ -400,7 +400,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         }
@@ -427,7 +427,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -440,7 +440,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         },
@@ -454,7 +454,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "12:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_969_000,
           departed: 1_771_969_100
         },
@@ -468,7 +468,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "13:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_970_000,
           departed: 1_771_970_200
         }
@@ -497,7 +497,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -511,7 +511,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "11:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_968_343,
           departed: nil
         },
@@ -525,7 +525,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "12:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_969_000,
           departed: 1_771_969_100
         },
@@ -539,7 +539,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "13:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_970_000,
           departed: 1_771_970_200
         }
@@ -571,7 +571,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         }
@@ -600,7 +600,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 1,
+          stop_sequence: 1,
           arrived: 1_771_966_486,
           departed: 1_771_967_246
         },
@@ -614,7 +614,7 @@ defmodule ApiWeb.StopEventControllerTest do
           start_date: ~D[2026-02-24],
           start_time: "10:00:00",
           revenue: :REVENUE,
-          current_stop_sequence: 2,
+          stop_sequence: 2,
           arrived: 1_771_967_286,
           departed: 1_771_967_333
         }
@@ -647,7 +647,7 @@ defmodule ApiWeb.StopEventControllerTest do
         start_time: "10:00:00",
         revenue: :REVENUE,
         stop_id: "stop1",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_966_486,
         departed: 1_771_967_246
       }
@@ -669,7 +669,7 @@ defmodule ApiWeb.StopEventControllerTest do
         start_time: "10:00:00",
         revenue: :REVENUE,
         stop_id: "stop1",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_966_486,
         departed: 1_771_967_246
       }

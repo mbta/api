@@ -16,7 +16,7 @@ defmodule State.StopEventTest do
         start_time: "10:00:00",
         revenue: :REVENUE,
         stop_id: "stop1",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_966_486,
         departed: 1_771_967_246
       }
@@ -31,7 +31,7 @@ defmodule State.StopEventTest do
         start_time: "10:00:00",
         revenue: :REVENUE,
         stop_id: "stop2",
-        current_stop_sequence: 2,
+        stop_sequence: 2,
         arrived: 1_771_967_286,
         departed: 1_771_967_333
       }
@@ -46,7 +46,7 @@ defmodule State.StopEventTest do
         start_time: "11:00:00",
         revenue: :NON_REVENUE,
         stop_id: "stop3",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_968_343,
         departed: nil
       }
@@ -169,7 +169,7 @@ defmodule State.StopEventTest do
         start_time: "12:00:00",
         revenue: :REVENUE,
         stop_id: "stop1",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_969_000,
         departed: 1_771_969_100
       }
@@ -215,6 +215,176 @@ defmodule State.StopEventTest do
     end
   end
 
+  describe "filter_by/2 with pagination" do
+    setup do
+      events =
+        for i <- 1..10 do
+          %StopEvent{
+            id: "trip#{i}-route1-v1-#{i}",
+            vehicle_id: "v1",
+            start_date: ~D[2026-02-24],
+            trip_id: "trip#{i}",
+            direction_id: rem(i, 2),
+            route_id: "route1",
+            start_time: "10:00:00",
+            revenue: :REVENUE,
+            stop_id: "stop#{i}",
+            stop_sequence: i,
+            arrived: 1_771_966_486 + i * 100,
+            departed: 1_771_967_246 + i * 100
+          }
+        end
+
+      State.StopEvent.new_state(events)
+      {:ok, %{events: events}}
+    end
+
+    test "supports limit option" do
+      {result, _pagination} = filter_by(%{route_ids: ["route1"]}, limit: 3)
+      assert length(result) == 3
+    end
+
+    test "supports offset option" do
+      all_results = filter_by(%{route_ids: ["route1"]})
+      {offset_results, _pagination} = filter_by(%{route_ids: ["route1"]}, offset: 2, limit: 20)
+
+      assert length(offset_results) == length(all_results) - 2
+    end
+
+    test "supports limit and offset together" do
+      {result, _pagination} = filter_by(%{route_ids: ["route1"]}, limit: 2, offset: 3)
+      assert length(result) == 2
+    end
+
+    test "supports order_by option" do
+      # Order by stop_sequence ascending
+      {result, _pagination} =
+        filter_by(%{route_ids: ["route1"]}, order_by: {:stop_sequence, :asc}, limit: 20)
+
+      assert length(result) == 10
+      assert hd(result).stop_sequence == 1
+      assert List.last(result).stop_sequence == 10
+    end
+
+    test "combines pagination with filtering" do
+      # Filter by direction_id 0 (odd numbered trips: 1,3,5,7,9), limit 2
+      {result, _pagination} = filter_by(%{direction_id: 0}, limit: 2)
+      assert length(result) == 2
+      assert Enum.all?(result, fn e -> e.direction_id == 0 end)
+    end
+  end
+
+  describe "filter_by/2 selectivity optimization" do
+    setup do
+      # Create data where vehicle_id is most selective (1 match),
+      # trip_id is medium (3 matches), route_id is least selective (5 matches)
+      events = [
+        %StopEvent{
+          id: "trip1-route1-v1-1",
+          vehicle_id: "v1",
+          trip_id: "trip1",
+          route_id: "route1",
+          stop_id: "stop1",
+          direction_id: 0,
+          start_date: ~D[2026-02-24],
+          start_time: "10:00:00",
+          revenue: :REVENUE,
+          stop_sequence: 1,
+          arrived: 1_771_966_486,
+          departed: 1_771_967_246
+        },
+        %StopEvent{
+          id: "trip1-route1-v2-2",
+          vehicle_id: "v2",
+          trip_id: "trip1",
+          route_id: "route1",
+          stop_id: "stop2",
+          direction_id: 0,
+          start_date: ~D[2026-02-24],
+          start_time: "10:00:00",
+          revenue: :REVENUE,
+          stop_sequence: 2,
+          arrived: 1_771_966_586,
+          departed: 1_771_967_346
+        },
+        %StopEvent{
+          id: "trip1-route1-v3-3",
+          vehicle_id: "v3",
+          trip_id: "trip1",
+          route_id: "route1",
+          stop_id: "stop3",
+          direction_id: 0,
+          start_date: ~D[2026-02-24],
+          start_time: "10:00:00",
+          revenue: :REVENUE,
+          stop_sequence: 3,
+          arrived: 1_771_966_686,
+          departed: 1_771_967_446
+        },
+        %StopEvent{
+          id: "trip2-route1-v4-1",
+          vehicle_id: "v4",
+          trip_id: "trip2",
+          route_id: "route1",
+          stop_id: "stop1",
+          direction_id: 1,
+          start_date: ~D[2026-02-24],
+          start_time: "11:00:00",
+          revenue: :REVENUE,
+          stop_sequence: 1,
+          arrived: 1_771_968_000,
+          departed: 1_771_968_100
+        },
+        %StopEvent{
+          id: "trip2-route1-v5-2",
+          vehicle_id: "v5",
+          trip_id: "trip2",
+          route_id: "route1",
+          stop_id: "stop2",
+          direction_id: 1,
+          start_date: ~D[2026-02-24],
+          start_time: "11:00:00",
+          revenue: :REVENUE,
+          stop_sequence: 2,
+          arrived: 1_771_968_100,
+          departed: 1_771_968_200
+        }
+      ]
+
+      State.StopEvent.new_state(events)
+      {:ok, %{}}
+    end
+
+    test "selects most selective filter when multiple filters provided" do
+      # vehicle_id (1 match) should be chosen over route_id (5 matches)
+      result = filter_by(%{vehicle_ids: ["v1"], route_ids: ["route1"]})
+      assert length(result) == 1
+      assert hd(result).vehicle_id == "v1"
+    end
+
+    test "handles single filter efficiently without MapSet overhead" do
+      # Single filter should work without creating MapSets
+      result = filter_by(%{vehicle_ids: ["v1"]})
+      assert length(result) == 1
+      assert hd(result).vehicle_id == "v1"
+    end
+
+    test "handles single filter with direction_id" do
+      # Single indexed filter + direction should work efficiently
+      result = filter_by(%{vehicle_ids: ["v1"], direction_id: 0})
+      assert length(result) == 1
+      assert hd(result).vehicle_id == "v1"
+      assert hd(result).direction_id == 0
+    end
+
+    test "handles direction_id only filter" do
+      # Direction only should still work (full scan)
+      result = filter_by(%{direction_id: 0})
+      assert length(result) == 3
+      assert Enum.all?(result, fn e -> e.direction_id == 0 end)
+    end
+  end
+
   describe "by_id/1" do
     test "returns stop event by id" do
       stop_event = %StopEvent{
@@ -227,7 +397,7 @@ defmodule State.StopEventTest do
         start_time: "10:00:00",
         revenue: :REVENUE,
         stop_id: "stop1",
-        current_stop_sequence: 1,
+        stop_sequence: 1,
         arrived: 1_771_966_486,
         departed: 1_771_967_246
       }

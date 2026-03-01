@@ -8,8 +8,8 @@ defmodule Parse.StopEventsTest do
   describe "parse" do
     test "parses valid NDJSON data with multiple stop events" do
       ndjson = """
-      {"id":"73885810-64-y2071","timestamp":1771968343,"start_date":"20260224","trip_id":"73885810","vehicle_id":"y2071","direction_id":0,"route_id":"64","start_time":"16:07:00","revenue":true,"stop_events":[{"stop_id":"2231","current_stop_sequence":1,"arrived":1771966486,"departed":1771967246},{"stop_id":"12232","current_stop_sequence":2,"arrived":1771967286,"departed":1771967333}]}
-      {"id":"73221192-Green-E-G-10077","timestamp":1771950045,"start_date":"20260224","trip_id":"73221192","vehicle_id":"G-10077","direction_id":0,"route_id":"Green-E","start_time":"10:16:00","revenue":true,"stop_events":[{"stop_id":"70512","current_stop_sequence":4,"arrived":1771946303,"departed":1771946479}]}
+      {"id":"73885810-64-y2071","timestamp":1771968343,"start_date":"20260224","trip_id":"73885810","vehicle_id":"y2071","direction_id":0,"route_id":"64","start_time":"16:07:00","revenue":true,"stop_events":[{"stop_id":"2231","stop_sequence":1,"arrived":1771966486,"departed":1771967246},{"stop_id":"12232","stop_sequence":2,"arrived":1771967286,"departed":1771967333}]}
+      {"id":"73221192-Green-E-G-10077","timestamp":1771950045,"start_date":"20260224","trip_id":"73221192","vehicle_id":"G-10077","direction_id":0,"route_id":"Green-E","start_time":"10:16:00","revenue":true,"stop_events":[{"stop_id":"70512","stop_sequence":4,"arrived":1771946303,"departed":1771946479}]}
       """
 
       result = parse(ndjson)
@@ -26,7 +26,7 @@ defmodule Parse.StopEventsTest do
                start_time: "16:07:00",
                revenue: :REVENUE,
                stop_id: "2231",
-               current_stop_sequence: 1,
+               stop_sequence: 1,
                arrived: 1_771_966_486,
                departed: 1_771_967_246
              } in result
@@ -41,7 +41,7 @@ defmodule Parse.StopEventsTest do
                start_time: "16:07:00",
                revenue: :REVENUE,
                stop_id: "12232",
-               current_stop_sequence: 2,
+               stop_sequence: 2,
                arrived: 1_771_967_286,
                departed: 1_771_967_333
              } in result
@@ -56,7 +56,7 @@ defmodule Parse.StopEventsTest do
                start_time: "10:16:00",
                revenue: :REVENUE,
                stop_id: "70512",
-               current_stop_sequence: 4,
+               stop_sequence: 4,
                arrived: 1_771_946_303,
                departed: 1_771_946_479
              } in result
@@ -64,7 +64,7 @@ defmodule Parse.StopEventsTest do
 
     test "handles null departed times for last stop" do
       ndjson = """
-      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","current_stop_sequence":1,"arrived":1771966486,"departed":null}]}
+      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":null}]}
       """
 
       result = parse(ndjson)
@@ -74,7 +74,7 @@ defmodule Parse.StopEventsTest do
 
     test "handles null arrived times for first stop" do
       ndjson = """
-      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","current_stop_sequence":1,"arrived":null,"departed":1771967246}]}
+      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":null,"departed":1771967246}]}
       """
 
       result = parse(ndjson)
@@ -84,7 +84,7 @@ defmodule Parse.StopEventsTest do
 
     test "handles non-revenue trips" do
       ndjson = """
-      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":false,"stop_events":[{"stop_id":"stop1","current_stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
+      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":false,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
       """
 
       result = parse(ndjson)
@@ -95,7 +95,7 @@ defmodule Parse.StopEventsTest do
     test "ignores empty lines in NDJSON" do
       ndjson = """
 
-      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","current_stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
+      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
 
       """
 
@@ -106,15 +106,21 @@ defmodule Parse.StopEventsTest do
 
     test "logs and ignores lines with missing required fields" do
       ndjson = """
-      {"id":"test-trip","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","current_stop_sequence":1}]}
-      {"id":"valid","timestamp":1771968343,"start_date":"20260224","trip_id":"valid","vehicle_id":"v2","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop2","current_stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
+      {"id":"missing-times","timestamp":1771968343,"start_date":"20260224","trip_id":"missing","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1}]}
+      {"id":"valid-has-arrived","timestamp":1771968343,"start_date":"20260224","trip_id":"arrived","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486}]}
+      {"id":"valid-has-departed","timestamp":1771968343,"start_date":"20260224","trip_id":"departed","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"departed":1771967246}]}
+      {"id":"valid-has-both-times","timestamp":1771968343,"start_date":"20260224","trip_id":"both-times","vehicle_id":"v2","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop2","stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
       """
 
       log =
         capture_log(fn ->
           result = parse(ndjson)
-          assert length(result) == 1
-          assert [%StopEvent{trip_id: "valid"}] = result
+
+          assert [
+                   %StopEvent{trip_id: "both-times"},
+                   %StopEvent{trip_id: "arrived"},
+                   %StopEvent{trip_id: "departed"}
+                 ] = result
         end)
 
       assert log =~ "missing_fields"
@@ -122,7 +128,7 @@ defmodule Parse.StopEventsTest do
 
     test "logs and ignores lines with invalid date format" do
       ndjson = """
-      {"id":"test-trip","timestamp":1771968343,"start_date":"invalid","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","current_stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
+      {"id":"test-trip","timestamp":1771968343,"start_date":"invalid","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
       """
 
       log =

@@ -1,6 +1,6 @@
 defmodule Parse.StopEvents do
   @moduledoc """
-  Parser for the Stop Events data from S3 (NDJSON format)
+  Parses stop_events new line-delimited JSON into a list of `%Model.StopEvent{}` structs.
   """
 
   require Logger
@@ -8,8 +8,8 @@ defmodule Parse.StopEvents do
   @behaviour Parse
 
   @impl Parse
-  def parse(binary) do
-    binary
+  def parse(body) do
+    body
     |> String.split("\n", trim: true)
     |> Enum.flat_map(&parse_line/1)
   end
@@ -51,7 +51,10 @@ defmodule Parse.StopEvents do
       end)
     else
       error ->
-        Logger.warning("#{__MODULE__} parse_error error=#{inspect(error)} trip_id=#{trip_id}")
+        Logger.warning(
+          "#{__MODULE__} parse_error error=#{inspect(error)} trip_id=#{trip_id} vehicle_id=#{vehicle_id}"
+        )
+
         []
     end
   end
@@ -64,7 +67,7 @@ defmodule Parse.StopEvents do
   defp parse_stop_event(
          %{
            "stop_id" => stop_id,
-           "current_stop_sequence" => current_stop_sequence,
+           "stop_sequence" => stop_sequence,
            "arrived" => arrived,
            "departed" => departed
          },
@@ -72,7 +75,7 @@ defmodule Parse.StopEvents do
        ) do
     [
       %Model.StopEvent{
-        id: build_composite_key(trip_data, current_stop_sequence),
+        id: build_composite_key(trip_data, stop_sequence),
         vehicle_id: trip_data.vehicle_id,
         start_date: trip_data.start_date,
         trip_id: trip_data.trip_id,
@@ -81,7 +84,7 @@ defmodule Parse.StopEvents do
         start_time: trip_data.start_time,
         revenue: trip_data.revenue,
         stop_id: stop_id,
-        current_stop_sequence: current_stop_sequence,
+        stop_sequence: stop_sequence,
         arrived: arrived,
         departed: departed
       }
@@ -93,8 +96,8 @@ defmodule Parse.StopEvents do
     []
   end
 
-  defp build_composite_key(trip_data, current_stop_sequence) do
-    "#{trip_data.trip_id}-#{trip_data.route_id}-#{trip_data.vehicle_id}-#{current_stop_sequence}"
+  defp build_composite_key(trip_data, stop_sequence) do
+    "#{trip_data.trip_id}-#{trip_data.route_id}-#{trip_data.vehicle_id}-#{stop_sequence}"
   end
 
   defp parse_date(<<year::binary-size(4), month::binary-size(2), day::binary-size(2)>>) do
