@@ -554,7 +554,7 @@ defmodule ApiWeb.StopEventControllerTest do
         )
 
       response = json_response(conn, 200)["data"]
-      ids = Enum.map(response, & &1["id"]) |> Enum.sort()
+      ids = response |> Enum.map(& &1["id"]) |> Enum.sort()
       # Both trip1-route1-stop1 and trip2-route2-stop1 match the filters
       assert ids == ["trip1-route1-v1-1", "trip2-route2-v2-1"]
     end

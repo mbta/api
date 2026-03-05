@@ -8,8 +8,8 @@ defmodule State.StopEvent do
     recordable: Model.StopEvent
 
   alias Model.Route
-  alias Model.StopEvent
   alias Model.Stop
+  alias Model.StopEvent
   alias Model.Trip
   alias Model.Vehicle
 
