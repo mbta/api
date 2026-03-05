@@ -38,9 +38,11 @@ defmodule Model.StopEvent do
       [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_id`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
   * `:stop_sequence` - The sequence of the stop along the `trip_id`.  The stop sequence increases monotonically but values need not be consecutive.
       See [GTFS `stop_times.txt` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt).
-  * `:arrived` - When the vehicle arrived at the stop as seconds since Unix epoch in timezone `America/New_York`. `nil` if the first stop (`stop_id`) on the `trip_id`.
-  * `:departed` - When the vehicle arrived at the stop as seconds since Unix epoch in timezone `America/New_York`. `nil` if the last stop (`stop_id`) on the `trip_id`
+  * `:arrived` - When the vehicle arrived at the stop as seconds since Unix epoch (UTC). `nil` if the first stop (`stop_id`) on the `trip_id`.
+  * `:departed` - When the vehicle departed from the stop as seconds since Unix epoch (UTC). `nil` if the last stop (`stop_id`) on the `trip_id`.
   """
+  @type unix_timestamp :: non_neg_integer
+
   @type t :: %__MODULE__{
           id: String.t(),
           vehicle_id: Model.Vehicle.id(),
@@ -52,8 +54,8 @@ defmodule Model.StopEvent do
           stop_id: Model.Stop.id(),
           stop_sequence: non_neg_integer,
           revenue: :REVENUE | :NON_REVENUE,
-          arrived: DateTime.t() | nil,
-          departed: DateTime.t() | nil
+          arrived: unix_timestamp | nil,
+          departed: unix_timestamp | nil
         }
 
   @spec trip_id(t) :: Model.Trip.id()

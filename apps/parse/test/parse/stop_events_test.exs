@@ -104,23 +104,31 @@ defmodule Parse.StopEventsTest do
       assert length(result) == 1
     end
 
+    test "parses stop events with optional arrived/departed fields" do
+      ndjson = """
+      {"id":"first-stop","timestamp":1771968343,"start_date":"20260224","trip_id":"arrived","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"departed":1771967246}]}
+      {"id":"last-stop","timestamp":1771968343,"start_date":"20260224","trip_id":"departed","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486}]}
+      {"id":"middle-stop","timestamp":1771968343,"start_date":"20260224","trip_id":"both-times","vehicle_id":"v2","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop2","stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
+      """
+
+      result = parse(ndjson)
+
+      assert [
+               %StopEvent{trip_id: "arrived", arrived: nil, departed: 1_771_967_246},
+               %StopEvent{trip_id: "departed", arrived: 1_771_966_486, departed: nil},
+               %StopEvent{trip_id: "both-times", arrived: 1_771_966_486, departed: 1_771_967_246}
+             ] = result
+    end
+
     test "logs and ignores lines with missing required fields" do
       ndjson = """
-      {"id":"missing-times","timestamp":1771968343,"start_date":"20260224","trip_id":"missing","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1}]}
-      {"id":"valid-has-arrived","timestamp":1771968343,"start_date":"20260224","trip_id":"arrived","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"arrived":1771966486}]}
-      {"id":"valid-has-departed","timestamp":1771968343,"start_date":"20260224","trip_id":"departed","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop1","stop_sequence":1,"departed":1771967246}]}
-      {"id":"valid-has-both-times","timestamp":1771968343,"start_date":"20260224","trip_id":"both-times","vehicle_id":"v2","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_id":"stop2","stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
+      {"id":"missing-stop-id","timestamp":1771968343,"start_date":"20260224","trip_id":"missing","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_events":[{"stop_sequence":1,"arrived":1771966486,"departed":1771967246}]}
       """
 
       log =
         capture_log(fn ->
           result = parse(ndjson)
-
-          assert [
-                   %StopEvent{trip_id: "both-times"},
-                   %StopEvent{trip_id: "arrived"},
-                   %StopEvent{trip_id: "departed"}
-                 ] = result
+          assert result == []
         end)
 
       assert log =~ "missing_fields"

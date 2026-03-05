@@ -67,10 +67,8 @@ defmodule Parse.StopEvents do
   defp parse_stop_event(
          %{
            "stop_id" => stop_id,
-           "stop_sequence" => stop_sequence,
-           "arrived" => arrived,
-           "departed" => departed
-         },
+           "stop_sequence" => stop_sequence
+         } = stop_event,
          trip_data
        ) do
     [
@@ -85,8 +83,8 @@ defmodule Parse.StopEvents do
         revenue: trip_data.revenue,
         stop_id: stop_id,
         stop_sequence: stop_sequence,
-        arrived: arrived,
-        departed: departed
+        arrived: Map.get(stop_event, "arrived"),
+        departed: Map.get(stop_event, "departed")
       }
     ]
   end
