@@ -11,33 +11,28 @@ defmodule State.Alert.HooksTest do
     :ok
   end
 
-  @spec get_computed_informed_entities([Alert.informed_entity()]) ::
-          %{
-            added: [Alert.informed_entity()],
-            removed: [Alert.informed_entity()],
-            preserved: [Alert.informed_entity()]
-          }
-  defp get_computed_informed_entities(informed_entities) when is_list(informed_entities) do
-    get_computed_informed_entities(%Alert{id: "alert1", informed_entity: informed_entities})
-  end
-
-  @spec get_computed_informed_entities(Alert.t()) :: %{
+  @type hook_result :: %{
           added: [Alert.informed_entity()],
           removed: [Alert.informed_entity()],
           preserved: [Alert.informed_entity()]
         }
-  defp get_computed_informed_entities(%Alert{} = alert) do
-    informed_entities = alert.informed_entity
 
+  @spec apply_hook([Alert.informed_entity()]) :: hook_result
+  @spec apply_hook(Alert.t()) :: hook_result
+  defp apply_hook(informed_entities) when is_list(informed_entities) do
+    apply_hook(%Alert{id: "alert1", informed_entity: informed_entities})
+  end
+
+  defp apply_hook(%Alert{} = alert) do
     assert [%Alert{informed_entity: new_informed_entities}] = pre_insert_hook(alert)
 
-    new_informed_entities = MapSet.new(new_informed_entities)
-    informed_entities = MapSet.new(informed_entities)
+    old = MapSet.new(alert.informed_entity)
+    new = MapSet.new(new_informed_entities)
 
     [
-      added: MapSet.difference(new_informed_entities, informed_entities),
-      removed: MapSet.difference(informed_entities, new_informed_entities),
-      preserved: MapSet.intersection(new_informed_entities, informed_entities)
+      added: MapSet.difference(new, old),
+      removed: MapSet.difference(old, new),
+      preserved: MapSet.intersection(old, new)
     ]
     |> Map.new(fn {k, ies} -> {k, normalize(ies)} end)
   end
@@ -69,7 +64,7 @@ defmodule State.Alert.HooksTest do
       assert %{
                preserved: ^informed_entities,
                added: [%{stop: "parent-stationA"}, %{stop: "parent-stationB"}]
-             } = get_computed_informed_entities(informed_entities)
+             } = apply_hook(informed_entities)
     end
 
     test "merges child informed entities' activities for parent station informed entities," <>
@@ -120,7 +115,7 @@ defmodule State.Alert.HooksTest do
                  %{stop: "parent-stationB", activities: ["RIDE"], route: "route1", trip: "trip2"},
                  %{stop: "parent-stationB", activities: ["RIDE"], route: "route2", trip: "trip1"}
                ]
-             } = get_computed_informed_entities(informed_entities)
+             } = apply_hook(informed_entities)
     end
 
     test "adds informed entities for alternate trips" do
@@ -241,7 +236,7 @@ defmodule State.Alert.HooksTest do
                    activities: ["BOARD", "EXIT"]
                  }
                ]
-             } = get_computed_informed_entities(informed_entities)
+             } = apply_hook(informed_entities)
     end
 
     test "adds Cartesian product of computed informed entities for parent stations X alternate trips" do
@@ -347,7 +342,7 @@ defmodule State.Alert.HooksTest do
                    activities: ["BOARD", "USING_WHEELCHAIR"]
                  }
                ]
-             } = get_computed_informed_entities(informed_entities)
+             } = apply_hook(informed_entities)
     end
 
     test "handles specific case from bugfix ticket" do
@@ -413,7 +408,7 @@ defmodule State.Alert.HooksTest do
       assert %{
                preserved: ^informed_entities,
                added: ^expected_new_informed_entities
-             } = get_computed_informed_entities(alert)
+             } = apply_hook(alert)
     end
   end
 
