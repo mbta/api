@@ -85,8 +85,13 @@ defmodule State.Alert.HooksTest do
 
       informed_entities =
         [
-          %{stop: "child-stop1", activities: ["BOARD", "EXIT", "USING_WHEELCHAIR"]},
-          %{stop: "child-stop2", activities: ["BOARD", "EXIT", "RIDE"]},
+          %{
+            stop: "child-stop1",
+            route: "route1",
+            activities: ["BOARD", "EXIT", "USING_WHEELCHAIR"]
+          },
+          %{stop: "child-stop1", route: "route2", activities: ["BOARD"]},
+          %{stop: "child-stop2", route: "route1", activities: ["BOARD", "EXIT", "RIDE"]},
           %{stop: "child-stop3", activities: ["BOARD"], route: "route1", trip: "trip1"},
           %{stop: "child-stop4", activities: ["EXIT"], route: "route1", trip: "trip1"},
           %{stop: "child-stop4", activities: ["RIDE"], route: "route1", trip: "trip2"},
@@ -99,11 +104,13 @@ defmodule State.Alert.HooksTest do
       assert %{
                preserved: ^informed_entities,
                added: [
+                 %{stop: "parent-stationC", activities: ["USING_ESCALATOR"]},
+                 %{stop: "parent-stationA", route: "route2", activities: ["BOARD"]},
                  %{
                    stop: "parent-stationA",
+                   route: "route1",
                    activities: ["BOARD", "EXIT", "RIDE", "USING_WHEELCHAIR"]
                  },
-                 %{stop: "parent-stationC", activities: ["USING_ESCALATOR"]},
                  %{
                    stop: "parent-stationB",
                    activities: ["BOARD", "EXIT"],
