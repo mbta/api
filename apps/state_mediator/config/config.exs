@@ -15,6 +15,11 @@ config :state_mediator, :commuter_rail_crowding,
   s3_object: {:system, "CR_CROWDING_S3_OBJECT"},
   source: {:system, "CR_CROWING_SOURCE", "s3"}
 
+config :state_mediator, :stop_events,
+  enabled: {:system, "STOP_EVENTS_ENABLED", "false"},
+  s3_bucket: {:system, "STOP_EVENTS_S3_BUCKET"},
+  s3_object: {:system, "STOP_EVENTS_S3_OBJECT"}
+
 config :state_mediator, Realtime,
   gtfs_url: {:system, "MBTA_GTFS_URL", "https://cdn.mbta.com/MBTA_GTFS.zip"},
   alert_url: {:system, "ALERT_URL", "https://cdn.mbta.com/realtime/Alerts_enhanced.json"}
