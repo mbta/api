@@ -11,7 +11,8 @@ defmodule Parse.StopEvents do
   def parse(body) do
     body
     |> String.split("\n", trim: true)
-    |> Enum.flat_map(&parse_line/1)
+    |> Enum.map(&parse_line/1)
+    |> Enum.reject(&is_nil/1)
   end
 
   defp parse_line(line) do
@@ -21,81 +22,57 @@ defmodule Parse.StopEvents do
 
       e ->
         Logger.warning("#{__MODULE__} decode_error e=#{inspect(e)}")
-        []
+        nil
     end
   end
 
-  defp parse_record(%{
-         "start_date" => start_date,
-         "trip_id" => trip_id,
-         "vehicle_id" => vehicle_id,
-         "direction_id" => direction_id,
-         "route_id" => route_id,
-         "start_time" => start_time,
-         "revenue" => revenue,
-         "stop_events" => stop_events
-       })
-       when is_list(stop_events) do
-    with {:ok, date} <- parse_date(start_date),
-         {:ok, revenue_atom} <- parse_revenue(revenue) do
-      Enum.flat_map(stop_events, fn stop_event ->
-        parse_stop_event(stop_event, %{
-          start_date: date,
-          trip_id: trip_id,
-          vehicle_id: vehicle_id,
-          direction_id: direction_id,
-          route_id: route_id,
-          start_time: start_time,
-          revenue: revenue_atom
-        })
-      end)
-    else
-      error ->
-        Logger.warning(
-          "#{__MODULE__} parse_error error=#{inspect(error)} trip_id=#{trip_id} vehicle_id=#{vehicle_id}"
-        )
+  defp parse_record(
+         %{
+           "start_date" => start_date,
+           "id" => id,
+           "trip_id" => trip_id,
+           "vehicle_id" => vehicle_id,
+           "direction_id" => direction_id,
+           "route_id" => route_id,
+           "start_time" => start_time,
+           "revenue" => revenue,
+           "stop_id" => stop_id,
+           "stop_sequence" => stop_sequence
+         } = record
+       ) do
+    case parse_date(start_date) do
+      {:ok, date} ->
+        case parse_revenue(revenue) do
+          {:ok, revenue_atom} ->
+            %Model.StopEvent{
+              id: id,
+              vehicle_id: vehicle_id,
+              start_date: date,
+              trip_id: trip_id,
+              direction_id: direction_id,
+              route_id: route_id,
+              start_time: start_time,
+              revenue: revenue_atom,
+              stop_id: stop_id,
+              stop_sequence: stop_sequence,
+              arrived: Map.get(record, "arrived"),
+              departed: Map.get(record, "departed")
+            }
 
-        []
+          {:error, reason} ->
+            Logger.warning("#{__MODULE__} parse_error error=#{reason} record=#{inspect(record)}")
+            nil
+        end
+
+      {:error, reason} ->
+        Logger.warning("#{__MODULE__} parse_error error=#{reason} record=#{inspect(record)}")
+        nil
     end
   end
 
   defp parse_record(record) do
     Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
-    []
-  end
-
-  defp parse_stop_event(
-         %{
-           "stop_id" => stop_id,
-           "stop_sequence" => stop_sequence
-         } = stop_event,
-         trip_data
-       ) do
-    [
-      %Model.StopEvent{
-        id: build_composite_key(trip_data, stop_sequence),
-        vehicle_id: trip_data.vehicle_id,
-        start_date: trip_data.start_date,
-        trip_id: trip_data.trip_id,
-        direction_id: trip_data.direction_id,
-        route_id: trip_data.route_id,
-        start_time: trip_data.start_time,
-        revenue: trip_data.revenue,
-        stop_id: stop_id,
-        stop_sequence: stop_sequence,
-        arrived: Map.get(stop_event, "arrived"),
-        departed: Map.get(stop_event, "departed")
-      }
-    ]
-  end
-
-  defp parse_stop_event(stop_event, _trip_data) do
-    Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(stop_event)}")
-    []
-  end
-
-  defp build_composite_key(trip_data, stop_sequence) do
-    "#{trip_data.trip_id}-#{trip_data.route_id}-#{trip_data.vehicle_id}-#{stop_sequence}"
+    nil
   end
 
   defp parse_date(<<year::binary-size(4), month::binary-size(2), day::binary-size(2)>>) do
