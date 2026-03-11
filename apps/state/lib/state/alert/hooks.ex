@@ -20,12 +20,20 @@ defmodule State.Alert.Hooks do
     |> Enum.uniq()
   end
 
+  # Parent station informed entities that share values for these keys
+  # will each have their `activities` replaced with the union of all of
+  # the group's `activities` lists:
+  # [%{activities: ["BOARD"]}, %{activities: ["BOARD", "EXIT"]}]
+  # =>
+  # [%{activities: ["BOARD", "EXIT"]}, %{activities: ["BOARD", "EXIT"]}]
+  @parent_station_entity_activity_merge_criteria [:route, :stop, :trip]
+
   @spec get_parent_station_entities([Alert.informed_entity()]) :: [Alert.informed_entity()]
   defp get_parent_station_entities(entities) do
     entities
     |> Stream.map(&get_parent_station_entity/1)
     |> Stream.reject(&is_nil/1)
-    |> Enum.group_by(&get_key/1)
+    |> Enum.group_by(&Map.take(&1, @parent_station_entity_activity_merge_criteria))
     |> Enum.flat_map(&merge_parent_entity_activities/1)
   end
 
@@ -46,8 +54,8 @@ defmodule State.Alert.Hooks do
   defp merge_parent_entity_activities({_key, parent_entities}) do
     merged_activities =
       parent_entities
-      |> Enum.map(&MapSet.new(&1[:activities] || []))
-      |> Enum.reduce(&MapSet.union/2)
+      |> Enum.flat_map(&(&1[:activities] || []))
+      |> Enum.uniq()
       |> Enum.sort()
 
     if merged_activities == [] do
@@ -106,6 +114,4 @@ defmodule State.Alert.Hooks do
         trip_entities
     end
   end
-
-  defp get_key(%{} = ie), do: Map.take(ie, ~w(route stop trip)a)
 end
