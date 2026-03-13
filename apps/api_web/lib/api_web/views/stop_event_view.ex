@@ -43,10 +43,14 @@ defmodule ApiWeb.StopEventView do
     :start_time,
     :revenue,
     :stop_id,
-    :stop_sequence,
-    :arrived,
-    :departed
+    :stop_sequence
   ])
+
+  def arrived(%{arrived: nil}, _conn), do: nil
+  def arrived(%{arrived: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
+
+  def departed(%{departed: nil}, _conn), do: nil
+  def departed(%{departed: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
 
   def trip(%{trip_id: trip_id}, conn) do
     optional_relationship("trip", trip_id, &State.Trip.by_primary_id/1, conn)

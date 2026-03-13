@@ -17,8 +17,8 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop1",
         stop_sequence: 1,
-        arrived: 1_771_966_486,
-        departed: 1_771_967_246
+        arrived: ~U[2026-02-24 15:28:06Z],
+        departed: ~U[2026-02-24 15:40:46Z]
       }
 
       stop_event2 = %StopEvent{
@@ -32,8 +32,8 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop2",
         stop_sequence: 2,
-        arrived: 1_771_967_286,
-        departed: 1_771_967_333
+        arrived: ~U[2026-02-24 15:41:26Z],
+        departed: ~U[2026-02-24 15:42:13Z]
       }
 
       stop_event3 = %StopEvent{
@@ -47,7 +47,7 @@ defmodule State.StopEventTest do
         revenue: :NON_REVENUE,
         stop_id: "stop3",
         stop_sequence: 1,
-        arrived: 1_771_968_343,
+        arrived: ~U[2026-02-24 15:59:03Z],
         departed: nil
       }
 
@@ -170,8 +170,8 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop1",
         stop_sequence: 1,
-        arrived: 1_771_969_000,
-        departed: 1_771_969_100
+        arrived: ~U[2026-02-24 16:10:00Z],
+        departed: ~U[2026-02-24 16:11:40Z]
       }
 
       all_events = State.StopEvent.all()
@@ -230,8 +230,8 @@ defmodule State.StopEventTest do
             revenue: :REVENUE,
             stop_id: "stop#{i}",
             stop_sequence: i,
-            arrived: 1_771_966_486 + i * 100,
-            departed: 1_771_967_246 + i * 100
+            arrived: DateTime.add(~U[2026-02-24 15:28:06Z], i * 100, :second),
+            departed: DateTime.add(~U[2026-02-24 15:40:46Z], i * 100, :second)
           }
         end
 
@@ -290,8 +290,8 @@ defmodule State.StopEventTest do
           start_time: "10:00:00",
           revenue: :REVENUE,
           stop_sequence: 1,
-          arrived: 1_771_966_486,
-          departed: 1_771_967_246
+          arrived: ~U[2026-02-24 15:28:06Z],
+          departed: ~U[2026-02-24 15:40:46Z]
         },
         %StopEvent{
           id: "trip1-route1-v2-2",
@@ -304,8 +304,8 @@ defmodule State.StopEventTest do
           start_time: "10:00:00",
           revenue: :REVENUE,
           stop_sequence: 2,
-          arrived: 1_771_966_586,
-          departed: 1_771_967_346
+          arrived: ~U[2026-02-24 15:29:46Z],
+          departed: ~U[2026-02-24 15:42:26Z]
         },
         %StopEvent{
           id: "trip1-route1-v3-3",
@@ -318,8 +318,8 @@ defmodule State.StopEventTest do
           start_time: "10:00:00",
           revenue: :REVENUE,
           stop_sequence: 3,
-          arrived: 1_771_966_686,
-          departed: 1_771_967_446
+          arrived: ~U[2026-02-24 15:31:26Z],
+          departed: ~U[2026-02-24 15:44:06Z]
         },
         %StopEvent{
           id: "trip2-route1-v4-1",
@@ -332,8 +332,8 @@ defmodule State.StopEventTest do
           start_time: "11:00:00",
           revenue: :REVENUE,
           stop_sequence: 1,
-          arrived: 1_771_968_000,
-          departed: 1_771_968_100
+          arrived: ~U[2026-02-24 15:53:20Z],
+          departed: ~U[2026-02-24 15:55:00Z]
         },
         %StopEvent{
           id: "trip2-route1-v5-2",
@@ -346,8 +346,8 @@ defmodule State.StopEventTest do
           start_time: "11:00:00",
           revenue: :REVENUE,
           stop_sequence: 2,
-          arrived: 1_771_968_100,
-          departed: 1_771_968_200
+          arrived: ~U[2026-02-24 15:55:00Z],
+          departed: ~U[2026-02-24 15:56:40Z]
         }
       ]
 
@@ -398,8 +398,8 @@ defmodule State.StopEventTest do
         revenue: :REVENUE,
         stop_id: "stop1",
         stop_sequence: 1,
-        arrived: 1_771_966_486,
-        departed: 1_771_967_246
+        arrived: ~U[2026-02-24 15:28:06Z],
+        departed: ~U[2026-02-24 15:40:46Z]
       }
 
       State.StopEvent.new_state([stop_event])

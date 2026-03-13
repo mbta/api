@@ -28,9 +28,9 @@ defmodule Parse.StopEventsTest do
                revenue: :REVENUE,
                stop_id: "2231",
                stop_sequence: 1,
-               arrived: 1_771_966_486,
-               departed: 1_771_967_246
-             } in result
+               arrived: %DateTime{},
+               departed: %DateTime{}
+             } = Enum.find(result, &(&1.id == "73885810-64-y2071-1"))
 
       assert %StopEvent{
                id: "73885810-64-y2071-2",
@@ -43,9 +43,9 @@ defmodule Parse.StopEventsTest do
                revenue: :REVENUE,
                stop_id: "12232",
                stop_sequence: 2,
-               arrived: 1_771_967_286,
-               departed: 1_771_967_333
-             } in result
+               arrived: %DateTime{},
+               departed: %DateTime{}
+             } = Enum.find(result, &(&1.id == "73885810-64-y2071-2"))
 
       assert %StopEvent{
                id: "73221192-Green-E-G-10077-4",
@@ -58,9 +58,9 @@ defmodule Parse.StopEventsTest do
                revenue: :REVENUE,
                stop_id: "70512",
                stop_sequence: 4,
-               arrived: 1_771_946_303,
-               departed: 1_771_946_479
-             } in result
+               arrived: %DateTime{},
+               departed: %DateTime{}
+             } = Enum.find(result, &(&1.id == "73221192-Green-E-G-10077-4"))
     end
 
     test "handles null departed times for last stop" do
@@ -115,9 +115,9 @@ defmodule Parse.StopEventsTest do
       result = parse(ndjson)
 
       assert [
-               %StopEvent{trip_id: "arrived", arrived: nil, departed: 1_771_967_246},
-               %StopEvent{trip_id: "departed", arrived: 1_771_966_486, departed: nil},
-               %StopEvent{trip_id: "both-times", arrived: 1_771_966_486, departed: 1_771_967_246}
+               %StopEvent{trip_id: "arrived", arrived: nil, departed: %DateTime{}},
+               %StopEvent{trip_id: "departed", arrived: %DateTime{}, departed: nil},
+               %StopEvent{trip_id: "both-times", arrived: %DateTime{}, departed: %DateTime{}}
              ] = result
     end
 
@@ -146,6 +146,25 @@ defmodule Parse.StopEventsTest do
         end)
 
       assert log =~ "invalid_date"
+    end
+
+    test "logs and ignores records with various invalid fields" do
+      ndjson = """
+      {"id":"invalid-revenue","timestamp":1771968343,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":"maybe","stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"invalid-start-date","timestamp":1771968343,"start_date":"2026-02-24","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"invalid-arrived-type","timestamp":1771968343,"start_date":"20260224","trip_id":"test3","vehicle_id":"v3","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":"2026-02-24T10:00:00","departed":1771967246}
+      {"id":"invalid-departed-type","timestamp":1771968343,"start_date":"20260224","trip_id":"test4","vehicle_id":"v4","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":12.5}
+      """
+
+      log =
+        capture_log(fn ->
+          result = parse(ndjson)
+          assert result == []
+        end)
+
+      assert log =~ "invalid_revenue"
+      assert log =~ "invalid_date"
+      assert log =~ "invalid_timestamp_type"
     end
 
     test "handles invalid JSON" do

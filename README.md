@@ -11,10 +11,21 @@ To start your Phoenix app:
         - Run `asdf plugin-add poetry` to add Poetry plugin
      4. Run `asdf install` to install plugin versions specified in `.tool-versions` file
   2. Install dependencies with `mix deps.get`
-  3. Setup `apps/api_accounts` following directions in `apps/api_accounts/README.md` (on [GitHub](apps/api_accounts/README.md#setting-up-dynamodb-local) or [ExDoc](api_accounts-readme.html#setting-up-dynamodb-local))
-  4. Start Phoenix endpoint with `mix phx.server`
+  3. Install development dependencies with `mix deps.get --only dev`
+  4. Setup `apps/api_accounts` following directions in `apps/api_accounts/README.md` (on [GitHub](apps/api_accounts/README.md#setting-up-dynamodb-local) or [ExDoc](api_accounts-readme.html#setting-up-dynamodb-local))
+  5. Start Phoenix endpoint with `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+
+> [!WARNING]
+> Your app will fail when calling `mix phx.server` if `STOP_EVENTS_ENALBED` or `CR_CROWDING_ENABLED` are `true` unless:
+>
+> 1. `ExAws` can find AWS credentials (such as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`)
+> 2. S3 bucket and object environment variables retrieved by `config/config.exs` are available
+> 3. Your credentials have permissions on those objects
+>
+> To circumvent these issues, set `STOP_EVENTS_ENALBED` and `CR_CROWDING_ENABLED` to `false`.
+
 
 ## Tests
 

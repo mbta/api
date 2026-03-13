@@ -1,6 +1,6 @@
 defmodule Parse.StopEvents do
   @moduledoc """
-  Parses stop_events new line-delimited JSON into a list of `%Model.StopEvent{}` structs.
+  Parses line-delimited [gzipped] JSON into a list of `%Model.StopEvent{}` structs.
   """
 
   require Logger
@@ -47,30 +47,25 @@ defmodule Parse.StopEvents do
            "stop_sequence" => stop_sequence
          } = record
        ) do
-    case parse_date(start_date) do
-      {:ok, date} ->
-        case parse_revenue(revenue) do
-          {:ok, revenue_atom} ->
-            %Model.StopEvent{
-              id: id,
-              vehicle_id: vehicle_id,
-              start_date: date,
-              trip_id: trip_id,
-              direction_id: direction_id,
-              route_id: route_id,
-              start_time: start_time,
-              revenue: revenue_atom,
-              stop_id: stop_id,
-              stop_sequence: stop_sequence,
-              arrived: Map.get(record, "arrived"),
-              departed: Map.get(record, "departed")
-            }
-
-          {:error, reason} ->
-            Logger.warning("#{__MODULE__} parse_error error=#{reason} record=#{inspect(record)}")
-            nil
-        end
-
+    with {:ok, date} <- parse_date(start_date),
+         {:ok, revenue_atom} <- parse_revenue(revenue),
+         {:ok, arrived} <- parse_timestamp(Map.get(record, "arrived")),
+         {:ok, departed} <- parse_timestamp(Map.get(record, "departed")) do
+      %Model.StopEvent{
+        id: id,
+        vehicle_id: vehicle_id,
+        start_date: date,
+        trip_id: trip_id,
+        direction_id: direction_id,
+        route_id: route_id,
+        start_time: start_time,
+        revenue: revenue_atom,
+        stop_id: stop_id,
+        stop_sequence: stop_sequence,
+        arrived: arrived,
+        departed: departed
+      }
+    else
       {:error, reason} ->
         Logger.warning("#{__MODULE__} parse_error error=#{reason} record=#{inspect(record)}")
         nil
@@ -94,4 +89,17 @@ defmodule Parse.StopEvents do
   defp parse_revenue(true), do: {:ok, :REVENUE}
   defp parse_revenue(false), do: {:ok, :NON_REVENUE}
   defp parse_revenue(_), do: {:error, :invalid_revenue}
+
+  defp parse_timestamp(nil), do: {:ok, nil}
+
+  defp parse_timestamp(unix_timestamp) when is_integer(unix_timestamp) do
+    {:ok, Parse.Timezone.unix_to_local(unix_timestamp)}
+  rescue
+    e ->
+      {:error, "invalid_timestamp: #{inspect(e)}"}
+  end
+
+  defp parse_timestamp(_invalid) do
+    {:error, :invalid_timestamp_type}
+  end
 end

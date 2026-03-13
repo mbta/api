@@ -20,8 +20,8 @@ defmodule ApiWeb.StopEventController do
   to predictions or scheduled times.
 
   Each stop event contains:
-  - The actual arrival time (as Unix epoch seconds)
-  - The actual departure time (as Unix epoch seconds)
+  - The actual arrival time (as ISO8601/RFC 3339 datetime string)
+  - The actual departure time (as ISO8601/RFC 3339 datetime string)
   - The stop sequence number
   - Whether the trip was a revenue trip
 
@@ -276,21 +276,19 @@ defmodule ApiWeb.StopEventController do
             )
 
             arrived(
-              [:integer, :null],
+              nullable(%Schema{type: :string, format: :"date-time"}, true),
               """
-              When the vehicle arrived at the stop, as seconds since Unix epoch (UTC). `null` if the first stop on the trip.
+              When the vehicle arrived at the stop. Format is ISO8601/RFC 3339. `null` if the first stop on the trip.
               """,
-              example: 1_771_966_486,
-              "x-nullable": true
+              example: "2026-03-13T10:30:00-04:00"
             )
 
             departed(
-              [:integer, :null],
+              nullable(%Schema{type: :string, format: :"date-time"}, true),
               """
-              When the vehicle departed from the stop, as seconds since Unix epoch (UTC). `null` if the last stop on the trip or if the vehicle has not yet departed.
+              When the vehicle departed from the stop. Format is ISO8601/RFC 3339. `null` if the last stop on the trip or if the vehicle has not yet departed.
               """,
-              example: 1_771_967_246,
-              "x-nullable": true
+              example: "2026-03-13T10:43:00-04:00"
             )
           end
 
