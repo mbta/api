@@ -10,9 +10,18 @@ defmodule Parse.StopEvents do
   @impl Parse
   def parse(body) do
     body
+    |> decompress()
     |> String.split("\n", trim: true)
     |> Enum.map(&parse_line/1)
     |> Enum.reject(&is_nil/1)
+  end
+
+  defp decompress(body) do
+    try do
+      :zlib.gunzip(body)
+    rescue
+      _ -> body
+    end
   end
 
   defp parse_line(line) do

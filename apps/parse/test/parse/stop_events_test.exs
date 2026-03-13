@@ -156,5 +156,18 @@ defmodule Parse.StopEventsTest do
 
       assert log =~ "decode_error"
     end
+
+    test "parses gzipped NDJSON data" do
+      ndjson = """
+      {"id":"test-trip-1","timestamp":1771968343,"start_date":"20260224","trip_id":"test","vehicle_id":"v1","direction_id":0,"route_id":"1","start_time":"10:00:00","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      """
+
+      gzipped = :zlib.gzip(ndjson)
+
+      result = parse(gzipped)
+
+      assert length(result) == 1
+      assert [%StopEvent{id: "test-trip-1"}] = result
+    end
   end
 end
