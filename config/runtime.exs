@@ -82,6 +82,11 @@ if is_prod? and is_release? do
     s3_object: System.fetch_env!("CR_CROWDING_S3_OBJECT"),
     source: System.fetch_env!("CR_CROWDING_SOURCE")
 
+  config :state_mediator, :stop_events,
+    enabled: System.get_env("STOP_EVENTS_ENABLED", "false"),
+    s3_bucket: System.get_env("STOP_EVENTS_S3_BUCKET"),
+    s3_object: System.get_env("STOP_EVENTS_S3_OBJECT")
+
   config :recaptcha,
     enabled: true,
     public_key: System.fetch_env!("RECAPTCHA_PUBLIC_KEY"),

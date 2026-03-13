@@ -14,7 +14,8 @@ defmodule StateMediator do
         crowding_children(
           app_value(:commuter_rail_crowding, :enabled) == "true",
           crowding_source
-        )
+        ) ++
+        stop_event_children(app_value(:stop_events, :enabled) == "true")
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
@@ -152,6 +153,32 @@ defmodule StateMediator do
 
   defp crowding_children(false, _) do
     Logger.info("#{__MODULE__} CR_CROWDING_ENABLED=false")
+    []
+  end
+
+  @spec stop_event_children(boolean()) :: [
+          :supervisor.child_spec() | {module(), term()} | module()
+        ]
+  defp stop_event_children(true) do
+    Logger.info("#{__MODULE__} STOP_EVENTS_ENABLED=true")
+
+    [
+      {
+        StateMediator.S3Mediator,
+        [
+          spec_id: :stop_event_mediator,
+          bucket_arn: app_value(:stop_events, :s3_bucket),
+          object: app_value(:stop_events, :s3_object),
+          interval: 3 * 1_000,
+          sync_timeout: 30_000,
+          state: State.StopEvent
+        ]
+      }
+    ]
+  end
+
+  defp stop_event_children(false) do
+    Logger.info("#{__MODULE__} STOP_EVENTS_ENABLED=false")
     []
   end
 
