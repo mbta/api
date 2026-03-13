@@ -43,7 +43,9 @@ defmodule ApiWeb.StopEventView do
     :start_time,
     :revenue,
     :stop_id,
-    :stop_sequence
+    :stop_sequence,
+    :arrived,
+    :departed
   ])
 
   def arrived(%{arrived: nil}, _conn), do: nil
