@@ -17,11 +17,9 @@ defmodule Parse.StopEvents do
   end
 
   defp decompress(body) do
-    try do
-      :zlib.gunzip(body)
-    rescue
-      _ -> body
-    end
+    :zlib.gunzip(body)
+  rescue
+    _ -> body
   end
 
   defp parse_line(line) do
