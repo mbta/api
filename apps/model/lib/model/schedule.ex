@@ -107,4 +107,10 @@ defmodule Model.Schedule do
   def time(%__MODULE__{departure_time: time}) when not is_nil(time) do
     time
   end
+
+  @doc """
+  The sequence of the stop along the trip.
+  """
+  @spec stop_sequence(t) :: non_neg_integer
+  def stop_sequence(%__MODULE__{stop_sequence: stop_sequence}), do: stop_sequence
 end
