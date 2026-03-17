@@ -1,10 +1,6 @@
 defmodule Model.StopEvent do
   @moduledoc """
-  The actual `arrival_time` and `departure_time` of a `vehicle_id` to/from a `stop_sequence` in a `trip_id`.
-  along a trip (`trip_id`) going a direction (`direction_id`) along a route (`route_id`).  This is the actual time a vehicle arrived at or departed from a stop, as opposed to a prediction of when a vehicle will arrive at or depart from a stop (`Model.Prediction.t`) or the scheduled time of arrival or departure (`Model.Schedule.t`).
-
-  For the predicted times, see `Model.Prediction.t`.
-  For the scheduled times, see `Model.Schedule.t`.
+  The actual time a `vehicle_id` `arrived` at and/or `departed` from a `stop_sequence` in a trip (`trip_id`) going a direction (`direction_id`) along a route (`route_id`). A stop event is the actual time a vehicle arrived at or departed from a stop, as opposed to the predicted (`Model.Prediction`) or scheduled (`Model.Schedule`) time of arrival or departure.
   """
 
   use Recordable, [
@@ -24,20 +20,21 @@ defmodule Model.StopEvent do
   @typedoc """
   * `:id` - Composite key: `{start_date}-{trip_id}-{route_id}-{vehicle_id}-{stop_sequence}`.
   * `:vehicle_id` - The vehicle serving this trip. See
-      [GTFS Realtime `FeedMessage` `FeedEntity` `VehiclePosition` `VehicleDescriptor` `id`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-vehicledescriptor).
-  * `:start_date` - The service date of the `trip_id`.
-  * `:trip_id` - The trip the `stop_id` is on. See [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `TripDescriptor`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripdescriptor)
-  * `:direction_id` - Which direction along `route_id` the `trip_id` is going.  See
-      [GTFS `trips.txt` `direction_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxt).
-  * `:route_id` - The route `trip_id` is on doing in `direction_id`.  See
-      [GTFS `trips.txt` `route_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxt)
-  * `:revenue` - Whether or not the stop event is for a revenue trip.
-  * `:stop_id` - Stop associated with arrived/departed. See
-      [GTFS Realtime `FeedMesage` `FeedEntity` `TripUpdate` `StopTimeUpdate` `stop_id`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate).
+      [GTFS Realtime `FeedMessage` `FeedEntity` `VehiclePosition` `vehicle` `id`](https://gtfs.org/documentation/realtime/reference/#message-vehicledescriptor).
+  * `:start_date` - The [service date](https://gtfs.org/getting-started/features/base/#service-dates) for which the `trip_id` was scheduled. Often, this matches the calendar date. Early morning trips may use a `start_date` equivalent to the previous calendar date. See
+      [GTFS Realtime `FeedMessage` `FeedEntity` `VehiclePosition` `trip` `start_date`](https://gtfs.org/documentation/realtime/reference/#message-tripdescriptor).
+  * `:trip_id` - The trip that the vehicle (`vehicle_id`) is traveling. See [GTFS Schedule `trips.txt` `trip_id`](https://gtfs.org/documentation/schedule/reference/#tripstxt)
+  * `:direction_id` - The direction along the route (`route_id`) that the trip (`trip_id`) is traveling.  See
+      [GTFS `trips.txt` `direction_id`](https://gtfs.org/documentation/schedule/reference/#tripstxt).
+  * `:route_id` - The route that the trip `trip_id` is traveling in a direction `direction_id`.  See
+      [GTFS `routes.txt` `route_id`](https://gtfs.org/documentation/schedule/reference/#routestxt)
+  * `:revenue` - Whether the trip generates revenue. `false` indicates that a vehicle will not accept passengers.  See [MBTA GTFS Realtime Documentation](https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs-realtime.md#non-revenue-trips).
+  * `:stop_id` - Stop that the vehicle `vehicle_id` arrived at and/or departed from. See
+      [GTFS Schedule `stops.txt` `stop_id`](https://gtfs.org/documentation/schedule/reference/#stopstxt).
   * `:stop_sequence` - The sequence of the stop along the `trip_id`.  The stop sequence increases monotonically but values need not be consecutive.
-      See [GTFS `stop_times.txt` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt).
-  * `:arrived` - When the vehicle arrived at the stop as a time-zone aware RFC 3339 datetime. `nil` if the first stop (`stop_id`) on the `trip_id`.
-  * `:departed` - When the vehicle departed from the stop as time-zone aware RFC 3339 datetime. `nil` if the last stop (`stop_id`) on the `trip_id`.
+      See [GTFS `stop_times.txt` `stop_sequence`](https://gtfs.org/documentation/schedule/reference/#stop_timestxt).
+  * `:arrived` - When the vehicle arrived at the stop as a time-zone aware [RFC 3339 datetime](https://datatracker.ietf.org/doc/html/rfc3339#page-10). `nil` if the first stop (`stop_id`) on the trip (`trip_id`).
+  * `:departed` - When the vehicle departed from the stop as time-zone aware [RFC 3339 datetime](https://datatracker.ietf.org/doc/html/rfc3339#page-10). `nil` if the last stop (`stop_id`) on the trip (`trip_id`).
   """
 
   @type t :: %__MODULE__{
