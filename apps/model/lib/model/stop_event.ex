@@ -31,7 +31,7 @@ defmodule Model.StopEvent do
   * `:revenue` - Whether the trip accepts passengers (and, thus, could generate revenue).  See [MBTA GTFS Realtime Documentation](https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs-realtime.md#non-revenue-trips).
   * `:stop_id` - Stop that the vehicle (`vehicle_id`) arrived at and/or departed from. See
       [GTFS Schedule `stops.txt` `stop_id`](https://gtfs.org/documentation/schedule/reference/#stopstxt).
-  * `:stop_sequence` - The sequence of the stop along the trip (`trip_id`).  `stop_sequence` increases monotonically but values need not be consecutive.
+  * `:stop_sequence` - The order in which the stop (`stop_id`) is visited during the trip (`trip_id`).  `stop_sequence` increases monotonically but values need not be consecutive.
       See [GTFS `stop_times.txt` `stop_sequence`](https://gtfs.org/documentation/schedule/reference/#stop_timestxt).
   * `:arrived` - When the vehicle (`vehicle_id`) arrived at the stop (`stop_id`) as a time-zone aware [RFC 3339 datetime](https://datatracker.ietf.org/doc/html/rfc3339#page-10). `nil` if the stop is the first stop on the trip (`trip_id`).
   * `:departed` - When the vehicle (`vehicle_id`) departed from the stop (`stop_id`) as time-zone aware [RFC 3339 datetime](https://datatracker.ietf.org/doc/html/rfc3339#page-10). `nil` if the last stop (`stop_id`) on the trip (`trip_id`).
