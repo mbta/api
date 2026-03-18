@@ -97,35 +97,36 @@ defmodule State.Schedule do
 
   @schedule_relationships_with_schedules [nil, :cancelled, :no_data, :skipped]
 
-  @spec schedule_for(Model.Prediction.t()) :: Model.Schedule.t() | nil
-  def schedule_for(%Model.Prediction{schedule_relationship: relationship} = prediction)
-      when relationship in @schedule_relationships_with_schedules do
+  @spec schedule_for(Model.Prediction.t() | Model.StopEvent.t()) :: Model.Schedule.t() | nil
+
+  def schedule_for(%Model.Prediction{schedule_relationship: relationship})
+      when relationship not in @schedule_relationships_with_schedules do
+    nil
+  end
+
+  def schedule_for(%_{trip_id: trip_id, stop_id: stop_id, stop_sequence: stop_sequence}) do
     stop_ids =
-      case State.Stop.siblings(prediction.stop_id) do
+      case State.Stop.siblings(stop_id) do
         [_ | _] = stops -> Enum.map(stops, & &1.id)
-        [] -> [prediction.stop_id]
+        [] -> [stop_id]
       end
 
     %{
-      trips: [prediction.trip_id],
+      trips: [trip_id],
       stops: stop_ids,
-      stop_sequence: [prediction.stop_sequence]
+      stop_sequence: [stop_sequence]
     }
     |> filter_by
     |> List.first()
   end
 
-  def schedule_for(%Model.Prediction{}) do
-    nil
-  end
-
-  @spec schedule_for_many([Model.Prediction.t()]) :: map
-  def schedule_for_many(predictions) do
-    for prediction <- predictions,
-        schedule = schedule_for(prediction),
+  @spec schedule_for_many([Model.Prediction.t() | Model.StopEvent.t()]) :: map
+  def schedule_for_many(records) do
+    for record <- records,
+        schedule = schedule_for(record),
         schedule != nil,
         into: %{} do
-      {{prediction.trip_id, prediction.stop_sequence}, schedule}
+      {{record.trip_id, record.stop_sequence}, schedule}
     end
   end
 
