@@ -209,5 +209,25 @@ defmodule ApiWeb.StopEventViewTest do
       assert get_in(rendered, ["data", "relationships", "schedule", "data", "id"]) ==
                "schedule-trip1-stop1-1"
     end
+
+    test "returns nil schedule when schedule does not exist", %{conn: conn} do
+      # Set up required state but no schedule
+      State.RoutePattern.new_state([@route_pattern])
+      State.Schedule.new_state([])
+      State.RoutesPatternsAtStop.update!()
+
+      conn =
+        %{conn | params: %{"include" => "schedule"}}
+        |> ApiWeb.ApiControllerHelpers.split_include([])
+
+      rendered =
+        render(ApiWeb.StopEventView, "index.json-api",
+          data: @stop_event,
+          conn: conn
+        )
+
+      # Schedule relationship should be present but with nil data
+      assert get_in(rendered, ["data", "relationships", "schedule", "data"]) == nil
+    end
   end
 end
