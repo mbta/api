@@ -50,6 +50,11 @@ defmodule Model.Schedule do
   @type timepoint :: boolean
 
   @typedoc """
+  The sequence of the stop along the trip. The stop sequence increases monotonically but values need not be consecutive. For instance, a trip with 3 stops could have stop sequences `123`, `456`, and `789`.
+  """
+  @type stop_sequence :: non_neg_integer
+
+  @typedoc """
   * `:arrival_time` - When the vehicle arrives at `stop_id`. `nil` if the first stop (`stop_id`) on the trip
       (`trip_id`).  See
       [GTFS `stop_times.txt` `arrival_time`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
@@ -70,9 +75,7 @@ defmodule Model.Schedule do
       [GTFS `trips.txt` `service_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxxt)
   * `:stop_id` - The stop being arrived at and departed from.  See
       [GTFS `stop_times.txt` `stop_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
-  * `:stop_sequence` - The sequence the `stop_id` is arrived at during the `trip_id`.  The stop sequence is
-      monotonically increasing along the trip, but the `stop_sequence` along the `trip_id` are not necessarily
-      consecutive.  See
+  * `:stop_sequence` - The sequence the `stop_id` is arrived at during the `trip_id`.  See
       [GTFS `stop_times.txt` `stop_sequence`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
   * `:stop_headsign` - Text identifying destination of the trip, overriding trip-level headsign if present.  See [GTFS `stop_times.txt` `stop_headsign`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
   * `:timepoint?` - `true` if `arrival_time` and `departure_time` are exact; otherwise, `false`. See
@@ -90,7 +93,7 @@ defmodule Model.Schedule do
           route_id: Model.Route.id(),
           service_id: Model.Service.id(),
           stop_id: Model.Stop.id(),
-          stop_sequence: non_neg_integer,
+          stop_sequence: stop_sequence,
           stop_headsign: String.t() | nil,
           timepoint?: timepoint,
           trip_id: Model.Trip.id()
