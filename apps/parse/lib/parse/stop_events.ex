@@ -10,6 +10,7 @@ defmodule Parse.StopEvents do
   @behaviour Parse
 
   @impl Parse
+  @spec parse(binary()) :: [Model.StopEvent.t()]
   def parse(body) do
     body
     |> decompress()
