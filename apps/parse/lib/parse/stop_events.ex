@@ -1,8 +1,8 @@
 defmodule Parse.StopEvents do
   @moduledoc """
-  Parses line-delimited [gzipped] JSON into a list of `%Model.StopEvent{}` structs.
+  Parses line-delimited [gzipped] JSON into a list of `%Model.StopEvent{}` structs. The expected JSON comes from LAMP's `flashback` application.
 
-  Invalid records are logged and filtered out.
+  Records not parsed are logged and filtered out.
   """
 
   require Logger
