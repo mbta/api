@@ -196,17 +196,18 @@ defmodule StateMediator.Integration.GtfsTest do
     end
 
     test "Providence/Stoughton has at least 2 non-ignored shapes in direction 0 and 2 in direction 1" do
-      [shapes_0, shapes_1] = shapes_in_both_directions("CR-Providence")
+      [shapes_outbound, shapes_inbound] = shapes_in_both_directions("CR-Providence")
 
+      # outbound
       assert [
                # South Station - Wickford Junction via Back Bay
-               shape_0
-               | remaining_shapes
-             ] = shapes_0
+               first_outbound
+               | rest_outbound
+             ] = shapes_outbound
 
-      assert shape_0.name =~ "South Station - Wickford Junction"
+      assert first_outbound.name =~ "South Station - Wickford Junction"
 
-      Enum.each(remaining_shapes, fn shape ->
+      Enum.each(rest_outbound, fn shape ->
         assert shape.id in [
                  # South Station - Stoughton via Back Bay
                  "9890004",
@@ -217,9 +218,18 @@ defmodule StateMediator.Integration.GtfsTest do
                ]
       end)
 
-      refute Enum.empty?(remaining_shapes)
+      refute Enum.empty?(rest_outbound)
 
-      assert [%{name: "Wickford Junction - South Station"}, %{id: "9890003"}] = shapes_1
+      # inbound
+      Enum.each(shapes_inbound, fn shape ->
+        assert shape.name in [
+                 "Wickford Junction - South Station",
+                 "Stoughton - South Station",
+                 "Stoughton - South Station via Fairmount"
+               ]
+      end)
+
+      assert length(shapes_inbound) > 1
     end
 
     test "Newburyport/Rockport has 2 non-ignored shapes each direction" do
