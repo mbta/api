@@ -195,7 +195,7 @@ defmodule ApiWeb.StopEventViewTest do
       State.RoutesPatternsAtStop.update!()
 
       conn =
-        %{conn | params: %{"include" => "schedule"}}
+        %{conn | params: %{"include" => "schedule,trip,stop,route,vehicle"}}
         |> ApiWeb.ApiControllerHelpers.split_include([])
 
       rendered =
