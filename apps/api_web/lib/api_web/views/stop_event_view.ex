@@ -45,7 +45,7 @@ defmodule ApiWeb.StopEventView do
   def departed(%{departed: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
 
   @doc """
-  Preloads relationships for stop events when requested via ?include=schedule to prevent N+1 queries.
+  Preloads relationships for stop events when requested via ?include=* to prevent N+1 queries.
   """
   def preload(stop_events, conn, include_opts) when is_list(stop_events) do
     stop_events = super(stop_events, conn, include_opts)
