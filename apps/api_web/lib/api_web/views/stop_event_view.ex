@@ -1,6 +1,15 @@
 defmodule ApiWeb.StopEventView do
   use ApiWeb.Web, :api_view
 
+  attributes([
+    :start_date,
+    :direction_id,
+    :revenue,
+    :stop_sequence,
+    :arrived,
+    :departed
+  ])
+
   has_one(
     :trip,
     type: :trip,
@@ -29,19 +38,6 @@ defmodule ApiWeb.StopEventView do
     field: :vehicle_id
   )
 
-  attributes([
-    :vehicle_id,
-    :start_date,
-    :trip_id,
-    :direction_id,
-    :route_id,
-    :revenue,
-    :stop_id,
-    :stop_sequence,
-    :arrived,
-    :departed
-  ])
-
   def arrived(%{arrived: nil}, _conn), do: nil
   def arrived(%{arrived: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
 
@@ -49,9 +45,11 @@ defmodule ApiWeb.StopEventView do
   def departed(%{departed: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
 
   @doc """
-  Preloads schedule relationships for stop events when requested via ?include=schedule to prevent N+1 queries.
+  Preloads relationships for stop events when requested via ?include=schedule to prevent N+1 queries.
   """
-  def preload(stop_events, conn, _opts) when is_list(stop_events) do
+  def preload(stop_events, conn, include_opts) when is_list(stop_events) do
+    stop_events = super(stop_events, conn, include_opts)
+
     if split_included?("schedule", conn) do
       schedules = State.Schedule.schedule_for_many(stop_events)
 
