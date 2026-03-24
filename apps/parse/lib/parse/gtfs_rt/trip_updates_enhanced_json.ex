@@ -36,7 +36,8 @@ defmodule Parse.GtfsRt.TripUpdatesEnhancedJson do
       schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship")),
       revenue: parse_revenue(Map.get(trip, "revenue", true)),
       last_trip?: Map.get(trip, "last_trip", false),
-      update_type: parse_update_type(Map.get(raw, "update_type"))
+      update_type: parse_update_type(Map.get(raw, "update_type")),
+      trip_headsign: parse_trip_headsign(raw)
     }
   end
 
@@ -101,4 +102,9 @@ defmodule Parse.GtfsRt.TripUpdatesEnhancedJson do
   defp parse_update_type("at_terminal"), do: :at_terminal
   defp parse_update_type("reverse_trip"), do: :reverse_trip
   defp parse_update_type(_), do: nil
+
+  defp parse_trip_headsign(%{"trip_properties" => %{"trip_headsign" => trip_headsign}}),
+    do: trip_headsign
+
+  defp parse_trip_headsign(_), do: nil
 end
