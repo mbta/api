@@ -14,7 +14,8 @@ defmodule ApiWeb.PredictionView do
     :stop_sequence,
     :track,
     :revenue,
-    :update_type
+    :update_type,
+    :trip_headsign
   ])
 
   def preload(predictions, conn, include_opts) do
@@ -53,7 +54,8 @@ defmodule ApiWeb.PredictionView do
       status: p.status,
       stop_sequence: p.stop_sequence,
       revenue: revenue(p),
-      update_type: upcase_atom_to_string(p.update_type)
+      update_type: upcase_atom_to_string(p.update_type),
+      trip_headsign: p.trip_headsign
     }
 
     add_legacy_attributes(attributes, p, conn.assigns.api_version)
