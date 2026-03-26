@@ -96,7 +96,7 @@ defmodule StateMediator.S3Mediator do
          state
        ) do
     Logger.warning(
-      "Received unknown response when getting commuter rail occupancies from S3: #{inspect(response)}"
+      "Received unknown response when fetching data via S3Mediator: #{inspect(response)}"
     )
 
     schedule_update(state)
