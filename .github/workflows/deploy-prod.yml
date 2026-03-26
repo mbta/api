@@ -22,6 +22,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
+          docker-additional-tags: prod
       - name: Deploy to ECS
         uses: mbta/actions/deploy-ecs@v2
         with:
