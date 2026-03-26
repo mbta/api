@@ -31,7 +31,7 @@ defmodule Parse.StopEvents do
         parse_record(record)
 
       e ->
-        Logger.warning("#{__MODULE__} decode_error e=#{inspect(e)}")
+        Logger.error("#{__MODULE__} decode_error error=#{inspect(e)}")
         nil
     end
   end
@@ -68,13 +68,13 @@ defmodule Parse.StopEvents do
       }
     else
       {:error, reason} ->
-        Logger.warning("#{__MODULE__} parse_error error=#{reason} record=#{inspect(record)}")
+        Logger.error("#{__MODULE__} parse_error error=#{reason} record=#{inspect(record)}")
         nil
     end
   end
 
   defp parse_record(record) do
-    Logger.warning("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
+    Logger.error("#{__MODULE__} parse_error error=missing_fields #{inspect(record)}")
     nil
   end
 
@@ -96,8 +96,8 @@ defmodule Parse.StopEvents do
   defp parse_timestamp(unix_timestamp) when is_integer(unix_timestamp) do
     {:ok, Parse.Timezone.unix_to_local(unix_timestamp)}
   rescue
-    e ->
-      {:error, "invalid_timestamp: #{inspect(e)}"}
+    _e ->
+      {:error, :invalid_unix_timestamp}
   end
 
   defp parse_timestamp(_invalid) do
