@@ -4,6 +4,7 @@ defmodule State.StopEvent do
   """
   use State.Server,
     indices: [:id, :trip_id, :stop_id, :route_id, :vehicle_id],
+    parser: Parse.StopEvents,
     recordable: Model.StopEvent
 
   alias Model.Route
