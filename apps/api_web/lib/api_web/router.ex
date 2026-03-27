@@ -100,8 +100,11 @@ defmodule ApiWeb.Router do
     resources("/live_facilities", LiveFacilityController, only: [:index, :show])
     resources("/live-facilities", LiveFacilityController, only: [:index, :show])
     resources("/services", ServiceController, only: [:index, :show])
-    resources("/stop_events", StopEventController, only: [:index, :show])
-    resources("/stop-events", StopEventController, only: [:index, :show])
+
+    if Application.compile_env(:api_web, [:features, :stop_events_route], false) do
+      resources("/stop_events", StopEventController, only: [:index, :show])
+      resources("/stop-events", StopEventController, only: [:index, :show])
+    end
   end
 
   scope "/docs/swagger" do

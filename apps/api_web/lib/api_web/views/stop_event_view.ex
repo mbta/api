@@ -1,103 +1,105 @@
-defmodule ApiWeb.StopEventView do
-  use ApiWeb.Web, :api_view
+if Application.compile_env(:api_web, [:features, :stop_events_route], false) do
+  defmodule ApiWeb.StopEventView do
+    use ApiWeb.Web, :api_view
 
-  location(:stop_event_location)
+    location(:stop_event_location)
 
-  def stop_event_location(stop_event, conn),
-    do: stop_event_path(conn, :show, stop_event.id)
+    def stop_event_location(stop_event, conn),
+      do: stop_event_path(conn, :show, stop_event.id)
 
-  attributes([
-    :start_date,
-    :direction_id,
-    :revenue,
-    :stop_sequence,
-    :arrived,
-    :departed
-  ])
+    attributes([
+      :start_date,
+      :direction_id,
+      :revenue,
+      :stop_sequence,
+      :arrived,
+      :departed
+    ])
 
-  has_one(
-    :trip,
-    type: :trip,
-    serializer: ApiWeb.TripView,
-    field: :trip_id
-  )
+    has_one(
+      :trip,
+      type: :trip,
+      serializer: ApiWeb.TripView,
+      field: :trip_id
+    )
 
-  has_one(
-    :stop,
-    type: :stop,
-    serializer: ApiWeb.StopView,
-    field: :stop_id
-  )
+    has_one(
+      :stop,
+      type: :stop,
+      serializer: ApiWeb.StopView,
+      field: :stop_id
+    )
 
-  has_one(
-    :route,
-    type: :route,
-    serializer: ApiWeb.RouteView,
-    field: :route_id
-  )
+    has_one(
+      :route,
+      type: :route,
+      serializer: ApiWeb.RouteView,
+      field: :route_id
+    )
 
-  has_one(
-    :vehicle,
-    type: :vehicle,
-    serializer: ApiWeb.VehicleView,
-    field: :vehicle_id
-  )
+    has_one(
+      :vehicle,
+      type: :vehicle,
+      serializer: ApiWeb.VehicleView,
+      field: :vehicle_id
+    )
 
-  def arrived(%{arrived: nil}, _conn), do: nil
-  def arrived(%{arrived: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
+    def arrived(%{arrived: nil}, _conn), do: nil
+    def arrived(%{arrived: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
 
-  def departed(%{departed: nil}, _conn), do: nil
-  def departed(%{departed: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
+    def departed(%{departed: nil}, _conn), do: nil
+    def departed(%{departed: %DateTime{} = dt}, _conn), do: DateTime.to_iso8601(dt)
 
-  @doc """
-  Preloads relationships for stop events when requested via ?include=* to prevent N+1 queries.
-  """
-  def preload(stop_events, conn, include_opts) when is_list(stop_events) do
-    stop_events = super(stop_events, conn, include_opts)
+    @doc """
+    Preloads relationships for stop events when requested via ?include=* to prevent N+1 queries.
+    """
+    def preload(stop_events, conn, include_opts) when is_list(stop_events) do
+      stop_events = super(stop_events, conn, include_opts)
 
-    if split_included?("schedule", conn) do
-      schedules = State.Schedule.schedule_for_many(stop_events)
+      if split_included?("schedule", conn) do
+        schedules = State.Schedule.schedule_for_many(stop_events)
 
-      Enum.map(stop_events, fn stop_event ->
-        schedule = Map.get(schedules, {stop_event.trip_id, stop_event.stop_sequence})
+        Enum.map(stop_events, fn stop_event ->
+          schedule = Map.get(schedules, {stop_event.trip_id, stop_event.stop_sequence})
+          Map.put(stop_event, :schedule, schedule)
+        end)
+      else
+        stop_events
+      end
+    end
+
+    def preload(stop_event, conn, _opts) do
+      if split_included?("schedule", conn) do
+        schedule = State.Schedule.schedule_for(stop_event)
         Map.put(stop_event, :schedule, schedule)
-      end)
-    else
-      stop_events
+      else
+        stop_event
+      end
     end
-  end
 
-  def preload(stop_event, conn, _opts) do
-    if split_included?("schedule", conn) do
-      schedule = State.Schedule.schedule_for(stop_event)
-      Map.put(stop_event, :schedule, schedule)
-    else
-      stop_event
+    def relationships(stop_event, conn) do
+      # Get the base relationships as a map from has_one macros
+      base_relationships = super(stop_event, conn)
+
+      if split_included?("schedule", conn) do
+        Map.put(
+          base_relationships,
+          :schedule,
+          %HasOne{
+            type: :schedule,
+            name: :schedule,
+            data: schedule(stop_event, conn),
+            serializer: ApiWeb.ScheduleView
+          }
+        )
+      else
+        base_relationships
+      end
     end
+
+    defp schedule(%{schedule: schedule}, _conn), do: schedule
+
+    defp schedule(stop_event, conn),
+      do: optional_relationship("schedule", stop_event, &State.Schedule.schedule_for/1, conn)
   end
-
-  def relationships(stop_event, conn) do
-    # Get the base relationships as a map from has_one macros
-    base_relationships = super(stop_event, conn)
-
-    if split_included?("schedule", conn) do
-      Map.put(
-        base_relationships,
-        :schedule,
-        %HasOne{
-          type: :schedule,
-          name: :schedule,
-          data: schedule(stop_event, conn),
-          serializer: ApiWeb.ScheduleView
-        }
-      )
-    else
-      base_relationships
-    end
-  end
-
-  defp schedule(%{schedule: schedule}, _conn), do: schedule
-
-  defp schedule(stop_event, conn),
-    do: optional_relationship("schedule", stop_event, &State.Schedule.schedule_for/1, conn)
 end
