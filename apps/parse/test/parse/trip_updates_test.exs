@@ -12,7 +12,7 @@ defmodule Parse.TripUpdatesTest do
         "route_id" => "CR-Haverhill",
         "direction_id" => 0,
         "revenue" => true,
-        "last_trip" => false
+        "last_trip" => true
       }
 
       update = %{
@@ -39,7 +39,20 @@ defmodule Parse.TripUpdatesTest do
           ]
         })
 
-      assert [%Model.Prediction{}] = parse(body)
+      expectation = %Model.Prediction{
+        trip_id: "CR-Weekday-Spring-17-205",
+        route_id: "CR-Haverhill",
+        direction_id: 0,
+        revenue: :REVENUE,
+        trip_match?: false,
+        stop_id: "place-north",
+        stop_sequence: 6,
+        arrival_time: DateTime.from_naive!(~N[2017-08-09 10:46:40Z], "America/New_York"),
+        departure_time: DateTime.from_naive!(~N[2017-08-09 10:55:00Z], "America/New_York"),
+        departure_uncertainty: 60
+      }
+
+      assert [expectation] == parse(body)
     end
   end
 end
