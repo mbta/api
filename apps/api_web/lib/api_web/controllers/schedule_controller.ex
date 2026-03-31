@@ -18,7 +18,7 @@ defmodule ApiWeb.ScheduleController do
 
   @filters ~w(date direction_id max_time min_time route stop stop_sequence route_type trip)s
   @pagination_opts ~w(offset limit order_by)a
-  @includes ~w(stop trip prediction route)
+  @includes ~w(stop trip prediction route added_routes)
 
   def state_module, do: State.Schedule
 
@@ -368,6 +368,7 @@ defmodule ApiWeb.ScheduleController do
           relationship(:trip)
           relationship(:stop)
           relationship(:prediction)
+          relationship(:added_routes, type: :has_many)
         end,
       Schedules: page(:ScheduleResource)
     }

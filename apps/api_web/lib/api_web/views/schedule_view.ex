@@ -1,7 +1,7 @@
 defmodule ApiWeb.ScheduleView do
   use ApiWeb.Web, :api_view
   alias ApiWeb.Plugs.Deadline
-  alias JaSerializer.Relationship.HasOne
+  alias JaSerializer.Relationship.{HasMany, HasOne}
 
   def relationships(_, _) do
     %{
@@ -15,6 +15,13 @@ defmodule ApiWeb.ScheduleView do
         serializer: ApiWeb.PredictionView,
         identifiers: :when_included,
         include: false
+      },
+      added_routes: %HasMany{
+        type: :route,
+        name: :added_routes,
+        data: :added_routes,
+        serializer: ApiWeb.RouteView,
+        include: true
       }
     }
   end
@@ -90,6 +97,10 @@ defmodule ApiWeb.ScheduleView do
   def prediction(schedule, %{assigns: %{date: date}} = conn) do
     Deadline.check!(conn)
     State.Prediction.prediction_for(schedule, date)
+  end
+
+  def added_routes(%{added_route_ids: added_route_ids}, conn) do
+    optional_relationship("added_route", added_route_ids, &State.Route.by_ids/1, conn)
   end
 
   defp format_time(seconds, conn) when is_integer(seconds) do
