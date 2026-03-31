@@ -85,9 +85,6 @@ config :api_web, :phoenix_swagger,
     "priv/static/swagger.json" => [router: ApiWeb.Router, endpoint: ApiWeb.Endpoint]
   }
 
-config :api_web, :features,
-  stop_events_route: System.get_env("STOP_EVENTS_ROUTE", "false") == "true"
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -21,8 +21,6 @@ config :api_web, ApiWeb.Endpoint,
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
 
-config :api_web, :features, stop_events_route: true
-
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n", level: :debug
 
