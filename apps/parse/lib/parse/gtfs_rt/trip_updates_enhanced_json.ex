@@ -35,6 +35,7 @@ defmodule Parse.GtfsRt.TripUpdatesEnhancedJson do
       vehicle_id: vehicle_id(raw),
       schedule_relationship: schedule_relationship(Map.get(trip, "schedule_relationship")),
       revenue: parse_revenue(Map.get(trip, "revenue", true)),
+      last_trip?: Map.get(trip, "last_trip", false),
       update_type: parse_update_type(Map.get(raw, "update_type"))
     }
   end
