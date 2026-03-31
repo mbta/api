@@ -177,7 +177,7 @@ defmodule State.ScheduleTest do
       ]
 
       schedules = [
-        @schedule
+        %{@schedule | secondary_route_ids: [other_route_id]}
       ]
 
       State.Route.new_state(routes)
@@ -185,13 +185,10 @@ defmodule State.ScheduleTest do
       Schedule.new_state(schedules)
       State.RoutesPatternsAtStop.update!()
 
-      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [@route.id]})) == [
-               @schedule
-             ]
+      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [@route.id]})) == schedules
 
-      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [other_route_id]})) == [
-               @schedule
-             ]
+      assert Enum.sort(Schedule.filter_by(%{stops: [@stop.id], routes: [other_route_id]})) ==
+               schedules
     end
 
     test "filters on :stops and :routes" do

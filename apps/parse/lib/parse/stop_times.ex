@@ -37,7 +37,8 @@ defmodule Parse.StopTimes do
       stop_headsign: optional_copy(row["stop_headsign"]),
       pickup_type: pick_drop_type(row["pickup_type"]),
       drop_off_type: pick_drop_type(row["drop_off_type"]),
-      timepoint?: row["timepoint"] != "0"
+      timepoint?: row["timepoint"] != "0",
+      secondary_route_ids: []
     }
   end
 
@@ -72,6 +73,7 @@ defmodule Parse.StopTimes do
           &%{
             &1
             | route_id: trip.route_id,
+              secondary_route_ids: trip.secondary_route_ids,
               direction_id: trip.direction_id,
               service_id: trip.service_id
           }

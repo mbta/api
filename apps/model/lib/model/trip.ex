@@ -17,7 +17,8 @@ defmodule Model.Trip do
     :route_type,
     :bikes_allowed,
     :route_pattern_id,
-    revenue: :REVENUE
+    revenue: :REVENUE,
+    secondary_route_ids: []
   ]
 
   @type id :: String.t()
@@ -36,7 +37,8 @@ defmodule Model.Trip do
           alternate_route: boolean | nil,
           bikes_allowed: 0..2,
           route_pattern_id: Model.RoutePattern.id() | nil,
-          revenue: :REVENUE | :NON_REVENUE
+          revenue: :REVENUE | :NON_REVENUE,
+          secondary_route_ids: [Model.Route.id()]
         }
 
   @doc """

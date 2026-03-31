@@ -18,7 +18,8 @@ defmodule ApiWeb.ScheduleViewTest do
     pickup_type: 2,
     drop_off_type: 3,
     timepoint?: true,
-    stop_headsign: "headsign"
+    stop_headsign: "headsign",
+    secondary_route_ids: []
   }
 
   test "renders the dates properly", %{conn: conn} do
@@ -153,6 +154,33 @@ defmodule ApiWeb.ScheduleViewTest do
         |> get_in(["data", "relationships", "prediction", "data"])
 
       refute prediction
+    end
+  end
+
+  describe "secondary_routes" do
+    test "empty if not present", %{conn: conn} do
+      conn = assign(conn, :date, ~D[2026-03-31])
+      rendered = render(ApiWeb.ScheduleView, "index.json-api", data: @schedule, conn: conn)
+      assert %{"secondary_routes" => %{"data" => []}} = rendered["data"]["relationships"]
+    end
+
+    test "populated if present", %{conn: conn} do
+      conn = assign(conn, :date, ~D[2026-03-31])
+
+      rendered =
+        render(ApiWeb.ScheduleView, "index.json-api",
+          data: %{@schedule | secondary_route_ids: ["route1", "route2"]},
+          conn: conn
+        )
+
+      assert %{
+               "secondary_routes" => %{
+                 "data" => [
+                   %{"type" => "route", "id" => "route1"},
+                   %{"type" => "route", "id" => "route2"}
+                 ]
+               }
+             } = rendered["data"]["relationships"]
     end
   end
 end
