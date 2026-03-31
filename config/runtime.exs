@@ -88,7 +88,7 @@ if is_prod? and is_release? do
     s3_object: System.get_env("STOP_EVENTS_S3_OBJECT")
 
   config :api_web, :features,
-    stop_events_route: System.get_env("STOP_EVENTS_ROUTE", "false")
+    stop_events_route: System.get_env("STOP_EVENTS_ROUTE", "false") == "true"
 
   config :recaptcha,
     enabled: true,
