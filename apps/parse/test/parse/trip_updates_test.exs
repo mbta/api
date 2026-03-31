@@ -44,6 +44,7 @@ defmodule Parse.TripUpdatesTest do
         route_id: "CR-Haverhill",
         direction_id: 0,
         revenue: :REVENUE,
+        last_trip?: true,
         trip_match?: false,
         stop_id: "place-north",
         stop_sequence: 6,
