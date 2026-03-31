@@ -18,6 +18,8 @@ config :api_web, RateLimiter.Memcache,
 
 config :api_web, ApiWeb.Plugs.ModifiedSinceHandler, check_caller: true
 
+config :api_web, :features, stop_events_route: true
+
 config :sentry,
   test_mode: true,
   before_send: {ApiWeb.SentryEventFilter, :filter_event}
