@@ -613,11 +613,11 @@ defmodule ApiWeb.AlertController do
 
     There are 3 notifications related attributes
 
-    | JSON pointer                                                    | Description                                         |
-    |-----------------------------------------------------------------|-----------------------------------------------------|
-    | `#{parent_pointer}/attributes/closed_timestamp`                 | Time the alert was closed.                          |
+    | JSON pointer                                                    | Description                                                                                           |
+    |-----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+    | `#{parent_pointer}/attributes/closed_timestamp`                 | Time the alert was closed.                                                                            |
     | `#{parent_pointer}/attributes/last_push_notification_timestamp` | Time to send a new or updated alert notification. Send an "all clear" if equal to closed_timestamp.   |
-    | `#{parent_pointer}/attributes/reminder_times`                   | Times to send upcoming alert reminder notifications |
+    | `#{parent_pointer}/attributes/reminder_times`                   | Times to send upcoming alert reminder notifications                                                   |
     """
   end
 
