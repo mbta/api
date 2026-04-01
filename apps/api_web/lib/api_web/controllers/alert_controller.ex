@@ -401,7 +401,7 @@ defmodule ApiWeb.AlertController do
 
             closed_timestamp(
               nullable(%Schema{type: :string, format: :"date-time"}, true),
-              "If the alert has been closed and an all clear notification should be sent, the time at which the alert was closed.",
+              "The time at which the alert was closed.",
               example: "2025-08-17T11:21:00-04:00"
             )
 
@@ -474,7 +474,7 @@ defmodule ApiWeb.AlertController do
 
             last_push_notification_timestamp(
               nullable(%Schema{type: :string, format: :"date-time"}, true),
-              "The most recent time at which the alert changed significantly enough that a notification should be sent.",
+              "The most recent time at which the alert changed significantly enough that a notification should be sent. When this matches closed_timestamp, an \"All Clear\" notification should be sent.",
               example: "2025-08-17T11:23:00-04:00"
             )
 
@@ -613,11 +613,11 @@ defmodule ApiWeb.AlertController do
 
     There are 3 notifications related attributes
 
-    | JSON pointer                                                    | Description                                         |
-    |-----------------------------------------------------------------|-----------------------------------------------------|
-    | `#{parent_pointer}/attributes/closed_timestamp`                 | Time to send an all clear notification              |
-    | `#{parent_pointer}/attributes/last_push_notification_timestamp` | Time to send a new or updated alert notification    |
-    | `#{parent_pointer}/attributes/reminder_times`                   | Times to send upcoming alert reminder notifications |
+    | JSON pointer                                                    | Description                                                                                           |
+    |-----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+    | `#{parent_pointer}/attributes/closed_timestamp`                 | Time the alert was closed.                                                                            |
+    | `#{parent_pointer}/attributes/last_push_notification_timestamp` | Time to send a new or updated alert notification. Send an "all clear" if equal to closed_timestamp.   |
+    | `#{parent_pointer}/attributes/reminder_times`                   | Times to send upcoming alert reminder notifications                                                   |
     """
   end
 
