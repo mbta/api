@@ -232,4 +232,12 @@ defmodule ApiWeb.StopEventViewTest do
       assert get_in(rendered, ["data", "relationships", "schedule", "data"]) == nil
     end
   end
+
+  describe "location" do
+    test "returns the correct stop event location", %{conn: conn} do
+      rendered = render(ApiWeb.StopEventView, "index.json-api", data: @stop_event, conn: conn)
+
+      assert rendered["data"]["links"]["self"] =~ "/stop_events/trip1-route1-v1-1"
+    end
+  end
 end

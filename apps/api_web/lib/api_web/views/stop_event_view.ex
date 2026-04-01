@@ -1,6 +1,11 @@
 defmodule ApiWeb.StopEventView do
   use ApiWeb.Web, :api_view
 
+  location(:stop_event_location)
+
+  def stop_event_location(stop_event, conn),
+    do: stop_event_path(conn, :show, stop_event.id)
+
   attributes([
     :start_date,
     :direction_id,
