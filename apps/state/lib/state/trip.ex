@@ -154,7 +154,7 @@ defmodule State.Trip do
         %{trip | route_id: route_id, alternate_route: true}
       end
 
-    new_trip = %{trip | alternate_route: false}
+    new_trip = %{trip | alternate_route: false, added_route_ids: alternate_routes}
     [new_trip | new_alternates]
   end
 

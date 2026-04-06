@@ -23,7 +23,8 @@ defmodule Model.Schedule do
     :route_id,
     :direction_id,
     :service_id,
-    :timepoint?
+    :timepoint?,
+    added_route_ids: []
   ]
 
   @typedoc """
@@ -73,6 +74,7 @@ defmodule Model.Schedule do
       [GTFS `trips.txt` `route_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxt)
   * `:service_id` - The service that `trip_id` is following to determine when it is active.  See
       [GTFS `trips.txt` `service_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#tripstxxt)
+  * `:added_route_ids` - Routes that this trip has been added to via [`multi_route_trips.txt`](https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md#multi_route_tripstxt)
   * `:stop_id` - The stop being arrived at and departed from.  See
       [GTFS `stop_times.txt` `stop_id`](https://github.com/google/transit/blob/master/gtfs/spec/en/reference.md#stop_timestxt)
   * `:stop_sequence` - The sequence the `stop_id` is arrived at during the `trip_id`.  See
