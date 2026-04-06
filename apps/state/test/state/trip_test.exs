@@ -209,9 +209,20 @@ defmodule State.TripTest do
         trips: [trip]
       })
 
-      assert [%Model.Trip{alternate_route: false, id: id, route_id: "746"}] = by_route_id("746")
-      assert [%Model.Trip{alternate_route: true, id: ^id, route_id: "741"}] = by_route_id("741")
-      assert [%Model.Trip{alternate_route: true, id: ^id, route_id: "742"}] = by_route_id("742")
+      assert [
+               %Model.Trip{
+                 alternate_route: false,
+                 id: id,
+                 route_id: "746",
+                 added_route_ids: ["742", "741"]
+               }
+             ] = by_route_id("746")
+
+      assert [%Model.Trip{alternate_route: true, id: ^id, route_id: "741", added_route_ids: []}] =
+               by_route_id("741")
+
+      assert [%Model.Trip{alternate_route: true, id: ^id, route_id: "742", added_route_ids: []}] =
+               by_route_id("742")
     end
 
     test "creates alternate for CR-Haverhill" do
@@ -226,16 +237,29 @@ defmodule State.TripTest do
 
       new_state(%{
         multi_route_trips: [
-          %Model.MultiRouteTrip{added_route_id: "CR-Haverhill", trip_id: trip_id},
           %Model.MultiRouteTrip{added_route_id: "CR-Lowell", trip_id: trip_id}
         ],
         trips: [trip]
       })
 
-      assert [%Model.Trip{alternate_route: false, id: ^trip_id, route_id: "CR-Haverhill"}] =
+      assert [
+               %Model.Trip{
+                 alternate_route: false,
+                 id: ^trip_id,
+                 route_id: "CR-Haverhill",
+                 added_route_ids: ["CR-Lowell"]
+               }
+             ] =
                by_route_id("CR-Haverhill")
 
-      assert [%Model.Trip{alternate_route: true, id: ^trip_id, route_id: "CR-Lowell"}] =
+      assert [
+               %Model.Trip{
+                 alternate_route: true,
+                 id: ^trip_id,
+                 route_id: "CR-Lowell",
+                 added_route_ids: []
+               }
+             ] =
                by_route_id("CR-Lowell")
     end
   end
