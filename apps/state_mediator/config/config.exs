@@ -16,7 +16,7 @@ config :state_mediator, :commuter_rail_crowding,
   source: {:system, "CR_CROWING_SOURCE", "s3"}
 
 config :state_mediator, :stop_events,
-  enabled: {:system, "STOP_EVENTS_ENABLED", "false"},
+  enabled: {:system, "STOP_EVENTS_FETCH", "false"},
   s3_bucket: {:system, "STOP_EVENTS_S3_BUCKET"},
   s3_object: {:system, "STOP_EVENTS_S3_OBJECT"}
 

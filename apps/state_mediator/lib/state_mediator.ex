@@ -160,7 +160,7 @@ defmodule StateMediator do
           :supervisor.child_spec() | {module(), term()} | module()
         ]
   defp stop_event_children(true) do
-    Logger.info("#{__MODULE__} STOP_EVENTS_ENABLED=true")
+    Logger.info("#{__MODULE__} STOP_EVENTS_FETCH=true")
 
     [
       {
@@ -178,7 +178,7 @@ defmodule StateMediator do
   end
 
   defp stop_event_children(false) do
-    Logger.info("#{__MODULE__} STOP_EVENTS_ENABLED=false")
+    Logger.info("#{__MODULE__} STOP_EVENTS_FETCH=false")
     []
   end
 
