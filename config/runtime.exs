@@ -83,7 +83,7 @@ if is_prod? and is_release? do
     source: System.fetch_env!("CR_CROWDING_SOURCE")
 
   config :state_mediator, :stop_events,
-    enabled: System.get_env("STOP_EVENTS_FETCH", "false"),
+    enabled: System.get_env("STOP_EVENTS_ENABLED", "false"),
     s3_bucket: System.get_env("STOP_EVENTS_S3_BUCKET"),
     s3_object: System.get_env("STOP_EVENTS_S3_OBJECT")
 
