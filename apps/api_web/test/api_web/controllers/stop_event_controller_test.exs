@@ -223,13 +223,20 @@ defmodule ApiWeb.StopEventControllerTest do
       assert [%{"id" => "trip1-route1-v1-1"}] = json_response(conn, 200)["data"]
     end
 
-    test "can filter by direction_id", %{conn: conn} do
+    test "returns 400 when only direction_id is provided", %{conn: conn} do
       State.StopEvent.new_state([@stop_event1, @stop_event2])
 
       conn =
         get(conn, stop_event_path(conn, :index, %{"filter" => %{"direction_id" => "0"}}))
 
-      assert [%{"id" => "trip1-route1-v1-1"}] = json_response(conn, 200)["data"]
+      assert json_response(conn, 400)["errors"] == [
+               %{
+                 "status" => "400",
+                 "code" => "bad_request",
+                 "detail" =>
+                   "filter[direction_id] must be used in conjunction with another filter[]."
+               }
+             ]
     end
 
     test "can filter by vehicle", %{conn: conn} do

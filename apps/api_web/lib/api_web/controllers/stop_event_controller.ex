@@ -71,7 +71,7 @@ defmodule ApiWeb.StopEventController do
       example: "y2071"
     )
 
-    filter_param(:direction_id)
+    filter_param(:direction_id, desc: "Must be used in conjunction with another filter.")
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
@@ -88,12 +88,17 @@ defmodule ApiWeb.StopEventController do
          {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       formatted_filters = format_filters(filtered)
 
-      if map_size(formatted_filters) == 0 do
-        {:error, :filter_required}
-      else
-        formatted_filters
-        |> StopEvent.filter_by()
-        |> State.all(pagination_opts(params, conn))
+      cond do
+        map_size(formatted_filters) == 0 ->
+          {:error, :filter_required}
+
+        Map.keys(formatted_filters) == [:direction_id] ->
+          {:error, :only_direction_id}
+
+        true ->
+          formatted_filters
+          |> StopEvent.filter_by()
+          |> State.all(pagination_opts(params, conn))
       end
     else
       {:error, _, _} = error -> error
