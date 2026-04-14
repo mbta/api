@@ -182,5 +182,25 @@ defmodule ApiWeb.ScheduleViewTest do
                }
              } = rendered["data"]["relationships"]
     end
+
+    test "does not disappear if other relationships included", %{conn: conn} do
+      conn = assign(conn, :date, ~D[2026-03-31])
+
+      rendered =
+        render(ApiWeb.ScheduleView, "index.json-api",
+          data: %{@schedule | added_route_ids: ["route1", "route2"]},
+          conn: conn,
+          opts: %{include: "trip"}
+        )
+
+      assert %{
+               "added_routes" => %{
+                 "data" => [
+                   %{"type" => "route", "id" => "route1"},
+                   %{"type" => "route", "id" => "route2"}
+                 ]
+               }
+             } = rendered["data"]["relationships"]
+    end
   end
 end
