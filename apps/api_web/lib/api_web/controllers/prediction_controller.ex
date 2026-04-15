@@ -395,9 +395,10 @@ defmodule ApiWeb.PredictionController do
             )
 
             trip_headsign(
-              [:string, :null],
+              :string,
               "Specifies the headsign for this trip when it differs from the original.",
-              example: "Park Street"
+              example: "Park Street",
+              "x-nullable": true
             )
           end
 
