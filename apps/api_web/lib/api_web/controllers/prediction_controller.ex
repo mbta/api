@@ -393,6 +393,13 @@ defmodule ApiWeb.PredictionController do
               | `"REVERSE_TRIP"` | Prediction is for a trip that hasn't started and the train that will be servicing this trip is currently in the middle of a previous trip. |
               """
             )
+
+            trip_headsign(
+              :string,
+              "Specifies the headsign for this trip when it differs from the original.",
+              example: "Park Street",
+              "x-nullable": true
+            )
           end
 
           direction_id_attribute()

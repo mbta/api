@@ -24,6 +24,7 @@ defmodule Model.Prediction do
     :schedule_relationship,
     :status,
     :update_type,
+    :trip_headsign,
     trip_match?: false,
     last_trip?: false,
     revenue: :REVENUE
@@ -96,7 +97,8 @@ defmodule Model.Prediction do
   * `:trip_match?` - a boolean indicating whether the prediction is for a trip in the GTFS file
   * `:last_trip?` - a boolean indicating whether the prediction is for the last trip in a given service day
   * `:revenue` - An indication of whether or not the prediction is for a revenue trip
-  * `:update_type` - An identifier for the type of prediction for the associated vehicle. 
+  * `:update_type` - An identifier for the type of prediction for the associated vehicle.
+  * `:trip_headsign` - Specifies the headsign for this trip when it differs from the original.
   """
   @type t :: %__MODULE__{
           arrival_time: DateTime.t() | nil,
@@ -115,7 +117,8 @@ defmodule Model.Prediction do
           trip_match?: boolean,
           last_trip?: boolean,
           revenue: :REVENUE | :NON_REVENUE,
-          update_type: :mid_trip | :at_terminal | :reverse_trip
+          update_type: :mid_trip | :at_terminal | :reverse_trip,
+          trip_headsign: String.t() | nil
         }
 
   @spec trip_id(t) :: Model.Trip.id()

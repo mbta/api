@@ -23,7 +23,8 @@ defmodule ApiWeb.PredictionViewTest do
     schedule_relationship: :added,
     status: "All Aboard",
     stop_sequence: 5,
-    update_type: :mid_trip
+    update_type: :mid_trip,
+    trip_headsign: nil
   }
   @route %Model.Route{id: "CR-Lowell"}
   @stop %Model.Stop{id: "North Station-02", parent_station: "place-north", platform_code: "2"}
@@ -88,7 +89,8 @@ defmodule ApiWeb.PredictionViewTest do
              "schedule_relationship" => "ADDED",
              "stop_sequence" => 5,
              "revenue" => "REVENUE",
-             "update_type" => "MID_TRIP"
+             "update_type" => "MID_TRIP",
+             "trip_headsign" => nil
            }
   end
 
