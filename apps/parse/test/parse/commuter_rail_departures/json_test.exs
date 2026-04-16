@@ -83,6 +83,16 @@ defmodule Parse.CommuterRailDepartures.JSONTest do
       actual = base_prediction(@trip, %{"trip" => @trip, "vehicle" => %{"id" => "vehicle_id"}})
       assert actual.vehicle_id == "vehicle_id"
     end
+
+    test "includes the trip_headsign if present" do
+      actual =
+        base_prediction(@trip, %{
+          "trip" => @trip,
+          "trip_properties" => %{"trip_headsign" => "Park Street"}
+        })
+
+      assert actual.trip_headsign == "Park Street"
+    end
   end
 
   describe "prediction/2" do
