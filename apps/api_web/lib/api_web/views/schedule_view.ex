@@ -21,6 +21,7 @@ defmodule ApiWeb.ScheduleView do
         name: :added_routes,
         data: :added_routes,
         serializer: ApiWeb.RouteView,
+        identifiers: :always,
         include: true
       }
     }
