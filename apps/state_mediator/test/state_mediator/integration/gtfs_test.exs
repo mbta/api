@@ -112,7 +112,7 @@ defmodule StateMediator.Integration.GtfsTest do
       end
     end
 
-    test "only includes place-* stops on rapid transit routes" do
+    test "only includes place-* stops on rapid transit routes (put exceptions in not_on_route in api/apps/state/config/config.exs)" do
       # makes sure we aren't including random other stops
       routes = State.Route.by_types([0, 1])
 
