@@ -503,6 +503,14 @@ config :state, :stops_on_route,
         "place-mlmnl",
         "place-north"
       ]
+    ],
+    {"CR-Foxboro", 0} => [
+      ["place-FS-0049", "place-NEC-2040", "place-NEC-1969", "place-NEC-1891", "place-NEC-1851"],
+      ["place-sstat", "place-bbsta", "place-FB-0118", "place-FS-0049"]
+    ],
+    {"CR-Foxboro", 1} => [
+      ["place-NEC-1851", "place-NEC-1891", "place-NEC-1969", "place-NEC-2040", "place-FS-0049"],
+      ["place-FS-0049", "place-FB-0118", "place-bbsta", "place-sstat"]
     ]
   }
 
