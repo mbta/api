@@ -798,7 +798,9 @@ defmodule Parse.AlertsTest do
           %{
             "alert_lifecycle" => "NEW",
             "cause" => "UNKNOWN_CAUSE",
-            "cause_detail" => "UNKNOWN_CAUSE",
+            "cause_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "UNKNOWN_CAUSE"}}
+            ],
             "closed_timestamp" => 1_758_058_202,
             "created_timestamp" => 1_758_053_585,
             "description_text" => %{

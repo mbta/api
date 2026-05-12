@@ -2744,7 +2744,7 @@ defmodule Parse.Alerts do
   def parse_alert(alert) do
     %Alert{
       id: Map.get(alert, "id"),
-      effect: alert |> Map.get("effect_detail") |> copy,
+      effect: alert |> Map.get("effect_detail") |> translated_text,
       cause: cause(alert),
       header: alert |> Map.get("header_text") |> translated_text,
       short_header: alert |> Map.get("short_header_text") |> translated_text,
@@ -2775,7 +2775,7 @@ defmodule Parse.Alerts do
   end
 
   defp cause(%{"cause_detail" => cause}) do
-    copy(cause)
+    translated_text(cause)
   end
 
   defp cause(%{"cause" => cause}) do
