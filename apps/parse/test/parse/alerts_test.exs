@@ -467,6 +467,39 @@ defmodule Parse.AlertsTest do
       assert [%Alert{description: "Good morning"}] = parse_json(map)
     end
 
+    # This is for backwards compatability and can be removed once all alerts manager
+    # environments are all sending translated objects instead of strings
+    test "string cause_detail and effect_detail are still accepted" do
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "cause_detail" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [%{"translation" => %{"language" => "en", "text" => ""}}],
+            "banner_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{cause: "UNKNOWN_CAUSE", effect: "STATION_CLOSURE"}] = parse_json(map)
+    end
+
     test "returns english image url over other language" do
       url =
         "https://dev-mbta.pantheonsite.io/sites/default/files/styles/max_2600x2600/public/media/2023-09/QuincyCenter-Braintree-EA.png"

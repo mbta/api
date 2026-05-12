@@ -2744,7 +2744,9 @@ defmodule Parse.Alerts do
   def parse_alert(alert) do
     %Alert{
       id: Map.get(alert, "id"),
-      effect: alert |> Map.get("effect_detail") |> translated_text,
+      # Backwards compatability-can change to `translated_text` after all instances of
+      # alerts manager are returning a translated string
+      effect: alert |> Map.get("effect_detail") |> maybe_translated_text,
       cause: cause(alert),
       header: alert |> Map.get("header_text") |> translated_text,
       short_header: alert |> Map.get("short_header_text") |> translated_text,
@@ -2774,6 +2776,12 @@ defmodule Parse.Alerts do
     }
   end
 
+  # Backwards compatability for `cause_detail` coming in as a string
+  # Should remove once all instances of alerts manager are returning a translated string
+  defp cause(%{"cause_detail" => cause}) when is_bitstring(cause) do
+    copy(cause)
+  end
+
   defp cause(%{"cause_detail" => cause}) do
     translated_text(cause)
   end
@@ -2793,6 +2801,16 @@ defmodule Parse.Alerts do
   def lifecycle(<<"ONGOING", _::binary-1, "UPCOMING">>), do: "ONGOING_UPCOMING"
   def lifecycle("NEW"), do: "NEW"
   def lifecycle(_), do: "UNKNOWN"
+
+  # Backwards compatability for `effect_detail` coming in as a string
+  # Should remove once all instances of alerts manager are returning a translated string
+  defp maybe_translated_text(translations, opts \\ []) do
+    if is_bitstring(translations) do
+      copy(translations)
+    else
+      translated_text(translations, opts)
+    end
+  end
 
   defp translated_text(translations, opts \\ []) do
     opts =
