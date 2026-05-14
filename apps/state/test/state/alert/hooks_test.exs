@@ -429,8 +429,22 @@ defmodule State.Alert.HooksTest do
               }
             ],
             "duration_certainty": "KNOWN",
-            "cause_detail": "UNKNOWN_CAUSE",
-            "effect_detail": "SUSPENSION",
+            "cause_detail": {
+              "translation": [
+                {
+                  "text": "UNKNOWN_CAUSE",
+                  "language": "en"
+                }
+              ]
+            },
+            "effect_detail": {
+              "translation": [
+                {
+                  "text": "SUSPENSION",
+                  "language": "en"
+                }
+              ]
+            },
             "informed_entity": [
               {
                 "direction_id": 1,

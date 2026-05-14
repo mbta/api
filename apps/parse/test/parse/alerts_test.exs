@@ -54,7 +54,14 @@ defmodule Parse.AlertsTest do
             }
           ],
           "effect": "MODIFIED_SERVICE",
-          "effect_detail": "SCHEDULE_CHANGE",
+          "effect_detail": [
+            {
+              "translation": {
+                "language": "en",
+                "text": "SCHEDULE_CHANGE"
+              }
+            }
+          ],
           "header_text": [
             {
               "translation": {
@@ -159,7 +166,14 @@ defmodule Parse.AlertsTest do
           "cause_name": "maintenance",
           "created_timestamp": 1439307067,
           "effect": "OTHER_EFFECT",
-          "effect_detail": "ACCESS_ISSUE",
+          "effect_detail": [
+            {
+              "translation": {
+                "language": "en",
+                "text": "ACCESS_ISSUE"
+              }
+            }
+          ],
           "header_text": [
             {
               "translation": {
@@ -251,14 +265,18 @@ defmodule Parse.AlertsTest do
             ],
             "alert_lifecycle" => "NEW",
             "cause" => "CONSTRUCTION",
-            "cause_detail" => "CONSTRUCTION",
+            "cause_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "CONSTRUCTION"}}
+            ],
             "created_timestamp" => 1_494_947_991,
             "description_text" => [
               %{"translation" => %{"language" => "en", "text" => "description"}}
             ],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [%{"translation" => %{"language" => "en", "text" => "Salem closed"}}],
             "id" => "113791",
             "image" => %{
@@ -363,7 +381,9 @@ defmodule Parse.AlertsTest do
             "description_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "informed_entity" => [%{}],
@@ -395,7 +415,9 @@ defmodule Parse.AlertsTest do
             ],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "informed_entity" => [%{}],
@@ -426,7 +448,9 @@ defmodule Parse.AlertsTest do
             },
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "informed_entity" => [%{}],
@@ -441,6 +465,39 @@ defmodule Parse.AlertsTest do
       }
 
       assert [%Alert{description: "Good morning"}] = parse_json(map)
+    end
+
+    # This is for backwards compatability and can be removed once all alerts manager
+    # environments are all sending translated objects instead of strings
+    test "string cause_detail and effect_detail are still accepted" do
+      map = %{
+        "timestamp" => "1496832813",
+        "alerts" => [
+          %{
+            "active_period" => [],
+            "alert_lifecycle" => "NEW",
+            "cause" => "UNKNOWN_CAUSE",
+            "cause_detail" => "UNKNOWN_CAUSE",
+            "created_timestamp" => 1_494_947_991,
+            "description_text" => [%{"translation" => %{"language" => "en", "text" => ""}}],
+            "banner_text" => [],
+            "duration_certainty" => "KNOWN",
+            "effect" => "NO_SERVICE",
+            "effect_detail" => "STATION_CLOSURE",
+            "header_text" => [],
+            "id" => "113791",
+            "informed_entity" => [%{}],
+            "last_modified_timestamp" => 1_494_947_991,
+            "last_push_notification_timestamp" => 1_494_947_991,
+            "service_effect_text" => [],
+            "severity" => 3,
+            "short_header_text" => [],
+            "timeframe_text" => []
+          }
+        ]
+      }
+
+      assert [%Alert{cause: "UNKNOWN_CAUSE", effect: "STATION_CLOSURE"}] = parse_json(map)
     end
 
     test "returns english image url over other language" do
@@ -458,7 +515,9 @@ defmodule Parse.AlertsTest do
             "description_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "image" => %{
@@ -508,7 +567,9 @@ defmodule Parse.AlertsTest do
             "description_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "image" => %{
@@ -553,7 +614,9 @@ defmodule Parse.AlertsTest do
             "description_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "image" => %{
@@ -598,7 +661,9 @@ defmodule Parse.AlertsTest do
             "description_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "image" => %{
@@ -635,7 +700,9 @@ defmodule Parse.AlertsTest do
             "description_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "informed_entity" => [
@@ -671,7 +738,9 @@ defmodule Parse.AlertsTest do
             ],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "informed_entity" => [%{}],
@@ -701,7 +770,9 @@ defmodule Parse.AlertsTest do
             "banner_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [],
             "id" => "113791",
             "informed_entity" => [%{}],
@@ -735,7 +806,9 @@ defmodule Parse.AlertsTest do
             "banner_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [%{"translation" => %{"language" => "en", "text" => "Salem closed"}}],
             "id" => "113791",
             "informed_entity" => [%{}],
@@ -758,7 +831,9 @@ defmodule Parse.AlertsTest do
           %{
             "alert_lifecycle" => "NEW",
             "cause" => "UNKNOWN_CAUSE",
-            "cause_detail" => "UNKNOWN_CAUSE",
+            "cause_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "UNKNOWN_CAUSE"}}
+            ],
             "closed_timestamp" => 1_758_058_202,
             "created_timestamp" => 1_758_053_585,
             "description_text" => %{
@@ -768,7 +843,9 @@ defmodule Parse.AlertsTest do
             },
             "duration_certainty" => "KNOWN",
             "effect" => "OTHER_EFFECT",
-            "effect_detail" => "DELAY",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "DELAY"}}
+            ],
             "header_text" => %{
               "translation" => [
                 %{
@@ -839,7 +916,9 @@ defmodule Parse.AlertsTest do
             "banner_text" => [],
             "duration_certainty" => "KNOWN",
             "effect" => "NO_SERVICE",
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "header_text" => [%{"translation" => %{"language" => "en", "text" => "Salem closed"}}],
             "id" => "113791",
             "last_modified_timestamp" => 1_494_947_991,
@@ -878,7 +957,9 @@ defmodule Parse.AlertsTest do
               "banner_text" => [],
               "duration_certainty" => "KNOWN",
               "effect" => "NO_SERVICE",
-              "effect_detail" => "STATION_CLOSURE",
+              "effect_detail" => [
+                %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+              ],
               "header_text" => [
                 %{"translation" => %{"language" => "en", "text" => "Salem closed"}}
               ],
@@ -905,7 +986,9 @@ defmodule Parse.AlertsTest do
             "active_period" => [],
             "cause" => "UNKNOWN_CAUSE",
             "created_timestamp" => 1_494_947_991,
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "informed_entity" => [
               %{"route_type" => 2}
             ],
@@ -931,7 +1014,9 @@ defmodule Parse.AlertsTest do
             "active_period" => [],
             "cause" => "UNKNOWN_CAUSE",
             "created_timestamp" => 1_494_947_991,
-            "effect_detail" => "STATION_CLOSURE",
+            "effect_detail" => [
+              %{"translation" => %{"language" => "en", "text" => "STATION_CLOSURE"}}
+            ],
             "informed_entity" => [
               %{
                 "activities" => [
