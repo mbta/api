@@ -79,6 +79,7 @@ defmodule StateMediator.S3Mediator do
     bucket_arn
     |> S3.get_object(object)
     |> ExAws.request()
+    |> tap(&debug_time("fetching #{object} from #{bucket_arn}", fn -> &1 end))
     |> handle_response(state)
   end
 
