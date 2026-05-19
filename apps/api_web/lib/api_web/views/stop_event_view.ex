@@ -79,12 +79,8 @@ defmodule ApiWeb.StopEventView do
   end
 
   defp attach_schedules_if_needed(stop_event, conn) do
-    if split_included?("schedule", conn) do
-      schedule = State.Schedule.schedule_for(stop_event)
-      attach_formatted_schedule(stop_event, schedule)
-    else
-      stop_event
-    end
+    [stop_event] = attach_schedules_if_needed([stop_event], conn)
+    stop_event
   end
 
   defp attach_formatted_schedule(stop_event, schedule) do
