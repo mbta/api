@@ -51,30 +51,59 @@ defmodule ApiWeb.StopEventView do
 
   @doc """
   Preloads relationships for stop events when requested via ?include=* to prevent N+1 queries.
+
+  For schedules, pre-formats the times using each stop_event's start_date to avoid
+  assigning incorrect times when multiple stop_events have different dates.
   """
   def preload(stop_events, conn, include_opts) when is_list(stop_events) do
-    stop_events = super(stop_events, conn, include_opts)
+    stop_events
+    |> super(conn, include_opts)
+    |> attach_schedules_if_needed(conn)
+  end
 
+  def preload(stop_event, conn, _opts) do
+    attach_schedules_if_needed(stop_event, conn)
+  end
+
+  defp attach_schedules_if_needed(stop_events, conn) when is_list(stop_events) do
     if split_included?("schedule", conn) do
       schedules = State.Schedule.schedule_for_many(stop_events)
 
       Enum.map(stop_events, fn stop_event ->
         schedule = Map.get(schedules, {stop_event.trip_id, stop_event.stop_sequence})
-        Map.put(stop_event, :schedule, schedule)
+        attach_formatted_schedule(stop_event, schedule)
       end)
     else
       stop_events
     end
   end
 
-  def preload(stop_event, conn, _opts) do
-    if split_included?("schedule", conn) do
-      schedule = State.Schedule.schedule_for(stop_event)
-      Map.put(stop_event, :schedule, schedule)
-    else
-      stop_event
-    end
+  defp attach_schedules_if_needed(stop_event, conn) do
+    [stop_event] = attach_schedules_if_needed([stop_event], conn)
+    stop_event
   end
+
+  defp attach_formatted_schedule(stop_event, schedule) do
+    formatted = if schedule, do: format_schedule_times(schedule, stop_event.start_date)
+    Map.put(stop_event, :schedule, formatted)
+  end
+
+  defp format_schedule_times(schedule, start_date) do
+    schedule
+    |> Map.put(:arrival_time, format_time_value(schedule.arrival_time, start_date))
+    |> Map.put(:departure_time, format_time_value(schedule.departure_time, start_date))
+  end
+
+  defp format_time_value(seconds, start_date) when is_integer(seconds) do
+    start_date
+    |> DateHelpers.add_seconds_to_date(seconds)
+    |> DateTime.to_iso8601()
+  end
+
+  defp format_time_value(nil, _start_date), do: nil
+
+  defp format_time_value(already_formatted, _start_date) when is_binary(already_formatted),
+    do: already_formatted
 
   def relationships(stop_event, conn) do
     # Get the base relationships as a map from has_one macros

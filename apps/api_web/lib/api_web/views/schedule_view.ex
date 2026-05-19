@@ -104,6 +104,10 @@ defmodule ApiWeb.ScheduleView do
     optional_relationship("added_route", added_route_ids, &State.Route.by_ids/1, conn)
   end
 
+  defp format_time(time, _conn) when is_binary(time) do
+    time
+  end
+
   defp format_time(seconds, conn) when is_integer(seconds) do
     conn.assigns
     |> case do

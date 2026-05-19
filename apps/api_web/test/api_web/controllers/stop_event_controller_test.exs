@@ -163,7 +163,8 @@ defmodule ApiWeb.StopEventControllerTest do
         service_id: "service1",
         stop_sequence: 1,
         stop_id: "stop1",
-        trip_id: "trip1"
+        trip_id: "trip1",
+        arrival_time: 55_686
       }
     ])
 

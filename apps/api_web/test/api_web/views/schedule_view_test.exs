@@ -22,28 +22,63 @@ defmodule ApiWeb.ScheduleViewTest do
     added_route_ids: []
   }
 
-  test "renders the dates properly", %{conn: conn} do
-    conn = assign(conn, :date, ~D[2016-06-07])
+  describe "renders times properly" do
+    test "formats integer times as ISO8601 strings", %{conn: conn} do
+      conn = assign(conn, :date, ~D[2016-06-07])
 
-    rendered = render(ApiWeb.ScheduleView, "index.json-api", data: @schedule, conn: conn)
+      rendered = render(ApiWeb.ScheduleView, "index.json-api", data: @schedule, conn: conn)
 
-    assert rendered["data"]["attributes"] == %{
-             "arrival_time" => "2016-06-07T00:01:40-04:00",
-             "departure_time" => "2016-06-08T01:00:00-04:00",
-             "stop_sequence" => 1,
-             "pickup_type" => 2,
-             "drop_off_type" => 3,
-             "timepoint" => true,
-             "direction_id" => 1,
-             "stop_headsign" => "headsign"
-           }
-  end
+      assert rendered["data"]["attributes"] == %{
+               "arrival_time" => "2016-06-07T00:01:40-04:00",
+               "departure_time" => "2016-06-08T01:00:00-04:00",
+               "stop_sequence" => 1,
+               "pickup_type" => 2,
+               "drop_off_type" => 3,
+               "timepoint" => true,
+               "direction_id" => 1,
+               "stop_headsign" => "headsign"
+             }
+    end
 
-  test "handles times on DST", %{conn: conn} do
-    conn = assign(conn, :date, ~D[2016-11-05])
-    rendered = render(ApiWeb.ScheduleView, "index.json-api", data: @schedule, conn: conn)
-    assert rendered["data"]["attributes"]["arrival_time"] == "2016-11-05T00:01:40-04:00"
-    assert rendered["data"]["attributes"]["departure_time"] == "2016-11-06T01:00:00-04:00"
+    test "handles times on DST", %{conn: conn} do
+      conn = assign(conn, :date, ~D[2016-11-05])
+      rendered = render(ApiWeb.ScheduleView, "index.json-api", data: @schedule, conn: conn)
+      assert rendered["data"]["attributes"]["arrival_time"] == "2016-11-05T00:01:40-04:00"
+      assert rendered["data"]["attributes"]["departure_time"] == "2016-11-06T01:00:00-04:00"
+    end
+
+    test "passes through pre-formatted string times", %{conn: conn} do
+      pre_formatted_schedule = %Schedule{
+        @schedule
+        | arrival_time: "2016-06-07T00:01:40-04:00",
+          departure_time: "2016-06-08T01:00:00-04:00"
+      }
+
+      conn = assign(conn, :date, ~D[2016-06-07])
+
+      rendered =
+        render(ApiWeb.ScheduleView, "index.json-api",
+          data: pre_formatted_schedule,
+          conn: conn
+        )
+
+      assert rendered["data"]["attributes"]["arrival_time"] == "2016-06-07T00:01:40-04:00"
+      assert rendered["data"]["attributes"]["departure_time"] == "2016-06-08T01:00:00-04:00"
+    end
+
+    test "handles pre-formatted time with nil", %{conn: conn} do
+      schedule = %Schedule{
+        @schedule
+        | arrival_time: "2016-06-07T00:01:40-04:00",
+          departure_time: nil
+      }
+
+      conn = assign(conn, :date, ~D[2016-06-07])
+      rendered = render(ApiWeb.ScheduleView, "index.json-api", data: schedule, conn: conn)
+
+      assert rendered["data"]["attributes"]["arrival_time"] == "2016-06-07T00:01:40-04:00"
+      assert rendered["data"]["attributes"]["departure_time"] == nil
+    end
   end
 
   test "does not include values which aren't requested", %{conn: conn} do
