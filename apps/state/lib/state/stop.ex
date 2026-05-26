@@ -284,10 +284,12 @@ defmodule State.Stop do
 
   @spec do_post_search_filters([Stop.t()], post_search_filter_opts) :: [Stop.t()]
   defp do_post_search_filters(stops, %{route_types: route_types} = filters) do
+    is_ferry_route_type? = 4 in route_types
+
     stops
     |> Enum.filter(fn stop ->
       stop.id
-      |> RoutesPatternsAtStop.routes_by_stop()
+      |> RoutesPatternsAtStop.routes_by_stop_and_direction(canonical?: not is_ferry_route_type?)
       |> Route.by_ids()
       |> Enum.any?(&(&1.type in route_types))
     end)
