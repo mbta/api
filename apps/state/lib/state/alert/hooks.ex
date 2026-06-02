@@ -6,11 +6,7 @@ defmodule State.Alert.Hooks do
 
   @spec pre_insert_hook(Alert.t()) :: [Alert.t()]
   def pre_insert_hook(alert) do
-    entities = add_computed_entities(alert.informed_entity)
-
-    [
-      %{alert | informed_entity: entities}
-    ]
+    [%{alert | informed_entity: add_computed_entities(alert.informed_entity)}]
   end
 
   defp add_computed_entities(entities) do
@@ -31,24 +27,26 @@ defmodule State.Alert.Hooks do
   @spec get_parent_station_entities([Alert.informed_entity()]) :: [Alert.informed_entity()]
   defp get_parent_station_entities(entities) do
     entities
-    |> Stream.map(&get_parent_station_entity/1)
-    |> Stream.reject(&is_nil/1)
+    |> map_child_stop_to_parent_station()
     |> Enum.group_by(&Map.take(&1, @parent_station_entity_activity_merge_criteria))
     |> Enum.flat_map(&merge_parent_entity_activities/1)
   end
 
-  defp get_parent_station_entity(%{stop: stop_id} = entity) when is_binary(stop_id) do
-    case State.Stop.by_id(stop_id) do
-      %{parent_station: station} when is_binary(station) ->
-        %{entity | stop: station}
+  # For each entity in the list:
+  # - If it informs a stop that has a parent station, its `:stop` field is replaced with the parent station ID.
+  # - Otherwise, it is filtered out of the list.
+  @spec map_child_stop_to_parent_station([Alert.informed_entity()]) :: [Alert.informed_entity()]
+  defp map_child_stop_to_parent_station(entities) do
+    stops = State.Stop.by_ids(for(%{stop: stop_id} <- entities, is_binary(stop_id), do: stop_id))
 
-      _ ->
-        nil
+    stop_to_station =
+      for %{id: stop, parent_station: station} <- stops, is_binary(station), into: %{} do
+        {stop, station}
+      end
+
+    for %{stop: stop} = entity <- entities, (station = stop_to_station[stop]) != nil do
+      %{entity | stop: station}
     end
-  end
-
-  defp get_parent_station_entity(_entity) do
-    nil
   end
 
   defp merge_parent_entity_activities({_key, parent_entities}) do
