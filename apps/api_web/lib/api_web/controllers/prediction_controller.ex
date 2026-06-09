@@ -78,45 +78,12 @@ defmodule ApiWeb.PredictionController do
   def index_data(conn, params) do
     with :ok <- Params.validate_includes(params, @includes, conn),
          {:ok, filtered_params} <- Params.filter_params(params, filters(conn), conn) do
-      pagination_opts =
-        Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
-
-      stop_ids = stop_ids(filtered_params, conn)
-      route_ids = Params.split_on_comma(filtered_params, "route")
-      route_pattern_ids = Params.split_on_comma(filtered_params, "route_pattern")
-      route_types = Params.route_types(filtered_params)
-      revenue = filtered_params |> Map.get("revenue") |> Params.revenue()
-
-      direction_id_matcher =
-        filtered_params
-        |> Params.direction_id()
-        |> direction_id_matcher()
-
-      matchers =
-        filtered_params
-        |> build_stop_sequence_matchers(direction_id_matcher)
-        |> add_revenue_matchers(revenue)
-
       case filtered_params do
         %{"route_type" => _} = p when map_size(p) == 1 ->
           {:error, :only_route_type}
 
         p when map_size(p) > 0 ->
-          trip_ids = Params.split_on_comma(filtered_params, "trip")
-
-          {trip_ids, route_pattern_ids}
-          |> case do
-            {[], []} ->
-              all_stops_and_routes(stop_ids, route_ids, matchers)
-
-            {[], route_pattern_ids} ->
-              all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
-
-            {trip_ids, _} ->
-              all_stops_and_trips(stop_ids, trip_ids, matchers)
-          end
-          |> Prediction.filter_by_route_type(route_types)
-          |> State.all(pagination_opts)
+          do_index_data(conn, params, filtered_params)
 
         _ ->
           {:error, :filter_required}
@@ -124,6 +91,42 @@ defmodule ApiWeb.PredictionController do
     else
       {:error, _, _} = error -> error
     end
+  end
+
+  defp do_index_data(conn, params, filtered_params) do
+    revenue = filtered_params |> Map.get("revenue") |> Params.revenue()
+    trip_ids = Params.split_on_comma(filtered_params, "trip")
+    route_pattern_ids = Params.split_on_comma(filtered_params, "route_pattern")
+    stop_ids = stop_ids(filtered_params, conn)
+    route_ids = Params.split_on_comma(filtered_params, "route")
+    route_types = Params.route_types(filtered_params)
+
+    pagination_opts =
+      Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
+
+    direction_id_matcher =
+      filtered_params
+      |> Params.direction_id()
+      |> direction_id_matcher()
+
+    matchers =
+      filtered_params
+      |> build_stop_sequence_matchers(direction_id_matcher)
+      |> add_revenue_matchers(revenue)
+
+    {trip_ids, route_pattern_ids}
+    |> case do
+      {[], []} ->
+        all_stops_and_routes(stop_ids, route_ids, matchers)
+
+      {[], route_pattern_ids} ->
+        all_stops_and_route_patterns(stop_ids, route_pattern_ids, matchers)
+
+      {trip_ids, _} ->
+        all_stops_and_trips(stop_ids, trip_ids, matchers)
+    end
+    |> Prediction.filter_by_route_type(route_types)
+    |> State.all(pagination_opts)
   end
 
   defp filters(%{assigns: %{api_version: ver}}) when ver < "2021-01-09", do: ["date" | @filters]

@@ -60,10 +60,7 @@ defmodule State.Route do
     for direction_id <- ["0", "1"] do
       case Map.get(map, {route_id, direction_id}, nil) do
         [d | _tail] ->
-          case Map.fetch!(d, field) do
-            "" -> nil
-            value -> value
-          end
+          nil_if_empty(Map.fetch!(d, field))
 
         _ ->
           nil
@@ -93,4 +90,7 @@ defmodule State.Route do
     opts = Keyword.put_new(opts, :order_by, {:sort_order, :asc})
     super(matcher, index, opts)
   end
+
+  defp nil_if_empty(val) when val == "", do: nil
+  defp nil_if_empty(val), do: val
 end

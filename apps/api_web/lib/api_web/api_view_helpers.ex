@@ -126,19 +126,20 @@ defmodule ApiWeb.ApiViewHelpers do
 
     for item <- data do
       child_id = Map.get(item, id_key)
-
-      child =
-        if child = Map.get(bulk_children, child_id) do
-          child
-        else
-          if is_nil(fallback_fn) do
-            nil
-          else
-            fallback_fn.(child_id)
-          end
-        end
-
+      child = maybe_get_child(bulk_children, child_id, fallback_fn)
       Map.put(item, key, child)
+    end
+  end
+
+  defp maybe_get_child(bulk_children, child_id, fallback_fn) do
+    if child = Map.get(bulk_children, child_id) do
+      child
+    else
+      if is_nil(fallback_fn) do
+        nil
+      else
+        fallback_fn.(child_id)
+      end
     end
   end
 
