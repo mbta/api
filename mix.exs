@@ -59,7 +59,7 @@ defmodule ApiUmbrella.Mixfile do
   defp deps do
     # Static analysis and style checking
     [
-      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
+      {:credo, ">= 1.7.19", only: [:dev, :test], runtime: false},
       {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.0", only: [:dev], runtime: false},
       # Generate docs with `mix docs`

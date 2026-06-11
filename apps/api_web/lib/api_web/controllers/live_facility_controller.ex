@@ -55,18 +55,7 @@ defmodule ApiWeb.LiveFacilityController do
          {:ok, filtered} <- Params.filter_params(params, @filters, conn) do
       case filtered do
         %{"id" => ids} ->
-          ids
-          |> split_on_comma
-          |> State.Facility.Parking.by_facility_ids()
-          |> Enum.group_by(& &1.facility_id)
-          |> Enum.map(fn {facilty_id, properties} ->
-            %{
-              facility_id: facilty_id,
-              properties: properties,
-              updated_at: updated_at(properties)
-            }
-          end)
-          |> State.all(Params.filter_opts(params, @pagination_opts, conn))
+          do_index_data(ids, conn, params)
 
         _ ->
           {:error, :filter_required}
@@ -74,6 +63,21 @@ defmodule ApiWeb.LiveFacilityController do
     else
       {:error, _, _} = error -> error
     end
+  end
+
+  defp do_index_data(ids, conn, params) do
+    ids
+    |> split_on_comma
+    |> State.Facility.Parking.by_facility_ids()
+    |> Enum.group_by(& &1.facility_id)
+    |> Enum.map(fn {facilty_id, properties} ->
+      %{
+        facility_id: facilty_id,
+        properties: properties,
+        updated_at: updated_at(properties)
+      }
+    end)
+    |> State.all(Params.filter_opts(params, @pagination_opts, conn))
   end
 
   swagger_path :show do
