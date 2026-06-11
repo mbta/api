@@ -18,15 +18,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      # cache the ASDF directory, using the values from .tool-versions
+      # Cache the ASDF directory, using the values from .tool-versions.
       - name: ASDF cache
         uses: actions/cache@v4
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
         id: asdf-cache
-      # only run `asdf install` if we didn't hit the cache
-      - uses: asdf-vm/actions/install@v1
+      # Only run `asdf install` if we didn't hit the cache.
+      - uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47  # a.k.a. @4.0.1
         if: steps.asdf-cache.outputs.cache-hit != 'true'
       - run: |
           mix local.rebar --force
