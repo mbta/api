@@ -31,20 +31,6 @@ defmodule Parse.TimeTest do
       end
     end
 
-    test "returns the previous day until 4:59 am on 6/14/26, but not other dates" do
-      expected_late_night = ~D[2026-06-13]
-
-      for {time_str, expected_date} <- [
-            {"2026-06-14T04:59:59-04:00", ~D[2026-06-13]},
-            {"2026-06-14T05:00:00-04:00", ~D[2026-06-14]},
-            {"2026-06-15T03:00:00-04:00", ~D[2026-06-15]},
-            {"2026-06-13T03:00:00-04:00", ~D[2026-06-13]}
-          ] do
-        date_time = Timex.parse!(time_str, "{ISO:Extended}")
-        assert {time_str, service_date(date_time)} == {time_str, expected_date}
-      end
-    end
-
     test "function handles an ambiguous datetime" do
       expected = ~D[2017-11-04]
 

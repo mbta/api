@@ -14,15 +14,6 @@ defmodule Parse.Time do
   @spec service_date(DateTime.t()) :: Date.t()
   def service_date(current_time \\ DateTime.utc_now())
 
-  # Special case for 6/14/26 (6/13 service date after midnight) where service runs late.
-  # service_date changeover at 5 am, instead of the normal 3 am.
-  def service_date(%{year: 2026, month: 6, day: 14} = current_time) do
-    current_unix = DateTime.to_unix(current_time)
-    back_five_hours = current_unix - 18_000
-    {:ok, dt} = FastLocalDatetime.unix_to_datetime(back_five_hours, "America/New_York")
-    DateTime.to_date(dt)
-  end
-
   def service_date(%{year: _} = current_time) do
     current_unix = DateTime.to_unix(current_time)
     back_three_hours = current_unix - 10_800
