@@ -561,37 +561,6 @@ defmodule State.AlertTest do
     end
   end
 
-  describe "parent station entity" do
-    test "updates entities to include the parent station" do
-      State.Stop.new_state([
-        %Model.Stop{id: "child", parent_station: "parent"},
-        %Model.Stop{id: "parent"}
-      ])
-
-      new_state([
-        %Model.Alert{id: @alert_id, informed_entity: [%{stop: "child"}]}
-      ])
-
-      alert = by_id(@alert_id)
-      assert %{stop: "child"} in alert.informed_entity
-      assert %{stop: "parent"} in alert.informed_entity
-    end
-
-    test "does not include parent station entities twice" do
-      State.Stop.new_state([
-        %Model.Stop{id: "child", parent_station: "parent"},
-        %Model.Stop{id: "parent"}
-      ])
-
-      new_state([
-        %Model.Alert{id: @alert_id, informed_entity: [%{stop: "child"}, %{stop: "parent"}]}
-      ])
-
-      alert = by_id(@alert_id)
-      assert [_, _] = alert.informed_entity
-    end
-  end
-
   defp service_by_date(_) do
     # Reset received keys
     Trip.reset_gather()

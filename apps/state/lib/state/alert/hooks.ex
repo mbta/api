@@ -15,56 +15,8 @@ defmodule State.Alert.Hooks do
 
   defp add_computed_entities(entities) do
     entities
-    |> Stream.concat(get_parent_station_entities(entities))
     |> Enum.flat_map(&include_alternate_trip_entities/1)
     |> Enum.uniq()
-  end
-
-  # Parent station informed entities that share values for these keys
-  # will each have their `activities` replaced with the union of all of
-  # the group's `activities` lists:
-  # [%{activities: ["BOARD"]}, %{activities: ["BOARD", "EXIT"]}]
-  # =>
-  # [%{activities: ["BOARD", "EXIT"]}, %{activities: ["BOARD", "EXIT"]}]
-  @parent_station_entity_activity_merge_criteria [:route, :stop, :trip]
-
-  @spec get_parent_station_entities([Alert.informed_entity()]) :: [Alert.informed_entity()]
-  defp get_parent_station_entities(entities) do
-    entities
-    |> Stream.map(&get_parent_station_entity/1)
-    |> Stream.reject(&is_nil/1)
-    |> Enum.group_by(&Map.take(&1, @parent_station_entity_activity_merge_criteria))
-    |> Enum.flat_map(&merge_parent_entity_activities/1)
-  end
-
-  defp get_parent_station_entity(%{stop: stop_id} = entity) when is_binary(stop_id) do
-    case State.Stop.by_id(stop_id) do
-      %{parent_station: station} when is_binary(station) ->
-        %{entity | stop: station}
-
-      _ ->
-        nil
-    end
-  end
-
-  defp get_parent_station_entity(_entity) do
-    nil
-  end
-
-  defp merge_parent_entity_activities({_key, parent_entities}) do
-    merged_activities =
-      parent_entities
-      |> Enum.flat_map(&(&1[:activities] || []))
-      |> Enum.uniq()
-      |> Enum.sort()
-
-    if merged_activities == [] do
-      parent_entities
-    else
-      parent_entities
-      |> Enum.map(&Map.put(&1, :activities, merged_activities))
-      |> Enum.uniq()
-    end
   end
 
   @spec include_alternate_trip_entities(Alert.informed_entity()) :: [Alert.informed_entity()]
