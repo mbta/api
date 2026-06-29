@@ -17,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
       - uses: mbta/actions/build-push-ecr@v2
         id: build-push
         with:
