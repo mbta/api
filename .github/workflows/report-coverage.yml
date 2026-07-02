@@ -19,7 +19,7 @@ jobs:
       - run: mkdir -p ${{ runner.temp }}/cover
       - run: echo Fetching artifacts for ${{ github.event.workflow_run.id }}, event name ${{ github.event_name }}, triggered by ${{ github.event.workflow_run.event }}
       - name: Download artifact
-        uses: actions/github-script@v3.1.0
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             var artifacts = await github.actions.listWorkflowRunArtifacts({
