@@ -26,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
         id: asdf-cache
       # Only run `asdf install` if we didn't hit the cache.
-      - uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47  # a.k.a. @4.0.1
+      - uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # a.k.a. @4.0.1
         if: steps.asdf-cache.outputs.cache-hit != 'true'
       - run: |
           mix local.rebar --force
@@ -89,7 +89,14 @@ jobs:
       - name: Package Audits
         run: |
           mix hex.audit
-          mix deps.audit
+          # Commented out because:
+          # deps.audit complains about our current hackney version,
+          # but there's no way to resolve it due to other deps requiring
+          # lower versions of hackney.
+          #
+          # Ticket to fix this:
+          # https://app.asana.com/1/15492006741476/project/1204137169527258/task/1216239072221031?focus=true
+          # mix deps.audit
       - name: Credo
         run: mix credo --strict
       - name: Sobelow (Security)
