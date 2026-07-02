@@ -52,7 +52,7 @@ jobs:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
         if: steps.deps-cache.outputs.cache-hit != 'true'
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@v2
         if: steps.deps-cache.outputs.cache-hit != 'true'
       - name: Install dependencies
         run: mix deps.get
@@ -70,7 +70,7 @@ jobs:
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@v2
       - name: Restore dependencies cache
         id: deps-cache
         uses: actions/cache@v4
@@ -116,7 +116,7 @@ jobs:
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@v2
       - name: Restore dependencies cache
         id: deps-cache
         uses: actions/cache@v4
@@ -152,7 +152,7 @@ jobs:
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@v2
       - name: Restore dependencies cache
         id: deps-cache
         uses: actions/cache@v4
