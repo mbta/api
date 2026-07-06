@@ -178,7 +178,13 @@ defmodule State.AlertTest do
 
       alert =
         put_in(@alert.informed_entity, [
-          %{activities: ["BOARD"], trip: "trip"}
+          %{
+            activities: ["BOARD"],
+            trip: trip,
+            route: route.id,
+            route_type: route.type,
+            direction_id: 1
+          }
         ])
 
       insert_alerts!([alert])
