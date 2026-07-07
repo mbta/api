@@ -47,7 +47,7 @@ jobs:
         with:
           ref: ${{ env.PR_SHA }}
       - name: Upload coverage artifact and post comment
-        uses: mbta/github-actions-report-lcov@v1
+        uses: mbta/github-actions-report-lcov@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           coverage-files: ${{ runner.temp }}/cover/lcov*.info
