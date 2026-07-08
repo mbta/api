@@ -8,6 +8,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read # Needed to check out code
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -17,18 +20,18 @@ jobs:
     name: ASDF
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       # Cache the ASDF directory, using the values from .tool-versions.
       - name: ASDF cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
         id: asdf-cache
       # Only run `asdf install` if we didn't hit the cache.
-      - uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47  # a.k.a. @4.0.1
+      - uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # a.k.a. @4.0.1
         if: steps.asdf-cache.outputs.cache-hit != 'true'
       - run: |
           mix local.rebar --force
@@ -41,22 +44,22 @@ jobs:
     needs: asdf
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
       - name: ASDF cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
         if: steps.deps-cache.outputs.cache-hit != 'true'
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
         if: steps.deps-cache.outputs.cache-hit != 'true'
       - name: Install dependencies
         run: mix deps.get
@@ -68,23 +71,23 @@ jobs:
     needs: deps
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       - name: ASDF cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
       - name: Restore dev build cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: _build/dev
           key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
@@ -109,22 +112,22 @@ jobs:
     needs: deps
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       - name: ASDF cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
-      - uses: mbta/actions/dialyzer@v2
+      - uses: mbta/actions/dialyzer@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
 
   test:
     name: Test Tasks
@@ -133,11 +136,11 @@ jobs:
 
     services:
       dynamodb:
-        image: amazon/dynamodb-local:2.0.0
+        image: amazon/dynamodb-local@sha256:c8702bde709520b90930c20ee430d4123cd731da8e544cc4ccae0e2a78ee4fce # 2.0.0
         ports:
           - 8000:8000
       mosquitto:
-        image: eclipse-mosquitto:2.0
+        image: eclipse-mosquitto@sha256:212f89e1eaeb2c322d6441b64396e3346026674db8fa9c27beac293405c32b3c # 2.0.22
         ports:
           - 1883:1883
         volumes:
@@ -145,25 +148,25 @@ jobs:
         options: --name mqtt
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       - name: Restart MQTT to load mosquitto/mosquitto.conf from checkout
         run: docker restart mqtt
       - name: ASDF cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v3-${{ hashFiles('.tool-versions') }}
-      - uses: mbta/actions/reshim-asdf@v1
+      - uses: mbta/actions/reshim-asdf@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
       - name: Restore dependencies cache
         id: deps-cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: deps
           key: ${{ runner.os }}-mix-v2-${{ hashFiles('**/mix.lock') }}
       - name: Restore test build cache
-        uses: actions/cache@v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: _build/test
           key: ${{ runner.os }}-mix-test-${{ hashFiles('**/mix.lock') }}
@@ -175,11 +178,14 @@ jobs:
       - name: Save PR information
         run: |
           mkdir -p cover
-          echo "${{ github.event.pull_request.number }}" > cover/PR_NUMBER
-          echo "${{ github.event.pull_request.head.sha }}" > cover/PR_SHA
+          echo "${PR_NUMBER}" > cover/PR_NUMBER
+          echo "${PR_SHA}" > cover/PR_SHA
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
         if: github.event.pull_request
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: elixir-lcov
           path: cover/
