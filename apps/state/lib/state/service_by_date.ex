@@ -63,7 +63,7 @@ defmodule State.ServiceByDate do
 
   def update_state(state) do
     items =
-      State.Service.valid_in_future()
+      State.Service.valid_in_feed()
       |> service_with_date
 
     @table |> :ets.delete_all_objects()
