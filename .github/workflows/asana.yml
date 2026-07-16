@@ -2,13 +2,25 @@ name: Asana integration for GitHub PRs
 on:
   workflow_dispatch:
   pull_request:
-    types: [review_requested, closed, opened, reopened, converted_to_draft, edited, ready_for_review]
+    types:
+      [
+        review_requested,
+        closed,
+        opened,
+        reopened,
+        converted_to_draft,
+        edited,
+        ready_for_review,
+      ]
   pull_request_review:
     types: [submitted]
 
+permissions:
+  pull-requests: read # Needed to read Asana ticket info from PR description
+
 jobs:
   call-workflow:
-    uses: mbta/workflows/.github/workflows/asana.yml@main
+    uses: mbta/workflows/.github/workflows/asana.yml@c76e5ccd9556fbea52bc41548f7ceed5985ad775 # v5.1.0
     with:
       development-section: "In Development"
       review-section: "Pending Review"

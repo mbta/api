@@ -2,13 +2,19 @@ name: Deploy to Dev-green (ECS)
 
 on: workflow_dispatch
 
+permissions: {}
+
+concurrency:
+  group: deploy-dev-green
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      id-token: write # Needed to communicate with AWS
+      contents: read # Needed to check out code
     environment: dev-green
     concurrency: dev-green
     env:
@@ -16,20 +22,22 @@ jobs:
       ECS_SERVICE: api-dev-green
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: mbta/actions/build-push-ecr@v2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: mbta/actions/build-push-ecr@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
         id: build-push
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
           docker-additional-tags: dev-green
-      - uses: mbta/actions/deploy-ecs@v2
+      - uses: mbta/actions/deploy-ecs@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           ecs-cluster: ${{ env.ECS_CLUSTER }}
           ecs-service: ${{ env.ECS_SERVICE }}
           docker-tag: ${{ steps.build-push.outputs.docker-tag }}
-      - uses: mbta/actions/notify-slack-deploy@v1
+      - uses: mbta/actions/notify-slack-deploy@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
         if: ${{ !cancelled() }}
         with:
           webhook-url: ${{ secrets.SLACK_WEBHOOK }}
