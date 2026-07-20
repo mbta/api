@@ -77,4 +77,7 @@ defmodule State.Alert do
     for table <- @subtables, do: table.update(all_alerts)
     :ok
   end
+
+  @impl State.Server
+  defdelegate pre_insert_hook(alert), to: State.Alert.Hooks
 end
