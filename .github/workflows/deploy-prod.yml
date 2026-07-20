@@ -25,20 +25,20 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - uses: mbta/actions/build-push-ecr@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
+      - uses: mbta/actions/build-push-ecr@788f8e264e9ebb1b76b927c89e6466d5a162be80 # v2.24
         id: build-push
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
           docker-additional-tags: prod
       - name: Deploy to ECS
-        uses: mbta/actions/deploy-ecs@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
+        uses: mbta/actions/deploy-ecs@788f8e264e9ebb1b76b927c89e6466d5a162be80 # v2.24
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           ecs-cluster: ${{ env.ECS_CLUSTER }}
           ecs-service: ${{ env.ECS_SERVICE }}
           docker-tag: ${{ steps.build-push.outputs.docker-tag }}
-      - uses: mbta/actions/notify-slack-deploy@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
+      - uses: mbta/actions/notify-slack-deploy@788f8e264e9ebb1b76b927c89e6466d5a162be80 # v2.24
         if: ${{ !cancelled() }}
         with:
           webhook-url: ${{ secrets.SLACK_WEBHOOK }}
