@@ -3,6 +3,7 @@ defmodule State.AlertTest do
 
   alias Parse.Time
   alias State.Alert.{InformedEntity, InformedEntityActivity}
+  alias State.{Service, Trip}
 
   import State.Alert
 
@@ -19,7 +20,12 @@ defmodule State.AlertTest do
     service_id: @service_id
   }
   @today Time.service_date()
-
+  @service %Model.Service{
+    id: @service_id,
+    start_date: @today,
+    end_date: @today,
+    added_dates: [@today]
+  }
   @alert %Model.Alert{
     id: @alert_id,
     informed_entity: [
@@ -172,13 +178,7 @@ defmodule State.AlertTest do
 
       alert =
         put_in(@alert.informed_entity, [
-          %{
-            activities: ["BOARD"],
-            trip: trip,
-            route: route.id,
-            route_type: route.type,
-            direction_id: 1
-          }
+          %{activities: ["BOARD"], trip: "trip"}
         ])
 
       insert_alerts!([alert])
@@ -406,5 +406,196 @@ defmodule State.AlertTest do
       insert_alerts!([@alert])
       assert_receive :done, 200
     end
+  end
+
+  describe "alternate trip entities" do
+    setup :service_by_date
+
+    test "updates entities to include alternate routes" do
+      added_route_id = "added_route_id"
+
+      Trip.new_state(%{
+        multi_route_trips: [
+          %Model.MultiRouteTrip{added_route_id: added_route_id, trip_id: @trip_id}
+        ],
+        trips: [@trip]
+      })
+
+      input_informed_entity = %{direction_id: 1, route: @route_id, route_type: 3, trip: @trip_id}
+
+      new_state([%Model.Alert{id: @alert_id, informed_entity: [input_informed_entity]}])
+
+      %Model.Alert{informed_entity: output_informed_entity} = by_id(@alert_id)
+
+      assert length(output_informed_entity) == 2
+
+      assert %{direction_id: 1, route: @route_id, route_type: 3, trip: @trip_id} in output_informed_entity
+
+      assert %{direction_id: 1, route: added_route_id, route_type: 3, trip: @trip_id} in output_informed_entity
+    end
+
+    test "does not set `route` if no alternate routes" do
+      Trip.new_state(%{multi_route_trips: [], trips: [@trip]})
+      informed_entity = [%{direction_id: 1, route: @route_id, route_type: 3, trip: @trip_id}]
+      new_state([%Model.Alert{id: @alert_id, informed_entity: informed_entity}])
+
+      alert = by_id(@alert_id)
+
+      assert alert.informed_entity == informed_entity
+    end
+
+    test "returns original entity if `trip` is not found" do
+      informed_entity = [%{trip: "unknown"}]
+      new_state([%Model.Alert{id: @alert_id, informed_entity: informed_entity}])
+      alert = by_id(@alert_id)
+
+      assert alert.informed_entity == informed_entity
+    end
+
+    test "includes original route if `trip` does not have route" do
+      added_route_id = "added_route_id"
+
+      Trip.new_state(%{
+        multi_route_trips: [
+          %Model.MultiRouteTrip{added_route_id: added_route_id, trip_id: @trip_id}
+        ],
+        trips: [@trip]
+      })
+
+      other_route_id = "other_route_id"
+
+      input_informed_entity = %{
+        direction_id: 1,
+        route: other_route_id,
+        route_type: 3,
+        trip: @trip_id
+      }
+
+      new_state([%Model.Alert{id: @alert_id, informed_entity: [input_informed_entity]}])
+
+      %Model.Alert{informed_entity: output_informed_entity} = by_id(@alert_id)
+
+      assert length(output_informed_entity) == 3
+
+      assert %{direction_id: 1, route: @route_id, route_type: 3, trip: @trip_id} in output_informed_entity
+
+      assert %{direction_id: 1, route: other_route_id, route_type: 3, trip: @trip_id} in output_informed_entity
+
+      assert %{direction_id: 1, route: added_route_id, route_type: 3, trip: @trip_id} in output_informed_entity
+    end
+
+    test "only includes alternate routes once if incoming informed entities already contain alternate route" do
+      added_by_upstream_route_id = "added_by_upstream_route_id"
+      added_by_multi_route_trips_route_id = "added_by_multi_route_trips_route_id"
+
+      Trip.new_state(%{
+        multi_route_trips: [
+          %Model.MultiRouteTrip{added_route_id: added_by_upstream_route_id, trip_id: @trip_id},
+          %Model.MultiRouteTrip{
+            added_route_id: added_by_multi_route_trips_route_id,
+            trip_id: @trip_id
+          }
+        ],
+        trips: [@trip]
+      })
+
+      primary_upstream_informed_entity = %{
+        direction_id: 1,
+        route: @route_id,
+        route_type: 3,
+        trip: @trip_id
+      }
+
+      alternate_upstream_informed_entity = %{
+        primary_upstream_informed_entity
+        | route: added_by_upstream_route_id
+      }
+
+      new_state([
+        %Model.Alert{
+          id: @alert_id,
+          informed_entity: [primary_upstream_informed_entity, alternate_upstream_informed_entity]
+        }
+      ])
+
+      %Model.Alert{informed_entity: informed_entities} = by_id(@alert_id)
+
+      assert length(informed_entities) == 3
+
+      assert primary_upstream_informed_entity in informed_entities
+      assert alternate_upstream_informed_entity in informed_entities
+
+      added_entity = %{
+        direction_id: 1,
+        route: added_by_multi_route_trips_route_id,
+        route_type: 3,
+        trip: @trip_id
+      }
+
+      assert added_entity in informed_entities
+    end
+
+    test "includes route/route type/direction in the entity if not already present" do
+      route = %Model.Route{
+        id: @route_id,
+        type: 3
+      }
+
+      State.Route.new_state([route])
+      State.Trip.new_state([@trip])
+      entity = %{trip: @trip_id}
+      alert = %Model.Alert{id: @alert_id, informed_entity: [entity]}
+      State.Alert.new_state([alert])
+
+      alert = by_id(@alert_id)
+
+      expected_entity = %{
+        route_type: 3,
+        route: @route_id,
+        direction_id: @trip.direction_id,
+        trip: @trip_id
+      }
+
+      assert expected_entity in alert.informed_entity
+      assert length(alert.informed_entity) == 1
+    end
+  end
+
+  describe "parent station entity" do
+    test "updates entities to include the parent station" do
+      State.Stop.new_state([
+        %Model.Stop{id: "child", parent_station: "parent"},
+        %Model.Stop{id: "parent"}
+      ])
+
+      new_state([
+        %Model.Alert{id: @alert_id, informed_entity: [%{stop: "child"}]}
+      ])
+
+      alert = by_id(@alert_id)
+      assert %{stop: "child"} in alert.informed_entity
+      assert %{stop: "parent"} in alert.informed_entity
+    end
+
+    test "does not include parent station entities twice" do
+      State.Stop.new_state([
+        %Model.Stop{id: "child", parent_station: "parent"},
+        %Model.Stop{id: "parent"}
+      ])
+
+      new_state([
+        %Model.Alert{id: @alert_id, informed_entity: [%{stop: "child"}, %{stop: "parent"}]}
+      ])
+
+      alert = by_id(@alert_id)
+      assert [_, _] = alert.informed_entity
+    end
+  end
+
+  defp service_by_date(_) do
+    # Reset received keys
+    Trip.reset_gather()
+
+    Service.new_state([@service])
   end
 end
