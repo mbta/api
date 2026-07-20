@@ -31,7 +31,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           docker-repo: ${{ secrets.DOCKER_REPO }}
           docker-additional-tags: dev-green
-      - uses: mbta/actions/deploy-ecs@62db3e5c547c3c7f439c4a7fb98e69fc79c1a9cc # v2.21
+      - uses: mbta/actions/deploy-ecs@2c88be6542aa1b129d6a273cae070af9b1e7c076 # v2.22
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           ecs-cluster: ${{ env.ECS_CLUSTER }}
