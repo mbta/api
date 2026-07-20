@@ -32,7 +32,7 @@ jobs:
           docker-repo: ${{ secrets.DOCKER_REPO }}
           docker-additional-tags: prod
       - name: Deploy to ECS
-        uses: mbta/actions/deploy-ecs@788f8e264e9ebb1b76b927c89e6466d5a162be80 # v2.24
+        uses: mbta/actions/deploy-ecs@2c88be6542aa1b129d6a273cae070af9b1e7c076 # v2.22
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           ecs-cluster: ${{ env.ECS_CLUSTER }}
