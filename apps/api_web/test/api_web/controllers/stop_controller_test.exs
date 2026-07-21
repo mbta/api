@@ -653,7 +653,10 @@ defmodule ApiWeb.StopControllerTest do
     stop2 = %Stop{id: "2"}
     State.Stop.new_state([stop, stop2])
 
-    State.Route.new_state([%Model.Route{id: "route", type: 2}, %Model.Route{id: "other", type: 4}])
+    State.Route.new_state([
+      %Model.Route{id: "route", type: 2},
+      %Model.Route{id: "other", type: 4}
+    ])
 
     State.Trip.new_state([
       %Model.Trip{id: "trip", route_id: "route", direction_id: 1},

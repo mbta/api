@@ -75,7 +75,7 @@ defmodule State.RoutePattern do
   def filter_by(%{route_ids: _route_ids, stop_ids: _stop_ids} = filters) do
     ids_from_stops = ids_from_stops(filters)
     ids_from_routes = ids_from_routes(filters)
-    ids = ids_from_routes -- ids_from_routes -- ids_from_stops
+    ids = ids_from_routes -- (ids_from_routes -- ids_from_stops)
     by_ids(ids)
   end
 
