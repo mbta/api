@@ -115,7 +115,7 @@ defmodule ApiWeb.ScheduleController do
   end
 
   def populate_extra_times(map, %{assigns: %{api_version: ver}}) when ver < "2019-07-01" do
-    for s <- map do
+    for %Model.Schedule{} = s <- map do
       s = if s.pickup_type == 1, do: %Model.Schedule{s | departure_time: s.arrival_time}, else: s
       if s.drop_off_type == 1, do: %Model.Schedule{s | arrival_time: s.departure_time}, else: s
     end
