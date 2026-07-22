@@ -116,7 +116,7 @@ defmodule State.Schedule do
       stops: stop_ids,
       stop_sequence: [stop_sequence]
     }
-    |> filter_by
+    |> filter_by()
     |> List.first()
   end
 

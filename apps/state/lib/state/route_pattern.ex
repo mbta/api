@@ -87,7 +87,7 @@ defmodule State.RoutePattern do
 
   def filter_by(%{stop_ids: _stop_ids} = filters) do
     filters
-    |> ids_from_stops
+    |> ids_from_stops()
     |> by_ids()
   end
 

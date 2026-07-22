@@ -28,14 +28,14 @@ defmodule State.Trip do
   @spec by_primary_id(Trip.id()) :: Trip.t() | nil
   def by_primary_id(id) do
     [id]
-    |> by_ids
+    |> by_ids()
     |> Enum.find(&Trip.primary?/1)
   end
 
   @spec by_primary_ids([Trip.id()]) :: [Trip.t()]
   def by_primary_ids(ids) do
     ids
-    |> by_ids
+    |> by_ids()
     |> Enum.filter(&Trip.primary?/1)
   end
 

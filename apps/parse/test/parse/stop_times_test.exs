@@ -15,7 +15,7 @@ defmodule Parse.StopTimesTest do
   end
 
   test "parse: parses a CSV blob into a list of stops, tagging the first stop", %{blob: blob} do
-    assert blob |> parse |> Enum.sort() == [
+    assert blob |> parse() |> Enum.sort() == [
              %Schedule{
                trip_id: "29063613",
                stop_id: "2300",
@@ -61,7 +61,7 @@ defmodule Parse.StopTimesTest do
     "29063613","14:36:00","14:36:01","2300","6","","1","1","1"\r
     """
 
-    assert blob |> parse |> Enum.to_list() == [
+    assert blob |> parse() |> Enum.to_list() == [
              %Schedule{
                trip_id: "29063613",
                stop_id: "2300",
@@ -79,7 +79,7 @@ defmodule Parse.StopTimesTest do
 
   test "if given a fn which returns a trip, only returns schedules which match and includes the route_id",
        %{blob: blob} do
-    all_schedules = blob |> parse |> Enum.sort()
+    all_schedules = blob |> parse() |> Enum.sort()
 
     assert blob
            |> parse(fn trip_id ->

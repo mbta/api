@@ -13,7 +13,7 @@ defmodule ApiWeb.Plugs.DeadlineTest do
       assert :ok =
                conn
                |> set(5_000)
-               |> check!
+               |> check!()
     end
 
     test "returns :ok if no deadline was set", %{conn: conn} do

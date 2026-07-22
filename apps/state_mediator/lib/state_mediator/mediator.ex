@@ -110,16 +110,16 @@ defmodule StateMediator.Mediator do
     debug_time("#{state_module} new state", fn -> state_module.new_state(body, sync_timeout) end)
 
     state
-    |> reset_retries
-    |> schedule_update
+    |> reset_retries()
+    |> schedule_update()
   end
 
   def handle_response(:unmodified, %{module: state_module} = state) do
     _ = Logger.debug(fn -> "#{__MODULE__} #{state_module} received unmodified" end)
 
     state
-    |> reset_retries
-    |> schedule_update
+    |> reset_retries()
+    |> schedule_update()
   end
 
   def handle_response({:error, error}, %{module: state_module, retries: retries} = state) do

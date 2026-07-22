@@ -64,7 +64,7 @@ defmodule State.Stop do
 
   def by_family_ids(ids) do
     ids
-    |> by_ids
+    |> by_ids()
     |> Enum.flat_map(&family/1)
     |> Enum.uniq()
   end
@@ -129,7 +129,7 @@ defmodule State.Stop do
   def around(latitude, longitude, radius \\ 0.01) do
     random_worker()
     |> State.Stop.Worker.around(latitude, longitude, radius)
-    |> by_ids
+    |> by_ids()
   end
 
   defp random_worker do

@@ -207,7 +207,7 @@ defmodule State.StopsOnRoute do
       |> Schedule.by_trip_id()
       |> Enum.sort_by(& &1.stop_sequence)
       |> Enum.map(& &1.stop_id)
-      |> map_parent_stations
+      |> map_parent_stations()
     end)
     |> Enum.uniq()
   end
@@ -527,7 +527,7 @@ defmodule State.StopsOnRoute do
   defp merge_two_lists(one, two) do
     one
     |> List.myers_difference(two)
-    |> merge_differences
+    |> merge_differences()
   end
 
   defp merge_differences(diff_list, side \\ :front)

@@ -184,19 +184,19 @@ defmodule ApiAccounts.Table do
 
   @doc false
   def __before_compile__(env) do
-    unless Module.get_attribute(env.module, :struct_fields) do
+    if !Module.get_attribute(env.module, :struct_fields) do
       raise ArgumentError,
             "module #{inspect(env.module)} uses ApiAccounts.Table but it " <>
               "does not define a table."
     end
 
-    unless Module.get_attribute(env.module, :primary_key) do
+    if !Module.get_attribute(env.module, :primary_key) do
       raise ArgumentError,
             "module #{inspect(env.module)} uses ApiAccounts.Table but it " <>
               "does not define a primary key. Refer to ApiAccounts.Table.field/3."
     end
 
-    unless Module.get_attribute(env.module, :schema_version) do
+    if !Module.get_attribute(env.module, :schema_version) do
       raise ArgumentError,
             "module #{inspect(env.module)} uses ApiAccounts.Table but it " <>
               "does not define a schema version. Refer to " <>

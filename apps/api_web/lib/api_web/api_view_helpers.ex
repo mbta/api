@@ -64,7 +64,7 @@ defmodule ApiWeb.ApiViewHelpers do
 
     builder
     |> JaSerializer.Formatter.format()
-    |> log_record_count
+    |> log_record_count()
   end
 
   defp log_record_count(%{"data" => list} = data) when is_list(list) do

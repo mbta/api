@@ -51,7 +51,7 @@ defmodule DateHelpers do
 
   def add_seconds_to_date(%Date{} = date, seconds) do
     date
-    |> unix_midnight_seconds
+    |> unix_midnight_seconds()
     |> add_seconds_to_date(seconds)
   end
 

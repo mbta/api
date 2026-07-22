@@ -313,7 +313,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
     setup %{conn: conn} do
       {:ok, user_disabled} = ApiAccounts.create_user(%{email: "nofa@example.com"})
 
-      {:ok, conn: conn |> conn_with_session |> conn_with_user(user_disabled)}
+      {:ok, conn: conn |> conn_with_session() |> conn_with_user(user_disabled)}
     end
 
     test "configure 2fa with user with no 2fa", %{conn: conn} do
@@ -385,7 +385,7 @@ defmodule ApiWeb.Portal.UserControllerTest do
           time: time
         )
 
-      {:ok, conn: conn |> conn_with_session |> conn_with_user(user_enabled)}
+      {:ok, conn: conn |> conn_with_session() |> conn_with_user(user_enabled)}
     end
 
     test "configure 2fa with user with 2fa", %{conn: conn} do

@@ -51,7 +51,7 @@ defmodule ApiWeb.FacilityView do
       properties =
         facility.id
         |> State.Facility.Property.by_facility_id()
-        |> encode_properties
+        |> encode_properties()
 
       Map.put(attrs, :properties, properties)
     else

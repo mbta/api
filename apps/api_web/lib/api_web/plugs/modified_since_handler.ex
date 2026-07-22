@@ -102,13 +102,13 @@ defmodule ApiWeb.Plugs.ModifiedSinceHandler do
 
   if Application.compile_env(:api_web, __MODULE__)[:check_caller] do
     defp ensure_caller_defined(opts) do
-      unless opts[:caller] do
+      if !opts[:caller] do
         raise ArgumentError, "expected `:caller` to be provided with module"
       end
     end
 
     defp ensure_state_module_implemented(opts) do
-      unless opts[:caller].module_info(:exports)[:state_module] == 0 do
+      if opts[:caller].module_info(:exports)[:state_module] != 0 do
         raise ArgumentError,
               "expected `:caller` to implement " <>
                 "`state_module/0` and return a module from the " <> "`State` namespace"

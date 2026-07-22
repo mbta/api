@@ -57,8 +57,8 @@ defmodule Parse.StopTimes do
   defp parse_rows(rows, nil) do
     rows
     |> Enum.map(&parse_row/1)
-    |> position_first_row
-    |> position_last_row
+    |> position_first_row()
+    |> position_last_row()
   end
 
   defp parse_rows([%{"trip_id" => trip_id} | _] = rows, trip_fn) do
