@@ -428,7 +428,7 @@ defmodule ApiWeb.PredictionController do
 
   defp swagger_path_description(parent_pointer) do
     """
-    The predicted arrival time (`/#{parent_pointer}/attributes/arrival_time`) and departure time \
+    The predicted arrival time (`#{parent_pointer}/attributes/arrival_time`) and departure time \
     (`#{parent_pointer}/attributes/departure_time`) to/from a stop (`#{parent_pointer}/relationships/stop/data/id`) at \
     a given sequence (`#{parent_pointer}/attriutes/stop_sequence`) along a trip \
     (`#{parent_pointer}/relationships/trip/data/id`) going a direction (`#{parent_pointer}/attributes/direction_id`) \
