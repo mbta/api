@@ -251,7 +251,11 @@ defmodule State.ServerTest do
         %Example{id: 2, data: :other}
       ])
 
-      assert [%{data: 38}, %{data: 44}, %{data: :other}] = HooksServer.all()
+      all = HooksServer.all()
+      assert length(all) == 3
+      assert %Example{id: 1, data: 38} in all
+      assert %Example{id: 1, data: 44} in all
+      assert %Example{id: 2, data: :other} in all
       assert [%{data: 38}, %{data: 44}] = HooksServer.by_id(1)
       assert [%{data: 38}] = HooksServer.select([%{data: 37}])
     end

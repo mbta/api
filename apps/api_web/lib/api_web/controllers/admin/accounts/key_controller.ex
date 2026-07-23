@@ -32,7 +32,7 @@ defmodule ApiWeb.Admin.Accounts.KeyController do
     key_params =
       key_params
       |> Map.put(:rate_request_pending, false)
-      |> handle_per_minute
+      |> handle_per_minute()
 
     key = ApiAccounts.get_key!(key_id)
     user = conn.assigns.user

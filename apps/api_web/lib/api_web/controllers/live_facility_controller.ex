@@ -67,7 +67,7 @@ defmodule ApiWeb.LiveFacilityController do
 
   defp do_index_data(ids, conn, params) do
     ids
-    |> split_on_comma
+    |> split_on_comma()
     |> State.Facility.Parking.by_facility_ids()
     |> Enum.group_by(& &1.facility_id)
     |> Enum.map(fn {facilty_id, properties} ->

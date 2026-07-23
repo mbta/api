@@ -98,7 +98,7 @@ defmodule State.Prediction do
       case Map.get(prediction, time_key) do
         %DateTime{} = dt ->
           dt
-          |> service_date
+          |> service_date()
           |> Kernel.==(date)
 
         nil ->

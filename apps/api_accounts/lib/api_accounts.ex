@@ -454,7 +454,7 @@ defmodule ApiAccounts do
   def auto_approve_key?(%User{} = user) do
     # if there are no other keys, approve this one
     user
-    |> list_keys_for_user
+    |> list_keys_for_user()
     |> Enum.empty?()
   end
 

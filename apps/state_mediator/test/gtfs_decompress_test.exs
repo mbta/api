@@ -25,7 +25,7 @@ defmodule GtfsDecompressTest do
 
     test "triggers an event for each filename", %{expected_receives: expected_receives} do
       GtfsDecompress.filenames()
-      |> build_zip
+      |> build_zip()
       |> GtfsDecompress.new_state()
 
       for expected_receive <- expected_receives do
@@ -39,7 +39,7 @@ defmodule GtfsDecompressTest do
 
       assert_raise MatchError, fn ->
         keeping
-        |> build_zip
+        |> build_zip()
         |> GtfsDecompress.new_state()
       end
 

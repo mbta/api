@@ -64,7 +64,7 @@ defmodule State.ServiceByDate do
   def update_state(state) do
     items =
       State.Service.valid_in_future()
-      |> service_with_date
+      |> service_with_date()
 
     @table |> :ets.delete_all_objects()
     @table |> :ets.insert(items)

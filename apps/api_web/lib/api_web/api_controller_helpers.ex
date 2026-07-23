@@ -190,7 +190,7 @@ defmodule ApiWeb.ApiControllerHelpers do
   defp do_filter_valid_field_attributes(conn, {type, fields}) do
     view_module = view_module_for_type(type)
 
-    attr_filter = fn attr -> conn |> view_module.attribute_set |> MapSet.member?(attr) end
+    attr_filter = fn attr -> conn |> view_module.attribute_set() |> MapSet.member?(attr) end
 
     fields
     |> String.split(",")

@@ -10,7 +10,7 @@ defmodule SimpleCSV do
   """
   def decode(lines) do
     lines
-    |> stream
+    |> stream()
     |> Enum.to_list()
   end
 

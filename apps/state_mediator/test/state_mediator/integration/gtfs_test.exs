@@ -99,7 +99,11 @@ defmodule StateMediator.Integration.GtfsTest do
 
         core_stop_ids =
           for stop <-
-                State.Stop.filter_by(%{routes: [route_id], direction_id: direction_id, date: date}),
+                State.Stop.filter_by(%{
+                  routes: [route_id],
+                  direction_id: direction_id,
+                  date: date
+                }),
               stop.id in route_order,
               do: stop.id
 

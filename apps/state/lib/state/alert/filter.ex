@@ -9,7 +9,7 @@ defmodule State.Alert.Filter do
   @spec filter_by(Alert.filter_opts()) :: [Model.Alert.t()]
   def filter_by(filter_opts) do
     filter_opts
-    |> filter_to_list_of_ids
+    |> filter_to_list_of_ids()
     |> filter_by_ids(filter_opts)
     |> filter_by_informed_entity_activity(filter_opts)
     |> filter_by_active_period(filter_opts)
@@ -32,7 +32,7 @@ defmodule State.Alert.Filter do
   defp build_matchers(filter_opts) do
     filter_opts
     |> Enum.reduce([%{}], &do_build_matcher/2)
-    |> reject_empty_matchers
+    |> reject_empty_matchers()
     |> Enum.uniq()
   end
 

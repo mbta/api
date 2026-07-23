@@ -10,7 +10,7 @@ defmodule Parse.VehiclePositions do
     # gzip encoded
     blob
     |> :zlib.gunzip()
-    |> parse
+    |> parse()
   end
 
   def parse("{" <> _ = blob) do

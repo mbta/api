@@ -164,10 +164,10 @@ defmodule State.Shape do
 
   def arrange_by_priority(shapes) do
     shapes
-    |> sort_longer_shapes_first
-    |> increase_priority_of_first_shape
-    |> override_priorities_from_configuration
-    |> reduce_priority_of_subset_shapes
+    |> sort_longer_shapes_first()
+    |> increase_priority_of_first_shape()
+    |> override_priorities_from_configuration()
+    |> reduce_priority_of_subset_shapes()
   end
 
   defp sort_longer_shapes_first(shapes) do
@@ -176,7 +176,7 @@ defmodule State.Shape do
       fn shape ->
         stop_count =
           shape
-          |> stop_id_set
+          |> stop_id_set()
           |> MapSet.size()
 
         {shape.priority, stop_count, optional_byte_size(shape.polyline)}

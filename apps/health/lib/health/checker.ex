@@ -9,13 +9,13 @@ defmodule Health.Checker do
 
   def current do
     :current
-    |> each_checker
+    |> each_checker()
     |> Enum.reduce([], &Keyword.merge/2)
   end
 
   def healthy? do
     :healthy?
-    |> each_checker
+    |> each_checker()
     |> Enum.all?()
   end
 

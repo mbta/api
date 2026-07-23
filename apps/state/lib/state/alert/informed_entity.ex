@@ -62,7 +62,7 @@ defmodule State.Alert.InformedEntity do
         facility: facility
       }
     end
-    |> reject_empty_parts
+    |> reject_empty_parts()
   end
 
   defp part_values(map, key) do

@@ -568,7 +568,10 @@ defmodule State.TripTest do
                "trip8"
              ]
 
-      assert mapped_and_sorted_filter_by(%{route_pattern_id: 1, revenue: [:NON_REVENUE, :REVENUE]}) ==
+      assert mapped_and_sorted_filter_by(%{
+               route_pattern_id: 1,
+               revenue: [:NON_REVENUE, :REVENUE]
+             }) ==
                ["trip1", "trip2", "trip3", "trip4", "trip5", "trip6", "trip7", "trip8"]
 
       assert mapped_and_sorted_filter_by(%{routes: ["rev-route-9"], revenue: [:NON_REVENUE]}) ==

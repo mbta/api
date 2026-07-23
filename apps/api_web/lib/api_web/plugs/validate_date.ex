@@ -14,7 +14,7 @@ defmodule ApiWeb.Plugs.ValidateDate do
 
   def call(%Conn{query_params: query_params} = conn, []) do
     query_params
-    |> get_date
+    |> get_date()
     |> validate_date(conn)
   end
 

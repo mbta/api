@@ -50,7 +50,7 @@ defmodule ApiWeb.LineController do
         case filtered do
           %{"id" => ids} ->
             ids
-            |> split_on_comma
+            |> split_on_comma()
             |> State.Line.by_ids()
 
           _ ->

@@ -27,7 +27,7 @@ defmodule Parse.Alerts do
     for alert <- alert_json(json_map), active?(alert) do
       alert
       |> parse_alert()
-      |> cleanup_description
+      |> cleanup_description()
     end
   end
 
@@ -2712,13 +2712,13 @@ defmodule Parse.Alerts do
       id: Map.get(alert, "id"),
       effect: "PARKING_ISSUE",
       cause: cause(alert),
-      header: alert |> Map.get("header_text") |> translated_text,
-      short_header: alert |> Map.get("short_header_text") |> translated_text,
-      description: alert |> Map.get("description_text") |> translated_text,
+      header: alert |> Map.get("header_text") |> translated_text(),
+      short_header: alert |> Map.get("short_header_text") |> translated_text(),
+      description: alert |> Map.get("description_text") |> translated_text(),
       banner: alert |> Map.get("banner_text") |> translated_text(default: nil),
       severity: Map.get(alert, "severity"),
-      created_at: alert |> Map.get("created_timestamp") |> unix_timestamp,
-      updated_at: alert |> Map.get("last_modified_timestamp") |> unix_timestamp,
+      created_at: alert |> Map.get("created_timestamp") |> unix_timestamp(),
+      updated_at: alert |> Map.get("last_modified_timestamp") |> unix_timestamp(),
       active_period:
         alert
         |> Map.get("active_period", [])
@@ -2726,10 +2726,10 @@ defmodule Parse.Alerts do
         |> Enum.map(&active_period/1),
       informed_entity:
         Enum.map(Map.get(alert, "informed_entity") ++ added_informed_entities, &informed_entity/1),
-      service_effect: alert |> Map.get("service_effect_text") |> translated_text,
+      service_effect: alert |> Map.get("service_effect_text") |> translated_text(),
       timeframe: alert |> Map.get("timeframe_text") |> translated_text(default: nil),
       duration_certainty: alert |> Map.get("duration_certainty"),
-      lifecycle: alert |> Map.get("alert_lifecycle") |> lifecycle,
+      lifecycle: alert |> Map.get("alert_lifecycle") |> lifecycle(),
       url: alert |> Map.get("url") |> translated_text(default: nil),
       image: alert |> Map.get("image") |> translated_image(default: nil),
       image_alternative_text:
@@ -2746,25 +2746,25 @@ defmodule Parse.Alerts do
       id: Map.get(alert, "id"),
       # Backwards compatability-can change to `translated_text` after all instances of
       # alerts manager are returning a translated string
-      effect: alert |> Map.get("effect_detail") |> maybe_translated_text,
+      effect: alert |> Map.get("effect_detail") |> maybe_translated_text(),
       cause: cause(alert),
-      header: alert |> Map.get("header_text") |> translated_text,
-      short_header: alert |> Map.get("short_header_text") |> translated_text,
-      description: alert |> Map.get("description_text") |> translated_text,
+      header: alert |> Map.get("header_text") |> translated_text(),
+      short_header: alert |> Map.get("short_header_text") |> translated_text(),
+      description: alert |> Map.get("description_text") |> translated_text(),
       banner: alert |> Map.get("banner_text") |> translated_text(default: nil),
       severity: Map.get(alert, "severity"),
-      created_at: alert |> Map.get("created_timestamp") |> unix_timestamp,
-      updated_at: alert |> Map.get("last_modified_timestamp") |> unix_timestamp,
+      created_at: alert |> Map.get("created_timestamp") |> unix_timestamp(),
+      updated_at: alert |> Map.get("last_modified_timestamp") |> unix_timestamp(),
       active_period:
         alert
         |> Map.get("active_period", [])
         |> fallback_active_period()
         |> Enum.map(&active_period/1),
       informed_entity: alert |> Map.get("informed_entity") |> Enum.map(&informed_entity/1),
-      service_effect: alert |> Map.get("service_effect_text") |> translated_text,
+      service_effect: alert |> Map.get("service_effect_text") |> translated_text(),
       timeframe: alert |> Map.get("timeframe_text") |> translated_text(default: nil),
       duration_certainty: alert |> Map.get("duration_certainty"),
-      lifecycle: alert |> Map.get("alert_lifecycle") |> lifecycle,
+      lifecycle: alert |> Map.get("alert_lifecycle") |> lifecycle(),
       url: alert |> Map.get("url") |> translated_text(default: nil),
       image: alert |> Map.get("image") |> translated_image(default: nil),
       image_alternative_text:

@@ -299,7 +299,7 @@ defmodule ApiWeb.SwaggerHelpers do
   """
   def path(controller, action) do
     controller
-    |> path_fn
+    |> path_fn()
     |> call_path(action)
   end
 
@@ -320,7 +320,7 @@ defmodule ApiWeb.SwaggerHelpers do
 
     short_name =
       module
-      |> to_string
+      |> to_string()
       |> String.split(".")
       |> List.last()
       |> String.replace_suffix("Controller", "")

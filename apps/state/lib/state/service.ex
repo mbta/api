@@ -26,7 +26,7 @@ defmodule State.Service do
     |> State.Trip.by_route_ids()
     |> MapSet.new(& &1.service_id)
     |> MapSet.to_list()
-    |> by_ids
+    |> by_ids()
   end
 
   def by_route_id(route_id) do
