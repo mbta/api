@@ -1,29 +1,40 @@
-name: Deploy to Prod
+name: Deploy to lower environment (dev etc)
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: dev
+        required: true
   workflow_dispatch:
-  release:
-    types:
-      - released
+    inputs:
+      environment:
+        type: environment
+        default: dev
+        required: true
+  push:
+    branches: master
 
-permissions: {}
+permissions:
+  contents: read # Needed to checkout repo
 
 concurrency:
-  group: deploy-prod
+  group: deploy-${{ inputs.environment }}
   cancel-in-progress: true
 
 jobs:
-  check-ref:
-    name: Fail if not a tag
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+  check-env:
+    name: Fail if production environment
+    if: ${{ inputs.environment == 'prod' }}
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "Failing intentionally. Only tags may be deployed to prod."
+          echo "Failing intentionally. Please use the 'Deploy to production' workflow."
           exit 1
   checkout:
     name: Check out code
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ inputs.environment != 'prod' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
