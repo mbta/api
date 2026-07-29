@@ -32,17 +32,9 @@ jobs:
       - run: |
           echo "Failing intentionally. Please use the 'Deploy to production' workflow."
           exit 1
-  checkout:
-    name: Check out code
-    if: ${{ inputs.environment != 'prod' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
   call-workflow:
     name: Call MBTA deploy-ecs workflow
-    needs: checkout
+    if: ${{ inputs.environment != 'prod' }}
     permissions:
       contents: read # Needed to checkout repo
       id-token: write # Needed to access ECR and ECS
