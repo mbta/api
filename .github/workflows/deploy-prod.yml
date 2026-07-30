@@ -31,8 +31,8 @@ jobs:
     uses: mbta/workflows/.github/workflows/deploy-ecs.yml@c76e5ccd9556fbea52bc41548f7ceed5985ad775 # v5.1.0
     with:
       app-name: api
-      environment: ${{ inputs.environment }}
-      docker-additional-tags: ${{ inputs.environment }}
+      environment: prod
+      docker-additional-tags: prod
     secrets:
       aws-role-arn: ${{ secrets.AWS_ROLE_ARN }}
       docker-repo: ${{ secrets.DOCKER_REPO }}
