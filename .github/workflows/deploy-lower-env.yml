@@ -1,6 +1,12 @@
 name: Deploy to lower environment (dev etc)
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: dev
+        required: true
   workflow_dispatch:
     inputs:
       environment:
