@@ -1,38 +1,27 @@
-name: Deploy to Prod
+name: Scheduled deploy to dev-blue
 
 on:
-  workflow_dispatch:
-  release:
-    types:
-      - released
+  schedule:
+    - cron: "0 5 * * *"
 
 permissions:
   contents: read # Needed to checkout repo
 
 concurrency:
-  group: deploy-prod
+  group: deploy-dev-blue
   cancel-in-progress: true
 
 jobs:
-  check-ref:
-    name: Fail if not a tag
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Failing intentionally. Only tags may be deployed to prod."
-          exit 1
   call-workflow:
     name: Call MBTA deploy-ecs workflow
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
     permissions:
       contents: read # Needed to checkout repo
       id-token: write # Needed to access ECR and ECS
     uses: mbta/workflows/.github/workflows/deploy-ecs.yml@c76e5ccd9556fbea52bc41548f7ceed5985ad775 # v5.1.0
     with:
       app-name: api
-      environment: ${{ inputs.environment }}
-      docker-additional-tags: ${{ inputs.environment }}
+      environment: dev-blue
+      docker-additional-tags: dev-blue
     secrets:
       aws-role-arn: ${{ secrets.AWS_ROLE_ARN }}
       docker-repo: ${{ secrets.DOCKER_REPO }}
