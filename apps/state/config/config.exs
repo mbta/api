@@ -174,6 +174,8 @@ config :state, :stops_on_route,
     "Green-D-841-1" => false,
     # Green-E patterns that go to/from Union Square
     "Green-E-885-" => false,
+    # Green-E canonical trips with Symphony
+    "Green-E-C1-" => true,
     # Foxboro via Fairmount trips
     "CR-Franklin-Foxboro-" => true,
     # Rockport Branch shuttles
