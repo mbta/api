@@ -54,6 +54,78 @@ defmodule State.StopEvent do
 
   def handle_new_state(data), do: super(data)
 
+  @impl State.Server
+  def post_commit_hook do
+    evict_old_records()
+    :ok
+  end
+
+  @doc """
+  Evicts records older than the configured retention period.
+
+  ## Parameters
+
+    * `retention_seconds` - Number of seconds to retain records. Defaults to configured
+      value (default: 7200 seconds / 2 hours). Records with timestamps older than
+      `now - retention_seconds` will be deleted.
+
+  Records without timestamps are not evicted.
+
+  ## Examples
+
+      # Use default retention period (2 hours)
+      evict_old_records()
+
+      # Use custom retention period (1 hour)
+      evict_old_records(3600)
+
+  """
+  @spec evict_old_records(non_neg_integer()) :: :ok
+  def evict_old_records(retention_seconds \\ nil) do
+    retention_seconds = retention_seconds || get_retention_seconds()
+    now = System.system_time(:second)
+    cutoff = now - retention_seconds
+
+    # Build match spec to find records with timestamp < cutoff
+    fields = StopEvent.fields()
+    timestamp_position = Enum.find_index(fields, &(&1 == :timestamp))
+    id_position = Enum.find_index(fields, &(&1 == :id))
+
+    unless timestamp_position && id_position do
+      raise "timestamp or id field not found in StopEvent struct"
+    end
+
+    # Build pattern with both timestamp and id as variables
+    wildcards = List.duplicate(:_, length(fields))
+
+    pattern_list = [
+      StopEvent
+      | wildcards
+        |> List.replace_at(timestamp_position, :"$1")
+        |> List.replace_at(id_position, :"$2")
+    ]
+
+    pattern = List.to_tuple(pattern_list)
+
+    # Match spec: select ids where timestamp < cutoff and timestamp is not nil
+    # Guards: timestamp is not nil AND timestamp < cutoff
+    match_spec = [
+      {pattern,
+       [
+         {:andalso, {:"/=", :"$1", nil}, {:<, :"$1", cutoff}}
+       ], [:"$2"]}
+    ]
+
+    ids_to_delete = :mnesia.dirty_select(__MODULE__, match_spec)
+
+    # Delete each record by id
+    Enum.each(ids_to_delete, fn id ->
+      :mnesia.dirty_delete(__MODULE__, id)
+    end)
+
+    :ok
+  end
+
   # Get the maximum timestamp from existing data in the table.
   # Uses a dynamic match spec based on the StopEvent struct to avoid brittleness
   # from hardcoded field positions.
@@ -83,6 +155,12 @@ defmodule State.StopEvent do
         |> Enum.reject(&is_nil/1)
         |> Enum.max(fn -> nil end)
     end
+  end
+
+  defp get_retention_seconds do
+    :state
+    |> Application.get_env(__MODULE__, [])
+    |> Keyword.get(:retention_seconds, 7200)
   end
 
   @spec by_id(String.t()) :: StopEvent.t() | nil

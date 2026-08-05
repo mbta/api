@@ -4,6 +4,13 @@ defmodule State.StopEventTest do
   alias Model.StopEvent
   import State.StopEvent
 
+  # Disable automatic eviction by default for all tests except those explicitly testing eviction
+  setup do
+    Application.put_env(:state, State.StopEvent, retention_seconds: 999_999_999)
+    on_exit(fn -> Application.delete_env(:state, State.StopEvent) end)
+    :ok
+  end
+
   describe "filter_by/1" do
     setup do
       stop_event1 = %StopEvent{
@@ -487,7 +494,7 @@ defmodule State.StopEventTest do
 
       # Verify the timestamps were stored
       event1 = by_id("old-event-1")
-      assert event1.timestamp == 1771968300
+      assert event1.timestamp == 1_771_968_300
 
       # Send an update with both old and new events
       # The automatic timestamp filtering should only process the new ones
@@ -508,10 +515,10 @@ defmodule State.StopEventTest do
 
       # Verify the new events were added
       new_event1 = by_id("new-event-1")
-      assert new_event1.timestamp == 1771968350
+      assert new_event1.timestamp == 1_771_968_350
 
       new_event2 = by_id("new-event-2")
-      assert new_event2.timestamp == 1771968360
+      assert new_event2.timestamp == 1_771_968_360
     end
 
     test "timestamp filtering works correctly on subsequent updates" do
@@ -543,9 +550,221 @@ defmodule State.StopEventTest do
       assert State.StopEvent.size() == 3
 
       # Verify all events are present
-      assert by_id("event-1").timestamp == 1771968300
-      assert by_id("event-2").timestamp == 1771968350
-      assert by_id("event-3").timestamp == 1771968400
+      assert by_id("event-1").timestamp == 1_771_968_300
+      assert by_id("event-2").timestamp == 1_771_968_350
+      assert by_id("event-3").timestamp == 1_771_968_400
+    end
+  end
+
+  describe "evicting old records" do
+    # Tests in this describe block use the global setup that disables eviction
+
+    test "evicts records older than the configured retention period" do
+      now = System.system_time(:second)
+      two_hours_ago = now - 7200
+      three_hours_ago = now - 10_800
+      one_hour_ago = now - 3600
+
+      old_event = %StopEvent{
+        id: "old-event",
+        vehicle_id: "v1",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop1",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: three_hours_ago
+      }
+
+      borderline_event = %StopEvent{
+        id: "borderline-event",
+        vehicle_id: "v2",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip2",
+        direction_id: 0,
+        route_id: "route2",
+        revenue: :REVENUE,
+        stop_id: "stop2",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: two_hours_ago
+      }
+
+      recent_event = %StopEvent{
+        id: "recent-event",
+        vehicle_id: "v3",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip3",
+        direction_id: 0,
+        route_id: "route3",
+        revenue: :REVENUE,
+        stop_id: "stop3",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: one_hour_ago
+      }
+
+      State.StopEvent.new_state([old_event, borderline_event, recent_event])
+      assert State.StopEvent.size() == 3
+
+      # Trigger eviction with 2-hour retention (7200 seconds)
+      State.StopEvent.evict_old_records(7200)
+
+      # Old event should be evicted, borderline is exactly at boundary (should be kept),
+      # recent should remain
+      assert State.StopEvent.size() == 2
+      assert by_id("old-event") == nil
+      assert by_id("borderline-event") != nil
+      assert by_id("recent-event") != nil
+    end
+
+    test "evicts records using custom retention period" do
+      now = System.system_time(:second)
+      thirty_minutes_ago = now - 1800
+      forty_five_minutes_ago = now - 2700
+
+      old_event = %StopEvent{
+        id: "old-event",
+        vehicle_id: "v1",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop1",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: forty_five_minutes_ago
+      }
+
+      recent_event = %StopEvent{
+        id: "recent-event",
+        vehicle_id: "v2",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip2",
+        direction_id: 0,
+        route_id: "route2",
+        revenue: :REVENUE,
+        stop_id: "stop2",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: thirty_minutes_ago
+      }
+
+      State.StopEvent.new_state([old_event, recent_event])
+      assert State.StopEvent.size() == 2
+
+      # Evict with 40 minute retention (2400 seconds)
+      State.StopEvent.evict_old_records(2400)
+
+      assert State.StopEvent.size() == 1
+      assert by_id("old-event") == nil
+      assert by_id("recent-event") != nil
+    end
+
+    test "handles records without timestamps gracefully" do
+      now = System.system_time(:second)
+      one_hour_ago = now - 3600
+
+      event_with_timestamp = %StopEvent{
+        id: "with-timestamp",
+        vehicle_id: "v1",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop1",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: one_hour_ago
+      }
+
+      event_without_timestamp = %StopEvent{
+        id: "without-timestamp",
+        vehicle_id: "v2",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip2",
+        direction_id: 0,
+        route_id: "route2",
+        revenue: :REVENUE,
+        stop_id: "stop2",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: nil
+      }
+
+      State.StopEvent.new_state([event_with_timestamp, event_without_timestamp])
+      assert State.StopEvent.size() == 2
+
+      # Eviction should not crash on nil timestamps
+      State.StopEvent.evict_old_records(7200)
+
+      # Both should remain (one is recent, one has no timestamp to compare)
+      assert State.StopEvent.size() == 2
+    end
+  end
+
+  describe "automatic eviction on new_state" do
+    test "evicts old records automatically when configured" do
+      # Set a short retention period for this test
+      Application.put_env(:state, State.StopEvent, retention_seconds: 7200)
+      on_exit(fn -> Application.delete_env(:state, State.StopEvent) end)
+
+      now = System.system_time(:second)
+      three_hours_ago = now - 10_800
+      one_hour_ago = now - 3600
+
+      old_event = %StopEvent{
+        id: "old-event",
+        vehicle_id: "v1",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop1",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: three_hours_ago
+      }
+
+      State.StopEvent.new_state([old_event])
+      # Old event is automatically evicted by post_commit_hook
+      assert State.StopEvent.size() == 0
+
+      # Add a new event - should trigger automatic eviction
+      recent_event = %StopEvent{
+        id: "recent-event",
+        vehicle_id: "v2",
+        start_date: ~D[2026-08-05],
+        trip_id: "trip2",
+        direction_id: 0,
+        route_id: "route2",
+        revenue: :REVENUE,
+        stop_id: "stop2",
+        stop_sequence: 1,
+        arrived: nil,
+        departed: nil,
+        timestamp: one_hour_ago
+      }
+
+      State.StopEvent.new_state([recent_event])
+
+      # Recent event should be kept
+      assert by_id("recent-event") != nil
+      assert State.StopEvent.size() == 1
     end
   end
 end

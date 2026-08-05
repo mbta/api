@@ -34,7 +34,7 @@ defmodule Parse.StopEventsTest do
           stop_sequence: 4,
           arrived: DateTime.from_naive!(~N[2026-02-24T10:18:23], "America/New_York"),
           departed: DateTime.from_naive!(~N[2026-02-24T10:21:19], "America/New_York"),
-          timestamp: 1771950045
+          timestamp: 1_771_950_045
         },
         # arrival only
         %StopEvent{
@@ -49,7 +49,7 @@ defmodule Parse.StopEventsTest do
           stop_sequence: 1,
           arrived: DateTime.from_naive!(~N[2026-02-24T15:54:46], "America/New_York"),
           departed: nil,
-          timestamp: 1771968343
+          timestamp: 1_771_968_343
         },
         # departure only
         %StopEvent{
@@ -64,7 +64,7 @@ defmodule Parse.StopEventsTest do
           stop_sequence: 2,
           arrived: nil,
           departed: DateTime.from_naive!(~N[2026-02-24T16:08:53], "America/New_York"),
-          timestamp: 1771968343
+          timestamp: 1_771_968_343
         }
       ]
 
@@ -165,7 +165,7 @@ defmodule Parse.StopEventsTest do
       {"id":"new-2","timestamp":1771968360,"start_date":"20260224","trip_id":"test4","vehicle_id":"v4","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop4","stop_sequence":4,"arrived":1771966486,"departed":1771967246}
       """
 
-      result = parse(ndjson, newer_than: 1771968343)
+      result = parse(ndjson, newer_than: 1_771_968_343)
 
       assert {:partial, events} = result
       assert length(events) == 2
@@ -191,7 +191,7 @@ defmodule Parse.StopEventsTest do
       {"id":"old-2","timestamp":1771968340,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
       """
 
-      result = parse(ndjson, newer_than: 1771968400)
+      result = parse(ndjson, newer_than: 1_771_968_400)
 
       assert {:partial, []} = result
     end
@@ -202,7 +202,7 @@ defmodule Parse.StopEventsTest do
       {"id":"after-boundary","timestamp":1771968344,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
       """
 
-      result = parse(ndjson, newer_than: 1771968343)
+      result = parse(ndjson, newer_than: 1_771_968_343)
 
       # Only the record with timestamp > 1771968343 should be included
       assert {:partial, events} = result
@@ -218,7 +218,7 @@ defmodule Parse.StopEventsTest do
 
       gzipped = :zlib.gzip(ndjson)
 
-      result = parse(gzipped, newer_than: 1771968343)
+      result = parse(gzipped, newer_than: 1_771_968_343)
 
       assert {:partial, events} = result
       assert length(events) == 1
@@ -231,7 +231,7 @@ defmodule Parse.StopEventsTest do
       {"id":"with-timestamp","timestamp":1771968350,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
       """
 
-      result = parse(ndjson, newer_than: 1771968343)
+      result = parse(ndjson, newer_than: 1_771_968_343)
 
       # Records without timestamp are excluded when filtering is enabled
       assert {:partial, events} = result
