@@ -391,4 +391,161 @@ defmodule State.StopEventTest do
       assert by_id("nonexistent") == nil
     end
   end
+
+  describe "partial updates with timestamps" do
+    test "partial update only affects records with matching keys" do
+      # Initial full state
+      initial_events = [
+        %StopEvent{
+          id: "trip1-route1-v1-1",
+          vehicle_id: "v1",
+          start_date: ~D[2026-02-24],
+          trip_id: "trip1",
+          direction_id: 0,
+          route_id: "route1",
+          revenue: :REVENUE,
+          stop_id: "stop1",
+          stop_sequence: 1,
+          arrived: ~U[2026-02-24 15:28:06Z],
+          departed: ~U[2026-02-24 15:40:46Z]
+        },
+        %StopEvent{
+          id: "trip1-route1-v1-2",
+          vehicle_id: "v1",
+          start_date: ~D[2026-02-24],
+          trip_id: "trip1",
+          direction_id: 0,
+          route_id: "route1",
+          revenue: :REVENUE,
+          stop_id: "stop2",
+          stop_sequence: 2,
+          arrived: ~U[2026-02-24 15:41:26Z],
+          departed: ~U[2026-02-24 15:42:13Z]
+        }
+      ]
+
+      State.StopEvent.new_state(initial_events)
+      assert State.StopEvent.size() == 2
+
+      # Partial update - replace event with id trip1-route1-v1-1 and add new event
+      updated_event = %StopEvent{
+        id: "trip1-route1-v1-1",
+        vehicle_id: "v1",
+        start_date: ~D[2026-02-24],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop1",
+        stop_sequence: 1,
+        arrived: ~U[2026-02-24 15:28:06Z],
+        departed: ~U[2026-02-24 15:41:00Z]
+      }
+
+      new_event = %StopEvent{
+        id: "trip1-route1-v1-3",
+        vehicle_id: "v1",
+        start_date: ~D[2026-02-24],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop3",
+        stop_sequence: 3,
+        arrived: ~U[2026-02-24 15:43:00Z],
+        departed: ~U[2026-02-24 15:44:00Z]
+      }
+
+      State.StopEvent.new_state({:partial, [updated_event, new_event]})
+
+      # Should now have 3 events
+      assert State.StopEvent.size() == 3
+
+      # Verify the update was applied
+      result = by_id("trip1-route1-v1-1")
+      assert result.departed == ~U[2026-02-24 15:41:00Z]
+
+      # Verify the new event was added
+      result = by_id("trip1-route1-v1-3")
+      assert result.stop_sequence == 3
+
+      # Verify the unchanged event is still there
+      result = by_id("trip1-route1-v1-2")
+      assert result.departed == ~U[2026-02-24 15:42:13Z]
+    end
+
+    test "accepts NDJSON string with timestamp filtering" do
+      # Create initial state with old events
+      ndjson_old = """
+      {"id":"old-event-1","timestamp":1771968300,"start_date":"20260224","trip_id":"trip1","vehicle_id":"v1","direction_id":0,"route_id":"route1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"old-event-2","timestamp":1771968340,"start_date":"20260224","trip_id":"trip2","vehicle_id":"v2","direction_id":0,"route_id":"route2","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      gzipped_old = :zlib.gzip(ndjson_old)
+      State.StopEvent.new_state(gzipped_old)
+      assert State.StopEvent.size() == 2
+
+      # Verify the timestamps were stored
+      event1 = by_id("old-event-1")
+      assert event1.timestamp == 1771968300
+
+      # Send an update with both old and new events
+      # The automatic timestamp filtering should only process the new ones
+      ndjson_update = """
+      {"id":"old-event-1","timestamp":1771968300,"start_date":"20260224","trip_id":"trip1","vehicle_id":"v1","direction_id":0,"route_id":"route1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"old-event-2","timestamp":1771968340,"start_date":"20260224","trip_id":"trip2","vehicle_id":"v2","direction_id":0,"route_id":"route2","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      {"id":"new-event-1","timestamp":1771968350,"start_date":"20260224","trip_id":"trip3","vehicle_id":"v3","direction_id":0,"route_id":"route3","revenue":true,"stop_id":"stop3","stop_sequence":3,"arrived":1771966486,"departed":1771967246}
+      {"id":"new-event-2","timestamp":1771968360,"start_date":"20260224","trip_id":"trip4","vehicle_id":"v4","direction_id":0,"route_id":"route4","revenue":true,"stop_id":"stop4","stop_sequence":4,"arrived":1771966486,"departed":1771967246}
+      """
+
+      gzipped_update = :zlib.gzip(ndjson_update)
+
+      # This should automatically use timestamp filtering and only add the 2 new events
+      State.StopEvent.new_state(gzipped_update)
+
+      # Should have 4 events total (2 old + 2 new)
+      assert State.StopEvent.size() == 4
+
+      # Verify the new events were added
+      new_event1 = by_id("new-event-1")
+      assert new_event1.timestamp == 1771968350
+
+      new_event2 = by_id("new-event-2")
+      assert new_event2.timestamp == 1771968360
+    end
+
+    test "timestamp filtering works correctly on subsequent updates" do
+      # Initial state
+      ndjson1 = """
+      {"id":"event-1","timestamp":1771968300,"start_date":"20260224","trip_id":"trip1","vehicle_id":"v1","direction_id":0,"route_id":"route1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      """
+
+      State.StopEvent.new_state(:zlib.gzip(ndjson1))
+      assert State.StopEvent.size() == 1
+
+      # Second update - should filter based on timestamp 1771968300
+      ndjson2 = """
+      {"id":"event-1","timestamp":1771968300,"start_date":"20260224","trip_id":"trip1","vehicle_id":"v1","direction_id":0,"route_id":"route1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"event-2","timestamp":1771968350,"start_date":"20260224","trip_id":"trip2","vehicle_id":"v2","direction_id":0,"route_id":"route2","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      State.StopEvent.new_state(:zlib.gzip(ndjson2))
+      assert State.StopEvent.size() == 2
+
+      # Third update - should filter based on timestamp 1771968350
+      ndjson3 = """
+      {"id":"event-1","timestamp":1771968300,"start_date":"20260224","trip_id":"trip1","vehicle_id":"v1","direction_id":0,"route_id":"route1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"event-2","timestamp":1771968350,"start_date":"20260224","trip_id":"trip2","vehicle_id":"v2","direction_id":0,"route_id":"route2","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      {"id":"event-3","timestamp":1771968400,"start_date":"20260224","trip_id":"trip3","vehicle_id":"v3","direction_id":0,"route_id":"route3","revenue":true,"stop_id":"stop3","stop_sequence":3,"arrived":1771966486,"departed":1771967246}
+      """
+
+      State.StopEvent.new_state(:zlib.gzip(ndjson3))
+      assert State.StopEvent.size() == 3
+
+      # Verify all events are present
+      assert by_id("event-1").timestamp == 1771968300
+      assert by_id("event-2").timestamp == 1771968350
+      assert by_id("event-3").timestamp == 1771968400
+    end
+  end
 end

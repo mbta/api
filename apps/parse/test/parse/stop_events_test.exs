@@ -33,7 +33,8 @@ defmodule Parse.StopEventsTest do
           stop_id: "70512",
           stop_sequence: 4,
           arrived: DateTime.from_naive!(~N[2026-02-24T10:18:23], "America/New_York"),
-          departed: DateTime.from_naive!(~N[2026-02-24T10:21:19], "America/New_York")
+          departed: DateTime.from_naive!(~N[2026-02-24T10:21:19], "America/New_York"),
+          timestamp: 1771950045
         },
         # arrival only
         %StopEvent{
@@ -47,7 +48,8 @@ defmodule Parse.StopEventsTest do
           stop_id: "2231",
           stop_sequence: 1,
           arrived: DateTime.from_naive!(~N[2026-02-24T15:54:46], "America/New_York"),
-          departed: nil
+          departed: nil,
+          timestamp: 1771968343
         },
         # departure only
         %StopEvent{
@@ -61,7 +63,8 @@ defmodule Parse.StopEventsTest do
           stop_id: "12232",
           stop_sequence: 2,
           arrived: nil,
-          departed: DateTime.from_naive!(~N[2026-02-24T16:08:53], "America/New_York")
+          departed: DateTime.from_naive!(~N[2026-02-24T16:08:53], "America/New_York"),
+          timestamp: 1771968343
         }
       ]
 
@@ -150,6 +153,90 @@ defmodule Parse.StopEventsTest do
 
       assert length(result) == 1
       assert [%StopEvent{id: "test-trip-1"}] = result
+    end
+  end
+
+  describe "parse with timestamp filtering" do
+    test "returns {:partial, events} when newer_than option filters out old records" do
+      ndjson = """
+      {"id":"old-1","timestamp":1771968300,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"old-2","timestamp":1771968340,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      {"id":"new-1","timestamp":1771968350,"start_date":"20260224","trip_id":"test3","vehicle_id":"v3","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop3","stop_sequence":3,"arrived":1771966486,"departed":1771967246}
+      {"id":"new-2","timestamp":1771968360,"start_date":"20260224","trip_id":"test4","vehicle_id":"v4","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop4","stop_sequence":4,"arrived":1771966486,"departed":1771967246}
+      """
+
+      result = parse(ndjson, newer_than: 1771968343)
+
+      assert {:partial, events} = result
+      assert length(events) == 2
+      assert Enum.all?(events, fn e -> e.id in ["new-1", "new-2"] end)
+    end
+
+    test "returns full list when newer_than option is not provided" do
+      ndjson = """
+      {"id":"event-1","timestamp":1771968300,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"event-2","timestamp":1771968350,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      result = parse(ndjson)
+
+      assert is_list(result)
+      refute match?({:partial, _}, result)
+      assert length(result) == 2
+    end
+
+    test "returns {:partial, []} when all records are older than newer_than" do
+      ndjson = """
+      {"id":"old-1","timestamp":1771968300,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"old-2","timestamp":1771968340,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      result = parse(ndjson, newer_than: 1771968400)
+
+      assert {:partial, []} = result
+    end
+
+    test "excludes records at the boundary (timestamp == newer_than)" do
+      ndjson = """
+      {"id":"at-boundary","timestamp":1771968343,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"after-boundary","timestamp":1771968344,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      result = parse(ndjson, newer_than: 1771968343)
+
+      # Only the record with timestamp > 1771968343 should be included
+      assert {:partial, events} = result
+      assert length(events) == 1
+      assert [%StopEvent{id: "after-boundary"}] = events
+    end
+
+    test "works with gzipped data and newer_than option" do
+      ndjson = """
+      {"id":"old-1","timestamp":1771968300,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"new-1","timestamp":1771968350,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      gzipped = :zlib.gzip(ndjson)
+
+      result = parse(gzipped, newer_than: 1771968343)
+
+      assert {:partial, events} = result
+      assert length(events) == 1
+      assert [%StopEvent{id: "new-1"}] = events
+    end
+
+    test "handles records with missing timestamp field by excluding them" do
+      ndjson = """
+      {"id":"no-timestamp","start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
+      {"id":"with-timestamp","timestamp":1771968350,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
+      """
+
+      result = parse(ndjson, newer_than: 1771968343)
+
+      # Records without timestamp are excluded when filtering is enabled
+      assert {:partial, events} = result
+      assert length(events) == 1
+      assert [%StopEvent{id: "with-timestamp"}] = events
     end
   end
 end

@@ -14,7 +14,8 @@ defmodule Model.StopEvent do
     :stop_id,
     :stop_sequence,
     :arrived,
-    :departed
+    :departed,
+    :timestamp
   ]
 
   @typedoc """
@@ -35,6 +36,7 @@ defmodule Model.StopEvent do
       See [GTFS `stop_times.txt` `stop_sequence`](https://gtfs.org/documentation/schedule/reference/#stop_timestxt).
   * `:arrived` - When the vehicle (`vehicle_id`) arrived at the stop (`stop_id`) as a time-zone aware [RFC 3339 datetime](https://datatracker.ietf.org/doc/html/rfc3339#page-10). `nil` if the stop is the first stop on the trip (`trip_id`).
   * `:departed` - When the vehicle (`vehicle_id`) departed from the stop (`stop_id`) as time-zone aware [RFC 3339 datetime](https://datatracker.ietf.org/doc/html/rfc3339#page-10). `nil` if the last stop (`stop_id`) on the trip (`trip_id`).
+  * `:timestamp` - Unix timestamp representing when this stop event record was last updated in the source system.
   """
 
   @type t :: %__MODULE__{
@@ -48,6 +50,7 @@ defmodule Model.StopEvent do
           stop_sequence: Model.Schedule.stop_sequence(),
           revenue: :REVENUE | :NON_REVENUE,
           arrived: DateTime.t() | nil,
-          departed: DateTime.t() | nil
+          departed: DateTime.t() | nil,
+          timestamp: integer() | nil
         }
 end

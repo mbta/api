@@ -24,6 +24,67 @@ defmodule State.StopEvent do
   # Filter keys ordered by typical selectivity (most selective first)
   @index_keys [:trip_ids, :vehicle_ids, :stop_ids, :route_ids]
 
+  @impl State.Server
+  def handle_new_state(binary) when is_binary(binary) do
+    # Get the maximum timestamp from existing data
+    max_timestamp = get_max_timestamp()
+
+    # Parse with timestamp filtering if we have existing data
+    opts = if max_timestamp, do: [newer_than: max_timestamp], else: []
+
+    parser = Parse.StopEvents
+
+    parsed_data =
+      try do
+        parser.parse(binary, opts)
+      rescue
+        e ->
+          # log_parse_error returns nil, so we return nil on error to avoid passing
+          # invalid data to super/1. The caller (State.Server) expects nil to mean
+          # "no data to insert" and will handle it gracefully.
+          State.Server.log_parse_error(__MODULE__, e)
+      end
+
+    # Only proceed with update if parsing succeeded
+    case parsed_data do
+      nil -> :ok
+      data -> super(data)
+    end
+  end
+
+  def handle_new_state(data), do: super(data)
+
+  # Get the maximum timestamp from existing data in the table.
+  # Uses a dynamic match spec based on the StopEvent struct to avoid brittleness
+  # from hardcoded field positions.
+  defp get_max_timestamp do
+    # Mnesia records are tuples of {RecordName, field1, field2, ...} where
+    # fields follow Recordable declaration order (from StopEvent.fields/0).
+    fields = StopEvent.fields()
+    timestamp_position = Enum.find_index(fields, &(&1 == :timestamp))
+
+    unless timestamp_position do
+      raise "timestamp field not found in StopEvent struct"
+    end
+
+    # Build tuple pattern: {StopEvent, :_, :_, ..., :"$1"} with $1 at timestamp's position
+    wildcards = List.duplicate(:_, length(fields))
+    pattern_list = [StopEvent | List.replace_at(wildcards, timestamp_position, :"$1")]
+    pattern = List.to_tuple(pattern_list)
+
+    match_spec = [{pattern, [], [:"$1"]}]
+
+    case :mnesia.dirty_select(__MODULE__, match_spec) do
+      [] ->
+        nil
+
+      timestamps ->
+        timestamps
+        |> Enum.reject(&is_nil/1)
+        |> Enum.max(fn -> nil end)
+    end
+  end
+
   @spec by_id(String.t()) :: StopEvent.t() | nil
   def by_id(id) do
     case super(id) do
