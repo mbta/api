@@ -10,13 +10,28 @@ defmodule Parse.StopEvents do
   @behaviour Parse
 
   @impl Parse
-  @spec parse(binary()) :: [Model.StopEvent.t()]
-  def parse(body) do
-    body
-    |> decompress()
-    |> String.split("\n", trim: true)
-    |> Enum.map(&parse_line/1)
-    |> Enum.reject(&is_nil/1)
+  def parse(binary) when is_binary(binary) do
+    parse(binary, [])
+  end
+
+  @spec parse(binary(), keyword()) :: [Model.StopEvent.t()] | {:partial, [Model.StopEvent.t()]}
+  def parse(body, opts) when is_binary(body) and is_list(opts) do
+    newer_than = Keyword.get(opts, :newer_than)
+
+    events =
+      body
+      |> decompress()
+      |> String.split("\n", trim: true)
+      |> Enum.map(&parse_line(&1, newer_than))
+      |> Enum.reject(&is_nil/1)
+
+    # When filtering by timestamp, always return {:partial, events} tuple
+    # to distinguish filtered updates from full state replacements
+    if newer_than do
+      {:partial, events}
+    else
+      events
+    end
   end
 
   defp decompress(body) do
@@ -25,16 +40,31 @@ defmodule Parse.StopEvents do
     _ -> body
   end
 
-  defp parse_line(line) do
+  defp parse_line(line, newer_than) do
     case Jason.decode(line) do
       {:ok, record} ->
-        parse_record(record)
+        if should_include_record?(record, newer_than) do
+          parse_record(record)
+        else
+          nil
+        end
 
       e ->
         Logger.error("#{__MODULE__} decode_error error=#{inspect(e)}")
         nil
     end
   end
+
+  defp should_include_record?(_record, nil), do: true
+
+  defp should_include_record?(%{"timestamp" => timestamp}, newer_than)
+       when is_integer(timestamp) and is_integer(newer_than) do
+    timestamp > newer_than
+  end
+
+  # Records without a timestamp field are excluded when filtering is active.
+  # This treats records without timestamps as stale/invalid when doing incremental updates.
+  defp should_include_record?(_record, _newer_than), do: false
 
   defp parse_record(
          %{
@@ -64,7 +94,8 @@ defmodule Parse.StopEvents do
         stop_id: stop_id,
         stop_sequence: stop_sequence,
         arrived: arrived,
-        departed: departed
+        departed: departed,
+        timestamp: Map.get(record, "timestamp")
       }
     else
       {:error, reason} ->

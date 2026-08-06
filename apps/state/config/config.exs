@@ -867,4 +867,9 @@ config :state, :stops_on_route,
     ]
   }
 
+# Configuration for StopEvent state
+config :state, State.StopEvent,
+  # Retention period in seconds (default: 2 hours = 7200 seconds)
+  retention_seconds: 7200
+
 import_config "#{config_env()}.exs"
