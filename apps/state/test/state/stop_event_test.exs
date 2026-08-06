@@ -400,38 +400,42 @@ defmodule State.StopEventTest do
   end
 
   describe "partial updates with timestamps" do
-    test "partial update only affects records with matching keys" do
-      # Initial full state
-      initial_events = [
-        %StopEvent{
-          id: "trip1-route1-v1-1",
-          vehicle_id: "v1",
-          start_date: ~D[2026-02-24],
-          trip_id: "trip1",
-          direction_id: 0,
-          route_id: "route1",
-          revenue: :REVENUE,
-          stop_id: "stop1",
-          stop_sequence: 1,
-          arrived: ~U[2026-02-24 15:28:06Z],
-          departed: ~U[2026-02-24 15:40:46Z]
-        },
-        %StopEvent{
-          id: "trip1-route1-v1-2",
-          vehicle_id: "v1",
-          start_date: ~D[2026-02-24],
-          trip_id: "trip1",
-          direction_id: 0,
-          route_id: "route1",
-          revenue: :REVENUE,
-          stop_id: "stop2",
-          stop_sequence: 2,
-          arrived: ~U[2026-02-24 15:41:26Z],
-          departed: ~U[2026-02-24 15:42:13Z]
-        }
-      ]
+    setup do
+      stop_event1 = %StopEvent{
+        id: "trip1-route1-v1-1",
+        vehicle_id: "v1",
+        start_date: ~D[2026-02-24],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop1",
+        stop_sequence: 1,
+        arrived: ~U[2026-02-24 15:28:06Z],
+        departed: ~U[2026-02-24 15:40:46Z]
+      }
 
-      State.StopEvent.new_state(initial_events)
+      stop_event2 = %StopEvent{
+        id: "trip1-route1-v1-2",
+        vehicle_id: "v1",
+        start_date: ~D[2026-02-24],
+        trip_id: "trip1",
+        direction_id: 0,
+        route_id: "route1",
+        revenue: :REVENUE,
+        stop_id: "stop2",
+        stop_sequence: 2,
+        arrived: ~U[2026-02-24 15:41:26Z],
+        departed: ~U[2026-02-24 15:42:13Z]
+      }
+
+      State.StopEvent.new_state([stop_event1, stop_event2])
+
+      {:ok, %{event1: stop_event1, event2: stop_event2}}
+    end
+
+    test "partial update only affects records with matching keys", %{event1: _e1, event2: _e2} do
+      # Initial state already set up with 2 events
       assert State.StopEvent.size() == 2
 
       # Partial update - replace event with id trip1-route1-v1-1 and add new event

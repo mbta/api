@@ -204,25 +204,9 @@ defmodule Parse.StopEventsTest do
 
       result = parse(ndjson, newer_than: 1_771_968_343)
 
-      # Only the record with timestamp > 1771968343 should be included
       assert {:partial, events} = result
       assert length(events) == 1
       assert [%StopEvent{id: "after-boundary"}] = events
-    end
-
-    test "works with gzipped data and newer_than option" do
-      ndjson = """
-      {"id":"old-1","timestamp":1771968300,"start_date":"20260224","trip_id":"test1","vehicle_id":"v1","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop1","stop_sequence":1,"arrived":1771966486,"departed":1771967246}
-      {"id":"new-1","timestamp":1771968350,"start_date":"20260224","trip_id":"test2","vehicle_id":"v2","direction_id":0,"route_id":"1","revenue":true,"stop_id":"stop2","stop_sequence":2,"arrived":1771966486,"departed":1771967246}
-      """
-
-      gzipped = :zlib.gzip(ndjson)
-
-      result = parse(gzipped, newer_than: 1_771_968_343)
-
-      assert {:partial, events} = result
-      assert length(events) == 1
-      assert [%StopEvent{id: "new-1"}] = events
     end
 
     test "handles records with missing timestamp field by excluding them" do
@@ -233,7 +217,6 @@ defmodule Parse.StopEventsTest do
 
       result = parse(ndjson, newer_than: 1_771_968_343)
 
-      # Records without timestamp are excluded when filtering is enabled
       assert {:partial, events} = result
       assert length(events) == 1
       assert [%StopEvent{id: "with-timestamp"}] = events

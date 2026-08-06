@@ -40,7 +40,7 @@ defmodule State.StopEvent do
       rescue
         e ->
           # log_parse_error returns nil, so we return nil on error to avoid passing
-          # invalid data to super/1. The caller (State.Server) expects nil to mean
+          # invalid data to super/1. State.Server expects nil to mean
           # "no data to insert" and will handle it gracefully.
           State.Server.log_parse_error(__MODULE__, e)
       end
@@ -65,11 +65,9 @@ defmodule State.StopEvent do
 
   ## Parameters
 
-    * `retention_seconds` - Number of seconds to retain records. Defaults to configured
-      value (default: 7200 seconds / 2 hours). Records with timestamps older than
-      `now - retention_seconds` will be deleted.
-
-  Records without timestamps are not evicted.
+    * `retention_seconds` - Number of seconds to retain records. Defaults to
+       7200 seconds / 2 hours). Records with timestamps older than `now -
+       retention_seconds` will be deleted.
 
   ## Examples
 
@@ -80,50 +78,38 @@ defmodule State.StopEvent do
       evict_old_records(3600)
 
   """
+  @spec evict_old_records() :: :ok
+  def evict_old_records do
+    evict_old_records(get_retention_seconds())
+  end
+
   @spec evict_old_records(non_neg_integer()) :: :ok
-  def evict_old_records(retention_seconds \\ nil) do
-    retention_seconds = retention_seconds || get_retention_seconds()
-    now = System.system_time(:second)
-    cutoff = now - retention_seconds
+  def evict_old_records(retention_seconds) when retention_seconds >= 0 do
+    cutoff = System.system_time(:second) - retention_seconds
+    match_spec = build_eviction_match_spec(cutoff)
 
-    # Build match spec to find records with timestamp < cutoff
-    fields = StopEvent.fields()
-    timestamp_position = Enum.find_index(fields, &(&1 == :timestamp))
-    id_position = Enum.find_index(fields, &(&1 == :id))
-
-    unless timestamp_position && id_position do
-      raise "timestamp or id field not found in StopEvent struct"
-    end
-
-    # Build pattern with both timestamp and id as variables
-    wildcards = List.duplicate(:_, length(fields))
-
-    pattern_list = [
-      StopEvent
-      | wildcards
-        |> List.replace_at(timestamp_position, :"$1")
-        |> List.replace_at(id_position, :"$2")
-    ]
-
-    pattern = List.to_tuple(pattern_list)
-
-    # Match spec: select ids where timestamp < cutoff and timestamp is not nil
-    # Guards: timestamp is not nil AND timestamp < cutoff
-    match_spec = [
-      {pattern,
-       [
-         {:andalso, {:"/=", :"$1", nil}, {:<, :"$1", cutoff}}
-       ], [:"$2"]}
-    ]
-
-    ids_to_delete = :mnesia.dirty_select(__MODULE__, match_spec)
-
-    # Delete each record by id
-    Enum.each(ids_to_delete, fn id ->
-      :mnesia.dirty_delete(__MODULE__, id)
-    end)
+    __MODULE__
+    |> :mnesia.dirty_select(match_spec)
+    |> Enum.each(&:mnesia.dirty_delete(__MODULE__, &1))
 
     :ok
+  end
+
+  defp build_eviction_match_spec(cutoff) do
+    fields = StopEvent.fields()
+    timestamp_pos = Enum.find_index(fields, &(&1 == :timestamp))
+    id_pos = Enum.find_index(fields, &(&1 == :id))
+
+    pattern =
+      :_
+      |> List.duplicate(length(fields))
+      |> List.replace_at(timestamp_pos, :"$1")
+      |> List.replace_at(id_pos, :"$2")
+      |> then(&[StopEvent | &1])
+      |> List.to_tuple()
+
+    # Match spec format: {pattern, guards, result}
+    [{pattern, [{:andalso, {:"/=", :"$1", nil}, {:<, :"$1", cutoff}}], [:"$2"]}]
   end
 
   # Get the maximum timestamp from existing data in the table.
