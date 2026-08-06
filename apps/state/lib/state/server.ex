@@ -72,6 +72,12 @@ defmodule State.Server do
   defmacro __using__(opts) do
     indices = Keyword.fetch!(opts, :indices)
     hibernate? = Keyword.get(opts, :hibernate, true)
+    table_type = Keyword.get(opts, :table_type, :bag)
+
+    unless table_type in [:bag, :set] do
+      raise CompileError,
+        description: "invalid :table_type #{inspect(table_type)}, expected :bag or :set"
+    end
 
     recordable =
       case Keyword.fetch!(opts, :recordable) do
@@ -163,6 +169,10 @@ defmodule State.Server do
       @doc "Parser module that implements `Parse`."
       @spec parser :: module | nil
       def parser, do: unquote(opts[:parser])
+
+      @doc "Table type for the Mnesia table (:bag or :set)."
+      @spec table_type :: :bag | :set
+      def table_type, do: unquote(table_type)
 
       # Server functions
 
@@ -309,13 +319,16 @@ defmodule State.Server do
   end
 
   def recreate_table(module, keywords) do
+    table_type =
+      if function_exported?(module, :table_type, 0), do: module.table_type(), else: :bag
+
     case :mnesia.create_table(
            module,
            record_name: Keyword.fetch!(keywords, :record_name),
            attributes: Keyword.fetch!(keywords, :attributes),
            index: Keyword.fetch!(keywords, :index),
            storage_properties: [ets: [{:read_concurrency, true}]],
-           type: :bag,
+           type: table_type,
            local_content: true
          ) do
       {:atomic, :ok} ->
