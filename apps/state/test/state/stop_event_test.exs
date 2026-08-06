@@ -623,9 +623,9 @@ defmodule State.StopEventTest do
       # Old event should be evicted, borderline is exactly at boundary (should be kept),
       # recent should remain
       assert State.StopEvent.size() == 2
-      assert by_id("old-event") == nil
-      assert by_id("borderline-event") != nil
-      assert by_id("recent-event") != nil
+      assert is_nil(by_id("old-event"))
+      refute is_nil(by_id("borderline-event"))
+      refute is_nil(by_id("recent-event"))
     end
 
     test "evicts records using custom retention period" do
@@ -670,8 +670,8 @@ defmodule State.StopEventTest do
       State.StopEvent.evict_old_records(2400)
 
       assert State.StopEvent.size() == 1
-      assert by_id("old-event") == nil
-      assert by_id("recent-event") != nil
+      assert is_nil(by_id("old-event"))
+      refute is_nil(by_id("recent-event"))
     end
 
     test "handles records without timestamps gracefully" do
