@@ -22,7 +22,21 @@ defmodule ApiWeb.ShapeController do
     """)
 
     common_index_parameters(__MODULE__, :shape)
-    filter_param(:id, name: :route, required: true)
+
+    parameter(
+      "filter[route]",
+      :query,
+      :string,
+      """
+      Filter by route ID. Multiple route IDs #{comma_separated_list()}.
+
+      Note that the shape resource does not include a `route` relationship on API versions \
+      `2020-05-01` and later, so shapes in the response cannot be attributed to a route from \
+      the response body on those versions. Request a single route at a time if that \
+      attribution is needed.
+      """,
+      required: true
+    )
 
     consumes("application/vnd.api+json")
     produces("application/vnd.api+json")
