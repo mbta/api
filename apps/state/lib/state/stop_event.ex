@@ -33,17 +33,11 @@ defmodule State.StopEvent do
     # Parse with timestamp filtering if we have existing data
     opts = if max_timestamp, do: [newer_than: max_timestamp], else: []
 
-    parser = Parse.StopEvents
-
     parsed_data =
       try do
-        parser.parse(binary, opts)
+        Parse.StopEvents.parse(binary, opts)
       rescue
-        e ->
-          # log_parse_error returns nil, so we return nil on error to avoid passing
-          # invalid data to super/1. State.Server expects nil to mean
-          # "no data to insert" and will handle it gracefully.
-          State.Server.log_parse_error(__MODULE__, e)
+        e -> State.Server.log_parse_error(__MODULE__, e)
       end
 
     # Only proceed with update if parsing succeeded
@@ -91,7 +85,7 @@ defmodule State.StopEvent do
 
     __MODULE__
     |> :mnesia.dirty_select(match_spec)
-    |> Enum.each(&:mnesia.dirty_delete(__MODULE__, &1))
+    |> Enum.each(&:mnesia.transaction(fn -> :mnesia.delete(__MODULE__, &1, :write) end))
 
     :ok
   end
