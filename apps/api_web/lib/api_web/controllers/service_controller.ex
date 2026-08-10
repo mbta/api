@@ -48,12 +48,12 @@ defmodule ApiWeb.ServiceController do
   end
 
   def index_data(conn, params) do
-    case Params.filter_params(params, @filters, conn) do
-      {:ok, filters} when map_size(filters) > 0 ->
-        filters
-        |> apply_filters()
-        |> State.all(Params.filter_opts(params, @pagination_opts, conn))
-
+    with :ok <- Params.validate_includes(params, [], conn),
+         {:ok, filters} when map_size(filters) > 0 <- Params.filter_params(params, @filters, conn) do
+      filters
+      |> apply_filters()
+      |> State.all(Params.filter_opts(params, @pagination_opts, conn))
+    else
       {:error, _, _} = error ->
         error
 
