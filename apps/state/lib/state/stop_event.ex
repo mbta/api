@@ -25,6 +25,125 @@ defmodule State.StopEvent do
   # Filter keys ordered by typical selectivity (most selective first)
   @index_keys [:trip_ids, :vehicle_ids, :stop_ids, :route_ids]
 
+  @impl State.Server
+  def handle_new_state(binary) when is_binary(binary) do
+    # Get the maximum timestamp from existing data
+    max_timestamp = get_max_timestamp()
+
+    # Parse with timestamp filtering if we have existing data
+    opts = if max_timestamp, do: [newer_than: max_timestamp], else: []
+
+    parsed_data =
+      try do
+        Parse.StopEvents.parse(binary, opts)
+      rescue
+        e -> State.Server.log_parse_error(__MODULE__, e)
+      end
+
+    # Only proceed with update if parsing succeeded
+    case parsed_data do
+      nil -> :ok
+      data -> super(data)
+    end
+  end
+
+  def handle_new_state(data), do: super(data)
+
+  @impl State.Server
+  def post_commit_hook do
+    evict_old_records()
+    :ok
+  end
+
+  @doc """
+  Evicts records older than the configured retention period.
+
+  ## Parameters
+
+    * `retention_seconds` - Number of seconds to retain records. Defaults to
+       7200 seconds / 2 hours). Records with timestamps older than `now -
+       retention_seconds` will be deleted.
+
+  ## Examples
+
+      # Use default retention period (2 hours)
+      evict_old_records()
+
+      # Use custom retention period (1 hour)
+      evict_old_records(3600)
+
+  """
+  @spec evict_old_records() :: :ok
+  def evict_old_records do
+    evict_old_records(get_retention_seconds())
+  end
+
+  @spec evict_old_records(non_neg_integer()) :: :ok
+  def evict_old_records(retention_seconds) when retention_seconds >= 0 do
+    cutoff = System.system_time(:second) - retention_seconds
+    match_spec = build_eviction_match_spec(cutoff)
+
+    __MODULE__
+    |> :mnesia.dirty_select(match_spec)
+    |> Enum.each(&:mnesia.transaction(fn -> :mnesia.delete(__MODULE__, &1, :write) end))
+
+    :ok
+  end
+
+  defp build_eviction_match_spec(cutoff) do
+    fields = StopEvent.fields()
+    timestamp_pos = Enum.find_index(fields, &(&1 == :timestamp))
+    id_pos = Enum.find_index(fields, &(&1 == :id))
+
+    pattern =
+      :_
+      |> List.duplicate(length(fields))
+      |> List.replace_at(timestamp_pos, :"$1")
+      |> List.replace_at(id_pos, :"$2")
+      |> then(&[StopEvent | &1])
+      |> List.to_tuple()
+
+    # Match spec format: {pattern, guards, result}
+    [{pattern, [{:andalso, {:"/=", :"$1", nil}, {:<, :"$1", cutoff}}], [:"$2"]}]
+  end
+
+  # Get the maximum timestamp from existing data in the table.
+  # Uses a dynamic match spec based on the StopEvent struct to avoid brittleness
+  # from hardcoded field positions.
+  defp get_max_timestamp do
+    # Mnesia records are tuples of {RecordName, field1, field2, ...} where
+    # fields follow Recordable declaration order (from StopEvent.fields/0).
+    fields = StopEvent.fields()
+    timestamp_position = Enum.find_index(fields, &(&1 == :timestamp))
+
+    unless timestamp_position do
+      raise "timestamp field not found in StopEvent struct"
+    end
+
+    # Build tuple pattern: {StopEvent, :_, :_, ..., :"$1"} with $1 at timestamp's position
+    wildcards = List.duplicate(:_, length(fields))
+    pattern_list = [StopEvent | List.replace_at(wildcards, timestamp_position, :"$1")]
+    pattern = List.to_tuple(pattern_list)
+
+    match_spec = [{pattern, [], [:"$1"]}]
+
+    case :mnesia.dirty_select(__MODULE__, match_spec) do
+      [] ->
+        nil
+
+      timestamps ->
+        timestamps
+        |> Enum.reject(&is_nil/1)
+        |> Enum.max(fn -> nil end)
+    end
+  end
+
+  defp get_retention_seconds do
+    :state
+    |> Application.get_env(__MODULE__, [])
+    |> Keyword.get(:retention_seconds, 7200)
+  end
+
   @spec by_id(String.t()) :: StopEvent.t() | nil
   def by_id(id) do
     case super(id) do
