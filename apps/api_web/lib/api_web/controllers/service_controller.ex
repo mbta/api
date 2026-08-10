@@ -48,7 +48,7 @@ defmodule ApiWeb.ServiceController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, [], conn),
+    with :ok <- validate_includes(params, conn),
          {:ok, filters} when map_size(filters) > 0 <- Params.filter_params(params, @filters, conn) do
       filters
       |> apply_filters()
@@ -61,6 +61,12 @@ defmodule ApiWeb.ServiceController do
         {:error, :filter_required}
     end
   end
+
+  defp validate_includes(_params, %{assigns: %{api_version: version}})
+       when version < "2026-10-20",
+       do: :ok
+
+  defp validate_includes(params, conn), do: Params.validate_includes(params, [], conn)
 
   defp apply_filters(%{"id" => id}) do
     id
