@@ -33,11 +33,17 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, [], conn),
+    with :ok <- validate_includes(params, conn),
          {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
       do_filter(filtered, params, conn)
     end
   end
+
+  defp validate_includes(_params, %{assigns: %{api_version: version}})
+       when version < "2026-10-20",
+       do: :ok
+
+  defp validate_includes(params, conn), do: Params.validate_includes(params, [], conn)
 
   defp filters(%{assigns: %{api_version: ver}}) when ver < "2021-01-09",
     do: ["direction_id" | @filters]
