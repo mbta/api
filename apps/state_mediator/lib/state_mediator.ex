@@ -170,7 +170,7 @@ defmodule StateMediator do
           bucket_arn: app_value(:stop_events, :s3_bucket),
           object: app_value(:stop_events, :s3_object),
           interval: 3 * 1_000,
-          sync_timeout: 30_000,
+          sync_timeout: 60_000,
           state: State.StopEvent
         ]
       }
