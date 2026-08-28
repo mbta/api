@@ -12,7 +12,7 @@ defmodule ApiWeb.TripController do
 
   @filters ~w(id date direction_id route route_pattern name revenue)s
   @pagination_opts ~w(offset limit order_by)a
-  @includes ~w(route vehicle service shape predictions route_pattern stops)
+  @includes ~w(route vehicle service shape predictions route_pattern stops transfers)
 
   def state_module, do: State.Trip.Added
 
@@ -265,6 +265,7 @@ defmodule ApiWeb.TripController do
           relationship(:route)
           relationship(:shape)
           relationship(:route_pattern)
+          relationship(:transfer)
           relationship(:occupancy)
         end,
       Trips: page(:TripResource),
@@ -318,6 +319,7 @@ defmodule ApiWeb.TripController do
       | `route_pattern` | The route pattern for the trip. |
       | `predictions`   | Predictions of when the `vehicle` on this `trip` will arrive at or depart from each stop on the route(s) on the `trip`. |
       | `stops`         | The stops this trip goes through. |
+      | `transfers`     | The transfers possible from this trip. |
       | `occupancies`   | **EXPERIMENTAL:** The trip's static occupancy data. For information on experimental features, see: https://www.mbta.com/developers/v3-api/versioning.|
       """
     )

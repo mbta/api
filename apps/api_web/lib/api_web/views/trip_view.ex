@@ -9,6 +9,7 @@ defmodule ApiWeb.TripView do
     ServiceView,
     ShapeView,
     StopView,
+    TransferView,
     VehicleView
   }
 
@@ -20,6 +21,7 @@ defmodule ApiWeb.TripView do
     Service,
     Shape,
     Stop,
+    Transfer,
     Vehicle
   }
 
@@ -88,6 +90,12 @@ defmodule ApiWeb.TripView do
   )
 
   has_many(
+    :transfers,
+    type: :transfer,
+    serializer: TransferView
+  )
+
+  has_many(
     :occupancies,
     type: :occupancy,
     serializer: OccupancyView
@@ -103,6 +111,13 @@ defmodule ApiWeb.TripView do
 
   def route_pattern(%{route_pattern_id: route_pattern_id}, conn) do
     optional_relationship("route_pattern", route_pattern_id, &RoutePattern.by_id/1, conn)
+  end
+
+  def transfers(%{id: trip_id}, _conn) do
+    case Transfer.by_from_trip_id(trip_id) do
+      [] -> nil
+      transfers -> transfers
+    end
   end
 
   def vehicle(%{id: trip_id}, _conn) do
