@@ -111,28 +111,28 @@ defmodule ApiWeb.TransferController do
           attributes do
             min_transfer_time(
               :integer,
-              "Sum of `min_walk_time` and `suggested_buffer_time`",
+              "Sum of `min_walk_time` and `suggested_buffer_time`, in seconds.",
               "x-nullable": true,
               example: 9
             )
 
             min_walk_time(
               :integer,
-              "Experimental. Minimum time required to travel by foot from `from_stop_id` to `to_stop_id`.",
+              "Experimental. Minimum time required to travel by foot from `from_stop_id` to `to_stop_id`, in seconds.",
               "x-nullable": true,
               example: 4
             )
 
             min_wheelchair_time(
               :integer,
-              "Experimental. Minimum time required to travel by wheelchair `from_stop_id` to `to_stop_id`. If the transfer is not wheelchair accessible, this field will be blank.",
+              "Experimental. Minimum time required to travel by wheelchair `from_stop_id` to `to_stop_id`, in seconds. If the transfer is not wheelchair accessible, this field will be blank.",
               "x-nullable": true,
               example: 7
             )
 
             suggested_buffer_time(
               :integer,
-              "Experimental. Recommended buffer time to allow to make a successful transfer between two services. This is also partly based on the significance of missing the transfer (due to service frequency).",
+              "Experimental. Recommended buffer time to allow to make a successful transfer between two services, in seconds. This is also partly based on the significance of missing the transfer (due to service frequency).",
               "x-nullable": true,
               example: 5
             )
