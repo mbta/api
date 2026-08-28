@@ -61,13 +61,13 @@ defmodule Model.Transfer do
   @type t :: %__MODULE__{
           from_stop_id: Model.Stop.id(),
           to_stop_id: Model.Stop.id(),
-          min_transfer_time: min_transfer_time() | nil,
+          min_transfer_time: min_transfer_time | nil,
           min_walk_time: non_neg_integer | nil,
           min_wheelchair_time: non_neg_integer | nil,
           suggested_buffer_time: non_neg_integer | nil,
-          wheelchair_transfer: wheelchair_transfer_type,
+          wheelchair_transfer: wheelchair_transfer_type | nil,
           from_trip_id: Model.Trip.id() | nil,
           to_trip_id: Model.Trip.id() | nil,
-          transfer_type: transfer_type
+          transfer_type: transfer_type | nil
         }
 end

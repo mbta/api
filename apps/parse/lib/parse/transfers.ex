@@ -14,14 +14,14 @@ defmodule Parse.Transfers do
 
   ## Columns
 
-  * `"from_stop_id"` - `Model.Stop.id | nil`
-  * `"to_stop_id"` - `Model.Stop.id | nil`
-  * `"transfer_type"` - `Model.Transfer.transfer_type`
-  * `"min_transfer_time"` - `Model.Transfer.min_transfer_time` | nil
-  * `"min_walk_time"` - `Model.Transfer.t` - `min_walk_time` | nil
-  * `"min_wheelchair_time"` - `Model.Transfer.t` - `min_wheelchair_time`
-  * `"suggested_buffer_time"` - `Model.Transfer.t` - `suggested_buffer_time`
-  * `"wheelchair_transfer"` - `Model.Transfer.wheelchair_transfer_type`
+  * `"from_stop_id"` - `Model.Stop.id`
+  * `"to_stop_id"` - `Model.Stop.id`
+  * `"transfer_type"` - `Model.Transfer.transfer_type | nil`
+  * `"min_transfer_time"` - `Model.Transfer.min_transfer_time | nil`
+  * `"min_walk_time"` - `Model.Transfer.t` - `min_walk_time | nil`
+  * `"min_wheelchair_time"` - `Model.Transfer.t` - `min_wheelchair_time | nil`
+  * `"suggested_buffer_time"` - `Model.Transfer.t` - `suggested_buffer_time | nil`
+  * `"wheelchair_transfer"` - `Model.Transfer.wheelchair_transfer_type | nil`
   * `"from_trip_id"` - `Model.Trip.id | nil`
   * `"to_trip_id"` - `Model.Trip.id | nil`
   """
@@ -33,18 +33,12 @@ defmodule Parse.Transfers do
       min_walk_time: to_integer_if_not_blank(row["min_walk_time"]),
       min_wheelchair_time: to_integer_if_not_blank(row["min_wheelchair_time"]),
       suggested_buffer_time: to_integer_if_not_blank(row["suggested_buffer_time"]),
-      wheelchair_transfer: to_integer(row["wheelchair_transfer"]),
+      wheelchair_transfer: to_integer_if_not_blank(row["wheelchair_transfer"]),
       from_trip_id: copy_if_not_blank(row["from_trip_id"]),
       to_trip_id: copy_if_not_blank(row["to_trip_id"]),
-      transfer_type: String.to_integer(row["transfer_type"])
+      transfer_type: to_integer_if_not_blank(row["transfer_type"])
     }
   end
-
-  defp to_integer(binary) when byte_size(binary) > 0 do
-    String.to_integer(binary)
-  end
-
-  defp to_integer(_), do: 0
 
   defp to_integer_if_not_blank(binary) when byte_size(binary) > 0 do
     String.to_integer(binary)
