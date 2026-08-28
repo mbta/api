@@ -109,6 +109,7 @@ defmodule State.Metadata do
       service: last_updated(State.Service),
       shape: last_updated(State.Shape),
       stop: last_updated(State.Stop.Cache),
+      transfer: last_updated(State.Transfer),
       trip: last_updated(State.Trip),
       vehicle: last_updated(State.Vehicle)
     }

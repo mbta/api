@@ -12,6 +12,7 @@ defmodule ApiWeb.StatusView do
     :service,
     :shape,
     :stop,
+    :transfer,
     :trip,
     :vehicle
   ])
@@ -52,6 +53,10 @@ defmodule ApiWeb.StatusView do
 
   def stop(data, _) do
     %{last_updated: data.timestamps.stop}
+  end
+
+  def transfer(data, _) do
+    %{last_updated: data.timestamps.transfer}
   end
 
   def trip(data, _) do
