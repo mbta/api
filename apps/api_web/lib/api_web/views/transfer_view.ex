@@ -49,22 +49,6 @@ defmodule ApiWeb.TransferView do
       ) do
     from_trip = from_trip_id || ""
     to_trip = to_trip_id || ""
-    from_route = route_id(from_trip)
-    to_route = route_id(to_trip)
-
-    "transfer-" <>
-      from_trip <>
-      "-" <>
-      from_route <>
-      "-" <> from_stop_id <> "-" <> to_trip <> "-" <> to_route <> "-" <> to_stop_id
-  end
-
-  defp route_id(""), do: ""
-
-  defp route_id(trip_id) do
-    case State.Trip.by_primary_id(trip_id) do
-      [%Model.Trip{route_id: route_id}] when is_binary(route_id) -> route_id
-      _ -> ""
-    end
+    "transfer-#{from_trip}-#{from_stop_id}-#{to_trip}-#{to_stop_id}"
   end
 end
