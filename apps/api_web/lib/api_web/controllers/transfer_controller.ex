@@ -2,12 +2,12 @@ defmodule ApiWeb.TransferController do
   @moduledoc """
   Controller for Transfers. Filterable by:
 
-  * trip (multiple)
+  * from_trip (multiple)
   * type (multiple)
   """
   use ApiWeb.Web, :api_controller
 
-  @filters ~w(trip type)s
+  @filters ~w(from_trip type)s
   @pagination_opts ~w(offset limit)a
 
   def state_module, do: State.Transfer
@@ -16,7 +16,7 @@ defmodule ApiWeb.TransferController do
     get(path(__MODULE__, :index))
 
     description("""
-    **NOTE:** `filter[type]` or `filter[trip]` **MUST** be present for any transfers to be returned.
+    **NOTE:** `filter[type]` or `filter[from_trip]` **MUST** be present for any transfers to be returned.
 
     List of transfers. Transfer specifies additional rules and overrides for a transfer between trips, routes, and/or stops.
 
@@ -26,13 +26,13 @@ defmodule ApiWeb.TransferController do
 
     ## Transfers from a certain trip
 
-    `/transfers?filter[trip]=TRIP_ID`
+    `/transfers?filter[from_trip]=TRIP_ID`
     """)
 
     common_index_parameters(__MODULE__, :transfer)
 
     parameter(
-      "filter[trip]",
+      "filter[from_trip]",
       :query,
       :string,
       "Filter by trip ID. Multiple trips #{comma_separated_list()}."
@@ -75,7 +75,7 @@ defmodule ApiWeb.TransferController do
     |> Enum.into(%{})
   end
 
-  defp do_format_filter({"trip", trip_string}) do
+  defp do_format_filter({"from_trip", trip_string}) do
     case Params.split_on_comma(trip_string) do
       [] ->
         []
