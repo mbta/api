@@ -318,7 +318,7 @@ defmodule ApiWeb.TripControllerTest do
             conn,
             :show,
             trip.id,
-            include: "transfers"
+            include: "from_trip_transfers"
           )
         )
 
@@ -327,7 +327,7 @@ defmodule ApiWeb.TripControllerTest do
       assert %{
                "id" => ^trip_id,
                "relationships" => %{
-                 "transfers" => %{
+                 "from_trip_transfers" => %{
                    "data" => [%{"id" => id, "type" => "transfer"}]
                  }
                }

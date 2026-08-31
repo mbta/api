@@ -90,7 +90,7 @@ defmodule ApiWeb.TripView do
   )
 
   has_many(
-    :transfers,
+    :from_trip_transfers,
     type: :transfer,
     serializer: TransferView
   )
@@ -113,7 +113,7 @@ defmodule ApiWeb.TripView do
     optional_relationship("route_pattern", route_pattern_id, &RoutePattern.by_id/1, conn)
   end
 
-  def transfers(%{id: trip_id}, _conn) do
+  def from_trip_transfers(%{id: trip_id}, _conn) do
     case Transfer.by_from_trip_id(trip_id) do
       [] -> nil
       transfers -> transfers
