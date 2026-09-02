@@ -8,6 +8,7 @@ defmodule ApiWeb.TransferController do
 
   @filters ~w(from_trip)s
   @pagination_opts ~w(offset limit)a
+  @includes ~w(from_trip to_trip from_stop to_stop)
 
   def state_module, do: State.Transfer
 
@@ -30,6 +31,8 @@ defmodule ApiWeb.TransferController do
 
     common_index_parameters(__MODULE__, :transfer)
 
+    include_parameters()
+
     parameter(
       "filter[from_trip]",
       :query,
@@ -46,18 +49,22 @@ defmodule ApiWeb.TransferController do
   end
 
   def index_data(conn, params) do
-    case Params.filter_params(params, @filters, conn) do
-      {:ok, filters} when map_size(filters) > 0 ->
-        filters
-        |> format_filters()
-        |> State.Transfer.filter_by()
-        |> State.all(Params.filter_opts(params, @pagination_opts, conn))
+    with :ok <- Params.validate_includes(params, @includes, conn) do
+      case Params.filter_params(params, @filters, conn) do
+        {:ok, filters} when map_size(filters) > 0 ->
+          filters
+          |> format_filters()
+          |> State.Transfer.filter_by()
+          |> State.all(Params.filter_opts(params, @pagination_opts, conn))
 
-      {:error, _, _} = error ->
-        error
+        {:error, _, _} = error ->
+          error
 
-      _ ->
-        {:error, :filter_required}
+        _ ->
+          {:error, :filter_required}
+      end
+    else
+      {:error, _, _} = error -> error
     end
   end
 
@@ -160,5 +167,20 @@ defmodule ApiWeb.TransferController do
         end,
       Transfer: page(:TransferResource)
     }
+  end
+
+  defp include_parameters(schema) do
+    ApiWeb.SwaggerHelpers.include_parameters(
+      schema,
+      @includes,
+      description: """
+      | include     | Description |
+      |-------------|-------------|
+      | `from_trip` | The trip where a connection between routes begins |
+      | `to_trip`   | The trip where a connection between routes ends |
+      | `from_stop` | The stop or station where a connection between routes begins |
+      | `to_stop`   | The stop or station where a connection between routes ends |
+      """
+    )
   end
 end
