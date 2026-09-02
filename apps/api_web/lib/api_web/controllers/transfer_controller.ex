@@ -3,11 +3,10 @@ defmodule ApiWeb.TransferController do
   Controller for Transfers. Filterable by:
 
   * from_trip (multiple)
-  * type (multiple)
   """
   use ApiWeb.Web, :api_controller
 
-  @filters ~w(from_trip type)s
+  @filters ~w(from_trip)s
   @pagination_opts ~w(offset limit)a
 
   def state_module, do: State.Transfer
@@ -16,17 +15,17 @@ defmodule ApiWeb.TransferController do
     get(path(__MODULE__, :index))
 
     description("""
-    **NOTE:** `filter[type]` or `filter[from_trip]` **MUST** be present for any transfers to be returned.
+    **NOTE:** `filter[from_trip]` **MUST** be present for any transfers to be returned.
 
     List of transfers. Transfer specifies additional rules and overrides for a transfer between trips, routes, and/or stops.
-
-    ## Transfers of a certain type
-
-    `/transfers?filter[type]=TYPE`
 
     ## Transfers from a certain trip
 
     `/transfers?filter[from_trip]=TRIP_ID`
+
+    ## Transfers from a set of trips
+
+    `/transfers?filter[from_trip]=TRIP_ID1,TRIP_ID2,TRIP_ID3`
     """)
 
     common_index_parameters(__MODULE__, :transfer)
@@ -36,13 +35,6 @@ defmodule ApiWeb.TransferController do
       :query,
       :string,
       "Filter by trip ID. Multiple trips #{comma_separated_list()}."
-    )
-
-    parameter(
-      "filter[type]",
-      :query,
-      :string,
-      "Filter by transfer type. Multiple types #{comma_separated_list()}."
     )
 
     consumes("application/vnd.api+json")
@@ -82,16 +74,6 @@ defmodule ApiWeb.TransferController do
 
       trip_ids ->
         %{from_trip_ids: trip_ids}
-    end
-  end
-
-  defp do_format_filter({"type", type_string}) do
-    case Params.split_on_comma(type_string) do
-      [] ->
-        []
-
-      types ->
-        %{types: types}
     end
   end
 
