@@ -55,7 +55,7 @@ defmodule Parse.TransfersTest do
                min_walk_time: nil,
                min_wheelchair_time: nil,
                suggested_buffer_time: nil,
-               wheelchair_transfer: 0,
+               wheelchair_transfer: nil,
                from_trip_id: "NorthBase-825665-1427",
                to_trip_id: "NorthBase-825779-429"
              }
