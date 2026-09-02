@@ -62,43 +62,30 @@ defmodule ApiWeb.TransferControllerTest do
     end
 
     test "filters by trip", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"trip" => "trip-A"}})
+      conn = get(conn, "/transfers", %{"filter" => %{"from_trip" => "trip-A"}})
       data = json_response(conn, 200)["data"]
       assert length(data) == 1
       assert hd(data)["attributes"]["transfer_type"] == 0
     end
 
     test "filters by multiple trips (comma-separated)", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"trip" => "trip-A,trip-C"}})
+      conn = get(conn, "/transfers", %{"filter" => %{"from_trip" => "trip-A,trip-C"}})
       data = json_response(conn, 200)["data"]
       assert length(data) == 2
-    end
-
-    test "filters by type", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"type" => "2"}})
-      data = json_response(conn, 200)["data"]
-      assert length(data) == 2
-      assert Enum.all?(data, &(&1["attributes"]["transfer_type"] == 2))
-    end
-
-    test "filters by multiple types (comma-separated)", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"type" => "0,2"}})
-      data = json_response(conn, 200)["data"]
-      assert length(data) == 3
     end
 
     test "returns empty list when no transfers match the filter", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"type" => "5"}})
+      conn = get(conn, "/transfers", %{"filter" => %{"from_trip" => "fake"}})
       assert json_response(conn, 200)["data"] == []
     end
 
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
-      response = get(conn, "/transfers", %{"filter" => %{"trip" => "trip-A"}})
+      response = get(conn, "/transfers", %{"filter" => %{"from_trip" => "trip-A"}})
       assert validate_resp_schema(response, schema, "Transfer")
     end
 
     test "response includes all documented attributes", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"trip" => "trip-C"}})
+      conn = get(conn, "/transfers", %{"filter" => %{"from_trip" => "trip-C"}})
       [transfer] = json_response(conn, 200)["data"]
       attrs = transfer["attributes"]
 
@@ -114,7 +101,7 @@ defmodule ApiWeb.TransferControllerTest do
       State.Stop.new_state([%Stop{id: "place-north"}, %Stop{id: "place-south"}])
       State.Trip.new_state([%Trip{id: "trip-A"}, %Trip{id: "trip-B"}])
 
-      conn = get(conn, "/transfers", %{"filter" => %{"trip" => "trip-A"}})
+      conn = get(conn, "/transfers", %{"filter" => %{"from_trip" => "trip-A"}})
       [transfer] = json_response(conn, 200)["data"]
 
       assert transfer["relationships"]["from_stop"]
@@ -124,7 +111,7 @@ defmodule ApiWeb.TransferControllerTest do
     end
 
     test "response includes relationship data for stops and trips", %{conn: conn} do
-      conn = get(conn, "/transfers", %{"filter" => %{"trip" => "trip-A"}})
+      conn = get(conn, "/transfers", %{"filter" => %{"from_trip" => "trip-A"}})
       [transfer] = json_response(conn, 200)["data"]
 
       assert transfer["relationships"]["from_stop"]["data"]["id"] == "place-north"
@@ -136,7 +123,7 @@ defmodule ApiWeb.TransferControllerTest do
     test "pagination works", %{conn: conn} do
       conn =
         get(conn, "/transfers", %{
-          "filter" => %{"type" => "2"},
+          "filter" => %{"from_trip" => "trip-A,trip-C"},
           "page" => %{"limit" => "1", "offset" => "0"}
         })
 

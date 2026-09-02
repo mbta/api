@@ -73,6 +73,9 @@ defmodule ApiWeb.TripViewTest do
                "shape" => %{"data" => %{"type" => "shape", "id" => "shape"}},
                "route_pattern" => %{
                  "data" => %{"type" => "route_pattern", "id" => "CR-Lowell-1-0"}
+               },
+               "from_trip_transfers" => %{
+                 "data" => %{"id" => "trip", "type" => "transfer"}
                }
              }
   end
