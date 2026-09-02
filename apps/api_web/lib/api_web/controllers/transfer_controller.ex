@@ -49,22 +49,18 @@ defmodule ApiWeb.TransferController do
   end
 
   def index_data(conn, params) do
-    with :ok <- Params.validate_includes(params, @includes, conn) do
-      case Params.filter_params(params, @filters, conn) do
-        {:ok, filters} when map_size(filters) > 0 ->
-          filters
-          |> format_filters()
-          |> State.Transfer.filter_by()
-          |> State.all(Params.filter_opts(params, @pagination_opts, conn))
-
-        {:error, _, _} = error ->
-          error
-
-        _ ->
-          {:error, :filter_required}
-      end
+    with :ok <- Params.validate_includes(params, @includes, conn),
+         {:ok, filters} when map_size(filters) > 0 <- Params.filter_params(params, @filters, conn) do
+      filters
+      |> format_filters()
+      |> State.Transfer.filter_by()
+      |> State.all(Params.filter_opts(params, @pagination_opts, conn))
     else
-      {:error, _, _} = error -> error
+      {:error, _, _} = error ->
+        error
+
+      _ ->
+        {:error, :filter_required}
     end
   end
 
