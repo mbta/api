@@ -300,6 +300,50 @@ defmodule ApiWeb.TripControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    test "including transfers", %{conn: conn} do
+      trip_id = "trip_with_transfer"
+      trip = %Model.Trip{id: trip_id}
+
+      transfer = %Model.Transfer{
+        from_trip_id: trip_id
+      }
+
+      State.Trip.new_state([trip])
+      State.Transfer.new_state([transfer])
+
+      conn =
+        get(
+          conn,
+          trip_path(
+            conn,
+            :show,
+            trip.id,
+            include: "from_trip_transfers"
+          )
+        )
+
+      response = json_response(conn, 200)
+
+      assert %{
+               "id" => ^trip_id,
+               "relationships" => %{
+                 "from_trip_transfers" => %{
+                   "data" => [%{"id" => id, "type" => "transfer"}]
+                 }
+               }
+             } = response["data"]
+
+      assert id =~ trip_id
+
+      assert [
+               %{
+                 "attributes" => _,
+                 "id" => ^id,
+                 "type" => "transfer"
+               }
+             ] = response["included"]
+    end
+
     test "including occupancies", %{conn: conn} do
       trip = %Model.Trip{id: "trip", name: "trip_name"}
 

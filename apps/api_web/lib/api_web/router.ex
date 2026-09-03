@@ -102,6 +102,7 @@ defmodule ApiWeb.Router do
     resources("/services", ServiceController, only: [:index, :show])
     resources("/stop_events", StopEventController, only: [:index, :show])
     resources("/stop-events", StopEventController, only: [:index, :show])
+    get("/transfers", TransferController, :index)
   end
 
   scope "/docs/swagger" do

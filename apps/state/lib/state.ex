@@ -37,7 +37,8 @@ defmodule State do
       State.Shape,
       State.Feed,
       State.CommuterRailOccupancy,
-      State.StopEvent
+      State.StopEvent,
+      State.Transfer
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
