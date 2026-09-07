@@ -49,7 +49,7 @@ defmodule StateMediator.Mixfile do
       {:fetch, in_umbrella: true},
       {:lasso, "~> 0.1.1-pre", only: :test},
       {:goth, "~> 1.3"},
-      {:hackney, "~> 1.18"},
+      {:hackney, "~> 4.7"},
       {:timex, "~> 3.7"},
       {:emqtt_failover, "~> 0.3"},
       {:mox, "~> 1.0", only: :test}
