@@ -15,8 +15,6 @@ defmodule ApiWeb.StopEventController do
   @includes ~w(trip stop route vehicle schedule)
   @pagination_opts [:offset, :limit, :order_by]
   @description """
-  ## Queries against this path do not yet return results
-
   Stop events represent the actual arrival and departure times of vehicles at stops along their trips.
 
   Stop events are unique to the start_date, trip_id, route_id, vehicle_id, and stop_sequence.
@@ -79,8 +77,7 @@ defmodule ApiWeb.StopEventController do
     response(400, "Bad Request", Schema.ref(:BadRequest))
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
-    tag("StopEvents 🧪")
-    summary("experimental")
+    tag("StopEvents")
   end
 
   def index_data(conn, params) do
@@ -167,8 +164,7 @@ defmodule ApiWeb.StopEventController do
     response(403, "Forbidden", Schema.ref(:Forbidden))
     response(404, "Not Found", Schema.ref(:NotFound))
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
-    tag("StopEvents 🧪")
-    summary("experimental")
+    tag("StopEvents")
   end
 
   def show_data(_conn, %{"id" => id}) do
