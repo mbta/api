@@ -27,6 +27,8 @@ defmodule StateMediator.MqttMediator.Handler do
 
   @impl EmqttFailover.ConnectionHandler
   def handle_message(message, state) do
+    Logger.info("event=mqtt_message payload=#{inspect(message)}")
+
     debug_time("#{state.module} new state", fn ->
       state.module.new_state(message.payload, state.timeout)
     end)
