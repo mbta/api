@@ -100,6 +100,7 @@ defmodule ApiWeb.PredictionController do
     stop_ids = stop_ids(filtered_params, conn)
     route_ids = Params.split_on_comma(filtered_params, "route")
     route_types = Params.route_types(filtered_params)
+    schedule_relationship = Map.get(filtered_params, "schedule_relationship")
 
     pagination_opts =
       Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
@@ -113,6 +114,7 @@ defmodule ApiWeb.PredictionController do
       filtered_params
       |> build_stop_sequence_matchers(direction_id_matcher)
       |> add_revenue_matchers(revenue)
+      |> add_schedule_relationship_matchers(schedule_relationship)
 
     {trip_ids, route_pattern_ids}
     |> case do
@@ -242,6 +244,15 @@ defmodule ApiWeb.PredictionController do
   defp add_revenue_matchers(matchers, {:ok, revenue_matchers}) do
     for revenue_matcher <- List.wrap(revenue_matchers), matcher <- matchers do
       Map.put(matcher, :revenue, revenue_matcher)
+    end
+  end
+
+  defp add_schedule_relationship_matchers(matchers, nil),
+    do: matchers
+
+  defp add_schedule_relationship_matchers(matchers, schedule_relationship) do
+    for matcher <- matchers do
+      Map.put(matcher, :schedule_relationship, schedule_relationship)
     end
   end
 
