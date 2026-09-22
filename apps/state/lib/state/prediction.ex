@@ -9,6 +9,18 @@ defmodule State.Prediction do
   import Parse.Time, only: [service_date: 1]
   import State.Route, only: [by_types: 1]
 
+  def filter_by_schedule_relationshp(predictions, nil), do: predictions
+  def filter_by_schedule_relationshp(predictions, []), do: predictions
+
+  def filter_by_schedule_relationshp(predictions, schedule_relationshps) do
+    route_ids =
+      schedule_relationshps
+      |> by_types()
+      |> MapSet.new(& &1.id)
+
+    Enum.filter(predictions, &(&1.route_id in route_ids))
+  end
+
   def filter_by_route_type(predictions, nil), do: predictions
   def filter_by_route_type(predictions, []), do: predictions
 

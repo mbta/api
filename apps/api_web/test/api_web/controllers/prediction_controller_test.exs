@@ -60,6 +60,20 @@ defmodule ApiWeb.PredictionControllerTest do
       assert ApiWeb.PredictionController.index_data(conn, %{"route_type" => "0,1"}) ==
                {:error, :only_route_type}
     end
+
+    test "returns an error if only the schedule_relationship filter is provided", %{conn: conn} do
+      assert ApiWeb.PredictionController.index_data(conn, %{"schedule_relationship" => "SKIPPED"}) ==
+               {:error, :only_schedule_relationship}
+    end
+
+    test "returns an error if only the schedule_relationship filter and route_type filter are provided",
+         %{conn: conn} do
+      assert ApiWeb.PredictionController.index_data(conn, %{
+               "schedule_relationship" => "SKIPPED",
+               "route_type" => "0,1"
+             }) ==
+               {:error, :only_route_type_and_schedule_relationship}
+    end
   end
 
   test "predictions can be paginated and are sorted by arrival_time", %{conn: base_conn} do
@@ -136,6 +150,39 @@ defmodule ApiWeb.PredictionControllerTest do
           {%{"stop" => "1"}, [prediction1, prediction2]},
           {%{"stop" => "1", "route_type" => "2"}, [prediction2]},
           {%{"stop" => "1", "route_type" => "1,2"}, [prediction1, prediction2]}
+        ] do
+      conn = get(conn, "/predictions", params)
+      assert conn.assigns.data == expected
+    end
+  end
+
+  test "allows filtering by schedule_relationship", %{conn: conn} do
+    scheduled_prediction = %Prediction{
+      stop_id: "1",
+      route_id: "Red",
+      arrival_time: @latest_arrival,
+      schedule_relationship: nil
+    }
+
+    added_prediction = %Prediction{
+      stop_id: "1",
+      route_id: "Red",
+      schedule_relationship: :added
+    }
+
+    skipped_prediction = %Prediction{
+      stop_id: "1",
+      route_id: "Red",
+      schedule_relationship: :skipped
+    }
+
+    State.Prediction.new_state([added_prediction, skipped_prediction, scheduled_prediction])
+
+    for {params, expected} <- [
+          # show all scehdule_relationship values by default
+          {%{"route" => "Red"}, [added_prediction, skipped_prediction, scheduled_prediction]},
+          {%{"route" => "Red", "schedule_relationship" => "SKIPPED"}, [skipped_prediction]},
+          {%{"route" => "Red", "schedule_relationship" => "ADDED"}, [added_prediction]}
         ] do
       conn = get(conn, "/predictions", params)
       assert conn.assigns.data == expected
