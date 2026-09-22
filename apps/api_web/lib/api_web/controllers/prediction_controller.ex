@@ -68,7 +68,11 @@ defmodule ApiWeb.PredictionController do
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
     filter_param(:revenue, desc: "Filter predictions by revenue status.")
-    filter_param(:schedule_relationship, desc: "Filter predictions by schedule relationship.")
+
+    filter_param(:schedule_relationship,
+      desc:
+        "Filter predictions by schedule relationship: https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship"
+    )
 
     parameter("filter[route_pattern]", :query, :string, """
     Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.
