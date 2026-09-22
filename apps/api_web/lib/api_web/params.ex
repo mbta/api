@@ -204,10 +204,13 @@ defmodule ApiWeb.Params do
   @doc """
   Parses a list of schedule relationships out of a parameter map
   """
+  @spec schedule_relationships(%{String.t() => String.t()}) :: [String.t()] | nil
   def schedule_relationships(%{"schedule_relationship" => schedule_relationships}),
     do:
       split_on_comma(schedule_relationships)
       |> Enum.filter(&(&1 in ["SCHEDULED", "SKIPPED", "ADDED"]))
+
+  def schedule_relationships(_), do: nil
 
   @doc """
   Parse canonical filter param into boolean
