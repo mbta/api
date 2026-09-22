@@ -72,7 +72,7 @@ defmodule ApiWeb.PredictionControllerTest do
                "schedule_relationship" => "SKIPPED",
                "route_type" => "0,1"
              }) ==
-               {:error, :only_route_typ_and_schedule_relationship}
+               {:error, :only_route_type_and_schedule_relationship}
     end
   end
 
@@ -180,7 +180,7 @@ defmodule ApiWeb.PredictionControllerTest do
 
     for {params, expected} <- [
           # show all scehdule_relationship values by default
-          {%{"route" => "Red"}, [scheduled_prediction, added_prediction, skipped_prediction]},
+          {%{"route" => "Red"}, [added_prediction, skipped_prediction, scheduled_prediction]},
           {%{"route" => "Red", "schedule_relationship" => "SKIPPED"}, [skipped_prediction]},
           {%{"route" => "Red", "schedule_relationship" => "ADDED"}, [added_prediction]}
         ] do
