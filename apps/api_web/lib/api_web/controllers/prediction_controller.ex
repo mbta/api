@@ -90,10 +90,10 @@ defmodule ApiWeb.PredictionController do
           {:error, :only_schedule_relationship}
 
         %{"route_type" => _} = p when map_size(p) == 1 ->
-          {:error, :other_filter_required}
+          {:error, :only_route_type}
 
         %{"route_type" => _, "schedule_relationship" => _} = p when map_size(p) == 2 ->
-          {:error, :route_type_and_schedule_relationship}
+          {:error, :only_route_type_and_schedule_relationship}
 
         p when map_size(p) > 0 ->
           do_index_data(conn, params, filtered_params)
