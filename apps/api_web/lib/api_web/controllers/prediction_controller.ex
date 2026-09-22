@@ -7,13 +7,19 @@ defmodule ApiWeb.PredictionController do
   * route
   * trip
   * radius
+  * direction_id
+  * stop_sequence
+  * route_type
+  * route_pattern
+  * revenue
+  * schedule_relationship
   """
   use ApiWeb.Web, :api_controller
   require Logger
   alias ApiWeb.LegacyStops
   alias State.Prediction
 
-  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue)s
+  @filters ~w(stop route trip latitude longitude radius direction_id stop_sequence route_type route_pattern revenue schedule_relationship)s
   @pagination_opts ~w(offset limit order_by)a
   @includes ~w(schedule stop route trip vehicle alerts)
 
@@ -62,6 +68,7 @@ defmodule ApiWeb.PredictionController do
     filter_param(:id, name: :route)
     filter_param(:id, name: :trip)
     filter_param(:revenue, desc: "Filter predictions by revenue status.")
+    filter_param(:schedule_relationship, desc: "Filter predictions by schedule relationship.")
 
     parameter("filter[route_pattern]", :query, :string, """
     Filter by `/included/{index}/relationships/route_pattern/data/id` of a trip. Multiple `route_pattern_id` #{comma_separated_list()}.
@@ -79,8 +86,14 @@ defmodule ApiWeb.PredictionController do
     with :ok <- Params.validate_includes(params, @includes, conn),
          {:ok, filtered_params} <- Params.filter_params(params, filters(conn), conn) do
       case filtered_params do
+        %{"schedule_relationship" => _} = p when map_size(p) == 1 ->
+          {:error, :only_schedule_relationship}
+
         %{"route_type" => _} = p when map_size(p) == 1 ->
-          {:error, :only_route_type}
+          {:error, :other_filter_required}
+
+        %{"route_type" => _, "schedule_relationship" => _} = p when map_size(p) == 2 ->
+          {:error, :route_type_and_schedule_relationship}
 
         p when map_size(p) > 0 ->
           do_index_data(conn, params, filtered_params)
@@ -100,7 +113,9 @@ defmodule ApiWeb.PredictionController do
     stop_ids = stop_ids(filtered_params, conn)
     route_ids = Params.split_on_comma(filtered_params, "route")
     route_types = Params.route_types(filtered_params)
-    schedule_relationship = Map.get(filtered_params, "schedule_relationship")
+
+    schedule_relationships =
+      Params.schedule_relationships(filtered_params)
 
     pagination_opts =
       Params.filter_opts(params, @pagination_opts, conn, order_by: {:arrival_time, :asc})
@@ -114,7 +129,7 @@ defmodule ApiWeb.PredictionController do
       filtered_params
       |> build_stop_sequence_matchers(direction_id_matcher)
       |> add_revenue_matchers(revenue)
-      |> add_schedule_relationship_matchers(schedule_relationship)
+      |> add_schedule_relationship_matchers(schedule_relationships)
 
     {trip_ids, route_pattern_ids}
     |> case do
@@ -250,9 +265,19 @@ defmodule ApiWeb.PredictionController do
   defp add_schedule_relationship_matchers(matchers, nil),
     do: matchers
 
-  defp add_schedule_relationship_matchers(matchers, schedule_relationship) do
-    for matcher <- matchers do
-      Map.put(matcher, :schedule_relationship, schedule_relationship)
+  defp add_schedule_relationship_matchers(matchers, []),
+    do: matchers
+
+  defp add_schedule_relationship_matchers(matchers, schedule_relationships) do
+    for schedule_relationship <- schedule_relationships, matcher <- matchers do
+      schedule_relationship_atom =
+        schedule_relationship |> String.downcase() |> String.to_existing_atom()
+
+      if schedule_relationship_atom == :scheduled do
+        Map.put(matcher, :schedule_relationship, nil)
+      else
+        Map.put(matcher, :schedule_relationship, schedule_relationship_atom)
+      end
     end
   end
 

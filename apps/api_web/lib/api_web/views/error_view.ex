@@ -47,6 +47,23 @@ defmodule ApiWeb.ErrorView do
     })
   end
 
+  def render("400.json" <> _, %{error: :only_schedule_relationship}) do
+    ErrorSerializer.format(%{
+      code: :bad_request,
+      status: "400",
+      detail: "filter[schedule_relationship] must be used in conjunction with another filter[]."
+    })
+  end
+
+  def render("400.json" <> _, %{error: :only_route_type_and_schedule_relationship}) do
+    ErrorSerializer.format(%{
+      code: :bad_request,
+      status: "400",
+      detail:
+        "filter[route_type], filter[schedule_relationship] must be used in conjunction with another filter[]."
+    })
+  end
+
   def render("400.json" <> _, %{error: :only_direction_id}) do
     ErrorSerializer.format(%{
       code: :bad_request,

@@ -202,6 +202,14 @@ defmodule ApiWeb.Params do
   def route_types(_), do: []
 
   @doc """
+  Parses a list of schedule relationships out of a parameter map
+  """
+  def schedule_relationships(%{"schedule_relationship" => schedule_relationships}),
+    do:
+      split_on_comma(schedule_relationships)
+      |> Enum.filter(&(&1 in ["SCHEDULED", "SKIPPED", "ADDED"]))
+
+  @doc """
   Parse canonical filter param into boolean
   """
   def canonical("true"), do: true

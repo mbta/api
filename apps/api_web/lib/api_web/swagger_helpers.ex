@@ -285,6 +285,23 @@ defmodule ApiWeb.SwaggerHelpers do
     )
   end
 
+  def filter_param(path_object, :schedule_relationship, opts) do
+    Path.parameter(
+      path_object,
+      "filter[schedule_relationship]",
+      :query,
+      :string,
+      """
+      #{opts[:desc]}
+      Relationship between the prediction and the current GTFS static schedule.
+      When filter is not included, the default behavior is to return trips with all
+      schedule relationships.
+
+      """,
+      enum: ["SCHEDULED", "SKIPPED", "ADDED"]
+    )
+  end
+
   def page(resource) do
     resource
     |> JsonApi.page()
