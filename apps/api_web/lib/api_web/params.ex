@@ -209,7 +209,7 @@ defmodule ApiWeb.Params do
     do:
       schedule_relationships
       |> split_on_comma()
-      |> Enum.filter(&(&1 in ["SCHEDULED", "SKIPPED", "ADDED"]))
+      |> Enum.filter(&(&1 in ["SCHEDULED", "SKIPPED", "ADDED", "CANCELLED", "UNSCHEDULED"]))
 
   def schedule_relationships(_), do: nil
 
