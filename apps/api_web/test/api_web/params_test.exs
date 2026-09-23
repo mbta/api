@@ -200,7 +200,7 @@ defmodule ApiWeb.ParamsTest do
       assert ["SKIPPED"] = Params.schedule_relationships(%{"schedule_relationship" => "SKIPPED"})
 
       assert ["CANCELLED"] =
-               Params.schedule_relationships(%{"schedule_relationship" => "SKIPPED"})
+               Params.schedule_relationships(%{"schedule_relationship" => "CANCELLED"})
     end
   end
 end
