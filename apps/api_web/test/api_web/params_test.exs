@@ -176,4 +176,31 @@ defmodule ApiWeb.ParamsTest do
       assert :error = Params.revenue("")
     end
   end
+
+  describe "schedule_relationship/1" do
+    test "it parses a list of values" do
+      assert ["SCHEDULED", "SKIPPED", "ADDED", "CANCELLED", "UNSCHEDULED"] =
+               Params.schedule_relationships(%{
+                 "schedule_relationship" => "SCHEDULED,SKIPPED,ADDED,CANCELLED,UNSCHEDULED"
+               })
+
+      assert ["SCHEDULED", "SKIPPED", "ADDED", "CANCELLED", "UNSCHEDULED"] =
+               Params.schedule_relationships(%{
+                 "schedule_relationship" =>
+                   "SCHEDULED,SKIPPED,ADDED,CANCELLED,UNSCHEDULED,INVALID"
+               })
+
+      assert ["SCHEDULED"] =
+               Params.schedule_relationships(%{
+                 "schedule_relationship" => "INVALID,SCHEDULED,INVALID"
+               })
+    end
+
+    test "it parses single values" do
+      assert ["SKIPPED"] = Params.schedule_relationships(%{"schedule_relationship" => "SKIPPED"})
+
+      assert ["CANCELLED"] =
+               Params.schedule_relationships(%{"schedule_relationship" => "CANCELLED"})
+    end
+  end
 end
