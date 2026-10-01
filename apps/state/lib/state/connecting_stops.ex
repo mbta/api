@@ -30,7 +30,7 @@ defmodule State.ConnectingStops do
       add: ~w(Boat-Long Boat-Long-North-5B Boat-Long-North-5C Boat-Long-South Boat-Aquarium)
     },
     "place-brmnl" => %{add: ~w(21317 92391)},
-    "place-esomr" => %{add: ~w(2761)},
+    "place-esomr" => %{add: ~w(2761 2776)},
     "place-harsq" => %{add: ~w(110)},
     "place-hsmnl" => %{add: ~w(22365 65741)},
     "place-DB-2205" => %{add: ~w(16391)},
