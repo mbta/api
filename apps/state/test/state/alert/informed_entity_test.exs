@@ -32,27 +32,27 @@ defmodule State.Alert.InformedEntityTest do
 
   describe "match/1" do
     test "can return facility alerts" do
-      assert match(@table, [%{facility: "fac"}]) == ["3"]
-      assert match(@table, [%{facility: "fac", stop: "place-sstat"}]) == ["2", "3"]
-      assert match(@table, [%{facility: "different fac"}]) == []
+      assert MapSet.new(match(@table, [%{facility: "fac"}])) == MapSet.new(["3"])
+      assert MapSet.new(match(@table, [%{facility: "fac", stop: "place-sstat"}])) == MapSet.new(["2", "3"])
+      assert MapSet.new(match(@table, [%{facility: "different fac"}])) == MapSet.new([])
     end
 
     test "can match multiple entities" do
-      assert match(@table, [%{stop: "place-sstat"}]) == ["2", "3"]
-      assert match(@table, [%{route_type: 1}]) == ["1", "2"]
+      assert MapSet.new(match(@table, [%{stop: "place-sstat"}])) == MapSet.new(["2", "3"])
+      assert MapSet.new(match(@table, [%{route_type: 1}])) == MapSet.new(["1", "2"])
     end
 
     test "can accept multiple matchers" do
-      assert match(@table, [%{facility: "fac"}, %{route_type: 1}]) == ["1", "2", "3"]
+      assert MapSet.new(match(@table, [%{facility: "fac"}, %{route_type: 1}])) == MapSet.new(["1", "2", "3"])
     end
 
     test "can match empty values" do
-      assert match(@table, [%{facility: nil}]) == ["1", "2"]
+      assert MapSet.new(match(@table, [%{facility: nil}])) == MapSet.new(["1", "2"])
     end
 
     test "can matches a superset if the entity doesn't define the attributes" do
-      assert match(@table, [%{route_type: 1, route: "Red", direction_id: 0}]) == ["1", "2"]
-      assert match(@table, [%{route_type: 1, route: "Blue", direction_id: 0}]) == []
+      assert MapSet.new(match(@table, [%{route_type: 1, route: "Red", direction_id: 0}])) == MapSet.new(["1", "2"])
+      assert MapSet.new(match(@table, [%{route_type: 1, route: "Blue", direction_id: 0}])) == MapSet.new([])
     end
   end
 end
