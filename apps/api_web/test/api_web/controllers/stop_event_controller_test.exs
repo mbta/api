@@ -209,11 +209,38 @@ defmodule ApiWeb.StopEventControllerTest do
     end
 
     test "can filter by stop", %{conn: conn} do
+      State.Stop.new_state([%Stop{id: "stop2"}])
       State.StopEvent.new_state([@stop_event1, @stop_event3])
 
       conn = get(conn, stop_event_path(conn, :index, %{"filter" => %{"stop" => "stop2"}}))
 
       assert [%{"id" => "trip1-route1-v1-2"}] = json_response(conn, 200)["data"]
+    end
+
+    test "can filter by parent station and stop IDs", %{conn: conn} do
+      State.Stop.new_state([
+        %Stop{id: "place-boyls", location_type: 1},
+        %Stop{id: "70081", parent_station: "place-boyls"},
+        %Stop{id: "70082", parent_station: "place-boyls"},
+        %Stop{id: "1"}
+      ])
+
+      State.StopEvent.new_state([
+        %StopEvent{@stop_event1 | stop_id: "70081"},
+        %StopEvent{@stop_event3 | stop_id: "70082"},
+        %StopEvent{@stop_event2 | stop_id: "1"}
+      ])
+
+      for {stop_ids, expected_ids} <- [
+            {"place-boyls", [@stop_event1.id, @stop_event3.id]},
+            {"place-boyls,1", [@stop_event1.id, @stop_event2.id, @stop_event3.id]},
+            {"place-boyls,70081", [@stop_event1.id, @stop_event3.id]}
+          ] do
+        conn = get(conn, "/stop-events", %{"filter" => %{"stop" => stop_ids}})
+        response_ids = json_response(conn, 200)["data"] |> Enum.map(& &1["id"]) |> Enum.sort()
+
+        assert response_ids == Enum.sort(expected_ids)
+      end
     end
 
     test "can filter by route", %{conn: conn} do
@@ -249,6 +276,8 @@ defmodule ApiWeb.StopEventControllerTest do
     end
 
     test "can filter by multiple parameters simultaneously", %{conn: conn} do
+      State.Stop.new_state([%Stop{id: "stop1"}, %Stop{id: "stop2"}])
+
       State.StopEvent.new_state([
         @stop_event1,
         @stop_event3,
