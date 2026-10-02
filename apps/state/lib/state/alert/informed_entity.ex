@@ -23,9 +23,8 @@ defmodule State.Alert.InformedEntity do
           uniq: true do
         # We create one nil selector for each combination in the Cartesian product of
         # parameters that are passed in, with one `nil` for each element in each list. For example,
-        # with stops 1, 2 and trips 1, 2 we get all of these combinations including nil:
-        # [(1, nil), (1, nil), (2, nil), (2, nil), (nil, 1), (nil, 1), (nil, 2) (nil, 2)].
-        # As a result with a list length of N, there are N - 1 redundant selectors.
+        # with stops 1, 2 and trips A, B we get all of these combinations including nil:
+        # [(1, nil), (1, nil), (2, nil), (2, nil), (nil, A), (nil, A), (nil, B) (nil, B)].
         # Hence the use of "uniq: true" to remove duplicates here.
         {to_record(matcher), [], [:"$1"]}
       end
