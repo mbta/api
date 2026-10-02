@@ -20,6 +20,10 @@ defmodule State.Alert.InformedEntity do
       for base_matcher <- matchers,
           matcher <- all_parts(base_matcher),
           uniq: true do
+        # we create one nil selector for each parameter that's passed in
+        # so when a list is passed in, there is a nil selector for every item in the list
+        # meaning with a list length of N there are N - 1 redundant selectors)
+        # hence the use of a map set to remove duplicates here
         {to_record(matcher), [], [:"$1"]}
       end
 
@@ -56,10 +60,6 @@ defmodule State.Alert.InformedEntity do
         direction_id <- part_values(matcher, :direction_id),
         trip <- part_values(matcher, :trip),
         facility <- part_values(matcher, :facility) do
-      # we create one nil selector for each parameter that's passed in
-      # so when a list is passed in, there is a nil selector for every item in the list
-      # meaning with a list length of N there are N - 1 redundant selectors)
-      # hence the use of a map set to remove duplicates here
       %__MODULE__{
         id: :"$1",
         route_type: route_type,
