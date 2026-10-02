@@ -24,9 +24,15 @@ defmodule State.Alert.Filter do
   end
 
   defp filter_to_list_of_ids(filter_opts) do
-    filter_opts
-    |> build_matchers()
-    |> InformedEntity.match()
+    stops = Keyword.get(filter_opts, :stops, [])
+    facilities = Keyword.get(filter_opts, :facilities, [])
+    direction_id = Keyword.get(filter_opts, :direction_id, [])
+    routes = Keyword.get(filter_opts, :routes, [])
+    route_types = Keyword.get(filter_opts, :route_types, [])
+    trips = Keyword.get(filter_opts, :trips, [])
+    ids = Keyword.get(filter_opts, :ids, [])
+
+    InformedEntity.match(ids, stops, route_types, routes, direction_id, trips, facilities)
   end
 
   defp build_matchers(filter_opts) do

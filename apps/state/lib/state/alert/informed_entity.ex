@@ -4,6 +4,7 @@ defmodule State.Alert.InformedEntity do
   """
   use Recordable, [:id, :route_type, :route, :stop, :direction_id, :trip, :facility]
   alias Model.Alert
+  import Ex2ms
 
   @table __MODULE__
 
@@ -13,6 +14,32 @@ defmodule State.Alert.InformedEntity do
       :ets.new(table, [:named_table, :duplicate_bag, {:read_concurrency, true}, {:keypos, 2}])
 
     :ok
+  end
+
+  defguardp empty_or_selected(value, selector_list)
+            when length(selector_list) == 0 or value == nil or
+                   (is_list(selector_list) and value in selector_list)
+
+  def match(
+        table \\ @table,
+        alert_ids,
+        stop_ids,
+        route_types,
+        route_ids,
+        direction_ids,
+        trip_ids,
+        facility_ids
+      ) do
+    :ets.select(table, fn {_, alert_id, route_type, route_id, stop_id, alert_direction_id,
+                           trip_id, facility_id}
+                          when empty_or_selected(alert_id, alert_ids) and
+                                 empty_or_selected(stop_id, stop_ids) and
+                                 empty_or_selected(route_type, route_types) and
+                                 empty_or_selected(route_id, route_ids) and
+                                 empty_or_selected(alert_direction_id, direction_id) and
+                                 empty_or_selected(facility_id, facility_ids) ->
+      alert_id
+    end)
   end
 
   def match(table \\ @table, matchers) do
