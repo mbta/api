@@ -227,8 +227,8 @@ defmodule ApiWeb.StopEventControllerTest do
 
       State.StopEvent.new_state([
         %StopEvent{@stop_event1 | stop_id: "70081"},
-        %StopEvent{@stop_event3 | stop_id: "70082"},
-        %StopEvent{@stop_event2 | stop_id: "1"}
+        %StopEvent{@stop_event2 | stop_id: "1"},
+        %StopEvent{@stop_event3 | stop_id: "70082"}
       ])
 
       for {stop_ids, expected_ids} <- [
