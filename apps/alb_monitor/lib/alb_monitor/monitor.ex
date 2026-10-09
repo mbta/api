@@ -3,7 +3,7 @@ defmodule ALBMonitor.Monitor do
 
   use GenServer
 
-  alias ExAws.ElasticLoadBalancingV2, as: ALB
+  alias ALBMonitor.TargetHealth
 
   require Logger
 
@@ -81,7 +81,7 @@ defmodule ALBMonitor.Monitor do
 
   defp get_instance_health(%State{instance_ip: instance_ip, target_group_arn: target_group}) do
     with {:ok, %{body: %{target_health_descriptions: health_descs}}} <-
-           target_group |> ALB.describe_target_health() |> @ex_aws.request(),
+           target_group |> TargetHealth.describe_target_health() |> @ex_aws.request(),
          %{target_health: health} <-
            Enum.find(health_descs, &match?(%{targets: [%{id: ^instance_ip}]}, &1)) do
       health
