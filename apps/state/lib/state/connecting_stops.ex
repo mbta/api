@@ -26,20 +26,21 @@ defmodule State.ConnectingStops do
   # but note this happens _before_ pruning redundant connections: added stops can be filtered out,
   # and removing a stop can "create" a new connection further away.
   @overrides %{
-    "place-brmnl" => %{add: ~w(21317 92391)},
-    "place-hsmnl" => %{add: ~w(22365 65741)},
-    "place-DB-2205" => %{add: ~w(16391)},
-    "place-FR-0064" => %{add: ~w(2137)},
-    "place-GRB-0118" => %{add: ~w(3806)},
-    "place-harsq" => %{add: ~w(110)},
     "place-aqucl" => %{
       add: ~w(Boat-Long Boat-Long-North-5B Boat-Long-North-5C Boat-Long-South Boat-Aquarium)
     },
+    "place-brmnl" => %{add: ~w(21317 92391)},
+    "place-esomr" => %{add: ~w(2761 2776)},
+    "place-harsq" => %{add: ~w(110)},
+    "place-hsmnl" => %{add: ~w(22365 65741)},
+    "place-DB-2205" => %{add: ~w(16391)},
+    "place-ER-0115" => %{add: ~w(ER-0117-01 ER-0117-02)},
+    "place-FB-0143" => %{add: ~w(60618)},
+    "place-FR-0064" => %{add: ~w(2137)},
+    "place-GRB-0118" => %{add: ~w(3806)},
     "Boat-Charlestown" => %{add: ~w(12859 12856)},
     "Boat-Hingham" => %{add: ~w(36032)},
-    "place-ER-0115" => %{add: ~w(ER-0117-01 ER-0117-02)},
-    "Boat-Winthrop" => %{add: ~w(129863)},
-    "place-FB-0143" => %{add: ~w(60618)}
+    "Boat-Winthrop" => %{add: ~w(129863)}
   }
 
   def start_link(_opts \\ []) do
