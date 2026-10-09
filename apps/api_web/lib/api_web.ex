@@ -12,6 +12,9 @@ defmodule ApiWeb do
   def start(_type, _args) do
     runtime_config!()
 
+    # returns {:error, {:already_exist, _}} if the app restarts; the filter is still installed
+    _ = :logger.add_primary_filter(:hackney_conn_killed, {&ApiWeb.HackneyLogFilter.filter/2, []})
+
     # no cover
     children = [
       # Start the endpoint when the application starts
