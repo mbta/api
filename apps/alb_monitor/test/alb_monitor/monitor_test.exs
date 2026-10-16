@@ -85,6 +85,24 @@ defmodule ALBMonitor.MonitorTest do
     assert logs =~ "get_instance_health failed: nil"
   end
 
+  test "logs each successful health check at debug level" do
+    # test config sets the global level to :warning
+    Logger.put_module_level(Monitor, :debug)
+    on_exit(fn -> Logger.delete_module_level(Monitor) end)
+
+    mock_instance_ip("10.0.0.1")
+    mock_health_response([{"10.0.0.1", "healthy"}])
+
+    logs =
+      capture_log([level: :debug], fn ->
+        ref = start!()
+        refute_receive {:DOWN, ^ref, :process, _, _}
+      end)
+
+    assert logs =~
+             "alb_monitor get_instance_health succeeded: instance_ip=10.0.0.1 health=healthy"
+  end
+
   defp start!(overrides \\ []) do
     test_pid = self()
 

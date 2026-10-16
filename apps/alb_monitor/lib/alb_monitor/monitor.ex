@@ -84,6 +84,7 @@ defmodule ALBMonitor.Monitor do
            target_group |> TargetHealth.describe_target_health() |> @ex_aws.request(),
          %{target_health: health} <-
            Enum.find(health_descs, &match?(%{targets: [%{id: ^instance_ip}]}, &1)) do
+      log_debug("get_instance_health succeeded: instance_ip=#{instance_ip} health=#{health}")
       health
     else
       unmatched ->
@@ -111,6 +112,7 @@ defmodule ALBMonitor.Monitor do
 
   defp log_warn(message) when is_binary(message), do: Logger.warning(["alb_monitor ", message])
   defp log_info(message) when is_binary(message), do: Logger.info(["alb_monitor ", message])
+  defp log_debug(message) when is_binary(message), do: Logger.debug(["alb_monitor ", message])
 
   defp schedule_check(%State{check_interval: check_interval}) do
     Process.send_after(self(), :check, check_interval)
