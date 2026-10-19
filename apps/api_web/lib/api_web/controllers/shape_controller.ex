@@ -84,8 +84,10 @@ defmodule ApiWeb.ShapeController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Shape.by_primary_id(id)
+  def show_data(conn, %{"id" => id} = params) do
+    with :ok <- validate_includes(params, conn) do
+      Shape.by_primary_id(id)
+    end
   end
 
   def swagger_definitions do
