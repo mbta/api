@@ -56,6 +56,15 @@ defmodule ApiWeb.ShapeControllerTest do
       assert json_response(response, 400)
     end
 
+    test "rejects include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2026-10-20")
+      shape = %Shape{id: "1"}
+      State.Shape.new_state([shape])
+
+      response = get(conn, shape_path(conn, :show, shape.id, %{"include" => "route"}))
+      assert json_response(response, 400)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_shema
@@ -99,6 +108,13 @@ defmodule ApiWeb.ShapeControllerTest do
       assert index_data(conn, %{"route" => "route", "direction_id" => "1"}) == [@pattern]
       assert index_data(conn, %{"route" => "route", "direction_id" => "1,0"}) == [@pattern]
       assert index_data(conn, %{"route" => "route", "direction_id" => "0"}) == []
+    end
+
+    test "rejects include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2026-10-20")
+
+      assert {:error, :bad_include, ["route"]} =
+               index_data(conn, %{"route" => "route", "include" => "route"})
     end
 
     test "sorts patterns by primary, then name", %{conn: conn} do

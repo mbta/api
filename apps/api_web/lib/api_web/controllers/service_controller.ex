@@ -101,8 +101,10 @@ defmodule ApiWeb.ServiceController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Service.by_id(id)
+  def show_data(conn, %{"id" => id} = params) do
+    with :ok <- validate_includes(params, conn) do
+      Service.by_id(id)
+    end
   end
 
   def swagger_definitions do
