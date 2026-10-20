@@ -33,8 +33,8 @@ To run the tests, first install and setup Colima, Docker, and docker-compose:
 ```shell
 brew install docker docker-compose colima
 colima start
-mkdir -p ${DOCKER_CONFIG:-"~/.docker"}/cli-plugins
-ln -sfn /opt/homebrew/opt/docker-compose/bin/docker-compose ${DOCKER_CONFIG:-"~/.docker"}/cli-plugins/docker-compose
+mkdir -p ${DOCKER_CONFIG:-"$HOME/.docker"}/cli-plugins
+ln -sfn /opt/homebrew/opt/docker-compose/bin/docker-compose ${DOCKER_CONFIG:-"$HOME/.docker"}/cli-plugins/docker-compose
 ```
 
 Then, start the Compose configuration in a separate window or tab and run the tests: 
