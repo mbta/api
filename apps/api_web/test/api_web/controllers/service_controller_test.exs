@@ -69,6 +69,12 @@ defmodule ApiWeb.ServiceControllerTest do
       assert error["detail"] == "Unsupported include(s): trip"
     end
 
+    test "versions before 2026-10-20 ignore include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2021-01-09")
+      conn = get(conn, service_path(conn, :index, %{"id" => "1,2", "include" => "trip"}))
+      assert json_response(conn, 200)
+    end
+
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
       response = get(conn, service_path(conn, :index, %{"id" => "1,2"}))
 
