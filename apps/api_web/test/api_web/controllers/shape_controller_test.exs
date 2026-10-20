@@ -65,6 +65,15 @@ defmodule ApiWeb.ShapeControllerTest do
       assert json_response(response, 400)
     end
 
+    test "versions before 2026-10-20 ignore include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2021-01-09")
+      shape = %Shape{id: "1"}
+      State.Shape.new_state([shape])
+
+      response = get(conn, shape_path(conn, :show, shape.id, %{"include" => "route"}))
+      assert json_response(response, 200)
+    end
+
     test "does not show resource and returns JSON-API error document when id is nonexistent", %{
       conn: conn,
       swagger_schema: swagger_shema
