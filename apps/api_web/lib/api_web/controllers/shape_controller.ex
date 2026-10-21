@@ -40,7 +40,7 @@ defmodule ApiWeb.ShapeController do
   end
 
   defp validate_includes(_params, %{assigns: %{api_version: version}})
-       when version < "2026-10-20",
+       when version < "2026-11-06",
        do: :ok
 
   defp validate_includes(params, conn), do: Params.validate_includes(params, [], conn)

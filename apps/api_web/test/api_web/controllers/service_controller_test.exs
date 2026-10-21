@@ -62,14 +62,14 @@ defmodule ApiWeb.ServiceControllerTest do
     end
 
     test "rejects include parameter", %{conn: conn} do
-      conn = assign(conn, :api_version, "2026-10-20")
+      conn = assign(conn, :api_version, "2026-11-06")
 
       conn = get(conn, service_path(conn, :index, %{"id" => "1,2", "include" => "trip"}))
       assert %{"errors" => [error]} = json_response(conn, 400)
       assert error["detail"] == "Unsupported include(s): trip"
     end
 
-    test "versions before 2026-10-20 ignore include parameter", %{conn: conn} do
+    test "versions before 2026-11-06 ignore include parameter", %{conn: conn} do
       conn = assign(conn, :api_version, "2021-01-09")
       conn = get(conn, service_path(conn, :index, %{"id" => "1,2", "include" => "trip"}))
       assert json_response(conn, 200)
@@ -114,7 +114,7 @@ defmodule ApiWeb.ServiceControllerTest do
     end
 
     test "rejects include parameter", %{conn: conn} do
-      conn = assign(conn, :api_version, "2026-10-20")
+      conn = assign(conn, :api_version, "2026-11-06")
       response = get(conn, service_path(conn, :show, "1", %{"include" => "trip"}))
       assert json_response(response, 400)
     end
