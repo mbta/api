@@ -115,6 +115,32 @@ defmodule State.ScheduleTest do
       assert Schedule.filter_by(Map.put(params, :trips, [])) == []
     end
 
+    test "filters on multiple :stops and :trips, grouped in stop order" do
+      other_stop = %{@stop | id: "other_stop"}
+      unrequested_stop = %{@stop | id: "unrequested_stop"}
+      other_trip = %{@trip | id: "other_trip"}
+
+      first = @schedule
+      second = %{@schedule | stop_id: other_stop.id, stop_sequence: 3, position: nil}
+      unrequested = %{@schedule | stop_id: unrequested_stop.id, stop_sequence: 4, position: :last}
+      other_first = %{first | trip_id: other_trip.id}
+      other_second = %{second | trip_id: other_trip.id}
+
+      State.Stop.new_state([@stop, other_stop, unrequested_stop])
+      State.Trip.new_state([@trip, other_trip])
+      Schedule.new_state([first, second, unrequested, other_first, other_second])
+      State.RoutesPatternsAtStop.update!()
+
+      params = %{stops: [other_stop.id, @stop.id], trips: [@trip.id, other_trip.id]}
+
+      assert Schedule.filter_by(params) == [second, other_second, first, other_first]
+
+      assert Schedule.filter_by(Map.put(params, :stop_sequence, [:first, 3])) ==
+               [second, other_second, first, other_first]
+
+      assert Schedule.filter_by(Map.put(params, :stop_sequence, [:last])) == []
+    end
+
     test ":stops/:trips does not return multiple values for multi route trips" do
       # trips:
       # - solo_trip_id: only part of the main route
