@@ -48,12 +48,12 @@ defmodule ApiWeb.ServiceController do
   end
 
   def index_data(conn, params) do
-    case Params.filter_params(params, @filters, conn) do
-      {:ok, filters} when map_size(filters) > 0 ->
-        filters
-        |> apply_filters()
-        |> State.all(Params.filter_opts(params, @pagination_opts, conn))
-
+    with :ok <- validate_includes(params, conn),
+         {:ok, filters} when map_size(filters) > 0 <- Params.filter_params(params, @filters, conn) do
+      filters
+      |> apply_filters()
+      |> State.all(Params.filter_opts(params, @pagination_opts, conn))
+    else
       {:error, _, _} = error ->
         error
 
@@ -61,6 +61,12 @@ defmodule ApiWeb.ServiceController do
         {:error, :filter_required}
     end
   end
+
+  defp validate_includes(_params, %{assigns: %{api_version: version}})
+       when version < "2026-11-06",
+       do: :ok
+
+  defp validate_includes(params, conn), do: Params.validate_includes(params, [], conn)
 
   defp apply_filters(%{"id" => id}) do
     id
@@ -95,8 +101,10 @@ defmodule ApiWeb.ServiceController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Service.by_id(id)
+  def show_data(conn, %{"id" => id} = params) do
+    with :ok <- validate_includes(params, conn) do
+      Service.by_id(id)
+    end
   end
 
   def swagger_definitions do

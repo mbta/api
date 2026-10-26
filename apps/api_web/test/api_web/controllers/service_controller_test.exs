@@ -61,6 +61,20 @@ defmodule ApiWeb.ServiceControllerTest do
       assert error["detail"] == "Invalid sort key."
     end
 
+    test "rejects include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2026-11-06")
+
+      conn = get(conn, service_path(conn, :index, %{"id" => "1,2", "include" => "trip"}))
+      assert %{"errors" => [error]} = json_response(conn, 400)
+      assert error["detail"] == "Unsupported include(s): trip"
+    end
+
+    test "versions before 2026-11-06 ignore include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2021-01-09")
+      conn = get(conn, service_path(conn, :index, %{"id" => "1,2", "include" => "trip"}))
+      assert json_response(conn, 200)
+    end
+
     test "conforms to swagger response", %{swagger_schema: schema, conn: conn} do
       response = get(conn, service_path(conn, :index, %{"id" => "1,2"}))
 
@@ -96,6 +110,12 @@ defmodule ApiWeb.ServiceControllerTest do
 
     test "does not allow filtering", %{conn: conn} do
       response = get(conn, service_path(conn, :show, "1", %{"filter[id]" => "1"}))
+      assert json_response(response, 400)
+    end
+
+    test "rejects include parameter", %{conn: conn} do
+      conn = assign(conn, :api_version, "2026-11-06")
+      response = get(conn, service_path(conn, :show, "1", %{"include" => "trip"}))
       assert json_response(response, 400)
     end
 

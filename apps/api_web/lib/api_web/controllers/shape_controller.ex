@@ -33,14 +33,17 @@ defmodule ApiWeb.ShapeController do
   end
 
   def index_data(conn, params) do
-    case Params.filter_params(params, filters(conn), conn) do
-      {:ok, filtered} ->
-        do_filter(filtered, params, conn)
-
-      {:error, _, _} = error ->
-        error
+    with :ok <- validate_includes(params, conn),
+         {:ok, filtered} <- Params.filter_params(params, filters(conn), conn) do
+      do_filter(filtered, params, conn)
     end
   end
+
+  defp validate_includes(_params, %{assigns: %{api_version: version}})
+       when version < "2026-11-06",
+       do: :ok
+
+  defp validate_includes(params, conn), do: Params.validate_includes(params, [], conn)
 
   defp filters(%{assigns: %{api_version: ver}}) when ver < "2021-01-09",
     do: ["direction_id" | @filters]
@@ -81,8 +84,10 @@ defmodule ApiWeb.ShapeController do
     response(429, "Too Many Requests", Schema.ref(:TooManyRequests))
   end
 
-  def show_data(_conn, %{"id" => id}) do
-    Shape.by_primary_id(id)
+  def show_data(conn, %{"id" => id} = params) do
+    with :ok <- validate_includes(params, conn) do
+      Shape.by_primary_id(id)
+    end
   end
 
   def swagger_definitions do
