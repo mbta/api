@@ -47,6 +47,8 @@ defmodule ApiWeb.Router do
     plug(ApiWeb.Plugs.CheckForShutdown)
   end
 
+  # The CSP is set from @content_security_policy, which Sobelow can't evaluate.
+  # sobelow_skip ["Config.CSP"]
   pipeline :secure_csp do
     plug(:put_secure_browser_headers, %{
       "content-security-policy" => @content_security_policy,

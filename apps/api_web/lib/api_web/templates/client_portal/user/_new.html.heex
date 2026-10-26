@@ -33,8 +33,7 @@
 
         <div class="form-group">
           <%= if Application.get_env(:recaptcha, :enabled) do %>
-            <!-- skip Sobelow XSS.Raw because there's no client input used in this response -->
-            {raw(Recaptcha.Template.display(callback: "recaptchaCompleted"))}
+            {recaptcha_widget()}
           <% end %>
         </div>
         <div class="form-group">
