@@ -43,7 +43,8 @@ defmodule ApiUmbrella.Mixfile do
           "EEF-CVE-2026-47071",
           "EEF-CVE-2026-47076",
           "EEF-CVE-2026-47075",
-          "EEF-CVE-2026-47069"
+          "EEF-CVE-2026-47069",
+          "EEF-CVE-2026-115693"
         ]
       ]
     ]
