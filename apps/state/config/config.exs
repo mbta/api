@@ -167,6 +167,9 @@ config :state, :shape,
 # "canonical" set of stops for a route
 config :state, :stops_on_route,
   route_pattern_prefix_overrides: %{
+    # All trips of Boat-F1 have Boat-F2H as an added route, so without this
+    # override they are not considered canonical for Boat-F1
+    "Boat-F1-" => true,
     "Green-C-835" => false,
     "Green-C-836" => false,
     # Green-D patterns that go to North Station

@@ -49,7 +49,7 @@ defmodule ApiWeb.StopEventController do
       "filter[stop]",
       :query,
       :string,
-      "Filter by stop ID. #{comma_separated_list()}.",
+      "Filter by stop or parent station ID. #{comma_separated_list()}.",
       example: "2231"
     )
 
@@ -109,7 +109,13 @@ defmodule ApiWeb.StopEventController do
         Map.put(acc, :trip_ids, Params.split_on_comma(trip_ids))
 
       {"stop", stop_ids}, acc ->
-        Map.put(acc, :stop_ids, Params.split_on_comma(stop_ids))
+        stop_ids =
+          stop_ids
+          |> Params.split_on_comma()
+          |> State.Stop.location_type_0_ids_by_parent_ids()
+          |> Enum.uniq()
+
+        Map.put(acc, :stop_ids, stop_ids)
 
       {"route", route_ids}, acc ->
         Map.put(acc, :route_ids, Params.split_on_comma(route_ids))

@@ -8,14 +8,25 @@ defmodule State.Alert.InformedEntity do
   @table __MODULE__
 
   def new(table \\ @table) do
-    ^table = :ets.new(table, [:named_table, :duplicate_bag, {:read_concurrency, true}])
+    # keypos 2 here sets the key for the ETS table to be the alert ID
+    # this makes selecting by alert ID faster
+    ^table =
+      :ets.new(table, [:named_table, :duplicate_bag, {:read_concurrency, true}, {:keypos, 2}])
+
     :ok
   end
 
   def match(table \\ @table, matchers) do
     selectors =
       for base_matcher <- matchers,
-          matcher <- all_parts(base_matcher) do
+          matcher <- all_parts(base_matcher),
+          uniq: true do
+        # We create one nil selector for each combination in the Cartesian product of
+        # parameters that are passed in, with one `nil` for each element in each list. For example,
+        # with stops 1, 2 and trips A, B we get all of these combinations including nil:
+        # [(1, nil), (1, nil), (2, nil), (2, nil), (nil, A), (nil, A), (nil, B), (nil, B)
+        # (nil, nil), (nil, nil) (nil, nil), (nil, nil)]
+        # Hence the use of "uniq: true" to remove duplicates here.
         {to_record(matcher), [], [:"$1"]}
       end
 
