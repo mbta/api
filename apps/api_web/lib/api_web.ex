@@ -20,12 +20,19 @@ defmodule ApiWeb do
       ApiWeb.EventStream.Supervisor,
       ApiWeb.Endpoint,
       ApiWeb.Canary
-    ]
+    ] ++ binary_memory_report()
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: ApiWeb.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp binary_memory_report do
+    case Application.get_env(:api_web, ApiWeb.BinaryMemoryReport) do
+      nil -> []
+      opts -> [{ApiWeb.BinaryMemoryReport, opts}]
+    end
   end
 
   def runtime_config! do

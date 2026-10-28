@@ -50,6 +50,9 @@ config :logger, :console, format: "$dateT$time [$level] node=$node $metadata$mes
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
 
+# temporary: diagnose binary memory leak
+config :api_web, ApiWeb.BinaryMemoryReport, interval: 300_000
+
 config :logster, :filter_parameters, ~w(password password_confirm)
 
 config :api_web, :rate_limiter,
