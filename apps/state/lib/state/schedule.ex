@@ -14,6 +14,10 @@ defmodule State.Schedule do
   @fetch_stop_times {:fetch, "stop_times.txt"}
   @subscriptions [@fetch_stop_times, {:new_state, Trip}]
 
+  # with at least this many stops, a stop + trip filter reads schedules once
+  # per trip rather than once per stop/trip pair
+  @min_stops_for_trip_search 8
+
   @type filter_opts :: %{
           optional(:routes) => [Model.Route.id()],
           optional(:trips) => [Model.Trip.id()],
@@ -210,20 +214,31 @@ defmodule State.Schedule do
       |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
       |> Enum.map(& &1.id)
 
-    # trip_id is the primary key, so a single read per trip returns that trip's
-    # schedules at every stop. Matching on stop_id as well would mean one read
-    # per stop/trip pair; the stops are filtered after the search instead.
-    matchers =
-      if stops == [] do
-        []
-      else
+    if length(stops) >= @min_stops_for_trip_search do
+      # one read per trip returns that trip's schedules at every stop, which
+      # is cheaper than a read per stop/trip pair when there are many stops.
+      # The stops are filtered after the search instead.
+      matchers =
         for trip_id <- filtered_trips,
             stop_sequence_matcher <- stop_sequence_matchers do
           Map.put(stop_sequence_matcher, :trip_id, trip_id)
         end
-      end
 
-    %{index: :trip_id, matchers: matchers, stops: stops}
+      %{index: :trip_id, matchers: matchers, stops: stops}
+    else
+      # with few stops, reading every schedule on each trip costs more than
+      # the extra reads, since most of those schedules are thrown away
+      matchers =
+        for stop_id <- stops,
+            trip_id <- filtered_trips,
+            stop_sequence_matcher <- stop_sequence_matchers do
+          stop_sequence_matcher
+          |> Map.put(:trip_id, trip_id)
+          |> Map.put(:stop_id, stop_id)
+        end
+
+      %{index: :trip_id, matchers: matchers}
+    end
   end
 
   defp build_filter_matchers(%{stops: stops} = filters) do

@@ -126,19 +126,27 @@ defmodule State.ScheduleTest do
       other_first = %{first | trip_id: other_trip.id}
       other_second = %{second | trip_id: other_trip.id}
 
-      State.Stop.new_state([@stop, other_stop, unrequested_stop])
+      # stops without schedules, to also search with enough stops to read by trip
+      empty_stops = for i <- 1..8, do: %{@stop | id: "empty_stop_#{i}"}
+
+      State.Stop.new_state([@stop, other_stop, unrequested_stop | empty_stops])
       State.Trip.new_state([@trip, other_trip])
       Schedule.new_state([first, second, unrequested, other_first, other_second])
       State.RoutesPatternsAtStop.update!()
 
-      params = %{stops: [other_stop.id, @stop.id], trips: [@trip.id, other_trip.id]}
+      for extra_stop_ids <- [[], Enum.map(empty_stops, & &1.id)] do
+        params = %{
+          stops: [other_stop.id, @stop.id | extra_stop_ids],
+          trips: [@trip.id, other_trip.id]
+        }
 
-      assert Schedule.filter_by(params) == [second, other_second, first, other_first]
+        assert Schedule.filter_by(params) == [second, other_second, first, other_first]
 
-      assert Schedule.filter_by(Map.put(params, :stop_sequence, [:first, 3])) ==
-               [second, other_second, first, other_first]
+        assert Schedule.filter_by(Map.put(params, :stop_sequence, [:first, 3])) ==
+                 [second, other_second, first, other_first]
 
-      assert Schedule.filter_by(Map.put(params, :stop_sequence, [:last])) == []
+        assert Schedule.filter_by(Map.put(params, :stop_sequence, [:last])) == []
+      end
     end
 
     test ":stops/:trips does not return multiple values for multi route trips" do
