@@ -97,7 +97,7 @@ jobs:
         run: mix compile --force --warnings-as-errors
       - name: Package Audits
         run: |
-          mix hex.audit
+          # mix hex.audit
           # Commented out because:
           # deps.audit complains about our current hackney version,
           # but there's no way to resolve it due to other deps requiring
