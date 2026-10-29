@@ -2,26 +2,27 @@ defmodule Health.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :health,
-     aliases: aliases(),
-     build_embedded: Mix.env == :prod,
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps: deps(),
-     deps_path: "../../deps",
-     elixir: "~> 1.3",
-     lockfile: "../../mix.lock",
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: LcovEx],
-     version: "0.1.0"]
+    [
+      app: :health,
+      aliases: aliases(),
+      build_embedded: Mix.env() == :prod,
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps: deps(),
+      deps_path: "../../deps",
+      elixir: "~> 1.3",
+      lockfile: "../../mix.lock",
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: LcovEx],
+      version: "0.1.0"
+    ]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [extra_applications: [:logger],
-     mod: {Health, []}]
+    [extra_applications: [:logger], mod: {Health, []}]
   end
 
   defp aliases do
@@ -42,7 +43,10 @@ defmodule Health.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:events, in_umbrella: true},
-     {:state, in_umbrella: true}]
+    [
+      {:events, in_umbrella: true},
+      {:state, in_umbrella: true},
+      {:recon, "~> 2.5.6"}
+    ]
   end
 end

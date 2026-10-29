@@ -14,6 +14,9 @@ defmodule Health.Checker do
   end
 
   def healthy? do
+    proc_info = :recon.bin_leak(10)
+    Logger.info("event=bin_leak procs=#{inspect(proc_info)}")
+
     :healthy?
     |> each_checker()
     |> Enum.all?()
