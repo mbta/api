@@ -7,6 +7,8 @@ defmodule Health.Checker do
   """
   @checkers Application.compile_env(:health, :checkers)
 
+  require Logger
+
   def current do
     :current
     |> each_checker()
