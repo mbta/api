@@ -36,6 +36,17 @@ defmodule ApiUmbrella.Mixfile do
           ],
           version: "0.1.0"
         ]
+      ],
+      hex: [
+        ignore_advisories: [
+          # hackney 1.25.0
+          "EEF-CVE-2026-47071",
+          "EEF-CVE-2026-47076",
+          "EEF-CVE-2026-47075",
+          "EEF-CVE-2026-47069",
+          "EEF-CVE-2026-115693",
+          "EEF-CVE-2026-116078"
+        ]
       ]
     ]
   end
