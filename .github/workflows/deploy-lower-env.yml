@@ -1,5 +1,5 @@
 name: Deploy to lower environment (dev etc)
-run-name: Deploy ${{ github.ref_name }} to ${{ inputs.environment || 'dev' }}
+run-name: Deploy to ${{ inputs.environment || 'dev' }}
 
 on:
   workflow_dispatch:
