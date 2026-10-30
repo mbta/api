@@ -41,7 +41,7 @@ defmodule Parse.StopEvents do
   end
 
   defp parse_line(line, newer_than) do
-    case Jason.decode(line) do
+    case Jason.decode(line, strings: :copy) do
       {:ok, record} ->
         if should_include_record?(record, newer_than) do
           parse_record(record)
