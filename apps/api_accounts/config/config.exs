@@ -8,11 +8,10 @@ config :ex_aws,
     scheme: "http://",
     host: "localhost"
   ],
-  json_codec: Jason
+  json_codec: Jason,
+  http_client: ExAws.Request.Req
 
-config :ex_aws, :hackney_opts,
-  recv_timeout: 30_000,
-  pool: :ex_aws_pool
+config :ex_aws, :req_opts, receive_timeout: 30_000
 
 config :email_checker,
   default_dns: {8, 8, 8, 8},

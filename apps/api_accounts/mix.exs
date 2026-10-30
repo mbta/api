@@ -53,12 +53,13 @@ defmodule ApiAccounts.Mixfile do
       {:fetch, in_umbrella: true},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_dynamo, "~> 4.0"},
+      {:req, "~> 0.7"},
       {:jason, "~> 1.0"},
       {:comeonin, "~> 5.1"},
       {:bcrypt_elixir, "~> 3.1"},
       {:uuid, "~> 1.1"},
-      {:bamboo, "~> 1.0"},
-      {:bamboo_ses, "~> 0.1.0"},
+      {:bamboo, "~> 2.5"},
+      {:bamboo_ses, "~> 0.5"},
       {:email_checker, "~> 0.2.4"},
       {:nimble_totp, "~> 1.0"}
     ]

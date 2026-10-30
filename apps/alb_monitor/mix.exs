@@ -50,6 +50,8 @@ defmodule ALBMonitor.Mixfile do
       {:httpoison, "~> 3.0"},
       {:jason, "~> 1.4"},
       {:mox, "~> 1.0", only: :test},
+      # HTTP client for ExAws (see apps/api_accounts/config/config.exs)
+      {:req, "~> 0.7"},
       {:sweet_xml, "~> 0.7"}
     ]
   end

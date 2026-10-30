@@ -50,6 +50,8 @@ defmodule StateMediator.Mixfile do
       {:lasso, "~> 0.1.1-pre", only: :test},
       {:goth, "~> 1.3"},
       {:hackney, "~> 4.9", override: true},
+      # HTTP client for ExAws (see apps/api_accounts/config/config.exs)
+      {:req, "~> 0.7"},
       {:timex, "~> 3.7"},
       {:emqtt_failover, "~> 0.3"},
       {:mox, "~> 1.0", only: :test}
