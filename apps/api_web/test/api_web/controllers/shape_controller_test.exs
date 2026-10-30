@@ -57,7 +57,6 @@ defmodule ApiWeb.ShapeControllerTest do
     end
 
     test "rejects include parameter", %{conn: conn} do
-      conn = assign(conn, :api_version, "2026-11-06")
       shape = %Shape{id: "1"}
       State.Shape.new_state([shape])
 
@@ -120,8 +119,6 @@ defmodule ApiWeb.ShapeControllerTest do
     end
 
     test "rejects include parameter", %{conn: conn} do
-      conn = assign(conn, :api_version, "2026-11-06")
-
       assert {:error, :bad_include, ["route"]} =
                index_data(conn, %{"route" => "route", "include" => "route"})
     end
