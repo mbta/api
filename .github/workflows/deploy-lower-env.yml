@@ -15,7 +15,7 @@ permissions:
   contents: read # Needed to checkout repo
 
 concurrency:
-  group: deploy-${{ inputs.environment }}
+  group: deploy-${{ inputs.environment || 'dev' }}
   cancel-in-progress: true
 
 jobs:
