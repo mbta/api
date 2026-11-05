@@ -568,7 +568,7 @@ defmodule ApiWeb.AlertController do
     """
     An effect (enumerated in `#{parent_pointer}/attributes/effect` and human-readable in \
     `#{parent_pointer}/attributes/service_effect`) on a provided service (facility, route, route type, stop and/or \
-    trip in `/#{parent_pointer}/attributes/informed_entity`) described by a banner \
+    trip in `#{parent_pointer}/attributes/informed_entity`) described by a banner \
     (`#{parent_pointer}/attributes/banner`), short header (`#{parent_pointer}/attributes/short_header`), header \
     `#{parent_pointer}/attributes/header`, description (`#{parent_pointer}/attributes/description`), \
     image (`#{parent_pointer}/attributes/image`), and image alternative text \
