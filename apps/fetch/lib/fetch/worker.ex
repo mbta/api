@@ -45,21 +45,19 @@ defmodule Fetch.Worker do
   end
 
   def handle_call({:fetch_url, opts}, _from, %{url: url} = state) do
-    opts =
-      opts
-      |> Keyword.put_new(:recv_timeout, opts[:timeout])
-      |> Keyword.put_new(:hackney, pool: :fetch_pool)
-
-    http_response = HTTPoison.get(url, state_headers(state), opts)
+    http_response =
+      Req.get(url,
+        finch: [name: Fetch.Finch],
+        headers: state_headers(state),
+        receive_timeout: Keyword.get(opts, :recv_timeout, opts[:timeout]),
+        raw: true,
+        redirect: false,
+        retry: false
+      )
 
     response = reply(http_response, opts, state)
 
     {:reply, response, update_state(state, http_response), :hibernate}
-  end
-
-  def handle_info({:ssl_closed, _}, state) do
-    # ignore spurious SSL closed message: https://github.com/benoitc/hackney/issues/464
-    {:noreply, state}
   end
 
   def handle_info(message, state) do
@@ -102,28 +100,18 @@ defmodule Fetch.Worker do
   end
 
   defp state_headers(%{etag: etag, last_modified: last_modified}) do
-    headers = [
-      {:"accept-encoding", "gzip"}
+    [
+      {"accept-encoding", "gzip"},
+      etag && {"if-none-match", etag},
+      last_modified && {"if-modified-since", last_modified}
     ]
-
-    headers =
-      if etag do
-        Keyword.put(headers, :"if-none-match", etag)
-      else
-        headers
-      end
-
-    headers =
-      if last_modified != nil do
-        Keyword.put(headers, :"if-modified-since", last_modified)
-      else
-        headers
-      end
-
-    headers
+    |> Enum.filter(& &1)
   end
 
-  defp reply({:ok, %{status_code: 200, body: body} = response}, opts, %{hash: hash, url: url}) do
+  defp reply({:ok, %Req.Response{status: 200, body: body} = response}, opts, %{
+         hash: hash,
+         url: url
+       }) do
     cond do
       Keyword.get(opts, :require_body) ->
         decode_body(response)
@@ -137,7 +125,7 @@ defmodule Fetch.Worker do
     end
   end
 
-  defp reply({:ok, %{status_code: 304}}, opts, %{cache_file: cache_file, url: url}) do
+  defp reply({:ok, %Req.Response{status: 304}}, opts, %{cache_file: cache_file, url: url}) do
     if Keyword.get(opts, :require_body) do
       _ = Logger.debug(fn -> "#{url} received 304, sending cached file" end)
       File.read(cache_file)
@@ -147,7 +135,7 @@ defmodule Fetch.Worker do
     end
   end
 
-  defp reply({:ok, %{status_code: error} = response}, _, %{url: url})
+  defp reply({:ok, %Req.Response{status: error} = response}, _, %{url: url})
        when error >= 400 and error < 600 do
     _ = Logger.error(fn -> "Error response when fetching #{url}: #{inspect(response)}" end)
     {:error, response}
@@ -186,8 +174,8 @@ defmodule Fetch.Worker do
     end
   end
 
-  defp decode_body(%{headers: headers, body: body}) do
-    case read_header(headers, "content-encoding") do
+  defp decode_body(%Req.Response{body: body} = response) do
+    case read_header(response, "content-encoding") do
       "gzip" ->
         {:ok, :zlib.gunzip(body)}
 
@@ -199,17 +187,17 @@ defmodule Fetch.Worker do
     end
   end
 
-  defp logger_with_level_for_error({:error, %HTTPoison.Error{reason: :timeout}}),
+  defp logger_with_level_for_error({:error, %Req.TransportError{reason: :timeout}}),
     do: &Logger.warning/1
 
   defp logger_with_level_for_error(_), do: &Logger.error/1
 
   defp update_state(
          %{cache_file: cache_file} = state,
-         {:ok, %{status_code: 200, body: body, headers: headers}}
+         {:ok, %Req.Response{status: 200, body: body} = response}
        ) do
-    etag = read_header(headers, "etag")
-    last_modified = read_header(headers, "last-modified")
+    etag = read_header(response, "etag")
+    last_modified = read_header(response, "last-modified")
     hash = :erlang.phash2(body)
     write_cache_file(cache_file, body)
 
@@ -238,13 +226,8 @@ defmodule Fetch.Worker do
 
   defp write_cache_file(_, _), do: :ok
 
-  @spec read_header([{String.t(), String.t()}], String.t()) :: String.t() | nil
-  defp read_header(headers, name) do
-    case Enum.find(headers, fn {header, _} ->
-           String.downcase(header) == name
-         end) do
-      {_, value} -> value
-      nil -> nil
-    end
+  @spec read_header(Req.Response.t(), String.t()) :: String.t() | nil
+  defp read_header(response, name) do
+    response |> Req.Response.get_header(name) |> List.first()
   end
 end

@@ -46,7 +46,8 @@ defmodule Fetch.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, "~> 3.0"},
+      {:finch, "~> 0.24"},
+      {:req, "~> 0.7"},
       {:events, in_umbrella: true},
       {:model, in_umbrella: true},
       {:timex, "~> 4.0"},

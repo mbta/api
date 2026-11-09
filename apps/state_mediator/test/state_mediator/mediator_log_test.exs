@@ -7,8 +7,7 @@ defmodule StateMediator.MediatorLogTest do
     assert capture_log(fn ->
              Mediator.handle_response(
                {:error,
-                %HTTPoison.Error{
-                  id: nil,
+                %Req.TransportError{
                   reason: :timeout
                 }},
                %{module: nil, retries: 0}
@@ -20,8 +19,7 @@ defmodule StateMediator.MediatorLogTest do
     assert capture_log(fn ->
              Mediator.handle_response(
                {:error,
-                %HTTPoison.Error{
-                  id: nil,
+                %Req.TransportError{
                   reason: :heat_death_of_universe
                 }},
                %{module: nil, retries: 0}
