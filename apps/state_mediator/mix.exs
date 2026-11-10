@@ -49,7 +49,6 @@ defmodule StateMediator.Mixfile do
       {:fetch, in_umbrella: true},
       {:lasso, "~> 0.1.1-pre", only: :test},
       {:goth, "~> 1.3"},
-      {:hackney, "~> 4.9", override: true},
       # HTTP client for ExAws (see apps/api_accounts/config/config.exs)
       {:req, "~> 0.7"},
       {:timex, "~> 4.0"},
