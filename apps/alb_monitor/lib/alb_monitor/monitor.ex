@@ -75,10 +75,6 @@ defmodule ALBMonitor.Monitor do
     end
   end
 
-  # https://github.com/benoitc/hackney/issues/464
-  @impl true
-  def handle_info({:ssl_closed, _}, state), do: {:noreply, state}
-
   defp get_instance_health(%State{instance_ip: instance_ip, target_group_arn: target_group}) do
     with {:ok, %{body: %{target_health_descriptions: health_descs}}} <-
            target_group |> ALB.describe_target_health() |> @ex_aws.request(),
