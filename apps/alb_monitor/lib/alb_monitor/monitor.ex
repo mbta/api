@@ -96,10 +96,10 @@ defmodule ALBMonitor.Monitor do
   end
 
   defp get_instance_ip(%State{ecs_metadata_uri: ecs_metadata_uri}) do
-    with {:ok, %{body: body}} <- get_metadata(ecs_metadata_uri),
-         {:ok, %{"Networks" => [%{"IPv4Addresses" => [ip_address]}]}} <- Jason.decode(body) do
-      ip_address
-    else
+    case get_metadata(ecs_metadata_uri) do
+      {:ok, %{body: %{"Networks" => [%{"IPv4Addresses" => [ip_address]}]}}} ->
+        ip_address
+
       unmatched ->
         log_warn("get_instance_ip failed: #{inspect(unmatched)}")
         nil
@@ -108,7 +108,7 @@ defmodule ALBMonitor.Monitor do
 
   defp get_metadata(uri) do
     # No Req retries: the monitor already retries on its next check.
-    Req.get(uri, [decode_body: false, retry: false, receive_timeout: 5_000] ++ @req_options)
+    Req.get(uri, [retry: false, receive_timeout: 5_000] ++ @req_options)
   end
 
   defp log_warn(message) when is_binary(message), do: Logger.warning(["alb_monitor ", message])

@@ -45,6 +45,23 @@ defmodule ALBMonitor.MonitorTest do
     assert logs =~ "econnrefused"
   end
 
+  test "logs a warning and keeps trying if the instance meta response isn't JSON" do
+    Req.Test.stub(Monitor, &Req.Test.text(&1, "not json"))
+    mock_health_response([{"10.0.0.1", "draining"}])
+
+    logs =
+      capture_log(fn ->
+        ref = start!()
+        refute_receive {:DOWN, ^ref, :process, _, _}
+
+        mock_instance_ip("10.0.0.1")
+        assert_receive {:DOWN, ^ref, :process, _, _}
+      end)
+
+    assert logs =~ "get_instance_ip failed"
+    assert logs =~ "not json"
+  end
+
   test "remains quiet if the metadata URI is not present in the environment" do
     logs =
       capture_log(fn ->
