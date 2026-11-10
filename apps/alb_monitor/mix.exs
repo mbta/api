@@ -49,6 +49,8 @@ defmodule ALBMonitor.Mixfile do
       {:hackney, "~> 4.9", override: true},
       {:jason, "~> 1.4"},
       {:mox, "~> 1.0", only: :test},
+      # needed by Req.Test in the monitor tests
+      {:plug, "~> 1.0", only: :test},
       {:req, "~> 0.7"},
       {:sweet_xml, "~> 0.7"}
     ]

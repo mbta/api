@@ -4,8 +4,11 @@ defmodule ALBMonitor.MonitorTest do
   import ExUnit.CaptureLog
   import Mox
   setup :verify_on_exit!
+  setup {Req.Test, :verify_on_exit!}
 
   alias ALBMonitor.Monitor
+
+  @metadata_uri "http://ecs-metadata.test/v4/task"
 
   test "calls the shutdown function if the ECS instance's health status is draining" do
     mock_instance_ip("10.0.0.2")
@@ -26,7 +29,7 @@ defmodule ALBMonitor.MonitorTest do
   end
 
   test "logs a warning and keeps trying if the instance meta request fails" do
-    stub(FakeHTTP, :get, fn "fake_meta_uri" -> {:error, %{body: "metadata error"}} end)
+    Req.Test.stub(Monitor, &Req.Test.transport_error(&1, :econnrefused))
     mock_health_response([{"10.0.0.1", "draining"}])
 
     logs =
@@ -39,7 +42,7 @@ defmodule ALBMonitor.MonitorTest do
       end)
 
     assert logs =~ "get_instance_ip failed"
-    assert logs =~ "metadata error"
+    assert logs =~ "econnrefused"
   end
 
   test "remains quiet if the metadata URI is not present in the environment" do
@@ -92,21 +95,24 @@ defmodule ALBMonitor.MonitorTest do
       %Monitor.State{
         # chosen to fit comfortably within the default 100ms `assert_receive` timeout
         check_interval: 10,
-        ecs_metadata_uri: "fake_meta_uri",
+        ecs_metadata_uri: @metadata_uri,
         target_group_arn: "fake_target_group"
       }
       |> struct!(overrides)
 
     {:ok, monitor_pid} = Monitor.start_link(initial_state)
     allow(FakeAws, test_pid, monitor_pid)
-    allow(FakeHTTP, test_pid, monitor_pid)
+    Req.Test.allow(Monitor, test_pid, monitor_pid)
 
     Process.monitor(monitor_pid)
   end
 
   defp mock_instance_ip(ip) when is_binary(ip) do
-    meta_response = Jason.encode!(%{"Networks" => [%{"IPv4Addresses" => [ip]}]})
-    expect(FakeHTTP, :get, fn "fake_meta_uri" -> {:ok, %{body: meta_response}} end)
+    Req.Test.expect(Monitor, fn conn ->
+      assert conn.host == "ecs-metadata.test"
+      assert conn.request_path == "/v4/task"
+      Req.Test.json(conn, %{"Networks" => [%{"IPv4Addresses" => [ip]}]})
+    end)
   end
 
   defp mock_health_response(targets) when is_list(targets) do
