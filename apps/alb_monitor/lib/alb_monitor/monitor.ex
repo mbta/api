@@ -8,7 +8,8 @@ defmodule ALBMonitor.Monitor do
   require Logger
 
   @ex_aws Application.compile_env!(:alb_monitor, :ex_aws)
-  @http Application.compile_env!(:alb_monitor, :http)
+  # Extra Req options; tests set `plug: {Req.Test, ALBMonitor.Monitor}` to stub the metadata request.
+  @req_options Application.compile_env(:alb_monitor, :req_options, [])
 
   defmodule State do
     @moduledoc "State of the GenServer."
@@ -95,7 +96,7 @@ defmodule ALBMonitor.Monitor do
   end
 
   defp get_instance_ip(%State{ecs_metadata_uri: ecs_metadata_uri}) do
-    with {:ok, %{body: body}} <- @http.get(ecs_metadata_uri),
+    with {:ok, %{body: body}} <- get_metadata(ecs_metadata_uri),
          {:ok, %{"Networks" => [%{"IPv4Addresses" => [ip_address]}]}} <- Jason.decode(body) do
       ip_address
     else
@@ -103,6 +104,11 @@ defmodule ALBMonitor.Monitor do
         log_warn("get_instance_ip failed: #{inspect(unmatched)}")
         nil
     end
+  end
+
+  defp get_metadata(uri) do
+    # No Req retries: the monitor already retries on its next check.
+    Req.get(uri, [decode_body: false, retry: false, receive_timeout: 5_000] ++ @req_options)
   end
 
   defp log_warn(message) when is_binary(message), do: Logger.warning(["alb_monitor ", message])
