@@ -2,6 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 import Config
 
-config :alb_monitor, ex_aws: ExAws, http: HTTPoison
+config :alb_monitor, ex_aws: ExAws, http: ALBMonitor.HTTP
 
 import_config "#{config_env()}.exs"
