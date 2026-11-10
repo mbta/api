@@ -96,7 +96,7 @@ defmodule ALBMonitor.Monitor do
   end
 
   defp get_instance_ip(%State{ecs_metadata_uri: ecs_metadata_uri}) do
-    case get_metadata(ecs_metadata_uri) do
+    case Req.get(ecs_metadata_uri, [retry: false, receive_timeout: 5_000] ++ @req_options) do
       {:ok, %{body: %{"Networks" => [%{"IPv4Addresses" => [ip_address]}]}}} ->
         ip_address
 
@@ -104,11 +104,6 @@ defmodule ALBMonitor.Monitor do
         log_warn("get_instance_ip failed: #{inspect(unmatched)}")
         nil
     end
-  end
-
-  defp get_metadata(uri) do
-    # No Req retries: the monitor already retries on its next check.
-    Req.get(uri, [retry: false, receive_timeout: 5_000] ++ @req_options)
   end
 
   defp log_warn(message) when is_binary(message), do: Logger.warning(["alb_monitor ", message])
