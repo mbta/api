@@ -50,7 +50,7 @@ defmodule StateMediator.Mixfile do
       {:lasso, "~> 0.1.1-pre", only: :test},
       {:goth, "~> 1.3"},
       {:hackney, "~> 4.9", override: true},
-      {:timex, "~> 3.7"},
+      {:timex, "~> 4.0"},
       {:emqtt_failover, "~> 0.3"},
       {:mox, "~> 1.0", only: :test}
     ]
