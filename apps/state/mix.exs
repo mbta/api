@@ -50,7 +50,7 @@ defmodule State.Mixfile do
       {:rstar, github: "armon/erl-rstar", app: false},
       # Needed for rstar
       {:proper, "~> 1.4"},
-      {:timex, "~> 3.7"},
+      {:timex, "~> 4.0"},
       {:fetch, in_umbrella: true},
       {:events, in_umbrella: true},
       {:model, in_umbrella: true},

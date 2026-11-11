@@ -49,7 +49,7 @@ defmodule Fetch.Mixfile do
       {:httpoison, "~> 3.0"},
       {:events, in_umbrella: true},
       {:model, in_umbrella: true},
-      {:timex, "~> 3.7"},
+      {:timex, "~> 4.0"},
       {:ex_aws, "~> 2.4"},
       {:ex_aws_s3, "~> 2.4"},
       {:lasso, "~> 0.1.1-pre", only: :test}

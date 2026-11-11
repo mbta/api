@@ -47,7 +47,7 @@ defmodule Parse.Mixfile do
   defp deps do
     [
       {:nimble_csv, "~> 1.2"},
-      {:timex, "~> 3.7"},
+      {:timex, "~> 4.0"},
       {:jason, "~> 1.4"},
       {:model, in_umbrella: true},
       {:polyline, "~> 1.3"},
