@@ -52,7 +52,7 @@ defmodule StateMediator.Mixfile do
       {:hackney, "~> 4.9", override: true},
       # HTTP client for ExAws (see apps/api_accounts/config/config.exs)
       {:req, "~> 0.7"},
-      {:timex, "~> 3.7"},
+      {:timex, "~> 4.0"},
       {:emqtt_failover, "~> 0.3"},
       {:mox, "~> 1.0", only: :test}
     ]
