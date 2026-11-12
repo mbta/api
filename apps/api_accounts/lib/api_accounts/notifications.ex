@@ -20,7 +20,7 @@ defmodule ApiAccounts.Notifications do
     |> subject("New Key Request: #{user.email}")
     |> to(administrator_emails)
     |> text_body(text)
-    |> Mailer.deliver_now()
+    |> Mailer.deliver_now!()
   end
 
   def send_limit_increase_requested(administrators, %User{} = user, %Key{} = key, url, reason) do
@@ -44,7 +44,7 @@ defmodule ApiAccounts.Notifications do
     |> subject("Key Limit Increase Request: #{user.email}")
     |> to(administrator_emails)
     |> text_body(text)
-    |> Mailer.deliver_now()
+    |> Mailer.deliver_now!()
   end
 
   def send_password_reset(%User{email: email}, recovery_url) do
@@ -56,7 +56,7 @@ defmodule ApiAccounts.Notifications do
     |> subject("Password Reset Request")
     |> to(email)
     |> text_body(text)
-    |> Mailer.deliver_now()
+    |> Mailer.deliver_now!()
   end
 
   def send_key_request_approved(%User{email: email}, %Key{} = key, portal_url) do
@@ -72,7 +72,7 @@ defmodule ApiAccounts.Notifications do
     |> subject("API Key Request Approved")
     |> to(email)
     |> text_body(text)
-    |> Mailer.deliver_now()
+    |> Mailer.deliver_now!()
   end
 
   def send_key_request_rejected(%User{email: email}) do
@@ -82,7 +82,7 @@ defmodule ApiAccounts.Notifications do
     |> subject("API Key Request Rejected")
     |> to(email)
     |> text_body(text)
-    |> Mailer.deliver_now()
+    |> Mailer.deliver_now!()
   end
 
   defp base_email do

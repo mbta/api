@@ -9,10 +9,7 @@ defmodule ApiAccounts.Application do
       end
 
     Supervisor.start_link(
-      [
-        :hackney_pool.child_spec(:ex_aws_pool, []),
-        ApiAccounts.Keys
-      ],
+      [ApiAccounts.Keys],
       strategy: :one_for_one,
       name: ApiAccounts.Supervisor
     )
