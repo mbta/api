@@ -8,7 +8,8 @@ defmodule ALBMonitor.Monitor do
   require Logger
 
   @ex_aws Application.compile_env!(:alb_monitor, :ex_aws)
-  @http Application.compile_env!(:alb_monitor, :http)
+  # Extra Req options; tests set `plug: {Req.Test, ALBMonitor.Monitor}` to stub the metadata request.
+  @req_options Application.compile_env(:alb_monitor, :req_options, [])
 
   defmodule State do
     @moduledoc "State of the GenServer."
@@ -75,10 +76,6 @@ defmodule ALBMonitor.Monitor do
     end
   end
 
-  # https://github.com/benoitc/hackney/issues/464
-  @impl true
-  def handle_info({:ssl_closed, _}, state), do: {:noreply, state}
-
   defp get_instance_health(%State{instance_ip: instance_ip, target_group_arn: target_group}) do
     with {:ok, %{body: %{target_health_descriptions: health_descs}}} <-
            target_group |> ALB.describe_target_health() |> @ex_aws.request(),
@@ -99,10 +96,10 @@ defmodule ALBMonitor.Monitor do
   end
 
   defp get_instance_ip(%State{ecs_metadata_uri: ecs_metadata_uri}) do
-    with {:ok, %{body: body}} <- @http.get(ecs_metadata_uri),
-         {:ok, %{"Networks" => [%{"IPv4Addresses" => [ip_address]}]}} <- Jason.decode(body) do
-      ip_address
-    else
+    case Req.get(ecs_metadata_uri, [retry: false, receive_timeout: 5_000] ++ @req_options) do
+      {:ok, %{body: %{"Networks" => [%{"IPv4Addresses" => [ip_address]}]}}} ->
+        ip_address
+
       unmatched ->
         log_warn("get_instance_ip failed: #{inspect(unmatched)}")
         nil

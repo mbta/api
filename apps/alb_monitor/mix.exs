@@ -47,10 +47,10 @@ defmodule ALBMonitor.Mixfile do
       {:ex_aws, "~> 2.4"},
       {:ex_aws_elastic_load_balancing, "~> 3.0"},
       {:hackney, "~> 4.9", override: true},
-      {:httpoison, "~> 3.0"},
       {:jason, "~> 1.4"},
       {:mox, "~> 1.0", only: :test},
-      # HTTP client for ExAws (see apps/api_accounts/config/config.exs)
+      # needed by Req.Test in the monitor tests
+      {:plug, "~> 1.0", only: :test},
       {:req, "~> 0.7"},
       {:sweet_xml, "~> 0.7"}
     ]
