@@ -14,6 +14,10 @@ defmodule State.Schedule do
   @fetch_stop_times {:fetch, "stop_times.txt"}
   @subscriptions [@fetch_stop_times, {:new_state, Trip}]
 
+  # with at least this many stops, a stop + trip filter reads schedules once
+  # per trip rather than once per stop/trip pair
+  @min_stops_for_trip_search 8
+
   @type filter_opts :: %{
           optional(:routes) => [Model.Route.id()],
           optional(:trips) => [Model.Trip.id()],
@@ -41,8 +45,9 @@ defmodule State.Schedule do
   @typep max_time :: non_neg_integer | :infinity
 
   @typep search :: %{
-           index: :stop_id | :trip_id,
-           matchers: [%{}]
+           required(:index) => :stop_id | :trip_id,
+           required(:matchers) => [%{}],
+           optional(:stops) => [Model.Stop.id()]
          }
 
   @typep stop_sequence_item :: non_neg_integer | :first | :last
@@ -209,16 +214,31 @@ defmodule State.Schedule do
       |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
       |> Enum.map(& &1.id)
 
-    matchers =
-      for stop_id <- stops,
-          trip_id <- filtered_trips,
-          stop_sequence_matcher <- stop_sequence_matchers do
-        stop_sequence_matcher
-        |> Map.put(:trip_id, trip_id)
-        |> Map.put(:stop_id, stop_id)
-      end
+    if length(stops) >= @min_stops_for_trip_search do
+      # one read per trip returns that trip's schedules at every stop, which
+      # is cheaper than a read per stop/trip pair when there are many stops.
+      # The stops are filtered after the search instead.
+      matchers =
+        for trip_id <- filtered_trips,
+            stop_sequence_matcher <- stop_sequence_matchers do
+          Map.put(stop_sequence_matcher, :trip_id, trip_id)
+        end
 
-    %{index: :trip_id, matchers: matchers}
+      %{index: :trip_id, matchers: matchers, stops: stops}
+    else
+      # with few stops, reading every schedule on each trip costs more than
+      # the extra reads, since most of those schedules are thrown away
+      matchers =
+        for stop_id <- stops,
+            trip_id <- filtered_trips,
+            stop_sequence_matcher <- stop_sequence_matchers do
+          stop_sequence_matcher
+          |> Map.put(:trip_id, trip_id)
+          |> Map.put(:stop_id, stop_id)
+        end
+
+      %{index: :trip_id, matchers: matchers}
+    end
   end
 
   defp build_filter_matchers(%{stops: stops} = filters) do
@@ -264,15 +284,28 @@ defmodule State.Schedule do
   # Performs the search on the given index and matchers
   @spec do_filtered_search(search, convert_filters) :: [Schedule.t()]
   defp do_filtered_search(
-         %{index: index, matchers: [_ | _] = matchers},
+         %{index: index, matchers: [_ | _] = matchers} = search,
          filters
        ) do
-    schedules = select(matchers, index)
+    schedules =
+      matchers
+      |> select(index)
+      |> do_stop_filter(search)
 
     do_service_date_filter(schedules, filters)
   end
 
   defp do_filtered_search(_, _), do: []
+
+  # Keeps only schedules at the searched stops, grouped in the order the stops
+  # were given (the same order as searching each stop/trip pair separately)
+  @spec do_stop_filter([Schedule.t()], search) :: [Schedule.t()]
+  defp do_stop_filter(schedules, %{stops: stops}) do
+    schedules_by_stop = Enum.group_by(schedules, & &1.stop_id)
+    Enum.flat_map(stops, &Map.get(schedules_by_stop, &1, []))
+  end
+
+  defp do_stop_filter(schedules, _), do: schedules
 
   # Filters schedules for a given service date
   @spec do_service_date_filter([Schedule.t()], convert_filters) :: [Schedule.t()]
