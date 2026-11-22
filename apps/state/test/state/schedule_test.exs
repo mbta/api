@@ -126,27 +126,65 @@ defmodule State.ScheduleTest do
       other_first = %{first | trip_id: other_trip.id}
       other_second = %{second | trip_id: other_trip.id}
 
-      # stops without schedules, to also search with enough stops to read by trip
-      empty_stops = for i <- 1..8, do: %{@stop | id: "empty_stop_#{i}"}
-
-      State.Stop.new_state([@stop, other_stop, unrequested_stop | empty_stops])
+      State.Stop.new_state([@stop, other_stop, unrequested_stop])
       State.Trip.new_state([@trip, other_trip])
       Schedule.new_state([first, second, unrequested, other_first, other_second])
       State.RoutesPatternsAtStop.update!()
 
-      for extra_stop_ids <- [[], Enum.map(empty_stops, & &1.id)] do
-        params = %{
-          stops: [other_stop.id, @stop.id | extra_stop_ids],
-          trips: [@trip.id, other_trip.id]
-        }
+      params = %{stops: [other_stop.id, @stop.id], trips: [@trip.id, other_trip.id]}
 
-        assert Schedule.filter_by(params) == [second, other_second, first, other_first]
+      assert Schedule.filter_by(params) == [second, other_second, first, other_first]
 
-        assert Schedule.filter_by(Map.put(params, :stop_sequence, [:first, 3])) ==
-                 [second, other_second, first, other_first]
+      assert Schedule.filter_by(Map.put(params, :stop_sequence, [:first, 3])) ==
+               [second, other_second, first, other_first]
 
-        assert Schedule.filter_by(Map.put(params, :stop_sequence, [:last])) == []
-      end
+      assert Schedule.filter_by(Map.put(params, :stop_sequence, [:last])) == []
+    end
+
+    test "filters on a parent station in :stops with :trips" do
+      station = %Model.Stop{id: "station", location_type: 1}
+      platform = %{@stop | parent_station: station.id}
+      other_platform = %Model.Stop{id: "other_platform", parent_station: station.id}
+      entrance = %Model.Stop{id: "entrance", parent_station: station.id, location_type: 2}
+      outside_stop = %Model.Stop{id: "outside_stop"}
+      other_trip = %{@trip | id: "other_trip"}
+
+      first = @schedule
+      second = %{first | stop_id: other_platform.id, stop_sequence: 3, position: nil}
+
+      outside = %{@schedule | stop_id: outside_stop.id, stop_sequence: 4, position: :last}
+      other_first = %{first | trip_id: other_trip.id}
+      other_second = %{second | trip_id: other_trip.id}
+
+      State.Stop.new_state([station, platform, other_platform, entrance, outside_stop])
+      State.Trip.new_state([@trip, other_trip])
+
+      Schedule.new_state([first, second, outside, other_first, other_second])
+
+      State.RoutesPatternsAtStop.update!()
+
+      params = %{stops: [station.id], trips: [@trip.id, other_trip.id]}
+
+      # grouped in the order of the station's platforms
+      expected =
+        case State.Stop.location_type_0_ids_by_parent_ids([station.id]) do
+          ["stop", "other_platform"] -> [first, other_first, second, other_second]
+          ["other_platform", "stop"] -> [second, other_second, first, other_first]
+        end
+
+      assert Schedule.filter_by(params) == expected
+
+      assert Schedule.filter_by(Map.put(params, :stop_sequence, [3])) ==
+               [second, other_second]
+
+      # a platform requested along with its station is only returned once
+      assert Schedule.filter_by(%{params | stops: [station.id, platform.id]}) ==
+               expected ++ [first, other_first]
+
+      assert Schedule.filter_by(%{params | stops: [outside_stop.id, station.id]}) ==
+               [outside | expected]
+
+      assert Schedule.filter_by(%{params | stops: [entrance.id]}) == []
     end
 
     test ":stops/:trips does not return multiple values for multi route trips" do
@@ -286,7 +324,7 @@ defmodule State.ScheduleTest do
   end
 
   describe "handle_event" do
-    test ~S|it does not handle_new_state until {:fetch, "stop_times.txt"}, {:new_state, State.Trip} are all received| do
+    test ~S|it does not handle_new_state until {:fetch, "stop_times.txt"}, {:new_state, State.Trip}, {:new_state, State.Stop} are all received| do
       Schedule.new_state([])
       Schedule.reset_gather()
 
@@ -344,7 +382,7 @@ defmodule State.ScheduleTest do
       assert trips = State.Trip.all()
       assert length(trips) == 1
 
-      assert {:noreply, _, _} =
+      assert {:noreply, trips_state, _} =
                Schedule.handle_event(
                  {:new_state, State.Trip},
                  trips,
@@ -352,7 +390,32 @@ defmodule State.ScheduleTest do
                  stop_times_state
                )
 
+      assert State.Schedule.all() == []
+
+      State.Stop.new_state([
+        %Model.Stop{id: "Logan-Subway", parent_station: "Logan", location_type: 0},
+        %Model.Stop{id: "Logan", location_type: 1}
+      ])
+
+      assert {:noreply, _, _} =
+               Schedule.handle_event(
+                 {:new_state, State.Stop},
+                 State.Stop.size(),
+                 callback_argument,
+                 trips_state
+               )
+
       refute Schedule.all() == []
+
+      # only schedules inside a station are stored again under it
+      station_records = State.Schedule.ParentStation.all()
+      refute station_records == []
+
+      for record <- station_records do
+        assert record.parent_station == "Logan"
+        assert record.schedule.stop_id == "Logan-Subway"
+        assert record.schedule in Schedule.all()
+      end
     end
   end
 
@@ -456,6 +519,8 @@ defmodule State.ScheduleTest do
       ]
 
       State.Stop.new_state(stops)
+      # schedules are loaded after stops, to build their parent station records
+      State.Schedule.new_state(@schedules)
       prediction = %{@prediction | stop_id: "stop-01"}
 
       assert Schedule.schedule_for(prediction) == List.first(@schedules)

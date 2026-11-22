@@ -12,11 +12,8 @@ defmodule State.Schedule do
   alias State.Trip
 
   @fetch_stop_times {:fetch, "stop_times.txt"}
-  @subscriptions [@fetch_stop_times, {:new_state, Trip}]
-
-  # with at least this many stops, a stop + trip filter reads schedules once
-  # per trip rather than once per stop/trip pair
-  @min_stops_for_trip_search 8
+  # stops are needed to fill in each schedule's parent station
+  @subscriptions [@fetch_stop_times, {:new_state, Trip}, {:new_state, State.Stop}]
 
   @type filter_opts :: %{
           optional(:routes) => [Model.Route.id()],
@@ -46,7 +43,8 @@ defmodule State.Schedule do
 
   @typep search :: %{
            required(:index) => :stop_id | :trip_id,
-           required(:matchers) => [%{}],
+           required(:matchers) => [map],
+           optional(:station_matchers) => [map],
            optional(:stops) => [Model.Stop.id()]
          }
 
@@ -110,15 +108,19 @@ defmodule State.Schedule do
   end
 
   def schedule_for(%_{trip_id: trip_id, stop_id: stop_id, stop_sequence: stop_sequence}) do
-    stop_ids =
-      case State.Stop.siblings(stop_id) do
-        [_ | _] = stops -> Enum.map(stops, & &1.id)
-        [] -> [stop_id]
+    # search the whole station, since the schedule may be at another platform
+    search_stop_id =
+      with %{parent_station: station_id} when is_binary(station_id) <-
+             State.Stop.by_id(stop_id),
+           %{location_type: 1} <- State.Stop.by_id(station_id) do
+        station_id
+      else
+        _ -> stop_id
       end
 
     %{
       trips: [trip_id],
-      stops: stop_ids,
+      stops: [search_stop_id],
       stop_sequence: [stop_sequence]
     }
     |> filter_by()
@@ -141,6 +143,11 @@ defmodule State.Schedule do
 
   def build_stop_sequence_matchers(stop_sequence) do
     Enum.map(stop_sequence, &State.Matchers.stop_sequence/1)
+  end
+
+  @impl State.Server
+  def post_commit_hook do
+    State.Schedule.ParentStation.rebuild()
   end
 
   @impl Events.Server
@@ -190,7 +197,12 @@ defmodule State.Schedule do
 
   defp convert_filters(%{stops: stop_ids} = filters) do
     stops = State.Stop.location_type_0_ids_by_parent_ids(stop_ids)
-    Map.put(filters, :stops, stops)
+
+    # keep the requested IDs too, so a stop + trip search can match a whole
+    # station by its ID
+    filters
+    |> Map.put(:stops, stops)
+    |> Map.put(:requested_stops, stop_ids)
   end
 
   defp convert_filters(filters), do: filters
@@ -214,31 +226,24 @@ defmodule State.Schedule do
       |> Stream.filter(&MapSet.member?(filtered_routes, &1.route_id))
       |> Enum.map(& &1.id)
 
-    if length(stops) >= @min_stops_for_trip_search do
-      # one read per trip returns that trip's schedules at every stop, which
-      # is cheaper than a read per stop/trip pair when there are many stops.
-      # The stops are filtered after the search instead.
-      matchers =
-        for trip_id <- filtered_trips,
-            stop_sequence_matcher <- stop_sequence_matchers do
-          Map.put(stop_sequence_matcher, :trip_id, trip_id)
-        end
+    # a station is matched by its parent station records, so each trip is read
+    # once per requested ID, however many platforms the station has
+    {station_ids, stop_ids} = split_requested_stops(filters.requested_stops)
 
-      %{index: :trip_id, matchers: matchers, stops: stops}
-    else
-      # with few stops, reading every schedule on each trip costs more than
-      # the extra reads, since most of those schedules are thrown away
-      matchers =
-        for stop_id <- stops,
-            trip_id <- filtered_trips,
-            stop_sequence_matcher <- stop_sequence_matchers do
-          stop_sequence_matcher
-          |> Map.put(:trip_id, trip_id)
-          |> Map.put(:stop_id, stop_id)
-        end
-
-      %{index: :trip_id, matchers: matchers}
+    build = fn ids, key ->
+      for id <- ids,
+          trip_id <- filtered_trips,
+          stop_sequence_matcher <- stop_sequence_matchers do
+        Map.merge(stop_sequence_matcher, %{key => id, :trip_id => trip_id})
+      end
     end
+
+    %{
+      index: :trip_id,
+      matchers: build.(stop_ids, :stop_id),
+      station_matchers: build.(station_ids, :parent_station),
+      stops: stops
+    }
   end
 
   defp build_filter_matchers(%{stops: stops} = filters) do
@@ -270,6 +275,16 @@ defmodule State.Schedule do
 
   defp build_filter_matchers(_), do: %{}
 
+  # Splits the requested IDs into stations and stops. Other location types
+  # never have schedules.
+  @spec split_requested_stops([Model.Stop.id()]) :: {[Model.Stop.id()], [Model.Stop.id()]}
+  defp split_requested_stops(stop_ids) do
+    stops = State.Stop.by_ids(stop_ids)
+    station_ids = for %{id: id, location_type: 1} <- stops, do: id
+    stop_ids = for %{id: id, location_type: 0} <- stops, do: id
+    {station_ids, stop_ids}
+  end
+
   defp do_gather(%{@fetch_stop_times => blob}) do
     # we parse the blob in the same process as the schedule to prevent copying
     # all the data to a new process. Sending the binary blob sends it by
@@ -284,6 +299,18 @@ defmodule State.Schedule do
   # Performs the search on the given index and matchers
   @spec do_filtered_search(search, convert_filters) :: [Schedule.t()]
   defp do_filtered_search(
+         %{index: index, matchers: matchers, station_matchers: station_matchers} = search,
+         filters
+       ) do
+    schedules =
+      (select(matchers, index) ++
+         State.Schedule.ParentStation.select_schedules(station_matchers))
+      |> do_stop_filter(search)
+
+    do_service_date_filter(schedules, filters)
+  end
+
+  defp do_filtered_search(
          %{index: index, matchers: [_ | _] = matchers} = search,
          filters
        ) do
@@ -297,11 +324,18 @@ defmodule State.Schedule do
 
   defp do_filtered_search(_, _), do: []
 
-  # Keeps only schedules at the searched stops, grouped in the order the stops
-  # were given (the same order as searching each stop/trip pair separately)
+  # Groups schedules by stop, in the order of the stops the requested IDs
+  # expanded into (the same order as searching each stop/trip pair separately).
+  # A stop requested both by ID and through its station is only matched once.
+  # Also drops station records whose platform was not among the expanded stops
+  # (e.g. a platform that is not location type 0).
   @spec do_stop_filter([Schedule.t()], search) :: [Schedule.t()]
   defp do_stop_filter(schedules, %{stops: stops}) do
-    schedules_by_stop = Enum.group_by(schedules, & &1.stop_id)
+    schedules_by_stop =
+      schedules
+      |> Enum.uniq()
+      |> Enum.group_by(& &1.stop_id)
+
     Enum.flat_map(stops, &Map.get(schedules_by_stop, &1, []))
   end
 
