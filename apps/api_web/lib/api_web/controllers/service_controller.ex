@@ -149,7 +149,7 @@ defmodule ApiWeb.ServiceController do
               """
               Description of the schedule type the service_id can be applied.
               For example, on a holiday, the schedule_type value may be "Saturday" or "Sunday".
-              Current valid values are "Weekday", "Saturday", "Sunday", or "Other"
+              Current valid values are "Weekday", "Weekend", "Saturday", "Sunday", or "Other"
               """,
               "x-nullable": true,
               example: "Sunday"
