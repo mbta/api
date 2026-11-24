@@ -158,7 +158,7 @@ defmodule ApiWeb.StopEventController do
       :id,
       :path,
       :string,
-      "Unique identifier for stop event (trip_id-route_id-vehicle_id-stop_sequence)"
+      "Unique identifier for stop event (start_date-route_id-trip_id-vehicle_id-stop_sequence)"
     )
 
     include_parameters()
