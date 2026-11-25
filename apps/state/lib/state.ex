@@ -27,6 +27,8 @@ defmodule State do
       State.Line,
       State.Trip,
       State.Trip.Added,
+      # started first, since State.Schedule rebuilds it after each load
+      State.Schedule.ParentStation,
       State.Schedule,
       State.Prediction,
       State.StopsOnRoute,
